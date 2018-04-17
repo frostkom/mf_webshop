@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: MF Webshop
-Plugin URI: 
+Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.3.0.9
+Version: 1.3.0.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -11,7 +11,7 @@ Text Domain: lang_webshop
 Domain Path: /lang
 
 Depends: Meta Box, MF Base
-GitHub Plugin URI:
+GitHub Plugin URI: frostkom/mf_webshop
 */
 
 include_once("include/classes.php");
