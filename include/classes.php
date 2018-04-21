@@ -21,7 +21,7 @@ class mf_webshop
 		$obj_theme_core = new mf_theme_core();
 		$obj_theme_core->get_params();
 
-		$setting_mobile_breakpoint = $this->options['mobile_breakpoint'];
+		$setting_mobile_breakpoint = isset($this->options['mobile_breakpoint']) ? $this->options['mobile_breakpoint'] : 600;
 
 		$setting_gmaps_api = get_option('setting_gmaps_api');
 		$symbol_active_image = get_option('setting_webshop_symbol_active_image');

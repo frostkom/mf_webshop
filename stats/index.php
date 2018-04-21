@@ -66,7 +66,7 @@ echo "<div class='wrap'>
 					<div class='inside'>
 						<ul>";
 
-							$flot_data_year = $flot_data_month = "";
+							$arr_flot_info = $arr_flot_data = array();;
 
 							for($i = $intAnswerMin_year; $i <= $intAnswerMax_year; $i++)
 							{
@@ -82,23 +82,35 @@ echo "<div class='wrap'>
 									{
 										$intAnswerYear += $intAnswerAmount;
 
-										$flot_data_month .= ($flot_data_month != "" ? "," : "")."[".(strtotime($dteAnswerMonth."-01 UTC") * 1000).",".$intAnswerAmount."]";
+										$arr_flot_data['month'][] = array(
+											'date' => $dteAnswerMonth."-01",
+											'value' => $intAnswerAmount,
+										);
 									}
 								}
 
 								if($intAnswerYear > 0)
 								{
-									$flot_data_year .= ($flot_data_year != "" ? "," : "")."[".(strtotime($i."-01-01 UTC") * 1000).",".$intAnswerYear."]";
+									$arr_flot_data['year'][] = array(
+										'date' => $i."-01-01",
+										'value' => $intAnswerYear,
+									);
 								}
 							}
 
 							if($flot_data_month != "")
 							{
-								$flot_info = "";
-								$flot_info .= ($flot_info != '' ? "," : "")."{label:'".__("Months", 'lang_webshop')."', data:[".$flot_data_month."]}";
-								$flot_info .= ($flot_info != '' ? "," : "")."{label:'".__("Years", 'lang_webshop')."', data:[".$flot_data_year."]}";
+								$arr_flot_info['months'] = array(
+									'label' => __("Months", 'lang_webshop'),
+									'data' => $arr_flot_data['month'],
+								);
 
-								$out .= show_flot_graph(array('data' => $flot_info, 'type' => 'lines', 'settings' => "legend: {noColumns: 2, position: 'nw'}, xaxis: {mode: 'time'}", 'width' => 600, 'height' => 300));
+								$arr_flot_info['years'] = array(
+									'label' => __("Years", 'lang_webshop'),
+									'data' => $arr_flot_data['year'],
+								);
+
+								$out .= show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'settings' => "legend: {position: 'nw'}, xaxis: {mode: 'time'}", 'height' => 300)); //, 'width' => 600
 							}
 
 						echo "</ul>
