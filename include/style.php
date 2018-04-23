@@ -278,9 +278,9 @@ echo "@media all
 		border: 1px solid #ccc;
 		border-radius: .2em;
 		bottom: 0;
-		left: 0;
+		left: .4em;
 		position: absolute;
-		right: 0;
+		right: .4em;
 		top: 0;
 	}
 
@@ -1031,34 +1031,27 @@ echo "@media all
 {"
 	.$map_visibility_desktop
 
-	.".webshop_form ul
+	.".webshop_form li
 	{
-
+		margin-right: 0;
 	}
 
-		.webshop_form li
+		.webshop_form li + li
 		{
-			margin-right: 0;
+			margin-left: .5em;
 		}
 
-			.webshop_form li + li
-			{
-				margin-left: .5em;
-			}
+	.webshop_list ul
+	{
+		text-align: center;
+	}
 
-	.webshop_widget ul{}
-
-		.webshop_list ul
+		.webshop_widget ul li
 		{
-			text-align: center;
+			float: left;
+			padding-right: .5%;
+			padding-left: .5%;
 		}
-
-			.webshop_widget ul li
-			{
-				float: left;
-				margin-right: .5%;
-				margin-left: .5%;
-			}
 
 	.product_list .product_image_container
 	{
