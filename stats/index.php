@@ -110,7 +110,7 @@ echo "<div class='wrap'>
 									'data' => $arr_flot_data['year'],
 								);
 
-								$out .= show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'settings' => "legend: {position: 'nw'}, xaxis: {mode: 'time'}", 'height' => 300)); //, 'width' => 600
+								$out .= show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300)); //, 'width' => 600
 							}
 
 						echo "</ul>
