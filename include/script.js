@@ -368,7 +368,7 @@ jQuery(function($)
 
 	init_maps();
 
-	$(".page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div").scrollToFixed(
+	/*$(".page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div").scrollToFixed(
 	{
 		marginTop: function()
 		{
@@ -377,7 +377,7 @@ jQuery(function($)
 			return marginTop >= 0 ? 0 : marginTop;
 		},
 		minWidth: script_webshop.mobile_breakpoint
-	});
+	});*/
 
 	$('.mf_form > #product_result_form .form_switch input').each(function()
 	{

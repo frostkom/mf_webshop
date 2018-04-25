@@ -175,10 +175,10 @@ echo "@media all
 		text-decoration: line-through;
 	}
 
-	#wrapper
+	/*#wrapper
 	{
 		overflow: hidden;
-	}
+	}*/
 
 	content > div > form, #mf-content > div > form
 	{
@@ -369,12 +369,17 @@ echo "@media all
 		padding: 0;
 	}
 
-	/*.page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div
+	.page-template-template_webshop_search #mf-content > div, .page-template-template_webshop_search #main, .page-template-template_webshop_search #product_form
 	{
-		position: -webkit-sticky;
+		overflow: unset;
+	}
+
+	.page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div
+	{
 		position: sticky;
-		top: -1px;
-	}*/
+		top: 0;
+		z-index: 9;
+	}
 
 	#product_form
 	{
