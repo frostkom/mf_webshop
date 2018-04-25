@@ -369,6 +369,13 @@ echo "@media all
 		padding: 0;
 	}
 
+	/*.page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div
+	{
+		position: -webkit-sticky;
+		position: sticky;
+		top: -1px;
+	}*/
+
 	#product_form
 	{
 		display: -webkit-box;
