@@ -1671,8 +1671,8 @@ function get_webshop_map()
 	$setting_map_info = get_option('setting_map_info');
 
 	$out = "<h2 class='is_map_toggler color_button'>
-		<span>".$setting_replace_hide_map."</span>
 		<span>".$setting_replace_show_map."</span>
+		<span>".$setting_replace_hide_map."</span>
 	</h2>
 	<div class='map_wrapper'>
 		<div id='webshop_map'></div>";
