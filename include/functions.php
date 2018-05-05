@@ -2080,17 +2080,22 @@ function post_filter_select_webshop()
 
 		if($location_post_name != '')
 		{
-			$strFilterAddress = check_var('strFilterAddress');
+			//$strFilterLocation = get_or_set_table_filter(array('key' => 'strFilterLocation', 'save' => true));
+			$strFilterLocation = check_var('strFilterLocation');
 
 			$arr_data = array();
 			get_post_children(array('post_type' => 'mf_location', 'post_status' => '', 'add_choose_here' => true), $arr_data);
 
-			echo show_select(array('data' => $arr_data, 'name' => "strFilterAddress", 'value' => $strFilterAddress));
+			if(count($arr_data) > 2)
+			{
+				echo show_select(array('data' => $arr_data, 'name' => 'strFilterLocation', 'value' => $strFilterLocation));
+			}
 		}
     }
 
 	else if($post_type == 'mf_document_type')
 	{
+		//$strFilterPlacement = get_or_set_table_filter(array('key' => 'strFilterPlacement', 'save' => true));
 		$strFilterPlacement = check_var('strFilterPlacement');
 
 		$arr_data = array(
@@ -2102,7 +2107,7 @@ function post_filter_select_webshop()
 			'property' => __("Display as Property", 'lang_webshop'),
 		);
 
-		echo show_select(array('data' => $arr_data, 'name' => "strFilterPlacement", 'value' => $strFilterPlacement));
+		echo show_select(array('data' => $arr_data, 'name' => 'strFilterPlacement', 'value' => $strFilterPlacement));
     }
 }
 
@@ -2120,14 +2125,15 @@ function post_filter_query_webshop($wp_query)
 
 			if($location_post_name != '')
 			{
-				$strFilterAddress = check_var('strFilterAddress');
+				//$strFilterLocation = get_or_set_table_filter(array('key' => 'strFilterLocation'));
+				$strFilterLocation = check_var('strFilterLocation');
 
-				if($strFilterAddress != '')
+				if($strFilterLocation != '')
 				{
 					$wp_query->query_vars['meta_query'] = array(
 						array(
 							'key' => $obj_webshop->meta_prefix.$location_post_name,
-							'value' => $strFilterAddress,
+							'value' => $strFilterLocation,
 							'compare' => '=',
 						),
 					);
@@ -2137,6 +2143,7 @@ function post_filter_query_webshop($wp_query)
 
 		else if($post_type == 'mf_document_type')
 		{
+			//$strFilterPlacement = get_or_set_table_filter(array('key' => 'strFilterPlacement'));
 			$strFilterPlacement = check_var('strFilterPlacement');
 
 			if($strFilterPlacement != '')
@@ -2377,7 +2384,7 @@ function column_cell_location($col, $id)
 
 			if($count_temp > 0)
 			{
-				echo "<a href='".admin_url("edit.php?s&post_type=mf_products&strFilterAddress=".$id)."'>".$count_temp."</a>";
+				echo "<a href='".admin_url("edit.php?s&post_type=mf_products&strFilterLocation=".$id)."'>".$count_temp."</a>";
 			}
 		break;
 	}
