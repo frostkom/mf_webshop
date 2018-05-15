@@ -588,7 +588,7 @@ echo "@media all
 			background: #f8f8f8;
 			clear: both;
 			overflow: hidden;
-			padding: 0 .8em 0 0;
+			padding: 2.3em .8em 2em;
 			position: relative;
 		}
 
