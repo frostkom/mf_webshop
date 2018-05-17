@@ -2447,3 +2447,83 @@ class widget_webshop_recent extends WP_Widget
 		</div>";
 	}
 }
+
+if(!class_exists('pagination'))
+{
+	class pagination
+	{
+		function __construct()
+		{
+			$this->range = 5;
+			$this->per_page = 20;
+			$this->count = 0;
+		}
+
+		function show($data)
+		{
+			global $intLimitStart;
+
+			if(!is_array($data['result']) && $data['result'] > 0)
+			{
+				$rows = $data['result'];
+			}
+
+			else
+			{
+				$rows = $data['result'] != '' ? count($data['result']) : 0;
+			}
+
+			if($rows > $this->per_page)
+			{
+				$first = 1;
+				$last = ceil($rows / $this->per_page);
+				$this->current = floor($intLimitStart / $this->per_page) + 1;
+
+				$start = $first < ($this->current - $this->range - 1) ? $this->current - $this->range : $first;
+				$stop = $last > ($this->current + $this->range + 1) ? $this->current + $this->range : $last;
+
+				$out = "<div class='tablenav'>
+					<div class='tablenav-pages'>";
+
+						if($this->current > $first)
+						{
+							$out .= $this->button(array('page' => ($this->current - 1), 'text' => "&laquo;&laquo;"));
+						}
+
+						if($start != $first)
+						{
+							$out .= $this->button(array('page' => $first))."<span>...</span>";
+						}
+
+						for($i = $start; $i <= $stop; $i++)
+						{
+							$out .= $this->button(array('page' => $i));
+						}
+
+						if($stop != $last)
+						{
+							$out .= "<span>...</span>".$this->button(array('page' => $last));
+						}
+
+						if($this->current < $last)
+						{
+							$out .= $this->button(array('page' => ($this->current + 1), 'text' => "&raquo;&raquo;"));
+						}
+
+					$out .= "</div>
+				</div>";
+
+				$this->count++;
+
+				return $out;
+			}
+		}
+
+		function button($data)
+		{
+			return "<a href='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."&paged=".($data['page'] - 1)."'".($this->current == $data['page'] ? " class='disabled'" : "").">"
+				.(isset($data['text']) ? $data['text'] : $data['page'])
+			."</a>";
+		}
+	}
+}
