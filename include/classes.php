@@ -906,6 +906,7 @@ class mf_webshop
 		if($data['public'] == "yes" && ($data['meta'] != '' || $data['type'] == 'heading'))
 		{
 			$class = $data['type'];
+			$content = "";
 
 			switch($data['type'])
 			{
@@ -951,16 +952,24 @@ class mf_webshop
 			switch($data['type'])
 			{
 				case 'categories':
-					$content = "<span title='".$data['title']."'>";
+					if(is_array($data['meta']))
+					{
+						$content = "<span title='".$data['title']."'>";
 
-						$i = 0;
+							$i = 0;
 
-						foreach($data['meta'] as $meta)
-						{
-							$content .= ($i > 0 ? ", " : "").get_post_title($meta);
-						}
+							foreach($data['meta'] as $meta)
+							{
+								$content .= ($i > 0 ? ", " : "").get_post_title($meta);
+							}
 
-					$content .= "</span>";
+						$content .= "</span>";
+					}
+
+					else
+					{
+						do_log(sprintf(__("Wrong meta (%s) when displaying categories", 'lang_webshop'), var_export($data['meta'])));
+					}
 				break;
 
 				case 'description':
@@ -1022,7 +1031,7 @@ class mf_webshop
 
 			$this->product_meta[] = array(
 				'class' => $class,
-				'content' => $content
+				'content' => $content,
 			);
 		}
 	}
