@@ -278,9 +278,9 @@ echo "@media all
 		border: 1px solid #ccc;
 		border-radius: .2em;
 		bottom: 0;
-		left: .4em;
+		left: 0;
 		position: absolute;
-		right: .4em;
+		right: 0;
 		top: 0;
 	}
 
@@ -1058,12 +1058,17 @@ echo "@media all
 		text-align: center;
 	}
 
-		.webshop_widget ul li
+		/*.webshop_widget ul li
 		{
 			float: left;
 			padding-right: .5%;
 			padding-left: .5%;
-		}
+		}*/
+
+			.webshop_widget ul li > div
+			{
+				margin: 0 .4em;
+			}
 
 	.product_list .product_image_container
 	{
