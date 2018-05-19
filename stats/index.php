@@ -63,58 +63,53 @@ echo "<div class='wrap'>
 
 				<div class='postbox'>
 					<h3 class='hndle'><span>".__("Monthly", 'lang_webshop')."</span></h3>
-					<div class='inside'>
-						<ul>";
+					<div class='inside'>";
 
-							$arr_flot_info = $arr_flot_data = array();;
+						$arr_flot_info = $arr_flot_data = array();;
 
-							for($i = $intAnswerMin_year; $i <= $intAnswerMax_year; $i++)
+						for($i = $intAnswerMin_year; $i <= $intAnswerMax_year; $i++)
+						{
+							$intAnswerYear = 0;
+
+							for($j = 1; $j <= 12; $j++)
 							{
-								$intAnswerYear = 0;
+								$dteAnswerMonth = $i."-".zeroise($j, 2);
 
-								for($j = 1; $j <= 12; $j++)
+								$intAnswerAmount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."webshop_sent INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE SUBSTRING(answerCreated, 1, 7) = %s AND answerCreated BETWEEN %s AND %s", $dteAnswerMonth, $dteStatsDateStart, $dteStatsDateEnd));
+
+								if($intAnswerAmount > 0)
 								{
-									$dteAnswerMonth = $i."-".zeroise($j, 2);
+									$intAnswerYear += $intAnswerAmount;
 
-									$intAnswerAmount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."webshop_sent INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE SUBSTRING(answerCreated, 1, 7) = %s AND answerCreated BETWEEN %s AND %s", $dteAnswerMonth, $dteStatsDateStart, $dteStatsDateEnd));
-
-									if($intAnswerAmount > 0)
-									{
-										$intAnswerYear += $intAnswerAmount;
-
-										$arr_flot_data['month'][] = array(
-											'date' => $dteAnswerMonth."-01",
-											'value' => $intAnswerAmount,
-										);
-									}
-								}
-
-								if($intAnswerYear > 0)
-								{
-									$arr_flot_data['year'][] = array(
-										'date' => $i."-01-01",
-										'value' => $intAnswerYear,
+									$arr_flot_data['month'][] = array(
+										'date' => $dteAnswerMonth."-01",
+										'value' => $intAnswerAmount,
 									);
 								}
 							}
 
-							if($flot_data_month != "")
+							if($intAnswerYear > 0)
 							{
-								$arr_flot_info['months'] = array(
-									'label' => __("Months", 'lang_webshop'),
-									'data' => $arr_flot_data['month'],
+								$arr_flot_data['year'][] = array(
+									'date' => $i."-01-01",
+									'value' => $intAnswerYear,
 								);
-
-								$arr_flot_info['years'] = array(
-									'label' => __("Years", 'lang_webshop'),
-									'data' => $arr_flot_data['year'],
-								);
-
-								$out .= show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300)); //, 'width' => 600
 							}
+						}
 
-						echo "</ul>
-					</div>
+						$arr_flot_info['months'] = array(
+							'label' => __("Months", 'lang_webshop'),
+							'data' => $arr_flot_data['month'],
+						);
+
+						$arr_flot_info['years'] = array(
+							'label' => __("Years", 'lang_webshop'),
+							'data' => $arr_flot_data['year'],
+						);
+
+						echo show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300)); //, 'width' => 600
+
+					echo "</div>
 				</div>
 			</div>
 			<div id='postbox-container-1'>
