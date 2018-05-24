@@ -240,17 +240,17 @@ class mf_webshop
 	{
 		$arr_data = array();
 
-		if(count($include) == 0 || in_array('alphabetical', $include))
+		if(!is_array($include) || count($include) == 0 || in_array('alphabetical', $include))
 		{
 			$arr_data['alphabetical'] = __("A-Z", 'lang_webshop');
 		}
 
-		if(count($include) == 0 || in_array('newest', $include) || in_array('latest', $include))
+		if(!is_array($include) || count($include) == 0 || in_array('newest', $include) || in_array('latest', $include))
 		{
 			$arr_data['latest'] = __("Latest", 'lang_webshop');
 		}
 
-		if(count($include) == 0 || in_array('popular', $include))
+		if(!is_array($include) || count($include) == 0 || in_array('popular', $include))
 		{
 			if(is_plugin_active("mf_form/index.php"))
 			{
@@ -258,12 +258,12 @@ class mf_webshop
 			}
 		}
 
-		if(count($include) == 0 || in_array('random', $include))
+		if(!is_array($include) || count($include) == 0 || in_array('random', $include))
 		{
 			$arr_data['random'] = __("Random", 'lang_webshop');
 		}
 
-		if(count($include) == 0 || in_array('size', $include))
+		if(!is_array($include) || count($include) == 0 || in_array('size', $include))
 		{
 			if($this->get_post_name_for_type('size') != '')
 			{

@@ -298,10 +298,10 @@ function settings_webshop()
 
 	$setting_webshop_display_sort = get_option('setting_webshop_display_sort');
 
-	if($setting_webshop_display_sort == 'yes' || is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
-	{
+	/*if($setting_webshop_display_sort == 'yes' || is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
+	{*/
 		$arr_settings['setting_webshop_sort_default'] = __("Sort Default", 'lang_webshop');
-	}
+	//}
 
 	$arr_settings['setting_webshop_display_filter'] = __("Display Filter", 'lang_webshop');
 	$arr_settings['setting_webshop_replace_filter_products'] = __("Replace text", 'lang_webshop');
