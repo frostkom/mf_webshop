@@ -966,10 +966,10 @@ class mf_webshop
 						$content .= "</span>";
 					}
 
-					else
+					/*else
 					{
 						do_log(sprintf(__("Wrong meta (%s) when displaying categories", 'lang_webshop'), var_export($data['meta'])));
-					}
+					}*/
 				break;
 
 				case 'description':

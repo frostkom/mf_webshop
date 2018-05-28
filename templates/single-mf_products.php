@@ -171,6 +171,7 @@ get_header();
 									$has_data = true;
 								break;
 
+								case 'categories':
 								case 'description':
 								case 'ghost':
 								case 'interval':
