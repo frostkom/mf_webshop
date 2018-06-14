@@ -419,7 +419,7 @@ class mf_webshop
 
 		$obj_font_icons = new mf_font_icons();
 
-		$name_choose_here = "-- ".__("Choose here", 'lang_webshop')." --";
+		$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
 		$out .= "<div id='webshop_search'>";
 
@@ -2050,7 +2050,7 @@ class widget_webshop_form extends WP_Widget
 
 			if(count($instance['webshop_doc_type']) > 0)
 			{
-				$name_choose_here = "-- ".__("Choose here", 'lang_webshop')." --";
+				$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
 				echo $before_widget;
 

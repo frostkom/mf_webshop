@@ -222,7 +222,7 @@ function count_orders_webshop($id = 0)
 
 	$count_message = "";
 
-	$last_viewed = get_user_meta(get_current_user_id(), 'mf_orders_viewed', true);
+	$last_viewed = get_user_meta(get_current_user_id(), 'meta_orders_viewed', true);
 
 	$result = $wpdb->get_results($wpdb->prepare("SELECT orderID FROM ".$wpdb->prefix."webshop_order WHERE orderCreated > %s", $last_viewed));
 	$rows = $wpdb->num_rows;
@@ -1318,7 +1318,7 @@ function meta_boxes_webshop($meta_boxes)
 
 	$symbol_options = array();
 
-	$symbol_options[''] = "-- ".__("Choose here", 'lang_webshop')." --";
+	$symbol_options[''] = "-- ".__("Choose Here", 'lang_webshop')." --";
 
 	$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
 
@@ -1762,7 +1762,7 @@ function get_webshop_cart()
 			$out .= "<div class='form_button'>"
 				.show_button(array('name' => 'btnOrderConfirm', 'text' => __("Confirm Order", 'lang_webshop')))
 			."</div>"
-			.wp_nonce_field('order_confirm', '_wpnonce', true, false)
+			.wp_nonce_field('order_confirm', '_wpnonce_order_confirm', true, false)
 		."</form>";
 	}
 
@@ -2099,7 +2099,7 @@ function post_filter_select_webshop()
 		$strFilterPlacement = check_var('strFilterPlacement');
 
 		$arr_data = array(
-			'' => "-- ".__("Choose here", 'lang_webshop')." --",
+			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
 			'searchable' => __("Make Searchable", 'lang_webshop'),
 			'public' => __("Display in Results", 'lang_webshop'),
 			'public_single' => __("Display as Contact Info", 'lang_webshop'),

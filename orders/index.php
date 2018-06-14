@@ -8,7 +8,7 @@ $intOrderID = check_var('intOrderID');
 $intLimitAmount = 20;
 $intLimitStart = $paged * $intLimitAmount;
 
-if(isset($_REQUEST['btnOrderDelete']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'order_delete_'.$intOrderID))
+if(isset($_REQUEST['btnOrderDelete']) && wp_verify_nonce($_REQUEST['_wpnonce_order_delete'], 'order_delete_'.$intOrderID))
 {
 	$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."webshop_product2user WHERE orderID = '%d'", $intOrderID));
 	$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."webshop_order WHERE orderID = '%d'", $intOrderID));
@@ -16,12 +16,12 @@ if(isset($_REQUEST['btnOrderDelete']) && wp_verify_nonce($_REQUEST['_wpnonce'], 
 	$done_text = __("The order was deleted", 'lang_webshop');
 }
 
-else if(isset($_REQUEST['btnOrderInvoice']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'order_invoice_'.$intOrderID))
+else if(isset($_REQUEST['btnOrderInvoice']) && wp_verify_nonce($_REQUEST['_wpnonce_order_invoice'], 'order_invoice_'.$intOrderID))
 {
 	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."webshop_order SET orderInvoice = NOW() WHERE orderID = '%d'", $intOrderID));
 }
 
-else if(isset($_REQUEST['btnOrderDelivery']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'order_delivery_'.$intOrderID))
+else if(isset($_REQUEST['btnOrderDelivery']) && wp_verify_nonce($_REQUEST['_wpnonce_order_delivery'], 'order_delivery_'.$intOrderID))
 {
 	$result = $wpdb->get_results($wpdb->prepare("SELECT productID, webshopAmount FROM ".$wpdb->prefix."webshop_product2user WHERE orderID = '%d'", $intOrderID));
 
@@ -95,7 +95,7 @@ echo "<div class='wrap'>
 						{
 							echo "<i class='fa fa-lg fa-ban red'></i>
 							<div class='row-actions'>
-								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderInvoice&intOrderID=".$intOrderID2, 'order_invoice_'.$intOrderID2)."'>".__("Invoice sent", 'lang_webshop')."</a>
+								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderInvoice&intOrderID=".$intOrderID2, 'order_invoice_'.$intOrderID2, '_wpnonce_order_invoice')."'>".__("Invoice sent", 'lang_webshop')."</a>
 							</div>";
 						}
 
@@ -111,7 +111,7 @@ echo "<div class='wrap'>
 						{
 							echo "<i class='fa fa-lg fa-ban red'></i>
 							<div class='row-actions'>
-								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelivery&intOrderID=".$intOrderID2, 'order_delivery_'.$intOrderID2)."'>".__("Delivered", 'lang_webshop')."</a>
+								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelivery&intOrderID=".$intOrderID2, 'order_delivery_'.$intOrderID2, '_wpnonce_order_delivery')."'>".__("Delivered", 'lang_webshop')."</a>
 							</div>";
 						}
 
@@ -136,7 +136,7 @@ echo "<div class='wrap'>
 					<td>"
 						.format_date($strOrderCreated)
 						."<div class='row-actions'>
-							<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelete&intOrderID=".$intOrderID2, 'order_delete_'.$intOrderID2)."'>".__("Delete", 'lang_webshop')."</a>
+							<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelete&intOrderID=".$intOrderID2, 'order_delete_'.$intOrderID2, '_wpnonce_order_delete')."'>".__("Delete", 'lang_webshop')."</a>
 						</div>
 					</td>
 				</tr>";

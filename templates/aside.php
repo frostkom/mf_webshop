@@ -23,7 +23,7 @@ if(get_option('setting_show_categories') == 'yes')
 	$strOrderText = check_var('strOrderText');
 	$intDeliveryTypeID = check_var('intDeliveryTypeID');
 
-	if(isset($_POST['btnProductBuy']) && wp_verify_nonce($_POST['_wpnonce'], 'product_buy_'.$intProductID))
+	if(isset($_POST['btnProductBuy']) && wp_verify_nonce($_POST['_wpnonce_product_buy'], 'product_buy_'.$intProductID))
 	{
 		$wpdb->get_results($wpdb->prepare("SELECT productID FROM ".$wpdb->prefix."webshop_product2user WHERE productID = '%d' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s) LIMIT 0, 1", $intProductID, get_current_user_id(), $sesWebshopCookie));
 
@@ -48,7 +48,7 @@ if(get_option('setting_show_categories') == 'yes')
 		//$done_text = __("The cart has been updated", 'lang_webshop');
 	}
 
-	else if(isset($_POST['btnOrderConfirm']) && wp_verify_nonce($_POST['_wpnonce'], 'order_confirm'))
+	else if(isset($_POST['btnOrderConfirm']) && wp_verify_nonce($_POST['_wpnonce_order_confirm'], 'order_confirm'))
 	{
 		if($strOrderName != '' && $emlOrderEmail != '')
 		{

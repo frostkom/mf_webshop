@@ -18,7 +18,7 @@ $dteStatsDateStart = check_var('dteStatsDateStart', 'date', true, date("Y-m-d", 
 $dteStatsDateEnd = check_var('dteStatsDateEnd', 'date', true, date("Y-m-d", strtotime($dteAnswerMax)));
 
 $arr_data_limit = array(
-	'' => "-- ".__("Choose here", 'lang_webshop')." --"
+	'' => "-- ".__("Choose Here", 'lang_webshop')." --"
 );
 
 for($i = 5; $i <= 100; $i += 5)
@@ -65,7 +65,7 @@ echo "<div class='wrap'>
 					<h3 class='hndle'><span>".__("Monthly", 'lang_webshop')."</span></h3>
 					<div class='inside'>";
 
-						$arr_flot_info = $arr_flot_data = array();;
+						$arr_flot_info = $arr_flot_data = array();
 
 						for($i = $intAnswerMin_year; $i <= $intAnswerMax_year; $i++)
 						{
@@ -97,15 +97,21 @@ echo "<div class='wrap'>
 							}
 						}
 
-						$arr_flot_info['months'] = array(
-							'label' => __("Months", 'lang_webshop'),
-							'data' => $arr_flot_data['month'],
-						);
+						if(isset($arr_flot_data['month']))
+						{
+							$arr_flot_info['months'] = array(
+								'label' => __("Months", 'lang_webshop'),
+								'data' => $arr_flot_data['month'],
+							);
+						}
 
-						$arr_flot_info['years'] = array(
-							'label' => __("Years", 'lang_webshop'),
-							'data' => $arr_flot_data['year'],
-						);
+						if(isset($arr_flot_data['year']))
+						{
+							$arr_flot_info['years'] = array(
+								'label' => __("Years", 'lang_webshop'),
+								'data' => $arr_flot_data['year'],
+							);
+						}
 
 						echo show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300)); //, 'width' => 600
 

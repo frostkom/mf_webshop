@@ -155,7 +155,7 @@ get_header();
 
 										$obj_webshop->product_form_buy .= "</div>"
 										.input_hidden(array('name' => 'intProductID', 'value' => $obj_webshop->product_id))
-										.wp_nonce_field('product_buy_'.$obj_webshop->product_id, '_wpnonce', true, false)
+										.wp_nonce_field('product_buy_'.$obj_webshop->product_id, '_wpnonce_product_buy', true, false)
 									."</form>";
 								break;
 
