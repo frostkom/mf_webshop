@@ -200,11 +200,11 @@ echo "@media all
 			text-decoration: none;
 		}
 
-			.aside ul i
+			/*.aside ul i
 			{
 				position: absolute;
 				right: 0;
-			}
+			}*/
 
 	.aside h4
 	{
