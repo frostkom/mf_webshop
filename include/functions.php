@@ -1966,12 +1966,12 @@ function filter_form_on_submit_webshop($data)
 					}
 				}
 
-				if(!isset($data['arr_mail_content']['doc_types']))
+				if(!isset($data['obj_form']->arr_email_content['doc_types']))
 				{
-					$data['arr_mail_content']['doc_types'] = array();
+					$data['obj_form']->arr_email_content['doc_types'] = array();
 				}
 
-				$data['arr_mail_content']['doc_types'][] = array(
+				$data['obj_form']->arr_email_content['doc_types'][] = array(
 					'label' => $key,
 					'value' => $value,
 				);
@@ -1979,10 +1979,19 @@ function filter_form_on_submit_webshop($data)
 		}
 	}
 
-	$arr_mail_content_temp = $data['arr_mail_content'];
+	$arr_mail_content_temp = $data['obj_form']->arr_email_content;
 
 	if(count($arr_product_ids) > 0)
 	{
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id));
+
+		foreach($result as $r)
+		{
+			$data['obj_form']->email_admin = $r->formEmail;
+			$data['obj_form']->email_notify_page = $r->formEmailNotifyPage;
+			$data['obj_form']->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $data['obj_form']->form_name);
+		}
+
 		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
 		$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
@@ -2004,19 +2013,19 @@ function filter_form_on_submit_webshop($data)
 			{
 				$product_title = get_the_title($product_id);
 
-				$arr_mail_content_this = $data['arr_mail_content'];
+				$arr_mail_content_this = $data['obj_form']->arr_email_content;
 				$arr_mail_content_this['products'][0] = array(
 					'label' => $name_product,
 					'id' => $product_id,
 					'value' => $product_title,
 				);
 
-				$obj_form->answer_id = $data['answer_id'];
+				$obj_form->answer_id = $data['obj_form']->answer_id;
 
 				$obj_form->page_content_data = array(
-					'page_id' => $data['notify_page'],
+					'page_id' => $data['obj_form']->email_notify_page,
 					'mail_to' => $product_email,
-					'subject' => $data['mail_subject'],
+					'subject' => $data['obj_form']->email_subject,
 					'content' => $arr_mail_content_this,
 				);
 
@@ -2030,11 +2039,11 @@ function filter_form_on_submit_webshop($data)
 				$obj_form->mail_data['content'] = $obj_form->get_page_content_for_email();
 				//$obj_form->mail_data['subject'] = $obj_form->page_content_data['subject'];
 
-				if($data['mail_from'] != '')
+				if($data['obj_form']->email_visitor != '')
 				{
-					if($data['mail_admin'] != '' && strpos($data['mail_admin'], "<"))
+					if($data['obj_form']->email_admin != '' && strpos($data['obj_form']->email_admin, "<"))
 					{
-						$arr_mail_from = explode("<", $data['mail_admin']);
+						$arr_mail_from = explode("<", $data['obj_form']->email_admin);
 
 						$mail_from_name = $arr_mail_from[0];
 					}
@@ -2044,7 +2053,7 @@ function filter_form_on_submit_webshop($data)
 						$mail_from_name = get_bloginfo('name');
 					}
 
-					$obj_form->mail_data['headers'] = "From: ".$mail_from_name." <".$data['mail_from'].">\r\n";
+					$obj_form->mail_data['headers'] = "From: ".$mail_from_name." <".$data['obj_form']->email_visitor.">\r\n";
 				}
 
 				$obj_form->send_transactional_email();
@@ -2061,10 +2070,10 @@ function filter_form_on_submit_webshop($data)
 
 	if($answer_text != '')
 	{
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $data['answer_id'], $answer_text));
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $data['obj_form']->answer_id, $answer_text));
 	}
 
-	$data['arr_mail_content'] = $arr_mail_content_temp;
+	$data['obj_form']->arr_email_content = $arr_mail_content_temp;
 
 	return $data;
 }
