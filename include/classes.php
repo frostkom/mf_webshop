@@ -330,7 +330,7 @@ class mf_webshop
 
 		$menu_root = 'mf_webshop/';
 		$menu_start = "edit.php?post_type=mf_products";
-		$menu_capability = "edit_posts";
+		$menu_capability = override_capability(array('page' => $menu_start, 'default' => 'edit_posts'));
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
