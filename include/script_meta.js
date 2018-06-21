@@ -16,7 +16,7 @@ jQuery(function($)
 
 		if((dom_obj.hasClass('rwmb-number') || dom_obj.hasClass('rwmb-size')) && connect_obj.hasClass('rwmb-interval'))
 		{
-			var value_min = Math.round(value_max * (script_webshop_meta.range_min_default / 100))
+			var value_min = Math.round(value_max * (script_webshop_meta.range_min_default / 100)),
 				out = value_min + '-' + value_max;
 		}
 
