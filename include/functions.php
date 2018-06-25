@@ -1031,7 +1031,7 @@ function get_map_marker_url($option_key)
 	//www.googlemapsmarkers.com/v1/A/0099FF/
 	//www.googlemapsmarkers.com/v1/A/0099FF/FFFFFF/FF0000/
 
-	return "//googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/";
+	return "http://googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/";
 }
 
 function meta_webshop()

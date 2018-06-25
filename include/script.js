@@ -328,7 +328,7 @@ function init_maps()
 			});
 		}
 
-		var symbol_active_image = script_webshop.symbol_active_image != '' ? script_webshop.symbol_active_image : "//googlemapsmarkers.com/v1/" + script_webshop.symbol_active + "/";
+		var symbol_active_image = script_webshop.symbol_active_image != '' ? script_webshop.symbol_active_image : "http://googlemapsmarkers.com/v1/" + script_webshop.symbol_active + "/";
 
 		add_map_location({'dom_obj': search_coords_obj, 'icon': symbol_active_image});
 
