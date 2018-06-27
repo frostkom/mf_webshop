@@ -573,11 +573,11 @@ echo "@media all
 						top: -2em;
 					}
 
-				.form_button button, .form_button .button
+				/*.form_button button, .form_button .button
 				{
 					font-size: 1.3em;
 					font-weight: bold;
-				}
+				}*/
 
 	/* Result List */
 	.product_list
