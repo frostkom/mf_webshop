@@ -35,7 +35,6 @@ class mf_webshop
 		mf_enqueue_style('style_bb', $plugin_base_url."/mf_base/include/backbone/style.css", $plugin_version);
 
 		wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, $plugin_version);
-		//mf_enqueue_script('script_scrolltofixed', $plugin_include_url."jquery-scrolltofixed-min.js", $plugin_version);
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
 			'here_i_am' => __("Here I am", 'lang_maps'),
 			'plugins_url' => $plugin_base_url,

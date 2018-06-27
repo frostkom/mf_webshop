@@ -368,17 +368,6 @@ jQuery(function($)
 
 	init_maps();
 
-	/*$(".page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div").scrollToFixed(
-	{
-		marginTop: function()
-		{
-			var marginTop = $(window).height() - $(this).outerHeight(true) + 20;
-
-			return marginTop >= 0 ? 0 : marginTop;
-		},
-		minWidth: script_webshop.mobile_breakpoint
-	});*/
-
 	$('.mf_form > #product_result_form .form_switch input').each(function()
 	{
 		show_list_active_or_not($(this));
@@ -415,4 +404,10 @@ jQuery(function($)
 	{
 		show_list_active_or_not($(this));
 	});
+
+	/* Does not help */
+	/*$(window).resize(function()
+	{
+		google.maps.event.trigger(map_object, 'resize');
+	});*/
 });

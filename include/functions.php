@@ -2181,23 +2181,27 @@ function column_header_products($cols)
 	$obj_webshop = new mf_webshop();
 
 	$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone'); //address
+	$arr_columns_admin = array('email', 'phone');
 
 	foreach($arr_columns as $column)
 	{
-		$result = $obj_webshop->get_post_type_info(array('type' => $column));
-
-		if(isset($result->post_title))
+		if(!in_array($column, $arr_columns_admin) || IS_ADMIN)
 		{
-			$column_title = $result->post_title;
+			$result = $obj_webshop->get_post_type_info(array('type' => $column));
 
-			$column_icon = get_post_meta($result->ID, $obj_webshop->meta_prefix.'document_symbol', true);
-
-			if($column_icon != '')
+			if(isset($result->post_title))
 			{
-				$column_title = "<i class='fa fa-".$column_icon." fa-lg' title='".$column_title."'></i>";
-			}
+				$column_title = $result->post_title;
 
-			$cols[$column] = $column_title;
+				$column_icon = get_post_meta($result->ID, $obj_webshop->meta_prefix.'document_symbol', true);
+
+				if($column_icon != '')
+				{
+					$column_title = "<i class='fa fa-".$column_icon." fa-lg' title='".$column_title."'></i>";
+				}
+
+				$cols[$column] = $column_title;
+			}
 		}
 	}
 
