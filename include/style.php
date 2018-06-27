@@ -200,16 +200,18 @@ echo "@media all
 			text-decoration: none;
 		}
 
+			/* This affects all aside h4 across all plugins */
 			/*.aside ul i
 			{
 				position: absolute;
 				right: 0;
 			}*/
 
-	.aside h4
+	/* This affects all aside h4 across all plugins */
+	/*.aside h4
 	{
 		margin: 1.5em 0 .5em;
-	}
+	}*/
 
 	#wrapper h1 a
 	{
