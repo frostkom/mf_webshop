@@ -405,6 +405,15 @@ jQuery(function($)
 		show_list_active_or_not($(this));
 	});
 
+	/* Inactive enter/submit when webshop_map_input is in focus */
+	search_input_obj.on('keydown', function(event)
+	{
+		if(event.key == 'Enter')
+		{
+			return false;
+		}
+	});
+
 	/* Does not help */
 	/*$(window).resize(function()
 	{
