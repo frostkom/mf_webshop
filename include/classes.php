@@ -36,7 +36,7 @@ class mf_webshop
 
 		wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, $plugin_version);
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
-			'here_i_am' => __("Here I am", 'lang_maps'),
+			'here_i_am' => __("Here I am", 'lang_webshop'),
 			'plugins_url' => $plugin_base_url,
 			'read_more' => __("Read More", 'lang_webshop'),
 			'symbol_active_image' => $symbol_active_image,
