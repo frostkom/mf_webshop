@@ -215,7 +215,7 @@ function hide_products()
 		{
 			if(dom_parent.hasClass('hide'))
 			{
-				/* dom_obj.prop("checked", true); */
+				/*dom_obj.prop("checked", true);*/
 				dom_parent.removeClass('hide');
 			}
 		}
@@ -320,7 +320,7 @@ function init_maps()
 
 		else
 		{
-			/* google.maps.event.addListener(map_object, 'zoom_changed', hide_products); */
+			/*google.maps.event.addListener(map_object, 'zoom_changed', hide_products);*/
 			google.maps.event.addListener(map_object, 'dragend', do_dragend);
 			google.maps.event.addListener(map_object, 'bounds_changed', function()
 			{
@@ -413,10 +413,4 @@ jQuery(function($)
 			return false;
 		}
 	});
-
-	/* Does not help */
-	/*$(window).resize(function()
-	{
-		google.maps.event.trigger(map_object, 'resize');
-	});*/
 });

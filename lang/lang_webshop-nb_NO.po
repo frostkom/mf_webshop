@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-28 08:13+0100\n"
+"POT-Creation-Date: 2018-07-02 15:40+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -134,8 +134,9 @@ msgid "Textarea"
 msgstr ""
 
 #: ../include/classes.php:286
+#, fuzzy
 msgid "Date"
-msgstr ""
+msgstr "Slett"
 
 #: ../include/classes.php:287
 #: ../include/functions.php:1752
@@ -318,7 +319,7 @@ msgstr ""
 #: ../include/functions.php:2111
 #: ../stats/index.php:21
 msgid "Choose Here"
-msgstr ""
+msgstr "Velg Her"
 
 #: ../include/classes.php:437
 msgid "Sort By"
@@ -342,8 +343,9 @@ msgstr ""
 #: ../include/classes.php:650
 #: ../include/functions.php:610
 #: ../include/functions.php:1807
+#, fuzzy
 msgid "Choose"
-msgstr ""
+msgstr "Velg Her"
 
 #: ../include/classes.php:657
 msgid "I could not find anything that corresponded to your choices"
@@ -636,7 +638,7 @@ msgstr ""
 #: ../include/functions.php:831
 #: ../include/functions.php:1960
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: ../include/functions.php:831
 msgid "Hidden behind a button"
@@ -645,7 +647,7 @@ msgstr ""
 #: ../include/functions.php:832
 #: ../include/functions.php:1960
 msgid "No"
-msgstr ""
+msgstr "Nei"
 
 #: ../include/functions.php:851
 #, php-format
@@ -830,8 +832,9 @@ msgstr ""
 
 #: ../orders/index.php:68
 #: ../orders/index.php:114
+#, fuzzy
 msgid "Delivered"
-msgstr ""
+msgstr "Slett"
 
 #: ../orders/index.php:69
 msgid "Ordered by"
@@ -844,7 +847,7 @@ msgstr ""
 #: ../orders/index.php:139
 #: ../templates/single-mf_products.php:153
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 #: ../stats/index.php:29
 msgid "All"
@@ -863,8 +866,9 @@ msgid "Months"
 msgstr ""
 
 #: ../stats/index.php:111
+#, fuzzy
 msgid "Years"
-msgstr ""
+msgstr "Ja"
 
 #: ../stats/index.php:125
 msgid "Limit"
