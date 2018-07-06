@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.3.2.12
+Version: 1.3.3.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -32,7 +32,7 @@ if(is_admin())
 	add_action('admin_init', array($obj_webshop, 'admin_init'), 0);
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
-	add_action('rwmb_meta_boxes', 'meta_boxes_webshop');
+	add_action('rwmb_meta_boxes', array($obj_webshop, 'meta_boxes'));
 	add_action('rwmb_enqueue_scripts', 'meta_boxes_script_webshop');
 
 	add_action('restrict_manage_posts', 'post_filter_select_webshop');
@@ -135,14 +135,14 @@ function activate_webshop()
 	replace_user_meta(array('old' => 'mf_orders_viewed', 'new' => 'meta_orders_viewed'));
 
 	mf_uninstall_plugin(array(
-		'options' => array('settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_local_storage', 'setting_webshop_allow_individual_contant'),
+		'options' => array('settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_local_storage', 'setting_webshop_allow_individual_contant'),
 	));
 }
 
 function uninstall_webshop()
 {
 	mf_uninstall_plugin(array(
-		'options' => array('setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_quote_form_popup', 'setting_quote_form', 'setting_quote_form_single', 'setting_webshop_force_individual_contact', 'setting_webshop_replace_webshop', 'setting_webshop_replace_product', 'setting_webshop_replace_products', 'setting_webshop_replace_categories', 'setting_webshop_replace_doc_types', 'setting_replace_send_request_for_quote', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_webshop_replace_show_map', 'setting_replace_hide_map', 'setting_map_info', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_categories_slug', 'setting_show_categories', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_filter_products', 'setting_replace_search_result_info', 'setting_webshop_replace_favorites_info'),
+		'options' => array('setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_quote_form_popup', 'setting_quote_form', 'setting_quote_form_single', 'setting_webshop_force_individual_contact', 'setting_webshop_payment_form', 'setting_webshop_replace_webshop', 'setting_webshop_replace_product', 'setting_webshop_replace_products', 'setting_webshop_replace_categories', 'setting_webshop_replace_doc_types', 'setting_replace_send_request_for_quote', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_webshop_replace_show_map', 'setting_replace_hide_map', 'setting_map_info', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_categories_slug', 'setting_show_categories', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_filter_products', 'setting_replace_search_result_info', 'setting_webshop_replace_favorites_info'),
 		'meta' => array('meta_orders_viewed'),
 		'post_types' => array('mf_categories', 'mf_products', 'mf_document_type', 'mf_location', 'mf_customers', 'mf_delivery_type'),
 		'tables' => array('webshop_order', 'webshop_product2user'),

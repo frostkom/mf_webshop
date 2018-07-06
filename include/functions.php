@@ -80,7 +80,7 @@ function init_webshop()
 
 	$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 	$name_categories = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
-	$name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Document Types", 'lang_webshop'));
+	$name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
 
 	$name_location = __("Location", 'lang_webshop');
 	$name_customers = __("Customers", 'lang_webshop');
@@ -263,13 +263,13 @@ function settings_webshop()
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
 	$arr_settings = array();
-	$arr_settings['setting_webshop_replace_webshop'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_product'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_products'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_categories'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_doc_types'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_webshop'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_product'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_products'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_categories'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_doc_types'] = __("Replace Text", 'lang_webshop');
 
-	//$arr_settings['setting_product_default_image'] = __("Default image", 'lang_webshop');
+	//$arr_settings['setting_product_default_image'] = __("Default Image", 'lang_webshop');
 	$arr_settings['setting_webshop_replace_products_slug'] = sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_product));
 
 	$wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_categories' AND post_status = 'publish' LIMIT 0, 1");
@@ -280,6 +280,16 @@ function settings_webshop()
 
 		$arr_settings['setting_show_categories'] = sprintf(__("Show %s on site", 'lang_webshop'), $name_categories);
 		$arr_settings['setting_webshop_replace_categories_slug'] = sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_categories));
+	}
+
+	if(is_plugin_active("mf_form/index.php"))
+	{
+		$arr_settings['setting_webshop_payment_form'] = __("Payment Form", 'lang_webshop');
+
+		/*if(get_option('setting_webshop_payment_form') > 0)
+		{
+			$arr_settings['setting_webshop_require_payment'] = __("Require Payment Below", 'lang_webshop');
+		}*/
 	}
 
 	$arr_settings['setting_local_storage'] = __("Local Storage", 'lang_webshop');
@@ -304,12 +314,12 @@ function settings_webshop()
 	//}
 
 	$arr_settings['setting_webshop_display_filter'] = __("Display Filter", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_filter_products'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_filter_products'] = __("Replace Text", 'lang_webshop');
 
 	$arr_settings['setting_search_max'] = __("Max results to send quote", 'lang_webshop');
-	$arr_settings['setting_replace_search_result_info'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_replace_search_result_info'] = __("Replace Text", 'lang_webshop');
 
-	$arr_settings['setting_webshop_replace_choose_product'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_choose_product'] = __("Replace Text", 'lang_webshop');
 
 	$arr_settings['setting_webshop_switch_icon_on'] = __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")";
 	$arr_settings['setting_webshop_switch_icon_off'] = __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")";
@@ -323,14 +333,14 @@ function settings_webshop()
 	$arr_settings['setting_range_min_default'] = __("Default range minimum", 'lang_webshop');
 	$arr_settings['setting_range_choices'] = __("Custom range choices", 'lang_webshop');
 	$arr_settings['setting_require_search'] = __("Require user to make some kind of search", 'lang_webshop');
-	$arr_settings['setting_webshop_replace_none_checked'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_none_checked'] = __("Replace Text", 'lang_webshop');
 
-	$arr_settings['setting_replace_send_request_for_quote'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_replace_quote_request'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_replace_send_request_for_quote'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_replace_quote_request'] = __("Replace Text", 'lang_webshop');
 
 	if(get_option('setting_require_search') == 'yes')
 	{
-		$arr_settings['setting_webshop_replace_too_many'] = __("Replace text", 'lang_webshop');
+		$arr_settings['setting_webshop_replace_too_many'] = __("Replace Text", 'lang_webshop');
 	}
 
 	/*if($ghost_post_name != '')
@@ -350,9 +360,9 @@ function settings_webshop()
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
 	$arr_settings = array();
-	$arr_settings['setting_webshop_replace_favorites_info'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_favorites_info'] = __("Replace Text", 'lang_webshop');
 
-	$arr_settings['setting_webshop_replace_email_favorites'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_webshop_replace_email_favorites'] = __("Replace Text", 'lang_webshop');
 	$arr_settings['setting_webshop_share_email_subject'] = __("Email Subject", 'lang_webshop');
 	$arr_settings['setting_webshop_share_email_content'] = __("Email Content", 'lang_webshop');
 
@@ -369,10 +379,10 @@ function settings_webshop()
 	$arr_settings['setting_webshop_display_breadcrumbs'] = __("Display Breadcrumbs", 'lang_webshop');
 	$arr_settings['setting_webshop_force_individual_contact'] = __("Force Individual Contact", 'lang_webshop');
 
-	$arr_settings['setting_replace_add_to_search'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_replace_remove_from_search'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_replace_return_to_search'] = __("Replace text", 'lang_webshop');
-	$arr_settings['setting_replace_search_for_another'] = __("Replace text", 'lang_webshop');
+	$arr_settings['setting_replace_add_to_search'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_replace_remove_from_search'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_replace_return_to_search'] = __("Replace Text", 'lang_webshop');
+	$arr_settings['setting_replace_search_for_another'] = __("Replace Text", 'lang_webshop');
 
 	if(is_plugin_active("mf_form/index.php")) // && get_option('setting_webshop_force_individual_contact') == 'yes' //Don't even think about this because it is still used when new vistors arrive at the product page
 	{
@@ -567,7 +577,7 @@ function setting_webshop_replace_doc_types_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Document Types", 'lang_webshop')));
+	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Filters", 'lang_webshop')));
 }
 
 function setting_webshop_replace_filter_products_callback()
@@ -1015,10 +1025,28 @@ function setting_webshop_force_individual_contact_callback()
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'description' => __("This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option", 'lang_webshop')));
 }
 
+function setting_webshop_payment_form_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
+
+	$obj_form = new mf_form();
+
+	echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>"));
+}
+
+/*function setting_webshop_require_payment_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key, 'no');
+
+	echo show_select(array('data' => get_settings_roles(array('no' => true)), 'name' => $setting_key, 'value' => $option)); //'yes' => true, 
+}*/
+
 function setting_local_storage_callback()
 {
 	echo "<div class='form_buttons'>"
-		.show_button(array('type' => 'button', 'name' => 'btnLocalStorageClear', 'text' => __("Clear", 'lang_webshop'), 'class' => 'button-primary'))
+		.show_button(array('type' => 'button', 'name' => 'btnLocalStorageClear', 'text' => __("Clear", 'lang_webshop'), 'class' => 'button'))
 	."</div>
 	<div id='storage_response'></div>";
 }
@@ -1098,404 +1126,6 @@ function update_product_amount($intProductID2, $intProductAmount2)
 	}
 
 	return $error_text;
-}
-
-function meta_boxes_webshop($meta_boxes)
-{
-	global $wpdb;
-
-	$arr_categories = array();
-
-	$obj_font_icons = new mf_font_icons();
-	$obj_webshop = new mf_webshop();
-
-	$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
-
-	//Default values for type
-	################
-	$post_id = $obj_webshop->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
-
-	$default_type = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_type', true);
-	$default_searchable = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_searchable', true);
-	$default_public = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_public', true);
-	$default_public_single = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_public_single', true);
-	$default_quick = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_quick', true);
-	$default_property = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_property', true);
-	################
-
-	get_post_children(array('post_type' => 'mf_categories'), $arr_categories);
-
-	$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = array();
-
-	if(count($arr_categories) > 0)
-	{
-		$name_categories = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
-
-		$fields_settings[] = array(
-			'name' => $name_categories,
-			'id' => $obj_webshop->meta_prefix.'category',
-			'type' => 'select',
-			'options'  => $arr_categories,
-			'multiple' => true,
-		);
-	}
-
-	$fields_settings[] = array(
-		'name' => __("Image", 'lang_webshop'),
-		'id'   => $obj_webshop->meta_prefix.'product_image',
-		'type' => 'file_advanced',
-	);
-
-	$arr_doc_types_ignore = array('decription', 'heading', 'label', 'divider', 'container_start', 'container_end'); //, 'text'
-
-	$result = $obj_webshop->get_document_types(array('select' => "ID, post_title, post_name, post_parent", 'order' => "menu_order ASC"));
-
-	foreach($result as $r)
-	{
-		$post_id = $r->ID;
-		$post_title = $r->post_title;
-		$post_name = $r->post_name;
-		$post_parent = $r->post_parent;
-
-		$arr_attributes = array();
-
-		if($post_parent > 0)
-		{
-			$parent_name = $obj_webshop->get_document_types(array('select' => "post_name", 'where_key' => "ID = '%d'", 'where_value' => $post_parent, 'limit' => "0, 1"));
-
-			$arr_attributes['connect_to'] = $obj_webshop->meta_prefix.$parent_name;
-		}
-
-		$post_custom_type = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_type', true);
-
-		if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
-		{
-			$post_document_searchable = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_searchable', true);
-			$post_document_public = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_public', true);
-			$post_document_public_single = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_public_single', true);
-			$post_document_quick = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_quick', true);
-			$post_document_property = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_property', true);
-			$default_post_document = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_default', true);
-
-			$fields_array = array(
-				'name' => $post_title,
-				'id' => $obj_webshop->meta_prefix.$post_name,
-				'type' => $post_custom_type,
-				'std' => $default_post_document,
-				'attributes' => $arr_attributes,
-			);
-
-			if($post_custom_type == 'location')
-			{
-				$arr_locations = array();
-				get_post_children(array('post_type' => 'mf_location', 'post_status' => ''), $arr_locations);
-
-				$fields_array['options'] = $arr_locations;
-				$fields_array['multiple'] = true;
-			}
-
-			if($post_document_public_single == "yes")
-			{
-				$fields_single[] = $fields_array;
-			}
-
-			else if($post_document_property == "yes")
-			{
-				$fields_properties[] = $fields_array;
-			}
-
-			else if($post_document_quick == "yes")
-			{
-				$fields_quick[] = $fields_array;
-			}
-
-			else if($post_document_searchable == "yes")
-			{
-				$fields_searchable[] = $fields_array;
-			}
-
-			else if($post_document_public == "yes")
-			{
-				$fields_public[] = $fields_array;
-			}
-
-			else
-			{
-				$fields_info[] = $fields_array;
-			}
-		}
-	}
-
-	if(count($fields_info) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'information',
-			'title' => __("Information", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			//'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_info
-		);
-	}
-
-	if(count($fields_properties) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'properties',
-			'title' => __("Properties", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			//'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_properties
-		);
-	}
-
-	if(count($fields_settings) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'settings',
-			'title' => __("Settings", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_settings
-		);
-	}
-
-	if(count($fields_searchable) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'searchable',
-			'title' => __("Searchable", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_searchable
-		);
-	}
-
-	if(count($fields_public) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'public',
-			'title' => __("Results", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_public
-		);
-	}
-
-	if(count($fields_single) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'single',
-			'title' => __("Contact Info", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_single
-		);
-	}
-
-	if(count($fields_quick) > 0)
-	{
-		$meta_boxes[] = array(
-			'id' => $obj_webshop->meta_prefix.'quick',
-			'title' => __("Quick Info", 'lang_webshop'),
-			'post_types' => array('mf_products'),
-			//'context' => 'side',
-			'priority' => 'low',
-			'fields' => $fields_quick
-		);
-	}
-
-	$arr_document_symbol = array(
-		'name' => __("Symbol", 'lang_webshop')." (<a href='//fortawesome.github.io/Font-Awesome/icons/'>".__("Ref", 'lang_webshop')."</a>)",
-		'id' => $obj_webshop->meta_prefix.'document_symbol',
-		'type' => 'text',
-	);
-
-	$symbol_options = array();
-
-	$symbol_options[''] = "-- ".__("Choose Here", 'lang_webshop')." --";
-
-	$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
-
-	foreach($arr_icons as $icon)
-	{
-		$symbol_options[$icon] = $icon;
-	}
-
-	if(count($symbol_options) > 1)
-	{
-		$arr_document_symbol = array(
-			'name' => __("Symbol", 'lang_webshop')." (<a href='//fortawesome.github.io/Font-Awesome/icons/'>".__("Ref", 'lang_webshop')."</a>)",
-			'id' => $obj_webshop->meta_prefix.'document_symbol',
-			'type' => 'select',
-			'options' => $symbol_options,
-			//'multiple' => false,
-		);
-	}
-
-	$arr_yes_no = get_yes_no_for_select();
-
-	$meta_boxes[] = array(
-		'id' => $obj_webshop->meta_prefix.'settings',
-		'title' => __("Settings", 'lang_webshop'),
-		'post_types' => array('mf_document_type'),
-		//'context' => 'side',
-		'priority' => 'low',
-		'fields' => array(
-			array(
-				'name' => __("Type", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_type',
-				'type' => 'select',
-				'options' => $obj_webshop->get_types_for_select(),
-				'std' => $default_type,
-			),
-			array(
-				'type' => 'divider',
-			),
-			array(
-				'name' => __("Make Searchable", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_searchable',
-				'type' => 'select',
-				'options' => $arr_yes_no,
-				'std' => $default_searchable,
-				'attributes' => array(
-					'condition_type' => 'show_if',
-					'condition_value' => 'yes',
-					'condition_field' => $obj_webshop->meta_prefix.'document_searchable_required',
-					'condition_default' => 'no',
-				),
-			),
-			array(
-				'name' => " - ".__("Make Required", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_searchable_required',
-				'type' => 'select',
-				'options' => $arr_yes_no,
-				'std' => 'no',
-			),
-			array(
-				'name' => __("Display in Results", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_public',
-				'type' => 'select',
-				'options' => $arr_yes_no,
-				'std' => $default_public,
-			),
-			array(
-				'name' => __("Display as Contact Info", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_public_single',
-				'type' => 'select',
-				'options' => $arr_yes_no,
-				'std' => $default_public_single,
-			),
-			array(
-				'name' => __("Display as Quick Info", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_quick',
-				'type' => 'select',
-				'options' => $arr_yes_no,
-				'std' => $default_quick,
-			),
-			array(
-				'name' => __("Display as Property", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_property',
-				'type' => 'select',
-				'options'  => $arr_yes_no,
-				'std' => $default_property,
-			),
-			array(
-				'type' => 'divider',
-			),
-			$arr_document_symbol,
-			array(
-				'name' => __("Alternate text", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_alt_text',
-				'type' => 'text',
-			),
-			array(
-				'name' => __("Custom class", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'custom_class',
-				'type' => 'text',
-			),
-			array(
-				'name' => __("Default value", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_default',
-				'type' => 'textarea',
-			),
-		)
-	);
-
-	$meta_boxes[] = array(
-		'id' => $obj_webshop->meta_prefix.'order',
-		'title' => __("Settings", 'lang_webshop'),
-		'post_types' => array('mf_document_type'),
-		'context' => 'side',
-		'priority' => 'low',
-		'fields' => array(
-			array(
-				'name' => __("Order number", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'document_type_order',
-				'type' => 'number',
-			),
-		)
-	);
-
-	$meta_boxes[] = array(
-		'id' => $obj_webshop->meta_prefix.'location',
-		'title' => __("Settings", 'lang_webshop'),
-		'post_types' => array('mf_location'),
-		'context' => 'side',
-		'priority' => 'low',
-		'fields' => array(
-			array(
-				'name' => __("Hidden", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'location_hidden',
-				'type' => 'select',
-				'options'  => $arr_yes_no,
-				'std' => 'no',
-			),
-		)
-	);
-
-	$last_category_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_categories' ORDER BY post_date DESC LIMIT 0, 1");
-
-	$default_connect_new_products = get_post_meta($last_category_id, $obj_webshop->meta_prefix.'connect_new_products', true);
-
-	$meta_boxes[] = array(
-		'id' => $obj_webshop->meta_prefix.'categories',
-		'title' => __("Settings", 'lang_webshop'),
-		'post_types' => array('mf_categories'),
-		'context' => 'side',
-		'priority' => 'low',
-		'fields' => array(
-			array(
-				'name' => sprintf(__("Connect to new %s", 'lang_webshop'), strtolower($name_product)),
-				'id' => $obj_webshop->meta_prefix.'connect_new_products',
-				'type' => 'select',
-				'options'  => $arr_yes_no,
-				'std' => $default_connect_new_products,
-			),
-		)
-	);
-
-	$meta_boxes[] = array(
-		'id' => '',
-		'title' => __("Settings", 'lang_webshop'),
-		'post_types' => array('mf_customers'),
-		//'context' => 'side',
-		'priority' => 'low',
-		'fields' => array(
-			array(
-				'name' => __("Customer No", 'lang_webshop'),
-				'id' => $obj_webshop->meta_prefix.'customer_no',
-				'type' => 'number',
-			),
-		)
-	);
-
-	return $meta_boxes;
 }
 
 function meta_boxes_script_webshop()
@@ -2330,6 +1960,14 @@ function column_header_document_type($cols)
 	$cols['quick'] = __("Display as Quick Info", 'lang_webshop');
 	$cols['property'] = __("Display as Property", 'lang_webshop');
 
+	$arr_categories = array();
+	get_post_children(array('post_type' => 'mf_categories', 'add_choose_here' => false, 'post_status' => 'publish'), $arr_categories);
+
+	if(count($arr_categories) > 1)
+	{
+		$cols['display_on_categories'] = __("Display on Categories", 'lang_webshop');
+	}
+
 	return $cols;
 }
 
@@ -2337,15 +1975,17 @@ function column_cell_document_type($col, $id)
 {
 	$obj_webshop = new mf_webshop();
 
-	$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
-
 	switch($col)
 	{
 		case 'type':
+			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+
 			echo $obj_webshop->get_types_for_select()[$post_meta];
 		break;
 
 		case 'searchable':
+			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+
 			echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
 
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_searchable_required', true);
@@ -2360,7 +2000,30 @@ function column_cell_document_type($col, $id)
 		case 'public_single':
 		case 'quick':
 		case 'property':
+			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+
 			echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
+		break;
+
+		case 'display_on_categories':
+			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, false);
+
+			if(count($post_meta) > 0)
+			{
+				$i = 0;
+
+				foreach($post_meta as $category_id)
+				{
+					echo ($i > 0 ? ", " : "").get_post_title($category_id);
+
+					$i++;
+				}
+			}
+
+			else
+			{
+				echo __("All", 'lang_webshop');
+			}
 		break;
 	}
 }

@@ -411,12 +411,13 @@ echo "@media all
 			-webkit-flex: 1 1 40%;
 			-ms-flex: 1 1 40%;
 			flex: 1 1 40%;
+			float: right;
 			margin: 0;
 			-webkit-box-ordinal-group: 2;
 			-webkit-order: 2;
 			-ms-flex-order: 2;
 			order: 2;
-			float: right;
+			padding: 0;
 			min-width: 40%;
 		}
 

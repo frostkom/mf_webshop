@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-28 07:57+0100\n"
+"POT-Creation-Date: 2018-07-06 08:52+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -18,24 +18,24 @@ msgstr ""
 
 #: ../index.php:204
 #: ../group/index.php:8
-#: ../include/classes.php:334
-#: ../include/functions.php:455
-#: ../include/functions.php:471
-#: ../include/functions.php:479
-#: ../include/functions.php:487
-#: ../include/functions.php:496
-#: ../include/functions.php:514
+#: ../include/classes.php:346
+#: ../include/functions.php:465
+#: ../include/functions.php:481
+#: ../include/functions.php:489
+#: ../include/functions.php:497
+#: ../include/functions.php:506
+#: ../include/functions.php:524
 msgid "Webshop"
 msgstr "Webbshop"
 
 #: ../index.php:209
 #: ../include/functions.php:56
-#: ../include/functions.php:498
+#: ../include/functions.php:508
 msgid "Search"
 msgstr "Sök"
 
 #: ../index.php:210
-#: ../include/functions.php:481
+#: ../include/functions.php:491
 msgid "Favorites"
 msgstr "Favoriter"
 
@@ -56,7 +56,7 @@ msgid "Loading"
 msgstr "Laddar"
 
 #: ../import/index.php:6
-#: ../include/classes.php:387
+#: ../include/classes.php:398
 msgid "Import"
 msgstr "Importera"
 
@@ -74,8 +74,8 @@ msgid "Read More"
 msgstr "Läs mer"
 
 #: ../include/classes.php:45
-#: ../include/functions.php:676
-#: ../include/functions.php:1624
+#: ../include/functions.php:686
+#: ../include/functions.php:1254
 msgid "You have to choose at least one product to proceed"
 msgstr "Du måste välja minst en innan du går vidare"
 
@@ -105,7 +105,7 @@ msgid "Size"
 msgstr "Storlek"
 
 #: ../include/classes.php:279
-#: ../include/functions.php:1233
+#: ../include/classes.php:573
 msgid "Information"
 msgstr "Information"
 
@@ -126,7 +126,7 @@ msgid "Input"
 msgstr "Inmatning"
 
 #: ../include/classes.php:284
-#: ../include/functions.php:1753
+#: ../include/functions.php:1383
 msgid "Text"
 msgstr "Text"
 
@@ -139,7 +139,7 @@ msgid "Date"
 msgstr "Datum"
 
 #: ../include/classes.php:287
-#: ../include/functions.php:1752
+#: ../include/functions.php:1382
 msgid "E-mail"
 msgstr "E-post"
 
@@ -180,12 +180,12 @@ msgid "File"
 msgstr "Fil"
 
 #: ../include/classes.php:297
-#: ../include/classes.php:339
+#: ../include/classes.php:351
+#: ../include/classes.php:472
 #: ../include/functions.php:82
 #: ../include/functions.php:279
-#: ../include/functions.php:562
-#: ../include/functions.php:1132
-#: ../include/functions.php:2178
+#: ../include/functions.php:572
+#: ../include/functions.php:1808
 msgid "Categories"
 msgstr "Kategorier"
 
@@ -218,7 +218,7 @@ msgstr "Intervall"
 
 #: ../include/classes.php:305
 #: ../include/classes.php:306
-#: ../include/classes.php:342
+#: ../include/classes.php:354
 #: ../include/functions.php:85
 #: ../stats/index.php:134
 msgid "Location"
@@ -233,7 +233,7 @@ msgid "Local Address"
 msgstr "Lokal adress"
 
 #: ../include/classes.php:309
-#: ../include/functions.php:473
+#: ../include/functions.php:483
 msgid "Map"
 msgstr "Karta"
 
@@ -254,12 +254,12 @@ msgid "End of container"
 msgstr "Slut på behållare"
 
 #: ../include/classes.php:315
-#: ../include/functions.php:1257
-#: ../include/functions.php:1345
-#: ../include/functions.php:1432
-#: ../include/functions.php:1447
-#: ../include/functions.php:1468
-#: ../include/functions.php:1485
+#: ../include/classes.php:597
+#: ../include/classes.php:791
+#: ../include/classes.php:800
+#: ../include/classes.php:815
+#: ../include/classes.php:836
+#: ../include/classes.php:853
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -271,82 +271,200 @@ msgstr "Dölj information"
 msgid "Global code"
 msgstr "Global kod"
 
-#: ../include/classes.php:338
+#: ../include/classes.php:350
 #: ../include/functions.php:81
-#: ../include/functions.php:530
-#: ../include/functions.php:666
-#: ../include/functions.php:1629
-#: ../include/functions.php:1996
-#: ../include/functions.php:2291
-#: ../include/functions.php:2373
+#: ../include/functions.php:540
+#: ../include/functions.php:676
+#: ../include/functions.php:1259
+#: ../include/functions.php:1626
+#: ../include/functions.php:1921
+#: ../include/functions.php:2003
 #: ../stats/index.php:31
 msgid "Products"
 msgstr "Produkter"
 
-#: ../include/classes.php:340
+#: ../include/classes.php:352
 #: ../include/functions.php:83
-#: ../include/functions.php:570
-msgid "Document Types"
-msgstr "Dokumenttyper"
+#: ../include/functions.php:580
+msgid "Filters"
+msgstr "Filter"
 
-#: ../include/classes.php:343
+#: ../include/classes.php:355
 #: ../orders/index.php:52
 msgid "Orders"
 msgstr "Ordrar"
 
-#: ../include/classes.php:344
+#: ../include/classes.php:356
 #: ../include/functions.php:86
 msgid "Customers"
 msgstr "Kunder"
 
-#: ../include/classes.php:345
+#: ../include/classes.php:357
 #: ../include/functions.php:87
-#: ../include/functions.php:1759
+#: ../include/functions.php:1389
 msgid "Delivery Type"
 msgstr "Leveranssätt"
 
-#: ../include/classes.php:393
+#: ../include/classes.php:404
 #: ../stats/index.php:34
 msgid "Statistics"
 msgstr "Statistik"
 
-#: ../include/classes.php:400
+#: ../include/classes.php:411
 msgid "Send e-mail to all"
 msgstr "Skicka e-post till alla"
 
-#: ../include/classes.php:421
-#: ../include/functions.php:1321
-#: ../include/functions.php:2111
+#: ../include/classes.php:452
+#: ../include/functions.php:259
+#: ../include/functions.php:498
+#: ../include/functions.php:532
+#: ../include/functions.php:1625
+#: ../include/functions.php:1922
+msgid "Product"
+msgstr "Produkt"
+
+#: ../include/classes.php:484
+msgid "Image"
+msgstr "Bild"
+
+#: ../include/classes.php:585
+msgid "Properties"
+msgstr "Egenskaper"
+
+#: ../include/classes.php:609
+msgid "Searchable"
+msgstr "Sökbar"
+
+#: ../include/classes.php:621
+msgid "Results"
+msgstr "Resultat"
+
+#: ../include/classes.php:633
+msgid "Contact Info"
+msgstr "Kontaktinfo"
+
+#: ../include/classes.php:645
+msgid "Quick Info"
+msgstr "Snabbinfo"
+
+#: ../include/classes.php:657
+#: ../include/functions.php:1956
+msgid "Type"
+msgstr "Typ"
+
+#: ../include/classes.php:674
+msgid "Display on Categories"
+msgstr "Visa på kategorier"
+
+#: ../include/classes.php:683
+#: ../include/functions.php:1742
+#: ../include/functions.php:1957
+msgid "Make Searchable"
+msgstr "Gör sökbar"
+
+#: ../include/classes.php:697
+msgid "Make Required"
+msgstr "Gör obligatorisk"
+
+#: ../include/classes.php:705
+#: ../include/functions.php:1743
+#: ../include/functions.php:1958
+msgid "Display in Results"
+msgstr "Visa i resultat"
+
+#: ../include/classes.php:713
+#: ../include/functions.php:1744
+#: ../include/functions.php:1959
+msgid "Display as Contact Info"
+msgstr "Visa som kontaktinfo"
+
+#: ../include/classes.php:721
+#: ../include/functions.php:1745
+#: ../include/functions.php:1960
+msgid "Display as Quick Info"
+msgstr "Visa i snabbkoll"
+
+#: ../include/classes.php:729
+#: ../include/functions.php:1746
+#: ../include/functions.php:1961
+msgid "Display as Property"
+msgstr "Visa som egenskap"
+
+#: ../include/classes.php:745
+#: ../include/classes.php:878
+#: ../include/functions.php:1741
 #: ../stats/index.php:21
 msgid "Choose Here"
 msgstr "Välj här"
 
-#: ../include/classes.php:437
+#: ../include/classes.php:754
+#: ../include/classes.php:765
+msgid "Symbol"
+msgstr "Symbol"
+
+#: ../include/classes.php:754
+#: ../include/classes.php:765
+msgid "Ref"
+msgstr "Ref"
+
+#: ../include/classes.php:772
+msgid "Alternate text"
+msgstr "Alternativ text"
+
+#: ../include/classes.php:778
+msgid "Custom class"
+msgstr "Anpassad CSS-klass"
+
+#: ../include/classes.php:784
+msgid "Default value"
+msgstr "Standardvärde"
+
+#: ../include/classes.php:806
+msgid "Order number"
+msgstr "Sorteringsnummer"
+
+#: ../include/classes.php:821
+#: ../include/functions.php:973
+msgid "Hidden"
+msgstr "Dold"
+
+#: ../include/classes.php:842
+#: ../include/functions.php:1925
+#, php-format
+msgid "Connect to new %s"
+msgstr "Koppla till ny %s"
+
+#: ../include/classes.php:859
+#: ../include/functions.php:1378
+msgid "Customer No"
+msgstr "Kundnummer"
+
+#: ../include/classes.php:894
 msgid "Sort By"
 msgstr "Sortera efter"
 
-#: ../include/classes.php:444
+#: ../include/classes.php:901
 #: ../stats/index.php:123
 msgid "Filter"
 msgstr "Filter"
 
-#: ../include/classes.php:586
+#: ../include/classes.php:1040
 msgid "Distance"
 msgstr "Avstånd"
 
-#: ../include/classes.php:606
+#: ../include/classes.php:1060
 #: ../templates/single-mf_products.php:185
 #, php-format
 msgid "The type '%s' does not have a case"
 msgstr "Type '%s' har inget alternativ"
 
-#: ../include/classes.php:650
-#: ../include/functions.php:610
-#: ../include/functions.php:1807
+#: ../include/classes.php:1104
+#: ../include/functions.php:620
+#: ../include/functions.php:1437
 msgid "Choose"
 msgstr "Välj"
 
-#: ../include/classes.php:657
+#: ../include/classes.php:1111
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jag kunde inte hitta något som stämde överens med dina val"
 
@@ -374,34 +492,25 @@ msgstr "Bara på individuell sida"
 msgid "Nowhere"
 msgstr "Ingenstans"
 
-#: ../include/functions.php:259
-#: ../include/functions.php:488
-#: ../include/functions.php:522
-#: ../include/functions.php:1112
-#: ../include/functions.php:1995
-#: ../include/functions.php:2292
-msgid "Product"
-msgstr "Produkt"
-
 #: ../include/functions.php:266
 #: ../include/functions.php:267
 #: ../include/functions.php:268
 #: ../include/functions.php:269
 #: ../include/functions.php:270
-#: ../include/functions.php:307
-#: ../include/functions.php:310
-#: ../include/functions.php:312
-#: ../include/functions.php:326
-#: ../include/functions.php:328
-#: ../include/functions.php:329
-#: ../include/functions.php:333
-#: ../include/functions.php:353
-#: ../include/functions.php:355
-#: ../include/functions.php:372
-#: ../include/functions.php:373
-#: ../include/functions.php:374
-#: ../include/functions.php:375
-msgid "Replace text"
+#: ../include/functions.php:317
+#: ../include/functions.php:320
+#: ../include/functions.php:322
+#: ../include/functions.php:336
+#: ../include/functions.php:338
+#: ../include/functions.php:339
+#: ../include/functions.php:343
+#: ../include/functions.php:363
+#: ../include/functions.php:365
+#: ../include/functions.php:382
+#: ../include/functions.php:383
+#: ../include/functions.php:384
+#: ../include/functions.php:385
+msgid "Replace Text"
 msgstr "Ersätt text"
 
 #: ../include/functions.php:273
@@ -415,396 +524,295 @@ msgstr "Ersätt %s-adress med"
 msgid "Show %s on site"
 msgstr "Visa %s på sida"
 
-#: ../include/functions.php:285
+#: ../include/functions.php:287
+msgid "Payment Form"
+msgstr "Betalningsformulär"
+
+#: ../include/functions.php:295
 msgid "Local Storage"
 msgstr "Lokal data"
 
-#: ../include/functions.php:297
+#: ../include/functions.php:307
 msgid "Display Sort"
 msgstr "Visa sortering"
 
-#: ../include/functions.php:303
+#: ../include/functions.php:313
 msgid "Sort Default"
 msgstr "Standardsortering"
 
-#: ../include/functions.php:306
+#: ../include/functions.php:316
 msgid "Display Filter"
 msgstr "Visa filter"
 
-#: ../include/functions.php:309
+#: ../include/functions.php:319
 msgid "Max results to send quote"
 msgstr "Max antal i resultatet för att kunna skicka anbudsförfrågan"
 
-#: ../include/functions.php:314
-#: ../include/functions.php:315
+#: ../include/functions.php:324
+#: ../include/functions.php:325
 msgid "Switch Icon"
 msgstr "Reglageikon"
 
-#: ../include/functions.php:314
+#: ../include/functions.php:324
 msgid "On"
 msgstr "På"
 
-#: ../include/functions.php:315
+#: ../include/functions.php:325
 msgid "Off"
 msgstr "Av"
 
-#: ../include/functions.php:319
+#: ../include/functions.php:329
 msgid "Form for quote request"
 msgstr "Formulär för anbudsförfrågan"
 
-#: ../include/functions.php:322
+#: ../include/functions.php:332
 msgid "Min results to show number"
 msgstr "Minsta antal för att visa nummer"
 
-#: ../include/functions.php:323
+#: ../include/functions.php:333
 msgid "Default range minimum"
 msgstr "Standard på minsta intervallvärde"
 
-#: ../include/functions.php:324
+#: ../include/functions.php:334
 msgid "Custom range choices"
 msgstr "Egna val i intervall"
 
-#: ../include/functions.php:325
+#: ../include/functions.php:335
 msgid "Require user to make some kind of search"
 msgstr "Tvinga användaren att göra någon form av urval"
 
-#: ../include/functions.php:356
+#: ../include/functions.php:366
 msgid "Email Subject"
 msgstr "E-postämne"
 
-#: ../include/functions.php:357
+#: ../include/functions.php:367
 msgid "Email Content"
 msgstr "E-postinnehåll"
 
-#: ../include/functions.php:369
+#: ../include/functions.php:379
 msgid "Display Breadcrumbs"
 msgstr "Visa brödsmulor"
 
-#: ../include/functions.php:370
+#: ../include/functions.php:380
 msgid "Force Individual Contact"
 msgstr "Tvinga individuell kontakt"
 
-#: ../include/functions.php:379
+#: ../include/functions.php:389
 msgid "Form for quote request (single)"
 msgstr "Formulär för anbudsförfrågan (singel)"
 
-#: ../include/functions.php:421
+#: ../include/functions.php:431
 msgid "API key"
 msgstr "API-nyckel"
 
-#: ../include/functions.php:424
-#: ../include/functions.php:425
+#: ../include/functions.php:434
+#: ../include/functions.php:435
 msgid "Map visibility"
 msgstr "Visa karta"
 
-#: ../include/functions.php:425
+#: ../include/functions.php:435
 msgid "Mobile"
 msgstr "Mobil"
 
-#: ../include/functions.php:426
+#: ../include/functions.php:436
 msgid "Symbol inactive image"
 msgstr "Inaktiv symbol på karta"
 
-#: ../include/functions.php:427
+#: ../include/functions.php:437
 msgid "Symbol active image"
 msgstr "Aktiv symbol på karta"
 
-#: ../include/functions.php:431
+#: ../include/functions.php:441
 msgid "Ghost symbol inactive image"
 msgstr "Inaktiv symbol på karta för dold info"
 
-#: ../include/functions.php:432
+#: ../include/functions.php:442
 msgid "Ghost symbol active image"
 msgstr "Aktiv symbol på karta för dold info"
 
-#: ../include/functions.php:437
+#: ../include/functions.php:447
 msgid "Symbol inactive color"
 msgstr "Färg på inaktiv symbol på karta"
 
-#: ../include/functions.php:438
+#: ../include/functions.php:448
 msgid "Symbol active color"
 msgstr "Färg på aktiv symbol på karta"
 
-#: ../include/functions.php:441
-#: ../include/functions.php:750
-#: ../include/functions.php:1669
+#: ../include/functions.php:451
+#: ../include/functions.php:760
+#: ../include/functions.php:1299
 #: ../templates/single-mf_products.php:3
 msgid "Show Map"
 msgstr "Visa karta"
 
-#: ../include/functions.php:442
-#: ../include/functions.php:758
-#: ../include/functions.php:1670
+#: ../include/functions.php:452
+#: ../include/functions.php:768
+#: ../include/functions.php:1300
 #: ../templates/single-mf_products.php:4
 msgid "Hide Map"
 msgstr "Dölj karta"
 
-#: ../include/functions.php:443
+#: ../include/functions.php:453
 msgid "Map Information"
 msgstr "Kartinformation"
 
-#: ../include/functions.php:445
+#: ../include/functions.php:455
 msgid "Info color"
 msgstr "Färg på info"
 
-#: ../include/functions.php:446
+#: ../include/functions.php:456
 msgid "Info text color"
 msgstr "Textfärg på info"
 
-#: ../include/functions.php:578
-#: ../include/functions.php:1591
+#: ../include/functions.php:588
+#: ../include/functions.php:1221
 #, php-format
 msgid "Filter amongst %s products"
 msgstr "Filtrera bland %s produkter"
 
-#: ../include/functions.php:578
-#: ../include/functions.php:586
-#: ../include/functions.php:594
+#: ../include/functions.php:588
+#: ../include/functions.php:596
+#: ../include/functions.php:604
 msgid "Disable by adding any single character"
 msgstr "Inaktivera genom att lägga in ett valfritt tecken"
 
-#: ../include/functions.php:586
-#: ../include/functions.php:1595
+#: ../include/functions.php:596
+#: ../include/functions.php:1225
 #, php-format
 msgid "Your search matches %s products"
 msgstr "Din sökning matchar %s produkter"
 
-#: ../include/functions.php:594
-#: ../include/functions.php:1599
+#: ../include/functions.php:604
+#: ../include/functions.php:1229
 #, php-format
 msgid "Here are your %s saved products"
 msgstr "Här är dina %s sparade produkter"
 
-#: ../include/functions.php:602
+#: ../include/functions.php:612
 #: ../templates/single-mf_products.php:414
 msgid "Send request for quote"
 msgstr "Skicka anbud"
 
-#: ../include/functions.php:634
+#: ../include/functions.php:644
 #: ../templates/single-mf_products.php:415
 msgid "Add to Search"
 msgstr "Lägg till i sökning"
 
-#: ../include/functions.php:642
+#: ../include/functions.php:652
 #: ../templates/single-mf_products.php:416
 msgid "Remove from Search"
 msgstr "Ta bort från sökning"
 
-#: ../include/functions.php:650
+#: ../include/functions.php:660
 msgid "Return to Search"
 msgstr "Gå tillbaka till sökning"
 
-#: ../include/functions.php:658
+#: ../include/functions.php:668
 #: ../templates/single-mf_products.php:418
 msgid "Search for Another"
 msgstr "Sök efter en annan"
 
-#: ../include/functions.php:668
-#: ../include/functions.php:1631
+#: ../include/functions.php:678
+#: ../include/functions.php:1261
 msgid "Send request for quote to"
 msgstr "Skicka anbud till"
 
-#: ../include/functions.php:684
-#: ../include/functions.php:1648
+#: ../include/functions.php:694
+#: ../include/functions.php:1278
 msgid "Email Your Products"
 msgstr "E-posta dina produkter"
 
-#: ../include/functions.php:692
-#: ../include/functions.php:1625
+#: ../include/functions.php:702
+#: ../include/functions.php:1255
 msgid "In order to send a quote you have to be specific what you want by filtering"
 msgstr "För att kunna skicka en anbudsförfrågan måste du precisera vad du vill se genom att filtrera"
 
-#: ../include/functions.php:698
+#: ../include/functions.php:708
 msgid "I would like to share these products that I like"
 msgstr "Jag skulle vilja dela dessa produkter som jag gillar"
 
-#: ../include/functions.php:706
+#: ../include/functions.php:716
 #, php-format
 msgid "Here are my favorites (%s)"
 msgstr "Här är mina favoriter (%s)"
 
-#: ../include/functions.php:723
+#: ../include/functions.php:733
 msgid "Get yours here"
 msgstr "Hämta din här"
 
-#: ../include/functions.php:787
+#: ../include/functions.php:797
 msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
 msgstr "Om inget nedre värde är angivet för ett intervall, används denna procentsats för att räkna ut det nedre värdet i intervallet"
 
-#: ../include/functions.php:830
-#: ../include/functions.php:831
-#: ../include/functions.php:1960
+#: ../include/functions.php:840
+#: ../include/functions.php:841
+#: ../include/functions.php:1590
 msgid "Yes"
 msgstr "Ja"
 
-#: ../include/functions.php:831
+#: ../include/functions.php:841
 msgid "Hidden behind a button"
 msgstr "Gömd bakom en knapp"
 
-#: ../include/functions.php:832
-#: ../include/functions.php:1960
+#: ../include/functions.php:842
+#: ../include/functions.php:1590
 msgid "No"
 msgstr "Nej"
 
-#: ../include/functions.php:851
+#: ../include/functions.php:861
 #, php-format
 msgid "%d will hide the link in the form"
 msgstr "%d kommer att dölja länken i formuläret"
 
-#: ../include/functions.php:963
-#: ../include/functions.php:1453
-msgid "Hidden"
-msgstr "Dold"
-
-#: ../include/functions.php:979
+#: ../include/functions.php:989
 msgid "This is hidden"
 msgstr "Denna är dold"
 
-#: ../include/functions.php:1015
+#: ../include/functions.php:1025
 msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
 msgstr "Detta tillåter besökarna att skicka individuella förfrågningar hela tiden, annars är det endast vid allra första besöket som detta sker"
 
-#: ../include/functions.php:1021
+#: ../include/functions.php:1049
 msgid "Clear"
 msgstr "Rensa"
 
-#: ../include/functions.php:1095
+#: ../include/functions.php:1123
 msgid "The amount in stock and in the order is wrong"
 msgstr "Antalet i lager och i order stämmer inte"
 
-#: ../include/functions.php:1144
-msgid "Image"
-msgstr "Bild"
-
-#: ../include/functions.php:1245
-msgid "Properties"
-msgstr "Egenskaper"
-
-#: ../include/functions.php:1269
-msgid "Searchable"
-msgstr "Sökbar"
-
-#: ../include/functions.php:1281
-msgid "Results"
-msgstr "Resultat"
-
-#: ../include/functions.php:1293
-msgid "Contact Info"
-msgstr "Kontaktinfo"
-
-#: ../include/functions.php:1305
-msgid "Quick Info"
-msgstr "Snabbinfo"
-
-#: ../include/functions.php:1314
-#: ../include/functions.php:1333
-msgid "Symbol"
-msgstr "Symbol"
-
-#: ../include/functions.php:1314
-#: ../include/functions.php:1333
-msgid "Ref"
-msgstr "Ref"
-
-#: ../include/functions.php:1351
-#: ../include/functions.php:2326
-msgid "Type"
-msgstr "Typ"
-
-#: ../include/functions.php:1361
-#: ../include/functions.php:2112
-#: ../include/functions.php:2327
-msgid "Make Searchable"
-msgstr "Gör sökbar"
-
-#: ../include/functions.php:1374
-msgid "Make Required"
-msgstr "Gör obligatorisk"
-
-#: ../include/functions.php:1381
-#: ../include/functions.php:2113
-#: ../include/functions.php:2328
-msgid "Display in Results"
-msgstr "Visa i resultat"
-
-#: ../include/functions.php:1388
-#: ../include/functions.php:2114
-#: ../include/functions.php:2329
-msgid "Display as Contact Info"
-msgstr "Visa som kontaktinfo"
-
-#: ../include/functions.php:1395
-#: ../include/functions.php:2115
-#: ../include/functions.php:2330
-msgid "Display as Quick Info"
-msgstr "Visa i snabbkoll"
-
-#: ../include/functions.php:1402
-#: ../include/functions.php:2116
-#: ../include/functions.php:2331
-msgid "Display as Property"
-msgstr "Visa som egenskap"
-
-#: ../include/functions.php:1413
-msgid "Alternate text"
-msgstr "Alternativ text"
-
-#: ../include/functions.php:1418
-msgid "Custom class"
-msgstr "Anpassad CSS-klass"
-
-#: ../include/functions.php:1423
-msgid "Default value"
-msgstr "Standardvärde"
-
-#: ../include/functions.php:1438
-msgid "Order number"
-msgstr "Sorteringsnummer"
-
-#: ../include/functions.php:1474
-#: ../include/functions.php:2295
-#, php-format
-msgid "Connect to new %s"
-msgstr "Koppla till ny %s"
-
-#: ../include/functions.php:1491
-#: ../include/functions.php:1748
-msgid "Customer No"
-msgstr "Kundnummer"
-
-#: ../include/functions.php:1643
+#: ../include/functions.php:1273
 msgid "Print List"
 msgstr "Skriv ut lista"
 
-#: ../include/functions.php:1702
+#: ../include/functions.php:1332
 msgid "Cart"
 msgstr "Kundkorg"
 
-#: ../include/functions.php:1724
+#: ../include/functions.php:1354
 msgid "Proceed to Checkout"
 msgstr "Gå till kassan"
 
-#: ../include/functions.php:1741
+#: ../include/functions.php:1371
 msgid "Checkout"
 msgstr "Till kassan"
 
-#: ../include/functions.php:1747
+#: ../include/functions.php:1377
 msgid "Customer"
 msgstr "Kund"
 
-#: ../include/functions.php:1751
+#: ../include/functions.php:1381
 msgid "Name"
 msgstr "Namn"
 
-#: ../include/functions.php:1763
+#: ../include/functions.php:1393
 msgid "Confirm Order"
 msgstr "Bekräfta order"
 
-#: ../include/functions.php:2355
+#: ../include/functions.php:1985
 msgid "Required"
 msgstr "Obligatorisk"
 
-#: ../include/functions.php:2471
+#: ../include/functions.php:2101
 #: ../templates/single-mf_products.php:417
 msgid "Continue Search"
 msgstr "Fortsätt att söka"
