@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-06 08:52+0100\n"
+"POT-Creation-Date: 2018-07-09 08:11+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: ..\n"
 
-#: ../index.php:204
+#: ../index.php:212
 #: ../group/index.php:8
 #: ../include/classes.php:346
 #: ../include/functions.php:465
@@ -28,13 +28,13 @@ msgstr ""
 msgid "Webshop"
 msgstr "Webbshop"
 
-#: ../index.php:209
+#: ../index.php:217
 #: ../include/functions.php:56
 #: ../include/functions.php:508
 msgid "Search"
 msgstr "Sök"
 
-#: ../index.php:210
+#: ../index.php:218
 #: ../include/functions.php:491
 msgid "Favorites"
 msgstr "Favoriter"
@@ -105,7 +105,7 @@ msgid "Size"
 msgstr "Storlek"
 
 #: ../include/classes.php:279
-#: ../include/classes.php:573
+#: ../include/classes.php:563
 msgid "Information"
 msgstr "Information"
 
@@ -181,7 +181,7 @@ msgstr "Fil"
 
 #: ../include/classes.php:297
 #: ../include/classes.php:351
-#: ../include/classes.php:472
+#: ../include/classes.php:462
 #: ../include/functions.php:82
 #: ../include/functions.php:279
 #: ../include/functions.php:572
@@ -254,12 +254,12 @@ msgid "End of container"
 msgstr "Slut på behållare"
 
 #: ../include/classes.php:315
-#: ../include/classes.php:597
-#: ../include/classes.php:791
-#: ../include/classes.php:800
-#: ../include/classes.php:815
-#: ../include/classes.php:836
-#: ../include/classes.php:853
+#: ../include/classes.php:587
+#: ../include/classes.php:790
+#: ../include/classes.php:799
+#: ../include/classes.php:814
+#: ../include/classes.php:835
+#: ../include/classes.php:852
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -272,13 +272,15 @@ msgid "Global code"
 msgstr "Global kod"
 
 #: ../include/classes.php:350
+#: ../include/classes.php:874
+#: ../include/classes.php:916
 #: ../include/functions.php:81
 #: ../include/functions.php:540
 #: ../include/functions.php:676
 #: ../include/functions.php:1259
 #: ../include/functions.php:1626
-#: ../include/functions.php:1921
-#: ../include/functions.php:2003
+#: ../include/functions.php:1934
+#: ../include/functions.php:2057
 #: ../stats/index.php:31
 msgid "Products"
 msgstr "Produkter"
@@ -314,157 +316,169 @@ msgstr "Statistik"
 msgid "Send e-mail to all"
 msgstr "Skicka e-post till alla"
 
-#: ../include/classes.php:452
+#: ../include/classes.php:421
+#, php-format
+msgid "Pay to Access %s"
+msgstr "Betala för tillgång till %s"
+
+#: ../include/classes.php:442
 #: ../include/functions.php:259
 #: ../include/functions.php:498
 #: ../include/functions.php:532
 #: ../include/functions.php:1625
-#: ../include/functions.php:1922
+#: ../include/functions.php:1935
 msgid "Product"
 msgstr "Produkt"
 
-#: ../include/classes.php:484
+#: ../include/classes.php:474
 msgid "Image"
 msgstr "Bild"
 
-#: ../include/classes.php:585
+#: ../include/classes.php:575
 msgid "Properties"
 msgstr "Egenskaper"
 
-#: ../include/classes.php:609
+#: ../include/classes.php:599
 msgid "Searchable"
 msgstr "Sökbar"
 
-#: ../include/classes.php:621
+#: ../include/classes.php:611
 msgid "Results"
 msgstr "Resultat"
 
-#: ../include/classes.php:633
+#: ../include/classes.php:623
 msgid "Contact Info"
 msgstr "Kontaktinfo"
 
-#: ../include/classes.php:645
+#: ../include/classes.php:635
 msgid "Quick Info"
 msgstr "Snabbinfo"
 
-#: ../include/classes.php:657
-#: ../include/functions.php:1956
+#: ../include/classes.php:647
+#: ../include/functions.php:1971
 msgid "Type"
 msgstr "Typ"
 
-#: ../include/classes.php:674
-msgid "Display on Categories"
-msgstr "Visa på kategorier"
-
-#: ../include/classes.php:683
+#: ../include/classes.php:659
 #: ../include/functions.php:1742
-#: ../include/functions.php:1957
+#: ../include/functions.php:1972
 msgid "Make Searchable"
 msgstr "Gör sökbar"
 
-#: ../include/classes.php:697
+#: ../include/classes.php:673
 msgid "Make Required"
 msgstr "Gör obligatorisk"
 
-#: ../include/classes.php:705
+#: ../include/classes.php:681
 #: ../include/functions.php:1743
-#: ../include/functions.php:1958
+#: ../include/functions.php:1973
 msgid "Display in Results"
 msgstr "Visa i resultat"
 
-#: ../include/classes.php:713
+#: ../include/classes.php:689
 #: ../include/functions.php:1744
-#: ../include/functions.php:1959
+#: ../include/functions.php:1974
 msgid "Display as Contact Info"
 msgstr "Visa som kontaktinfo"
 
-#: ../include/classes.php:721
+#: ../include/classes.php:697
 #: ../include/functions.php:1745
-#: ../include/functions.php:1960
+#: ../include/functions.php:1975
 msgid "Display as Quick Info"
 msgstr "Visa i snabbkoll"
 
-#: ../include/classes.php:729
+#: ../include/classes.php:705
 #: ../include/functions.php:1746
-#: ../include/functions.php:1961
+#: ../include/functions.php:1976
 msgid "Display as Property"
 msgstr "Visa som egenskap"
 
-#: ../include/classes.php:745
-#: ../include/classes.php:878
+#: ../include/classes.php:722
+#: ../include/functions.php:1983
+msgid "Display on Categories"
+msgstr "Visa på kategorier"
+
+#: ../include/classes.php:744
+#: ../include/classes.php:951
 #: ../include/functions.php:1741
 #: ../stats/index.php:21
 msgid "Choose Here"
 msgstr "Välj här"
 
-#: ../include/classes.php:754
-#: ../include/classes.php:765
+#: ../include/classes.php:753
+#: ../include/classes.php:764
 msgid "Symbol"
 msgstr "Symbol"
 
-#: ../include/classes.php:754
-#: ../include/classes.php:765
+#: ../include/classes.php:753
+#: ../include/classes.php:764
 msgid "Ref"
 msgstr "Ref"
 
-#: ../include/classes.php:772
+#: ../include/classes.php:771
 msgid "Alternate text"
 msgstr "Alternativ text"
 
-#: ../include/classes.php:778
+#: ../include/classes.php:777
 msgid "Custom class"
 msgstr "Anpassad CSS-klass"
 
-#: ../include/classes.php:784
+#: ../include/classes.php:783
 msgid "Default value"
 msgstr "Standardvärde"
 
-#: ../include/classes.php:806
+#: ../include/classes.php:805
 msgid "Order number"
 msgstr "Sorteringsnummer"
 
-#: ../include/classes.php:821
+#: ../include/classes.php:820
 #: ../include/functions.php:973
 msgid "Hidden"
 msgstr "Dold"
 
-#: ../include/classes.php:842
-#: ../include/functions.php:1925
+#: ../include/classes.php:841
+#: ../include/functions.php:1938
 #, php-format
 msgid "Connect to new %s"
 msgstr "Koppla till ny %s"
 
-#: ../include/classes.php:859
+#: ../include/classes.php:858
 #: ../include/functions.php:1378
 msgid "Customer No"
 msgstr "Kundnummer"
 
-#: ../include/classes.php:894
+#: ../include/classes.php:876
+#: ../include/classes.php:920
+#, php-format
+msgid "Paid for %s until"
+msgstr "Betalt för %s till"
+
+#: ../include/classes.php:967
 msgid "Sort By"
 msgstr "Sortera efter"
 
-#: ../include/classes.php:901
+#: ../include/classes.php:974
 #: ../stats/index.php:123
 msgid "Filter"
 msgstr "Filter"
 
-#: ../include/classes.php:1040
+#: ../include/classes.php:1113
 msgid "Distance"
 msgstr "Avstånd"
 
-#: ../include/classes.php:1060
+#: ../include/classes.php:1133
 #: ../templates/single-mf_products.php:185
 #, php-format
 msgid "The type '%s' does not have a case"
 msgstr "Type '%s' har inget alternativ"
 
-#: ../include/classes.php:1104
+#: ../include/classes.php:1177
 #: ../include/functions.php:620
 #: ../include/functions.php:1437
 msgid "Choose"
 msgstr "Välj"
 
-#: ../include/classes.php:1111
+#: ../include/classes.php:1184
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jag kunde inte hitta något som stämde överens med dina val"
 
@@ -808,11 +822,16 @@ msgstr "Namn"
 msgid "Confirm Order"
 msgstr "Bekräfta order"
 
-#: ../include/functions.php:1985
+#: ../include/functions.php:2012
 msgid "Required"
 msgstr "Obligatorisk"
 
-#: ../include/functions.php:2101
+#: ../include/functions.php:2046
+#: ../stats/index.php:29
+msgid "All"
+msgstr "Alla"
+
+#: ../include/functions.php:2157
 #: ../templates/single-mf_products.php:417
 msgid "Continue Search"
 msgstr "Fortsätt att söka"
@@ -852,10 +871,6 @@ msgstr "Skapad"
 #: ../templates/single-mf_products.php:153
 msgid "Delete"
 msgstr "Radera"
-
-#: ../stats/index.php:29
-msgid "All"
-msgstr "Alla"
 
 #: ../stats/index.php:54
 msgid "unknown"

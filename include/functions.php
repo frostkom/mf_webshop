@@ -1,5 +1,11 @@
 <?php
 
+function confirm_payment_webshop($data)
+{
+	$obj_webshop = new mf_webshop();
+	$obj_webshop->confirm_payment($data);
+}
+
 function is_between($data)
 {
 	$out = false;
@@ -1840,13 +1846,11 @@ function column_header_products($cols)
 
 function column_cell_products($col, $id)
 {
-	$obj_webshop = new mf_webshop();
-
-	$post_name = $obj_webshop->get_post_name_for_type($col);
-
 	switch($col)
 	{
 		case 'category':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, false);
 			$count_temp = count($post_meta);
 
@@ -1872,6 +1876,9 @@ function column_cell_products($col, $id)
 		break;
 
 		case 'ghost':
+			$obj_webshop = new mf_webshop();
+
+			$post_name = $obj_webshop->get_post_name_for_type($col);
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
 
 			if($post_meta == true)
@@ -1881,6 +1888,9 @@ function column_cell_products($col, $id)
 		break;
 
 		case 'location':
+			$obj_webshop = new mf_webshop();
+
+			$post_name = $obj_webshop->get_post_name_for_type($col);
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, false);
 			$count_temp = count($post_meta);
 
@@ -1895,18 +1905,27 @@ function column_cell_products($col, $id)
 
 		case 'address':
 		case 'local_address':
+			$obj_webshop = new mf_webshop();
+
+			$post_name = $obj_webshop->get_post_name_for_type($col);
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
 
 			echo $post_meta;
 		break;
 
 		case 'email':
+			$obj_webshop = new mf_webshop();
+
+			$post_name = $obj_webshop->get_post_name_for_type($col);
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
 
 			echo "<a href='mailto:".$post_meta."'>".$post_meta."</a>";
 		break;
 
 		case 'phone':
+			$obj_webshop = new mf_webshop();
+
+			$post_name = $obj_webshop->get_post_name_for_type($col);
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
 
 			echo "<a href='".format_phone_no($post_meta)."'>".$post_meta."</a>";
@@ -1931,17 +1950,19 @@ function column_cell_categories($col, $id)
 {
 	global $wpdb;
 
-	$obj_webshop = new mf_webshop();
-
 	switch($col)
 	{
 		case 'products':
+			$obj_webshop = new mf_webshop();
+
 			$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$obj_webshop->meta_prefix."category' AND meta_value = '%d'", $id));
 
 			echo $product_amount;
 		break;
 
 		case 'connect_new_products':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, true);
 
 			echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
@@ -1973,17 +1994,19 @@ function column_header_document_type($cols)
 
 function column_cell_document_type($col, $id)
 {
-	$obj_webshop = new mf_webshop();
-
 	switch($col)
 	{
 		case 'type':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
 
 			echo $obj_webshop->get_types_for_select()[$post_meta];
 		break;
 
 		case 'searchable':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
 
 			echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
@@ -2000,12 +2023,16 @@ function column_cell_document_type($col, $id)
 		case 'public_single':
 		case 'quick':
 		case 'property':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
 
 			echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
 		break;
 
 		case 'display_on_categories':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, false);
 
 			if(count($post_meta) > 0)
@@ -2040,11 +2067,11 @@ function column_header_location($cols)
 
 function column_cell_location($col, $id)
 {
-	$obj_webshop = new mf_webshop();
-
 	switch($col)
 	{
 		case 'location_hidden':
+			$obj_webshop = new mf_webshop();
+
 			$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, true);
 
 			if($post_meta == 'yes')
@@ -2054,6 +2081,8 @@ function column_cell_location($col, $id)
 		break;
 
 		case 'products':
+			$obj_webshop = new mf_webshop();
+
 			$result = $obj_webshop->get_products_from_location($id);
 
 			$count_temp = count($result);

@@ -335,6 +335,63 @@ class mf_webshop
 		."</div>";
 	}
 
+	function confirm_payment($data = array())
+	{
+		global $wpdb;
+
+		if(!isset($data['paid'])){		$data['paid'] = 0;}
+
+		if(!isset($data['user_id']))
+		{
+			if(get_current_user_id() > 0)
+			{
+				$data['user_id'] = get_current_user_id();
+			}
+
+			else
+			{
+				$obj_form = new mf_form();
+
+				$data['user_id'] = $obj_form->get_meta(array('id' => $data['answer_id'], 'meta_key' => 'user_id'));
+			}
+		}
+
+		if($data['paid'] > 0 && $data['user_id'] > 0)
+		{
+			$amount = $data['paid'];
+
+			if($amount > 0)
+			{
+				$meta_key = 'profile_webshop_payment';
+				$meta_value = get_the_author_meta($meta_key, $data['user_id']);
+
+				if($meta_value > date('Y-m-d'))
+				{
+					$meta_value = date('Y-m-d', strtotime($meta_value." +12 month"));
+				}
+
+				else
+				{
+					$meta_value = date('Y-m-d', strtotime("+12 month"));
+				}
+
+				update_user_meta($data['user_id'], $meta_key, $meta_value);
+			}
+
+			else
+			{
+				do_log(__("The payment wasn't done correctly", 'lang_coupon')." (".var_export($data, true).")");
+			}
+		}
+
+		else
+		{
+			$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+			do_log(sprintf(__("Something was missing when a user paid for access to %s (%s)", 'lang_coupon'), $name_webshop, var_export($data, true)));
+		}
+	}
+
 	function admin_menu()
 	{
 		global $wpdb;
@@ -412,31 +469,28 @@ class mf_webshop
 
 				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'group/index.php');
 			}
+
+			if(get_option('setting_webshop_payment_form') > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date('Y-m-d'))
+			{
+				$menu_title = sprintf(__("Pay to Access %s", 'lang_webshop'), $name_webshop);
+
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, 'admin_menu_payment_page', array($this, 'admin_menu_payment_page'));
+			}
 		}
 
 		else
 		{
-			/*$setting_webshop_payment_form = get_option('setting_webshop_payment_form');
-
-			if($setting_webshop_payment_form > 0)
+			if(get_option('setting_webshop_payment_form') > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date('Y-m-d'))
 			{
-				if()
-				{
-					$menu_title = $name_webshop." (".__("Payment", 'lang_webshop').")";
+				$menu_title = sprintf(__("Pay to Access %s", 'lang_webshop'), $name_webshop);
 
-					add_menu_page($menu_title, $menu_title, $menu_capability, $menu_start, array($this, 'admin_menu_payment_page'), 'dashicons-cart', 21);
-				}
-
-				else
-				{
-					
-				}
+				add_menu_page($menu_title, $menu_title, $menu_capability, $menu_start, array($this, 'admin_menu_payment_page'), 'dashicons-cart', 21);
 			}
 
 			else
-			{*/
+			{
 				add_menu_page($name_webshop, $name_webshop, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
-			//}
+			}
 		}
 	}
 
@@ -664,7 +718,7 @@ class mf_webshop
 				'type' => 'divider',
 			),
 		);
-		
+
 		$arr_fields[] = array(
 			'name' => __("Make Searchable", 'lang_webshop'),
 			'id' => $this->meta_prefix.'document_searchable',
@@ -678,7 +732,7 @@ class mf_webshop
 				'condition_default' => 'no',
 			),
 		);
-		
+
 		$arr_fields[] = array(
 			'name' => " - ".__("Make Required", 'lang_webshop'),
 			'id' => $this->meta_prefix.'document_searchable_required',
@@ -873,6 +927,80 @@ class mf_webshop
 		);
 
 		return $meta_boxes;
+	}
+
+	function manage_users_columns($cols)
+	{
+		if(get_option('setting_webshop_payment_form') > 0)
+		{
+			unset($cols['posts']);
+
+			$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
+
+			$cols['profile_webshop_payment'] = sprintf(__("Paid for %s until", 'lang_bank_id'), $name_products);
+		}
+
+		return $cols;
+	}
+
+	function manage_users_custom_column($value, $col, $id)
+	{
+		switch($col)
+		{
+			case 'profile_webshop_payment':
+				$post_meta = get_the_author_meta($col, $id);
+
+				if($post_meta != '')
+				{
+					return $post_meta;
+				}
+			break;
+		}
+
+		return $value;
+	}
+
+	function save_register($user_id, $password = "", $meta = array())
+	{
+		if(IS_ADMIN && get_option('setting_webshop_payment_form') > 0)
+		{
+			$meta_key = 'profile_webshop_payment';
+			$meta_value = check_var($meta_key);
+
+			update_user_meta($user_id, $meta_key, $meta_value);
+		}
+	}
+
+	function show_profile($user)
+	{
+		if(IS_ADMIN && get_option('setting_webshop_payment_form') > 0)
+		{
+			$out = "";
+
+			$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
+
+			$meta_key = 'profile_webshop_payment';
+			$meta_value = get_the_author_meta($meta_key, $user->ID);
+			$meta_text = sprintf(__("Paid for %s until", 'lang_webshop'), $name_products);
+
+			$out .= "<tr class='".str_replace("_", "-", $meta_key)."-wrap'>
+				<th><label for='".$meta_key."'>".$meta_text."</label></th>
+				<td>".show_textfield(array('type' => 'date', 'name' => $meta_key, 'value' => $meta_value, 'xtra' => "class='regular-text'"))."</td>
+			</tr>";
+
+			if($out != '')
+			{
+				echo "<table class='form-table'>".$out."</table>";
+			}
+		}
+	}
+
+	function save_profile($user_id)
+	{
+		if(current_user_can('edit_user', $user_id))
+		{
+			$this->save_register($user_id);
+		}
 	}
 
 	/* Public */
