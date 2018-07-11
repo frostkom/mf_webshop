@@ -6,11 +6,11 @@ Description:
 Version: 1.3.3.7
 Licence: GPLv2 or later
 Author: Martin Fors
-Author URI: http://frostkom.se
+Author URI: https://frostkom.se
 Text Domain: lang_webshop
 Domain Path: /lang
 
-Depends: Meta Box, MF Base
+Depends: Meta Box, MF Base, MF Maps
 GitHub Plugin URI: frostkom/mf_webshop
 */
 
@@ -87,6 +87,7 @@ function activate_webshop()
 	global $wpdb;
 
 	require_plugin("meta-box/meta-box.php", "Meta Box");
+	require_plugin("mf_maps/index.php", "MF Maps");
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
