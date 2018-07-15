@@ -501,7 +501,6 @@ class mf_webshop
 		$arr_categories = array();
 
 		$obj_font_icons = new mf_font_icons();
-		//$obj_webshop = new mf_webshop();
 
 		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
 
@@ -569,13 +568,21 @@ class mf_webshop
 				$post_document_public_single = get_post_meta($post_id, $this->meta_prefix.'document_public_single', true);
 				$post_document_quick = get_post_meta($post_id, $this->meta_prefix.'document_quick', true);
 				$post_document_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
-				$default_post_document = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
+				$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
+				$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
+
+				if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+				{
+					$arr_attributes['condition_type'] = 'show_this_if';
+					$arr_attributes['condition_selector'] = $this->meta_prefix.'category';
+					$arr_attributes['condition_value'] = $post_document_display_on_categories;
+				}
 
 				$fields_array = array(
 					'name' => $post_title,
 					'id' => $this->meta_prefix.$post_name,
 					'type' => $post_custom_type,
-					'std' => $default_post_document,
+					'std' => $post_document_default,
 					'attributes' => $arr_attributes,
 				);
 
@@ -588,27 +595,27 @@ class mf_webshop
 					$fields_array['multiple'] = true;
 				}
 
-				if($post_document_public_single == "yes")
+				if($post_document_public_single == 'yes')
 				{
 					$fields_single[] = $fields_array;
 				}
 
-				else if($post_document_property == "yes")
+				else if($post_document_property == 'yes')
 				{
 					$fields_properties[] = $fields_array;
 				}
 
-				else if($post_document_quick == "yes")
+				else if($post_document_quick == 'yes')
 				{
 					$fields_quick[] = $fields_array;
 				}
 
-				else if($post_document_searchable == "yes")
+				else if($post_document_searchable == 'yes')
 				{
 					$fields_searchable[] = $fields_array;
 				}
 
-				else if($post_document_public == "yes")
+				else if($post_document_public == 'yes')
 				{
 					$fields_public[] = $fields_array;
 				}
@@ -1493,7 +1500,7 @@ class mf_webshop
 
 	function gather_product_meta($data)
 	{
-		if($data['public'] == "yes" && ($data['meta'] != '' || $data['type'] == 'heading'))
+		if($data['public'] == 'yes' && ($data['meta'] != '' || $data['type'] == 'heading'))
 		{
 			$class = $data['type'];
 			$content = "";
@@ -1674,8 +1681,6 @@ class mf_webshop
 			$this->product_clock = $this->product_data = $this->product_location = "";
 		}
 
-		//$obj_webshop = new mf_webshop();
-
 		$has_interval = $has_number = false;
 
 		$this->result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'order' => "menu_order ASC"));
@@ -1700,7 +1705,7 @@ class mf_webshop
 
 			$this->result[$i]->post_custom_type = $post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
-			if($post_custom_public == "yes")
+			if($post_custom_public == 'yes')
 			{
 				switch($post_custom_type)
 				{

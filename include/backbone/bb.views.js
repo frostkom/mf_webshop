@@ -18,7 +18,7 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:product_amount", this.show_product_amount, this);
 
 		this.is_favorites_view = jQuery(".product_favorites").length > 0;
-		this.has_product_result = jQuery('#product_result_search').length > 0;
+		this.has_product_result = jQuery("#product_result_search").length > 0;
 
 		this.get_products_storage();
 
@@ -156,7 +156,7 @@ var WebshopView = Backbone.View.extend(
 
 	if_product_view: function()
 	{
-		var dom_product_buttons = jQuery('#product_form.form_button_container');
+		var dom_product_buttons = jQuery("#product_form.form_button_container");
 
 		if(dom_product_buttons.length > 0)
 		{
@@ -166,12 +166,12 @@ var WebshopView = Backbone.View.extend(
 
 			if(script_webshop_views.force_individual_contact == 'no' && (typeof form_serialized != 'undefined' || typeof this.form_products != 'undefined'))
 			{
-				dom_product_buttons.find('.has_not_searched').addClass('hide');
-				dom_product_buttons.find('.has_searched').removeClass('hide');
+				dom_product_buttons.find(".has_not_searched").addClass('hide');
+				dom_product_buttons.find(".has_searched").removeClass('hide');
 
 				if(typeof this.form_products !== 'undefined')
 				{
-					var product_id = dom_product_buttons.find('.button-primary').attr('product_id');
+					var product_id = dom_product_buttons.find(".button-primary").attr('product_id');
 
 					if(typeof product_id !== 'undefined' && product_id > 0)
 					{
@@ -179,8 +179,8 @@ var WebshopView = Backbone.View.extend(
 						{
 							if(value == product_id)
 							{
-								dom_product_buttons.find('.remove_from_search').removeClass('hide');
-								dom_product_buttons.find('.add_to_search').addClass('hide');
+								dom_product_buttons.find(".remove_from_search").removeClass('hide');
+								dom_product_buttons.find(".add_to_search").addClass('hide');
 							}
 						});
 					}
@@ -189,8 +189,8 @@ var WebshopView = Backbone.View.extend(
 
 			else
 			{
-				dom_product_buttons.find('.has_searched').addClass('hide');
-				dom_product_buttons.find('.has_not_searched').removeClass('hide');
+				dom_product_buttons.find(".has_searched").addClass('hide');
+				dom_product_buttons.find(".has_not_searched").removeClass('hide');
 			}
 
 			var response = JSON.parse(jQuery.Storage.get('result_products')),
@@ -237,13 +237,15 @@ var WebshopView = Backbone.View.extend(
 
 	if_thanks_view: function()
 	{
-		if(jQuery('#mf_back_to_search').length > 0)
+		var dom_obj = jQuery("#mf_back_to_search");
+
+		if(dom_obj.length > 0)
 		{
 			var form_serialized = jQuery.Storage.get('form_serialized');
 
 			if(form_serialized != '')
 			{
-				jQuery('#mf_back_to_search').attr({'href': form_serialized}).removeClass('hide');
+				dom_obj.attr({'href': form_serialized}).removeClass('hide');
 			}
 
 			jQuery.Storage.remove('form_products');
@@ -269,7 +271,7 @@ var WebshopView = Backbone.View.extend(
 
 	set_hash: function()
 	{
-		var form_serialized = jQuery('#product_form').serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+		var form_serialized = jQuery("#product_form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
 		location.hash = form_serialized;
 
@@ -280,7 +282,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var form_products = '';
 
-		jQuery('.products:checked').each(function()
+		jQuery(".products:checked").each(function()
 		{
 			form_products += (form_products != '' ? "," : "") + jQuery(this).val();
 		});
@@ -371,14 +373,14 @@ var WebshopView = Backbone.View.extend(
 	{
 		if(this.model.get('products_checked') == 0)
 		{
-			jQuery(e.currentTarget).find('.show_if_none_checked').removeClass('hide');
+			jQuery(e.currentTarget).find(".show_if_none_checked").removeClass('hide');
 
 			return false;
 		}
 
 		if(this.model.get('products_checked') > script_webshop_views.search_max || this.product_form_has_changed() == false)
 		{
-			jQuery(e.currentTarget).find('.show_if_too_many').removeClass('hide');
+			jQuery(e.currentTarget).find(".show_if_too_many").removeClass('hide');
 
 			scroll_to_top();
 
@@ -390,7 +392,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		if(this.model.get('products_total') > script_webshop_views.search_max || this.product_form_has_changed() == false)
 		{
-			jQuery(e.currentTarget).next('.show_if_too_many').removeClass('hide');
+			jQuery(e.currentTarget).next(".show_if_too_many").removeClass('hide');
 
 			scroll_to_top();
 		}
@@ -408,7 +410,7 @@ var WebshopView = Backbone.View.extend(
 
 	product_form_has_changed: function()
 	{
-		return script_webshop_views.require_search == 'no' || jQuery('#webshop_search .form_select:first-of-type select').val() != '' || jQuery('#webshop_search .form_checkbox input').is(':checked') || jQuery('#webshop_map_bounds').val() != '';
+		return script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(':checked') || jQuery("#webshop_map_bounds").val() != '';
 	},
 
 	show_quote_request_button: function()
@@ -420,7 +422,7 @@ var WebshopView = Backbone.View.extend(
 		jQuery("#product_result_search .products").each(function()
 		{
 			var dom_obj = jQuery(this),
-				dom_parent = dom_obj.parents('li'),
+				dom_parent = dom_obj.parents("li"),
 				is_hidden = dom_parent.hasClass('hide'),
 				is_checked = dom_obj.is(':checked');
 
@@ -460,7 +462,7 @@ var WebshopView = Backbone.View.extend(
 
 	update_quote_amount: function()
 	{
-		jQuery('.form_button .show_if_results span').html(this.model.get('products_checked'));
+		jQuery(".form_button .show_if_results span").html(this.model.get('products_checked'));
 	},
 
 	set_last_product: function(e)
@@ -483,7 +485,7 @@ var WebshopView = Backbone.View.extend(
 
 		if(typeof last_product !== 'undefined' && last_product > 0)
 		{
-			var dom_obj = jQuery('#product_' + last_product);
+			var dom_obj = jQuery("#product_" + last_product);
 
 			if(dom_obj.length > 0)
 			{
@@ -708,14 +710,14 @@ var WebshopView = Backbone.View.extend(
 		{
 			remove_markers();
 
-			jQuery('.map_coords').each(function()
+			jQuery(".map_coords").each(function()
 			{
 				var dom_obj = jQuery(this),
-					dom_product = dom_obj.parents('li'),
+					dom_product = dom_obj.parents("li"),
 					is_hovering = dom_product.hasClass('hover'),
 					icon = is_hovering ? script_webshop_views.symbol_active : script_webshop_views.symbol_inactive;
 
-				if(dom_obj.parents('li').hasClass('ghost'))
+				if(dom_obj.parents("li").hasClass('ghost'))
 				{
 					icon = is_hovering ? script_webshop_views.ghost_active : script_webshop_views.ghost_inactive;
 				}
@@ -748,8 +750,8 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget);
 
-		dom_obj.next('.map_wrapper').toggle();
-		dom_obj.children('span').toggle();
+		dom_obj.next(".map_wrapper").toggle();
+		dom_obj.children("span").toggle();
 
 		if(dom_obj.hasClass('is_map_toggler'))
 		{
