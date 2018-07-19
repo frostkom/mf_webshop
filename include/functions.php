@@ -1046,7 +1046,7 @@ function setting_webshop_payment_form_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key, 'no');
 
-	echo show_select(array('data' => get_settings_roles(array('no' => true)), 'name' => $setting_key, 'value' => $option)); //'yes' => true, 
+	echo show_select(array('data' => get_settings_roles(array('no' => true)), 'name' => $setting_key, 'value' => $option)); //'yes' => true,
 }*/
 
 function setting_local_storage_callback()

@@ -67,6 +67,18 @@ class mf_webshop
 		}
 	}
 
+	function add_policy($content)
+	{
+		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+		$content .= "<h3>".$name_webshop."</h3>
+		<p>"
+			.__("When searching we store information in the so called 'localStorage' in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients.", 'lang_webshop')
+		."</p>";
+
+		return $content;
+	}
+
 	function wp_head()
 	{
 		$this->combined_head();

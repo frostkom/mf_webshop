@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.3.3.9
+Version: 1.3.3.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -30,6 +30,8 @@ if(is_admin())
 
 	add_action('admin_init', 'settings_webshop');
 	add_action('admin_init', array($obj_webshop, 'admin_init'), 0);
+
+	add_filter('wp_get_default_privacy_policy_content', array($obj_webshop, 'add_policy'));
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
 	add_action('rwmb_meta_boxes', array($obj_webshop, 'meta_boxes'));
@@ -102,7 +104,7 @@ function activate_webshop()
 		orderEmail VARCHAR(200) NOT NULL,
 		orderText TEXT NOT NULL,
 		deliveryTypeID INT UNSIGNED NOT NULL,
-		userID INT UNSIGNED NOT NULL,
+		userID INT UNSIGNED DEFAULT NULL,
 		orderCreated DATETIME NOT NULL,
 		PRIMARY KEY (orderID)
 	) DEFAULT CHARSET=".$default_charset);
