@@ -1073,6 +1073,16 @@ class mf_webshop
 						$post_custom_symbol = get_post_meta($post_id, $this->meta_prefix.'document_symbol', true);
 						$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
 						$post_custom_required = get_post_meta($post_id, $this->meta_prefix.'document_searchable_required', true);
+						$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
+
+						$arr_attributes = array();
+
+						if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+						{
+							$arr_attributes['condition_type'] = 'show_this_if';
+							$arr_attributes['condition_selector'] = 'category';
+							$arr_attributes['condition_value'] = $post_document_display_on_categories;
+						}
 
 						$custom_class = " class='".$post_custom_type.($post_custom_class != '' ? " ".$post_custom_class : "")."'";
 
@@ -1103,7 +1113,7 @@ class mf_webshop
 
 								get_post_children(array('post_type' => 'mf_location', 'post_status' => 'publish'), $arr_data);
 
-								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
 							break;
 
 							case 'number':
@@ -1152,7 +1162,7 @@ class mf_webshop
 									}
 								}
 
-								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
 							break;
 
 							case 'interval':
