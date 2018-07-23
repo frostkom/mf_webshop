@@ -507,11 +507,13 @@ var WebshopView = Backbone.View.extend(
 
 			if(products_amount > 0)
 			{
+				var dom_template = jQuery("#template_product_item").html();
+
 				jQuery.Storage.set({'result_products': JSON.stringify(response)});
 
 				for(var i = 0; i < products_amount; i++)
 				{
-					html += _.template(jQuery("#template_product_item").html())(response[i]);
+					html += _.template(dom_template)(response[i]);
 				}
 
 				jQuery("#product_result_search").html(html);
