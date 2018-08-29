@@ -1,5 +1,33 @@
 <?php
 
+function meta_webshop()
+{
+	global $wpdb, $post;
+
+	$post_id = $post->ID;
+
+	if($post_id > 0 && get_the_excerpt() == '')
+	{
+		$obj_webshop = new mf_webshop();
+		$size_post_name = $obj_webshop->get_post_name_for_type('description');
+		$product_description = get_post_meta($post_id, $obj_webshop->meta_prefix.$size_post_name, true);
+
+		/*if($product_description == '')
+		{
+			$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
+
+			$post_title = get_post_title($post_id);
+
+			$product_description = $name_product.": ".$post_title;
+		}*/
+
+		if($product_description != '')
+		{
+			echo "<meta name='description' content='".esc_attr($product_description)."'>";
+		}
+	}
+}
+
 $name_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
 $name_hide_map = get_option_or_default('setting_replace_hide_map', __("Hide Map", 'lang_webshop'));
 

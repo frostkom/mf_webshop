@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.3.4.1
+Version: 1.4.0.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -21,39 +21,39 @@ $obj_webshop = new mf_webshop();
 
 add_action('cron_base', 'activate_webshop', mt_rand(1, 10));
 
-add_action('init', 'init_webshop');
+add_action('init', array($obj_webshop, 'init'));
 
 if(is_admin())
 {
 	register_activation_hook(__FILE__, 'activate_webshop');
 	register_uninstall_hook(__FILE__, 'uninstall_webshop');
 
-	add_action('admin_init', 'settings_webshop');
+	add_action('admin_init', array($obj_webshop, 'settings_webshop'));
 	add_action('admin_init', array($obj_webshop, 'admin_init'), 0);
 
 	add_filter('wp_get_default_privacy_policy_content', array($obj_webshop, 'add_policy'));
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
 	add_action('rwmb_meta_boxes', array($obj_webshop, 'meta_boxes'));
-	add_action('rwmb_enqueue_scripts', 'meta_boxes_script_webshop');
+	add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 
-	add_action('restrict_manage_posts', 'post_filter_select_webshop');
-	add_action('pre_get_posts', 'post_filter_query_webshop');
+	add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
+	add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
 
-	add_filter('manage_mf_products_posts_columns', 'column_header_products', 5);
-	add_action('manage_mf_products_posts_custom_column', 'column_cell_products', 5, 2);
+	add_filter('manage_mf_products_posts_columns', array($obj_webshop, 'column_header_products'), 5);
+	add_action('manage_mf_products_posts_custom_column', array($obj_webshop, 'column_cell_products'), 5, 2);
 
-	add_filter('manage_mf_categories_posts_columns', 'column_header_categories', 5);
-	add_action('manage_mf_categories_posts_custom_column', 'column_cell_categories', 5, 2);
+	add_filter('manage_mf_categories_posts_columns', array($obj_webshop, 'column_header_categories'), 5);
+	add_action('manage_mf_categories_posts_custom_column', array($obj_webshop, 'column_cell_categories'), 5, 2);
 
-	add_filter('manage_mf_document_type_posts_columns', 'column_header_document_type', 5);
-	add_action('manage_mf_document_type_posts_custom_column', 'column_cell_document_type', 5, 2);
+	add_filter('manage_mf_document_type_posts_columns', array($obj_webshop, 'column_header_document_type'), 5);
+	add_action('manage_mf_document_type_posts_custom_column', array($obj_webshop, 'column_cell_document_type'), 5, 2);
 
-	add_filter('manage_mf_location_posts_columns', 'column_header_location', 5);
-	add_action('manage_mf_location_posts_custom_column', 'column_cell_location', 5, 2);
+	add_filter('manage_mf_location_posts_columns', array($obj_webshop, 'column_header_location'), 5);
+	add_action('manage_mf_location_posts_custom_column', array($obj_webshop, 'column_cell_location'), 5, 2);
 
-	add_action('save_post', 'save_post_webshop', 10, 3);
-	add_action('rwmb_before_save_post', 'before_save_meta_webshop');
+	add_action('save_post', array($obj_webshop, 'save_post'), 10, 3);
+	add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
 
 	add_action('manage_users_columns', array($obj_webshop, 'manage_users_columns'));
 	add_action('manage_users_custom_column', array($obj_webshop, 'manage_users_custom_column'), 10, 3);
@@ -69,18 +69,18 @@ else
 	add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
 }
 
-add_action('widgets_init', 'widgets_webshop');
+add_action('widgets_init', array($obj_webshop, 'widgets_init'));
 
 add_filter('single_template', 'custom_templates_webshop');
 add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
 
-add_action('wp_login', 'uninit_webshop');
-add_action('wp_logout', 'uninit_webshop');
+add_action('wp_login', array($obj_webshop, 'uninit'));
+add_action('wp_logout', array($obj_webshop, 'uninit'));
 
-add_filter('filter_form_after_fields', 'filter_form_after_fields_webshop');
-add_filter('filter_form_on_submit', 'filter_form_on_submit_webshop');
+add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
+add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
 
-add_shortcode('mf_back_to_search', 'shortcode_back_to_search');
+add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
 
 load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))."/lang/");
 
