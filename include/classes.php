@@ -52,6 +52,131 @@ class mf_webshop
 
 		return $out;
 	}
+
+	function get_document_types_for_select($data = array())
+	{
+		global $wpdb;
+
+		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = true;}
+		if(!isset($data['include'])){			$data['include'] = '';}
+
+		$query_where_key = $query_where_value = "";
+
+		if($data['include'] != '')
+		{
+			$query_where_key = "meta_value = %s";
+			$query_where_value = $data['include'];
+		}
+
+		$arr_data = array();
+
+		if($data['add_choose_here'] == true)
+		{
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_webshop')." --";
+		}
+
+		$result = $this->get_document_types(array(
+			'select' => "ID, post_title",
+			'join' => "INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
+			'where_key' => $query_where_key,
+			'where_value' => $query_where_value,
+		));
+
+		foreach($result as $r)
+		{
+			$arr_data[$r->ID] = $r->post_title;
+		}
+
+		return $arr_data;
+	}
+
+	function get_sort_for_select($include = array())
+	{
+		$arr_data = array();
+
+		if(!is_array($include) || count($include) == 0 || in_array('alphabetical', $include))
+		{
+			$arr_data['alphabetical'] = __("A-Z", 'lang_webshop');
+		}
+
+		if(!is_array($include) || count($include) == 0 || in_array('newest', $include) || in_array('latest', $include))
+		{
+			$arr_data['latest'] = __("Latest", 'lang_webshop');
+		}
+
+		if(!is_array($include) || count($include) == 0 || in_array('popular', $include))
+		{
+			if(is_plugin_active("mf_form/index.php"))
+			{
+				$arr_data['popular'] = __("Popularity", 'lang_webshop');
+			}
+		}
+
+		if(!is_array($include) || count($include) == 0 || in_array('random', $include))
+		{
+			$arr_data['random'] = __("Random", 'lang_webshop');
+		}
+
+		if(!is_array($include) || count($include) == 0 || in_array('size', $include))
+		{
+			if($this->get_post_name_for_type('size') != '')
+			{
+				$arr_data['size'] = __("Size", 'lang_webshop');
+			}
+		}
+
+		return $arr_data;
+	}
+
+	function get_types_for_select()
+	{
+		$arr_data = array(
+			'group_information' => "-- ".__("Information", 'lang_webshop')." --",
+				'description' => __("Description", 'lang_webshop'),
+				'heading' => __("Heading", 'lang_webshop'),
+				'label' => __("Label", 'lang_webshop'),
+			'group_input' => "-- ".__("Input", 'lang_webshop')." --",
+				'text' => __("Text", 'lang_webshop'),
+				'textarea' => __("Textarea", 'lang_webshop'),
+				'date' => __("Date", 'lang_webshop'),
+				'email' => __("E-mail", 'lang_webshop'),
+				'phone' => __("Phone Number", 'lang_webshop'),
+				'url' => __("URL", 'lang_webshop'),
+				'clock' => __("Clock", 'lang_webshop'),
+				'checkbox' => __("Checkbox", 'lang_webshop'),
+			'group_special_input' => "-- ".__("Special input", 'lang_webshop')." --",
+				'color' => __("Color Picker", 'lang_webshop'),
+				'event' => __("Event", 'lang_webshop'),
+				'page' => __("Page", 'lang_webshop'),
+				'file_advanced' => __("File", 'lang_webshop'),
+				'categories' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop')),
+				'custom_categories' => __("Custom Categories", 'lang_webshop'),
+				'social' => __("Social Feed", 'lang_webshop'),
+			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
+				'number' => __("Number", 'lang_webshop'),
+				'price' => __("Number", 'lang_webshop')." (".__("Price", 'lang_webshop').")",
+				'size' => __("Number", 'lang_webshop')." (".__("Size", 'lang_webshop').")",
+				'stock' => __("Number", 'lang_webshop')." (".__("Stock", 'lang_webshop').")",
+				'interval' => __("Interval", 'lang_webshop'),
+			'group_location' => "-- ".__("Location", 'lang_webshop')." --",
+				'location' => __("Location", 'lang_webshop'),
+				'address' => __("Address", 'lang_webshop'),
+				'local_address' => __("Local Address", 'lang_webshop'),
+				'gps' => __("Map", 'lang_webshop'),
+				//'map' => __("Map", 'lang_webshop'),
+			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
+				'divider' => __("Divider", 'lang_webshop'),
+				'container_start' => __("Start of container", 'lang_webshop'),
+				'container_end' => __("End of container", 'lang_webshop'),
+			'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
+				'ghost' => __("Hide information", 'lang_webshop'),
+				'global_code' => __("Global code", 'lang_webshop'),
+		);
+
+		//$arr_data = array_sort(array('array' => $arr_data, 'on' => 0, 'order' => 'asc', 'keep_index' => true));
+
+		return $arr_data;
+	}
 	
 	function get_map_visibility_for_select()
 	{
@@ -72,16 +197,7 @@ class mf_webshop
 			@session_start();
 		}
 
-		$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 		$name_categories = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
-		$name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
-
-		$name_location = __("Location", 'lang_webshop');
-		$name_customers = __("Customers", 'lang_webshop');
-		$name_delivery_type = __("Delivery Type", 'lang_webshop');
-
-		$slug_categories = get_option_or_default('setting_webshop_replace_categories_slug', "c");
-		$slug_products = get_option_or_default('setting_webshop_replace_products_slug', "w");
 
 		$labels = array(
 			'name' => _x($name_categories, 'post type general name'),
@@ -98,11 +214,13 @@ class mf_webshop
 			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array(
-				'slug' => $slug_categories,
+				'slug' => get_option_or_default('setting_webshop_replace_categories_slug', "c"),
 			),
 		);
 
 		register_post_type('mf_categories', $args);
+		
+		$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
 		$labels = array(
 			'name' => _x($name_products, 'post type general name'),
@@ -118,11 +236,33 @@ class mf_webshop
 			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array(
-				'slug' => $slug_products,
+				'slug' => get_option_or_default('setting_webshop_replace_products_slug', "w"),
 			),
 		);
 
 		register_post_type('mf_products', $args);
+
+		$name_custom_categories = __("Custom Categories", 'lang_webshop');
+
+		$labels = array(
+			'name' => _x($name_custom_categories, 'post type general name'),
+			'menu_name' => $name_custom_categories
+		);
+
+		$args = array(
+			'labels' => $labels,
+			'public' => true,
+			'show_in_menu' => false,
+			'show_in_nav_menus' => false,
+			'exclude_from_search' => true,
+			'supports' => array('title', 'page-attributes'),
+			'hierarchical' => true,
+			'has_archive' => false,
+		);
+
+		register_post_type('mf_custom_categories', $args);
+
+		$name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
 
 		$labels = array(
 			'name' => _x($name_doc_types, 'post type general name'),
@@ -142,6 +282,8 @@ class mf_webshop
 
 		register_post_type('mf_document_type', $args);
 
+		$name_location = __("Location", 'lang_webshop');
+
 		$labels = array(
 			'name' => _x($name_location, 'post type general name'),
 			'menu_name' => $name_location
@@ -160,6 +302,8 @@ class mf_webshop
 
 		register_post_type('mf_location', $args);
 
+		$name_customers = __("Customers", 'lang_webshop');
+
 		$labels = array(
 			'name' => _x($name_customers, 'post type general name'),
 			'menu_name' => $name_customers
@@ -176,6 +320,8 @@ class mf_webshop
 		);
 
 		register_post_type('mf_customers', $args);
+
+		$name_delivery_type = __("Delivery Type", 'lang_webshop');
 
 		$labels = array(
 			'name' => _x($name_delivery_type, 'post type general name'),
@@ -1127,8 +1273,8 @@ class mf_webshop
 
 			else
 			{
-				$obj_webshop = new mf_webshop();
-				$post_id = $obj_webshop->get_document_types(array('select' => "ID", 'where_key' => "post_name = %s", 'where_value' => $data['key'], 'limit' => "0, 1"));
+				//$obj_webshop = new mf_webshop();
+				$post_id = $this->get_document_types(array('select' => "ID", 'where_key' => "post_name = %s", 'where_value' => $data['key'], 'limit' => "0, 1"));
 
 				if($post_id > 0)
 				{
@@ -1144,13 +1290,13 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$obj_webshop = new mf_webshop();
+		//$obj_webshop = new mf_webshop();
 
 		$out_left = $out_right = "";
 
 		$setting_search_max = get_option_or_default('setting_search_max', 50);
 		$name_choose = get_option_or_default('setting_webshop_replace_choose_product', __("Choose", 'lang_webshop'));
-		$address_post_name = $obj_webshop->get_post_name_for_type('address');
+		$address_post_name = $this->get_post_name_for_type('address');
 
 		foreach($_REQUEST as $key => $value)
 		{
@@ -1176,7 +1322,7 @@ class mf_webshop
 
 					if($address_post_name != '')
 					{
-						$query_join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$obj_webshop->meta_prefix.$address_post_name."'";
+						$query_join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix.$address_post_name."'";
 					}
 
 					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = 'mf_products' AND post_status = 'publish' AND ID = '%d'", $product_id));
@@ -1185,7 +1331,7 @@ class mf_webshop
 					{
 						$arr_product = array();
 
-						$obj_webshop->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $arr_product);
+						$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $arr_product);
 
 						/* If the user for some reason succeeds in requesting all the products but still having a filter on to prevent all products to show this is neccesary */
 						if(isset($arr_product['product_response'][0]))
@@ -1268,7 +1414,7 @@ class mf_webshop
 		global $wpdb, $error_text;
 
 		$obj_form = new mf_form();
-		$obj_webshop = new mf_webshop();
+		//$obj_webshop = new mf_webshop();
 
 		$answer_text = "";
 
@@ -1290,14 +1436,14 @@ class mf_webshop
 				{
 					$answer_text .= $key." -> ".$value.", ";
 
-					$result = $obj_webshop->get_document_types(array('select' => "ID, post_title", 'where_key' => "post_name = %s", 'where_value' => $key));
+					$result = $this->get_document_types(array('select' => "ID, post_title", 'where_key' => "post_name = %s", 'where_value' => $key));
 
 					foreach($result as $r)
 					{
 						$post_id = $r->ID;
 						$key = $r->post_title;
 
-						$post_custom_type = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_type', true);
+						$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
 						switch($post_custom_type)
 						{
@@ -1350,9 +1496,9 @@ class mf_webshop
 
 			foreach($arr_product_ids as $product_id)
 			{
-				$email_post_name = $obj_webshop->get_post_name_for_type('email');
+				$email_post_name = $this->get_post_name_for_type('email');
 
-				$product_email = get_post_meta($product_id, $obj_webshop->meta_prefix.$email_post_name, true);
+				$product_email = get_post_meta($product_id, $this->meta_prefix.$email_post_name, true);
 
 				if($product_email != '')
 				{
@@ -1409,7 +1555,7 @@ class mf_webshop
 					$i++;
 				}
 
-				$obj_webshop->insert_sent(array('product_id' => $product_id, 'answer_id' => $obj_form->answer_id));
+				$this->insert_sent(array('product_id' => $product_id, 'answer_id' => $obj_form->answer_id));
 			}
 		}
 
@@ -1569,93 +1715,6 @@ class mf_webshop
 		return $this->arr_locations;
 	}
 
-	function get_sort_for_select($include = array())
-	{
-		$arr_data = array();
-
-		if(!is_array($include) || count($include) == 0 || in_array('alphabetical', $include))
-		{
-			$arr_data['alphabetical'] = __("A-Z", 'lang_webshop');
-		}
-
-		if(!is_array($include) || count($include) == 0 || in_array('newest', $include) || in_array('latest', $include))
-		{
-			$arr_data['latest'] = __("Latest", 'lang_webshop');
-		}
-
-		if(!is_array($include) || count($include) == 0 || in_array('popular', $include))
-		{
-			if(is_plugin_active("mf_form/index.php"))
-			{
-				$arr_data['popular'] = __("Popularity", 'lang_webshop');
-			}
-		}
-
-		if(!is_array($include) || count($include) == 0 || in_array('random', $include))
-		{
-			$arr_data['random'] = __("Random", 'lang_webshop');
-		}
-
-		if(!is_array($include) || count($include) == 0 || in_array('size', $include))
-		{
-			if($this->get_post_name_for_type('size') != '')
-			{
-				$arr_data['size'] = __("Size", 'lang_webshop');
-			}
-		}
-
-		return $arr_data;
-	}
-
-	function get_types_for_select()
-	{
-		$arr_types = array(
-			'group_information' => "-- ".__("Information", 'lang_webshop')." --",
-				'description' => __("Description", 'lang_webshop'),
-				'heading' => __("Heading", 'lang_webshop'),
-				'label' => __("Label", 'lang_webshop'),
-			'group_input' => "-- ".__("Input", 'lang_webshop')." --",
-				'text' => __("Text", 'lang_webshop'),
-				'textarea' => __("Textarea", 'lang_webshop'),
-				'date' => __("Date", 'lang_webshop'),
-				'email' => __("E-mail", 'lang_webshop'),
-				'phone' => __("Phone Number", 'lang_webshop'),
-				'url' => __("URL", 'lang_webshop'),
-				'clock' => __("Clock", 'lang_webshop'),
-				'checkbox' => __("Checkbox", 'lang_webshop'),
-			'group_special_input' => "-- ".__("Special input", 'lang_webshop')." --",
-				'color' => __("Color Picker", 'lang_webshop'),
-				'event' => __("Event", 'lang_webshop'),
-				'page' => __("Page", 'lang_webshop'),
-				'file_advanced' => __("File", 'lang_webshop'),
-				'categories' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop')),
-				'social' => __("Social Feed", 'lang_webshop'),
-			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
-				'number' => __("Number", 'lang_webshop'),
-				'price' => __("Number", 'lang_webshop')." (".__("Price", 'lang_webshop').")",
-				'size' => __("Number", 'lang_webshop')." (".__("Size", 'lang_webshop').")",
-				'stock' => __("Number", 'lang_webshop')." (".__("Stock", 'lang_webshop').")",
-				'interval' => __("Interval", 'lang_webshop'),
-			'group_location' => "-- ".__("Location", 'lang_webshop')." --",
-				'location' => __("Location", 'lang_webshop'),
-				'address' => __("Address", 'lang_webshop'),
-				'local_address' => __("Local Address", 'lang_webshop'),
-				'gps' => __("Map", 'lang_webshop'),
-				//'map' => __("Map", 'lang_webshop'),
-			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
-				'divider' => __("Divider", 'lang_webshop'),
-				'container_start' => __("Start of container", 'lang_webshop'),
-				'container_end' => __("End of container", 'lang_webshop'),
-			'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
-				'ghost' => __("Hide information", 'lang_webshop'),
-				'global_code' => __("Global code", 'lang_webshop'),
-		);
-
-		//$arr_types = array_sort(array('array' => $arr_types, 'on' => 0, 'order' => 'asc', 'keep_index' => true));
-
-		return $arr_types;
-	}
-
 	/* Admin */
 	function admin_menu_payment_page()
 	{
@@ -1760,17 +1819,6 @@ class mf_webshop
 		if(IS_EDITOR)
 		{
 			$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
-			$name_categories = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
-			$name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
-
-			$name_location = __("Location", 'lang_webshop');
-			$name_orders = __("Orders", 'lang_webshop');
-			$name_customers = __("Customers", 'lang_webshop');
-			$name_delivery_type = __("Delivery Type", 'lang_webshop');
-
-			$location_post_name = $this->get_post_name_for_type('location');
-			$price_post_name = $this->get_post_name_for_type('price');
-			$email_post_name = $this->get_post_name_for_type('email');
 
 			$count_message = "";
 
@@ -1787,24 +1835,38 @@ class mf_webshop
 
 			add_menu_page($name_webshop, $name_webshop.$count_message, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
 			add_submenu_page($menu_start, $name_products, $name_products, $menu_capability, $menu_start);
-			add_submenu_page($menu_start, $name_categories, $name_categories, $menu_capability, "edit.php?post_type=mf_categories");
+			
+			$menu_title = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_categories");
 
-			if($location_post_name != '')
+			if($this->get_post_name_for_type('custom_categories') != '')
 			{
-				add_submenu_page($menu_start, $name_location, $name_location, $menu_capability, "edit.php?post_type=mf_location");
+				$menu_title = __("Custom Categories", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_custom_categories");
 			}
 
-			add_submenu_page($menu_start, $name_doc_types, $name_doc_types, $menu_capability, "edit.php?post_type=mf_document_type");
+			if($this->get_post_name_for_type('location') != '')
+			{
+				$menu_title = __("Location", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_location");
+			}
+
+			$menu_title = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_document_type");
 
 			if($rows_order > 0)
 			{
-				add_submenu_page($menu_start, $name_orders, $name_orders.$count_message, $menu_capability, $menu_root.'orders/index.php');
+				$menu_title = __("Orders", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title.$count_message, $menu_capability, $menu_root.'orders/index.php');
 			}
 
-			if($price_post_name != '')
+			if($this->get_post_name_for_type('price') != '')
 			{
-				add_submenu_page($menu_start, $name_customers, $name_customers, $menu_capability, "edit.php?post_type=mf_customers");
-				add_submenu_page($menu_start, $name_delivery_type, $name_delivery_type, $menu_capability, "edit.php?post_type=mf_delivery_type");
+				$menu_title = __("Customers", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_customers");
+
+				$menu_title = __("Delivery Type", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_delivery_type");
 			}
 
 			$menu_title = __("Import", 'lang_webshop');
@@ -1818,7 +1880,7 @@ class mf_webshop
 				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'stats/index.php');
 			}
 
-			if($email_post_name != '' && is_plugin_active("mf_group/index.php"))
+			if(is_plugin_active("mf_group/index.php") && $this->get_post_name_for_type('email') != '')
 			{
 				$menu_title = __("Send e-mail to all", 'lang_webshop')." ".strtolower($name_products);
 
@@ -1849,15 +1911,9 @@ class mf_webshop
 		}
 	}
 
-	function meta_boxes($meta_boxes)
+	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $wpdb;
-
-		$arr_categories = array();
-
-		$obj_font_icons = new mf_font_icons();
-
-		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
 
 		//Default values for type
 		################
@@ -1871,6 +1927,9 @@ class mf_webshop
 		$default_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
 		################
 
+		// Products
+		####################################
+		$arr_categories = array();
 		get_post_children(array('post_type' => 'mf_categories'), $arr_categories);
 
 		$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = array();
@@ -1905,79 +1964,83 @@ class mf_webshop
 			$post_name = $r->post_name;
 			$post_parent = $r->post_parent;
 
-			$arr_attributes = array();
-
-			if($post_parent > 0)
+			// This is already displayed in settings
+			if($post_name != 'category')
 			{
-				$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = '%d'", 'where_value' => $post_parent, 'limit' => "0, 1"));
+				$arr_attributes = array();
 
-				$arr_attributes['connect_to'] = $this->meta_prefix.$parent_name;
-			}
-
-			$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
-
-			if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
-			{
-				$post_document_searchable = get_post_meta($post_id, $this->meta_prefix.'document_searchable', true);
-				$post_document_public = get_post_meta($post_id, $this->meta_prefix.'document_public', true);
-				$post_document_public_single = get_post_meta($post_id, $this->meta_prefix.'document_public_single', true);
-				$post_document_quick = get_post_meta($post_id, $this->meta_prefix.'document_quick', true);
-				$post_document_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
-				$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
-				$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
-
-				if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+				if($post_parent > 0)
 				{
-					$arr_attributes['condition_type'] = 'show_this_if';
-					$arr_attributes['condition_selector'] = $this->meta_prefix.'category';
-					$arr_attributes['condition_value'] = $post_document_display_on_categories;
+					$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = '%d'", 'where_value' => $post_parent, 'limit' => "0, 1"));
+
+					$arr_attributes['connect_to'] = $this->meta_prefix.$parent_name;
 				}
 
-				$fields_array = array(
-					'name' => $post_title,
-					'id' => $this->meta_prefix.$post_name,
-					'type' => $post_custom_type,
-					'std' => $post_document_default,
-					'attributes' => $arr_attributes,
-				);
+				$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
-				if($post_custom_type == 'location')
+				if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
 				{
-					$arr_locations = array();
-					get_post_children(array('post_type' => 'mf_location', 'post_status' => ''), $arr_locations);
+					$post_document_searchable = get_post_meta($post_id, $this->meta_prefix.'document_searchable', true);
+					$post_document_public = get_post_meta($post_id, $this->meta_prefix.'document_public', true);
+					$post_document_public_single = get_post_meta($post_id, $this->meta_prefix.'document_public_single', true);
+					$post_document_quick = get_post_meta($post_id, $this->meta_prefix.'document_quick', true);
+					$post_document_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
+					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
+					$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
 
-					$fields_array['options'] = $arr_locations;
-					$fields_array['multiple'] = true;
-				}
+					if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+					{
+						$arr_attributes['condition_type'] = 'show_this_if';
+						$arr_attributes['condition_selector'] = $this->meta_prefix.'category';
+						$arr_attributes['condition_value'] = $post_document_display_on_categories;
+					}
 
-				if($post_document_public_single == 'yes')
-				{
-					$fields_single[] = $fields_array;
-				}
+					$fields_array = array(
+						'name' => $post_title,
+						'id' => $this->meta_prefix.$post_name,
+						'type' => $post_custom_type,
+						'std' => $post_document_default,
+						'attributes' => $arr_attributes,
+					);
 
-				else if($post_document_property == 'yes')
-				{
-					$fields_properties[] = $fields_array;
-				}
+					if($post_custom_type == 'location')
+					{
+						$arr_locations = array();
+						get_post_children(array('post_type' => 'mf_location', 'post_status' => ''), $arr_locations);
 
-				else if($post_document_quick == 'yes')
-				{
-					$fields_quick[] = $fields_array;
-				}
+						$fields_array['options'] = $arr_locations;
+						$fields_array['multiple'] = true;
+					}
 
-				else if($post_document_searchable == 'yes')
-				{
-					$fields_searchable[] = $fields_array;
-				}
+					if($post_document_public_single == 'yes')
+					{
+						$fields_single[] = $fields_array;
+					}
 
-				else if($post_document_public == 'yes')
-				{
-					$fields_public[] = $fields_array;
-				}
+					else if($post_document_property == 'yes')
+					{
+						$fields_properties[] = $fields_array;
+					}
 
-				else
-				{
-					$fields_info[] = $fields_array;
+					else if($post_document_quick == 'yes')
+					{
+						$fields_quick[] = $fields_array;
+					}
+
+					else if($post_document_searchable == 'yes')
+					{
+						$fields_searchable[] = $fields_array;
+					}
+
+					else if($post_document_public == 'yes')
+					{
+						$fields_public[] = $fields_array;
+					}
+
+					else
+					{
+						$fields_info[] = $fields_array;
+					}
 				}
 			}
 		}
@@ -2065,7 +2128,10 @@ class mf_webshop
 				'fields' => $fields_quick
 			);
 		}
+		####################################
 
+		// Document Types
+		####################################
 		$arr_yes_no = get_yes_no_for_select();
 
 		$arr_fields = array(
@@ -2079,60 +2145,54 @@ class mf_webshop
 			array(
 				'type' => 'divider',
 			),
-		);
-
-		$arr_fields[] = array(
-			'name' => __("Make Searchable", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_searchable',
-			'type' => 'select',
-			'options' => $arr_yes_no,
-			'std' => $default_searchable,
-			'attributes' => array(
-				'condition_type' => 'show_if',
-				'condition_value' => 'yes',
-				'condition_field' => $this->meta_prefix.'document_searchable_required',
-				'condition_default' => 'no',
+			array(
+				'name' => __("Make Searchable", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_searchable',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+				'std' => $default_searchable,
+				'attributes' => array(
+					'condition_type' => 'show_if',
+					'condition_value' => 'yes',
+					'condition_field' => $this->meta_prefix.'document_searchable_required',
+					'condition_default' => 'no',
+				),
 			),
-		);
-
-		$arr_fields[] = array(
-			'name' => " - ".__("Make Required", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_searchable_required',
-			'type' => 'select',
-			'options' => $arr_yes_no,
-			'std' => 'no',
-		);
-
-		$arr_fields[] = array(
-			'name' => __("Display in Results", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_public',
-			'type' => 'select',
-			'options' => $arr_yes_no,
-			'std' => $default_public,
-		);
-
-		$arr_fields[] = array(
-			'name' => __("Display as Contact Info", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_public_single',
-			'type' => 'select',
-			'options' => $arr_yes_no,
-			'std' => $default_public_single,
-		);
-
-		$arr_fields[] = array(
-			'name' => __("Display as Quick Info", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_quick',
-			'type' => 'select',
-			'options' => $arr_yes_no,
-			'std' => $default_quick,
-		);
-
-		$arr_fields[] = array(
-			'name' => __("Display as Property", 'lang_webshop'),
-			'id' => $this->meta_prefix.'document_property',
-			'type' => 'select',
-			'options'  => $arr_yes_no,
-			'std' => $default_property,
+			array(
+				'name' => " - ".__("Make Required", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_searchable_required',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+				'std' => 'no',
+			),
+			array(
+				'name' => __("Display in Results", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_public',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+				'std' => $default_public,
+			),
+			array(
+				'name' => __("Display as Contact Info", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_public_single',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+				'std' => $default_public_single,
+			),
+			array(
+				'name' => __("Display as Quick Info", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_quick',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+				'std' => $default_quick,
+			),
+			array(
+				'name' => __("Display as Property", 'lang_webshop'),
+				'id' => $this->meta_prefix.'document_property',
+				'type' => 'select',
+				'options'  => $arr_yes_no,
+				'std' => $default_property,
+			),
 		);
 
 		$arr_categories = array();
@@ -2162,6 +2222,7 @@ class mf_webshop
 			'type' => 'divider',
 		);
 
+		$obj_font_icons = new mf_font_icons();
 		$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
 
 		if(count($arr_icons) > 0)
@@ -2234,7 +2295,54 @@ class mf_webshop
 				),
 			)
 		);
+		####################################
 
+		// Categories
+		####################################
+		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
+
+		$last_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_categories' ORDER BY post_date DESC LIMIT 0, 1");
+		$default_value = get_post_meta($last_id, $this->meta_prefix.'connect_new_products', true);
+
+		$meta_boxes[] = array(
+			'id' => $this->meta_prefix.'categories',
+			'title' => __("Settings", 'lang_webshop'),
+			'post_types' => array('mf_categories'),
+			'context' => 'side',
+			'priority' => 'low',
+			'fields' => array(
+				array(
+					'name' => sprintf(__("Connect to new %s", 'lang_webshop'), strtolower($name_product)),
+					'id' => $this->meta_prefix.'connect_new_products',
+					'type' => 'select',
+					'options'  => $arr_yes_no,
+					'std' => $default_value,
+				),
+			)
+		);
+		####################################
+
+		// Custom Categories
+		####################################
+		$meta_boxes[] = array(
+			'id' => $this->meta_prefix.'custom_categories',
+			'title' => __("Settings", 'lang_webshop'),
+			'post_types' => array('mf_custom_categories'),
+			'context' => 'normal',
+			'priority' => 'low',
+			'fields' => array(
+				array(
+					'name' => get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop')),
+					'id' => $this->meta_prefix.'document_type',
+					'type' => 'select',
+					'options'  => $this->get_document_types_for_select(array('include' => 'custom_categories')),
+				),
+			)
+		);
+		####################################
+
+		// Location
+		####################################
 		$meta_boxes[] = array(
 			'id' => $this->meta_prefix.'location',
 			'title' => __("Settings", 'lang_webshop'),
@@ -2251,28 +2359,10 @@ class mf_webshop
 				),
 			)
 		);
+		####################################
 
-		$last_category_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_categories' ORDER BY post_date DESC LIMIT 0, 1");
-
-		$default_connect_new_products = get_post_meta($last_category_id, $this->meta_prefix.'connect_new_products', true);
-
-		$meta_boxes[] = array(
-			'id' => $this->meta_prefix.'categories',
-			'title' => __("Settings", 'lang_webshop'),
-			'post_types' => array('mf_categories'),
-			'context' => 'side',
-			'priority' => 'low',
-			'fields' => array(
-				array(
-					'name' => sprintf(__("Connect to new %s", 'lang_webshop'), strtolower($name_product)),
-					'id' => $this->meta_prefix.'connect_new_products',
-					'type' => 'select',
-					'options'  => $arr_yes_no,
-					'std' => $default_connect_new_products,
-				),
-			)
-		);
-
+		// Customers
+		####################################
 		$meta_boxes[] = array(
 			'id' => '',
 			'title' => __("Settings", 'lang_webshop'),
@@ -2287,6 +2377,7 @@ class mf_webshop
 				),
 			)
 		);
+		####################################
 
 		return $meta_boxes;
 	}
@@ -2304,8 +2395,8 @@ class mf_webshop
 
 		if($post_type == 'mf_products')
 		{
-			$obj_webshop = new mf_webshop();
-			$location_post_name = $obj_webshop->get_post_name_for_type('location');
+			//$obj_webshop = new mf_webshop();
+			$location_post_name = $this->get_post_name_for_type('location');
 
 			if($location_post_name != '')
 			{
@@ -2346,11 +2437,11 @@ class mf_webshop
 
 		if($pagenow == 'edit.php')
 		{
-			$obj_webshop = new mf_webshop();
+			//$obj_webshop = new mf_webshop();
 
 			if($post_type == 'mf_products')
 			{
-				$location_post_name = $obj_webshop->get_post_name_for_type('location');
+				$location_post_name = $this->get_post_name_for_type('location');
 
 				if($location_post_name != '')
 				{
@@ -2361,7 +2452,7 @@ class mf_webshop
 					{
 						$wp_query->query_vars['meta_query'] = array(
 							array(
-								'key' => $obj_webshop->meta_prefix.$location_post_name,
+								'key' => $this->meta_prefix.$location_post_name,
 								'value' => $strFilterLocation,
 								'compare' => '=',
 							),
@@ -2379,7 +2470,7 @@ class mf_webshop
 				{
 					$wp_query->query_vars['meta_query'] = array(
 						array(
-							'key' => $obj_webshop->meta_prefix.'document_'.$strFilterPlacement,
+							'key' => $this->meta_prefix.'document_'.$strFilterPlacement,
 							'value' => 'yes',
 							'compare' => '=',
 						),
@@ -2398,7 +2489,7 @@ class mf_webshop
 			$cols['category'] = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
 		}
 
-		$obj_webshop = new mf_webshop();
+		//$obj_webshop = new mf_webshop();
 
 		$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone'); //address
 		$arr_columns_admin = array('email', 'phone');
@@ -2407,13 +2498,13 @@ class mf_webshop
 		{
 			if(!in_array($column, $arr_columns_admin) || IS_ADMIN)
 			{
-				$result = $obj_webshop->get_post_type_info(array('type' => $column));
+				$result = $this->get_post_type_info(array('type' => $column));
 
 				if(isset($result->post_title))
 				{
 					$column_title = $result->post_title;
 
-					$column_icon = get_post_meta($result->ID, $obj_webshop->meta_prefix.'document_symbol', true);
+					$column_icon = get_post_meta($result->ID, $this->meta_prefix.'document_symbol', true);
 
 					if($column_icon != '')
 					{
@@ -2433,9 +2524,9 @@ class mf_webshop
 		switch($col)
 		{
 			case 'category':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, false);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$col, false);
 				$count_temp = count($post_meta);
 
 				if($count_temp > 0)
@@ -2460,10 +2551,10 @@ class mf_webshop
 			break;
 
 			case 'ghost':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_name = $obj_webshop->get_post_name_for_type($col);
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
+				$post_name = $this->get_post_name_for_type($col);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
 				if($post_meta == true)
 				{
@@ -2472,10 +2563,10 @@ class mf_webshop
 			break;
 
 			case 'location':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_name = $obj_webshop->get_post_name_for_type($col);
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, false);
+				$post_name = $this->get_post_name_for_type($col);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, false);
 				$count_temp = count($post_meta);
 
 				if($count_temp > 0)
@@ -2489,28 +2580,28 @@ class mf_webshop
 
 			case 'address':
 			case 'local_address':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_name = $obj_webshop->get_post_name_for_type($col);
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
+				$post_name = $this->get_post_name_for_type($col);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
 				echo $post_meta;
 			break;
 
 			case 'email':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_name = $obj_webshop->get_post_name_for_type($col);
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
+				$post_name = $this->get_post_name_for_type($col);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
 				echo "<a href='mailto:".$post_meta."'>".$post_meta."</a>";
 			break;
 
 			case 'phone':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_name = $obj_webshop->get_post_name_for_type($col);
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$post_name, true);
+				$post_name = $this->get_post_name_for_type($col);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
 				echo "<a href='".format_phone_no($post_meta)."'>".$post_meta."</a>";
 			break;
@@ -2521,11 +2612,8 @@ class mf_webshop
 	{
 		unset($cols['date']);
 
-		$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
-		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
-
-		$cols['products'] = $name_products;
-		$cols['connect_new_products'] = sprintf(__("Connect to new %s", 'lang_webshop'), strtolower($name_product));
+		$cols['products'] = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
+		$cols['connect_new_products'] = sprintf(__("Connect to new %s", 'lang_webshop'), strtolower(get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'))));
 
 		return $cols;
 	}
@@ -2537,19 +2625,43 @@ class mf_webshop
 		switch($col)
 		{
 			case 'products':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$obj_webshop->meta_prefix."category' AND meta_value = '%d'", $id));
+				$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $id));
 
 				echo $product_amount;
 			break;
 
 			case 'connect_new_products':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
 				echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
+			break;
+		}
+	}
+
+	function column_header_custom_categories($cols)
+	{
+		unset($cols['date']);
+
+		$cols['document_type'] = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
+
+		return $cols;
+	}
+
+	function column_cell_custom_categories($col, $id)
+	{
+		switch($col)
+		{
+			case 'document_type':
+				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+
+				if($post_meta > 0)
+				{
+					echo get_post_title($post_meta);
+				}
 			break;
 		}
 	}
@@ -2581,21 +2693,21 @@ class mf_webshop
 		switch($col)
 		{
 			case 'type':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
-				echo $obj_webshop->get_types_for_select()[$post_meta];
+				echo $this->get_types_for_select()[$post_meta];
 			break;
 
 			case 'searchable':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
 				echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_searchable_required', true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.'document_searchable_required', true);
 
 				if($post_meta == 'yes')
 				{
@@ -2607,17 +2719,17 @@ class mf_webshop
 			case 'public_single':
 			case 'quick':
 			case 'property':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
 				echo "<i class='fa fa-lg ".($post_meta == "yes" ? "fa-check green" : "fa-close red")."'></i>";
 			break;
 
 			case 'display_on_categories':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.'document_'.$col, false);
+				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, false);
 
 				if(count($post_meta) > 0)
 				{
@@ -2654,9 +2766,9 @@ class mf_webshop
 		switch($col)
 		{
 			case 'location_hidden':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$post_meta = get_post_meta($id, $obj_webshop->meta_prefix.$col, true);
+				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
 				if($post_meta == 'yes')
 				{
@@ -2665,9 +2777,9 @@ class mf_webshop
 			break;
 
 			case 'products':
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$result = $obj_webshop->get_products_from_location($id);
+				$result = $this->get_products_from_location($id);
 
 				$count_temp = count($result);
 
@@ -2695,15 +2807,15 @@ class mf_webshop
 
 			else
 			{
-				$obj_webshop = new mf_webshop();
+				//$obj_webshop = new mf_webshop();
 
-				$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = 'mf_categories' AND post_status = 'publish' AND meta_key = '".$obj_webshop->meta_prefix."connect_new_products' AND meta_value = 'yes'");
+				$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = 'mf_categories' AND post_status = 'publish' AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes'");
 
 				foreach($result as $r)
 				{
 					$category_id = $r->ID;
 
-					add_post_meta($post_id, $obj_webshop->meta_prefix.'category', $category_id);
+					add_post_meta($post_id, $this->meta_prefix.'category', $category_id);
 				}
 			}
 		}
@@ -2715,10 +2827,10 @@ class mf_webshop
 
 		if($post->post_type == 'mf_categories')
 		{
-			$obj_webshop = new mf_webshop();
+			//$obj_webshop = new mf_webshop();
 
-			$post_meta_new = check_var($obj_webshop->meta_prefix.'connect_new_products');
-			$post_meta_old = get_post_meta($post_id, $obj_webshop->meta_prefix.'connect_new_products', false);
+			$post_meta_new = check_var($this->meta_prefix.'connect_new_products');
+			$post_meta_old = get_post_meta($post_id, $this->meta_prefix.'connect_new_products', false);
 
 			if($post_meta_new == 'yes' && $post_meta_new != $post_meta_old)
 			{
@@ -2728,7 +2840,7 @@ class mf_webshop
 				{
 					$product_id = $r->ID;
 
-					$meta_key = $obj_webshop->meta_prefix.'category';
+					$meta_key = $this->meta_prefix.'category';
 
 					$arr_product_categories = get_post_meta($product_id, $meta_key, false);
 
@@ -3026,6 +3138,21 @@ class mf_webshop
 							case 'categories':
 								$arr_data = array();
 								get_post_children(array('post_type' => 'mf_categories', 'add_choose_here' => true, 'post_status' => 'publish'), $arr_data);
+
+								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+							break;
+
+							case 'custom_categories':
+								$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_document_type' AND post_name = %s", $post_name));
+
+								$arr_data = array();
+								get_post_children(array(
+									'add_choose_here' => true,
+									'post_type' => 'mf_custom_categories',
+									'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
+									'where' => "meta_value = '".esc_sql($post_id)."'",
+									//'debug' => true,
+								), $arr_data);
 
 								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
 							break;
@@ -3862,6 +3989,15 @@ class mf_webshop
 							}
 						break;
 
+						case 'custom_categories':
+							if($post_search != '' && $post_search != $post_meta)
+							{
+								$this->show_in_result = false;
+
+								break;
+							}
+						break;
+
 						case 'email':
 							$this->product_has_email = true;
 						break;
@@ -3970,14 +4106,6 @@ class mf_webshop
 							$this->meta_title = get_the_title($post_meta);
 							$post_meta = get_permalink($post_meta);
 						break;
-
-						/*case 'page':
-							if($post_meta != '')
-							{
-								$this->meta_title = get_the_title($post_meta);
-								$post_meta = get_permalink($post_meta);
-							}
-						break;*/
 
 						case 'description':
 						case 'ghost':
@@ -4280,8 +4408,6 @@ if(class_exists('RWMB_Field'))
 {
 	class RWMB__Field extends RWMB_Field{}
 
-	class RWMB_Description_Field extends RWMB_Textarea_Field{}
-
 	class RWMB_Address_Field extends RWMB_Text_Field
 	{
 		static public function html($meta, $field)
@@ -4289,6 +4415,40 @@ if(class_exists('RWMB_Field'))
 			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-address'>";
 		}
 	}
+
+	/*class RWMB_Categories_Field extends RWMB_Field
+	{
+		static public function html($meta, $field)
+		{
+			//Do nothing here since this is shown in the UI for mf_products if there are any mf_categories
+		}
+	}*/
+
+	class RWMB_Custom_Categories_Field extends RWMB_Text_Field
+	{
+		static public function html($meta, $field)
+		{
+			global $wpdb;
+
+			$obj_webshop = new mf_webshop();
+
+			$post_name = str_replace($obj_webshop->meta_prefix, "", $field['id']);
+			$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_document_type' AND post_name = %s", $post_name));
+
+			$arr_data = array();
+			get_post_children(array(
+				'add_choose_here' => true,
+				'post_type' => 'mf_custom_categories',
+				'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$obj_webshop->meta_prefix."document_type'",
+				'where' => "meta_value = '".esc_sql($post_id)."'",
+				//'debug' => true,
+			), $arr_data);
+
+			return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'required' => true, 'xtra' => self::render_attributes($field['attributes'])));
+		}
+	}
+
+	class RWMB_Description_Field extends RWMB_Textarea_Field{}
 
 	class RWMB_Event_Field extends RWMB_Text_Field
 	{
@@ -4317,24 +4477,6 @@ if(class_exists('RWMB_Field'))
 		}
 	}
 
-	class RWMB_Local_Address_Field extends RWMB_Text_Field
-	{
-		static public function html($meta, $field)
-		{
-			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-local_address'>";
-		}
-	}
-
-	class RWMB_Location_Field extends RWMB_Select_Field{}
-
-	class RWMB_Categories_Field extends RWMB_Field
-	{
-		static public function html($meta, $field)
-		{
-			//Do nothing here since this is shown in the UI for mf_products if there are any mf_categories
-		}
-	}
-
 	class RWMB_Interval_Field extends RWMB_Field
 	{
 		static public function html($meta, $field)
@@ -4348,6 +4490,16 @@ if(class_exists('RWMB_Field'))
 			);
 		}
 	}
+
+	class RWMB_Local_Address_Field extends RWMB_Text_Field
+	{
+		static public function html($meta, $field)
+		{
+			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-local_address'>";
+		}
+	}
+
+	class RWMB_Location_Field extends RWMB_Select_Field{}
 
 	class RWMB_Price_Field extends RWMB_Field
 	{

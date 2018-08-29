@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.0.0
+Version: 1.4.0.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -34,7 +34,7 @@ if(is_admin())
 	add_filter('wp_get_default_privacy_policy_content', array($obj_webshop, 'add_policy'));
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
-	add_action('rwmb_meta_boxes', array($obj_webshop, 'meta_boxes'));
+	add_action('rwmb_meta_boxes', array($obj_webshop, 'rwmb_meta_boxes'));
 	add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 
 	add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
@@ -45,6 +45,9 @@ if(is_admin())
 
 	add_filter('manage_mf_categories_posts_columns', array($obj_webshop, 'column_header_categories'), 5);
 	add_action('manage_mf_categories_posts_custom_column', array($obj_webshop, 'column_cell_categories'), 5, 2);
+
+	add_filter('manage_mf_custom_categories_posts_columns', array($obj_webshop, 'column_header_custom_categories'), 5);
+	add_action('manage_mf_custom_categories_posts_custom_column', array($obj_webshop, 'column_cell_custom_categories'), 5, 2);
 
 	add_filter('manage_mf_document_type_posts_columns', array($obj_webshop, 'column_header_document_type'), 5);
 	add_action('manage_mf_document_type_posts_custom_column', array($obj_webshop, 'column_cell_document_type'), 5, 2);
@@ -155,7 +158,7 @@ function uninstall_webshop()
 	mf_uninstall_plugin(array(
 		'options' => array('setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_quote_form_popup', 'setting_quote_form', 'setting_quote_form_single', 'setting_webshop_force_individual_contact', 'setting_webshop_payment_form', 'setting_webshop_replace_webshop', 'setting_webshop_replace_product', 'setting_webshop_replace_products', 'setting_webshop_replace_categories', 'setting_webshop_replace_doc_types', 'setting_replace_send_request_for_quote', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_webshop_replace_show_map', 'setting_replace_hide_map', 'setting_map_info', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_categories_slug', 'setting_show_categories', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_filter_products', 'setting_replace_search_result_info', 'setting_webshop_replace_favorites_info'),
 		'meta' => array('meta_orders_viewed'),
-		'post_types' => array('mf_categories', 'mf_products', 'mf_document_type', 'mf_location', 'mf_customers', 'mf_delivery_type'),
+		'post_types' => array('mf_categories', 'mf_products', 'mf_custom_categories', 'mf_document_type', 'mf_location', 'mf_customers', 'mf_delivery_type'),
 		'tables' => array('webshop_order', 'webshop_product2user'),
 	));
 }
@@ -172,6 +175,7 @@ function custom_templates_webshop($single_template)
 	return $single_template;
 }
 
+/* Have to be here so that template directories is correct */
 class PageTemplater
 {
 	private static $instance;
@@ -207,10 +211,10 @@ class PageTemplater
 		}
 
 		// Add a filter to the save post to inject out template into the page cache
-		add_filter('wp_insert_post_data', array( $this, 'register_project_templates' ));
+		add_filter('wp_insert_post_data', array($this, 'register_project_templates'));
 
 		// Add a filter to the template include to determine if the page has our template assigned and return it's path
-		add_filter('template_include', array( $this, 'view_project_template'));
+		add_filter('template_include', array($this, 'view_project_template'));
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 

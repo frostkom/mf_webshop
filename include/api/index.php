@@ -84,7 +84,7 @@ if(1 == 1)
 
 	$result = $wpdb->get_results("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = 'mf_products' AND post_status = 'publish'".$query_where.($query_group != '' ? " GROUP BY ".$query_group : "").($query_order != '' ? " ORDER BY ".$query_order : ""));
 
-	$json_output['last_query'] = $wpdb->last_query;
+	//$json_output['last_query'] = $wpdb->last_query;
 
 	foreach($result as $r)
 	{
