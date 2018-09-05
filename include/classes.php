@@ -177,7 +177,7 @@ class mf_webshop
 
 		return $arr_data;
 	}
-	
+
 	function get_map_visibility_for_select()
 	{
 		return array(
@@ -219,7 +219,7 @@ class mf_webshop
 		);
 
 		register_post_type('mf_categories', $args);
-		
+
 		$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
 		$labels = array(
@@ -1720,11 +1720,13 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$setting_webshop_payment_form = get_option('setting_webshop_payment_form');
+		$form_id = get_option('setting_webshop_payment_form');
+
+		$obj_form = new mf_form($form_id);
 
 		echo "<div class='wrap'>
-			<h1>".$post_title."</h1>"
-			.apply_filters('the_content', "[mf_form id=".$setting_webshop_payment_form."]")
+			<h1>".$obj_form->get_form_name()."</h1>"
+			.apply_filters('the_content', "[mf_form id=".$form_id."]")
 		."</div>";
 	}
 
@@ -1835,7 +1837,7 @@ class mf_webshop
 
 			add_menu_page($name_webshop, $name_webshop.$count_message, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
 			add_submenu_page($menu_start, $name_products, $name_products, $menu_capability, $menu_start);
-			
+
 			$menu_title = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=mf_categories");
 
