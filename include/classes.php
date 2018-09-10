@@ -814,7 +814,7 @@ class mf_webshop
 		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
-			'textarea_rows' => 5,
+			'editor_height' => 100,
 			//'statusbar' => false,
 		));
 	}
@@ -869,7 +869,7 @@ class mf_webshop
 		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
-			'textarea_rows' => 5,
+			'editor_height' => 100,
 			//'statusbar' => false,
 		));
 	}
@@ -1775,7 +1775,7 @@ class mf_webshop
 
 			else
 			{
-				do_log(__("The payment wasn't done correctly", 'lang_coupon')." (".var_export($data, true).")");
+				do_log(__("The payment wasn't done correctly", 'lang_webshop')." (".var_export($data, true).")");
 			}
 		}
 
@@ -1783,7 +1783,7 @@ class mf_webshop
 		{
 			$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
-			do_log(sprintf(__("Something was missing when a user paid for access to %s (%s)", 'lang_coupon'), $name_webshop, var_export($data, true)));
+			do_log(sprintf(__("Something was missing when a user paid for access to %s (%s)", 'lang_webshop'), $name_webshop, var_export($data, true)));
 		}
 	}
 
@@ -2863,7 +2863,7 @@ class mf_webshop
 
 			$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
-			$cols['profile_webshop_payment'] = sprintf(__("Paid for %s until", 'lang_bank_id'), $name_products);
+			$cols['profile_webshop_payment'] = sprintf(__("Paid for %s until", 'lang_webshop'), $name_products);
 		}
 
 		return $cols;

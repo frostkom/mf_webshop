@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-06 09:09+0100\n"
+"POT-Creation-Date: 2018-09-07 13:21+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,919 +15,132 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:204
-#: ../group/index.php:8
-#: ../include/classes.php:346
-#: ../include/functions.php:465
-#: ../include/functions.php:481
-#: ../include/functions.php:489
-#: ../include/functions.php:497
-#: ../include/functions.php:506
-#: ../include/functions.php:524
-msgid "Webshop"
-msgstr ""
-
-#: ../index.php:209
-#: ../include/functions.php:56
-#: ../include/functions.php:508
-msgid "Search"
-msgstr "Søk"
-
-#: ../index.php:210
-#: ../include/functions.php:491
-msgid "Favorites"
-msgstr ""
-
-#: ../group/index.php:72
-msgid "The address was not able to be created"
-msgstr ""
-
-#: ../group/index.php:84
-msgid "You have not set a field for e-mails"
-msgstr ""
-
-#: ../group/index.php:90
-msgid "Could not find an existing group or create a new one"
-msgstr ""
-
-#: ../group/index.php:94
-msgid "Loading"
-msgstr ""
-
-#: ../import/index.php:6
-#: ../include/classes.php:398
 msgid "Import"
-msgstr ""
+msgstr "Importere"
 
-#: ../include/classes.php:15
 msgid "Show all"
 msgstr "Vis alle"
 
-#: ../include/classes.php:39
-msgid "Here I am"
-msgstr ""
-
-#: ../include/classes.php:41
-#: ../templates/single-mf_categories.php:56
-msgid "Read More"
-msgstr "Les Mer"
-
-#: ../include/classes.php:45
-#: ../include/functions.php:686
-#: ../include/functions.php:1254
-msgid "You have to choose at least one product to proceed"
-msgstr ""
-
-#: ../include/classes.php:61
-msgid "Local Storage was successfully cleared on this device"
-msgstr ""
-
-#: ../include/classes.php:244
-msgid "A-Z"
-msgstr "A-Z"
-
-#: ../include/classes.php:249
-#, fuzzy
-msgid "Latest"
-msgstr "Siste svar"
-
-#: ../include/classes.php:256
-msgid "Popularity"
-msgstr ""
-
-#: ../include/classes.php:262
-msgid "Random"
-msgstr ""
-
-#: ../include/classes.php:269
-#: ../include/classes.php:302
-msgid "Size"
-msgstr ""
-
-#: ../include/classes.php:279
-#: ../include/classes.php:573
-msgid "Information"
-msgstr ""
-
-#: ../include/classes.php:280
-msgid "Description"
-msgstr "Beskrivelse"
-
-#: ../include/classes.php:281
-msgid "Heading"
-msgstr ""
-
-#: ../include/classes.php:282
-msgid "Label"
-msgstr ""
-
-#: ../include/classes.php:283
-msgid "Input"
-msgstr ""
-
-#: ../include/classes.php:284
-#: ../include/functions.php:1383
-msgid "Text"
-msgstr "Tekst"
-
-#: ../include/classes.php:285
-#, fuzzy
-msgid "Textarea"
-msgstr "Tekst"
-
-#: ../include/classes.php:286
-msgid "Date"
-msgstr "Dato"
-
-#: ../include/classes.php:287
-#: ../include/functions.php:1382
-msgid "E-mail"
-msgstr ""
-
-#: ../include/classes.php:288
-msgid "Phone Number"
-msgstr ""
-
-#: ../include/classes.php:289
-msgid "URL"
-msgstr ""
-
-#: ../include/classes.php:290
-msgid "Clock"
-msgstr ""
-
-#: ../include/classes.php:291
-msgid "Checkbox"
-msgstr ""
-
-#: ../include/classes.php:292
-msgid "Special input"
-msgstr ""
-
-#: ../include/classes.php:293
-msgid "Color Picker"
-msgstr ""
-
-#: ../include/classes.php:294
-msgid "Event"
-msgstr ""
-
-#: ../include/classes.php:295
-msgid "Page"
-msgstr "Side"
-
-#: ../include/classes.php:296
-msgid "File"
-msgstr ""
-
-#: ../include/classes.php:297
-#: ../include/classes.php:351
-#: ../include/classes.php:472
-#: ../include/functions.php:82
-#: ../include/functions.php:279
-#: ../include/functions.php:572
-#: ../include/functions.php:1808
-msgid "Categories"
-msgstr ""
-
-#: ../include/classes.php:298
-msgid "Social Feed"
-msgstr ""
-
-#: ../include/classes.php:299
-msgid "Numbers"
-msgstr ""
-
-#: ../include/classes.php:300
-#: ../include/classes.php:301
-#: ../include/classes.php:302
-#: ../include/classes.php:303
-#, fuzzy
-msgid "Number"
-msgstr "Navn"
-
-#: ../include/classes.php:301
-msgid "Price"
-msgstr ""
-
-#: ../include/classes.php:303
-msgid "Stock"
-msgstr ""
-
-#: ../include/classes.php:304
-msgid "Interval"
-msgstr ""
-
-#: ../include/classes.php:305
-#: ../include/classes.php:306
-#: ../include/classes.php:354
-#: ../include/functions.php:85
-#: ../stats/index.php:134
-msgid "Location"
-msgstr ""
-
-#: ../include/classes.php:307
-msgid "Address"
-msgstr "Adresse"
-
-#: ../include/classes.php:308
-#, fuzzy
-msgid "Local Address"
-msgstr "Adresse"
-
-#: ../include/classes.php:309
-#: ../include/functions.php:483
-msgid "Map"
-msgstr ""
-
-#: ../include/classes.php:311
-msgid "Formatting"
-msgstr ""
-
-#: ../include/classes.php:312
-msgid "Divider"
-msgstr ""
-
-#: ../include/classes.php:313
-msgid "Start of container"
-msgstr ""
-
-#: ../include/classes.php:314
-msgid "End of container"
-msgstr ""
-
-#: ../include/classes.php:315
-#: ../include/classes.php:597
-#: ../include/classes.php:800
-#: ../include/classes.php:809
-#: ../include/classes.php:824
-#: ../include/classes.php:845
-#: ../include/classes.php:862
-msgid "Settings"
-msgstr "Innstillinger"
-
-#: ../include/classes.php:316
-msgid "Hide information"
-msgstr ""
-
-#: ../include/classes.php:317
-msgid "Global code"
-msgstr ""
-
-#: ../include/classes.php:350
-#: ../include/functions.php:81
-#: ../include/functions.php:540
-#: ../include/functions.php:676
-#: ../include/functions.php:1259
-#: ../include/functions.php:1626
-#: ../include/functions.php:1921
-#: ../include/functions.php:2036
-#: ../stats/index.php:31
-msgid "Products"
-msgstr ""
-
-#: ../include/classes.php:352
-#: ../include/functions.php:83
-#: ../include/functions.php:580
-msgid "Filters"
-msgstr ""
-
-#: ../include/classes.php:355
-#: ../orders/index.php:52
-msgid "Orders"
-msgstr ""
-
-#: ../include/classes.php:356
-#: ../include/functions.php:86
-msgid "Customers"
-msgstr ""
-
-#: ../include/classes.php:357
-#: ../include/functions.php:87
-#: ../include/functions.php:1389
-msgid "Delivery Type"
-msgstr ""
-
-#: ../include/classes.php:404
-#: ../stats/index.php:34
-msgid "Statistics"
-msgstr ""
-
-#: ../include/classes.php:411
-msgid "Send e-mail to all"
-msgstr ""
-
-#: ../include/classes.php:452
-#: ../include/functions.php:259
-#: ../include/functions.php:498
-#: ../include/functions.php:532
-#: ../include/functions.php:1625
-#: ../include/functions.php:1922
-msgid "Product"
-msgstr ""
-
-#: ../include/classes.php:484
-#, fuzzy
-msgid "Image"
-msgstr "Side"
-
-#: ../include/classes.php:585
-msgid "Properties"
-msgstr ""
-
-#: ../include/classes.php:609
-#, fuzzy
-msgid "Searchable"
-msgstr "Søk"
-
-#: ../include/classes.php:621
-msgid "Results"
-msgstr ""
-
-#: ../include/classes.php:633
-msgid "Contact Info"
-msgstr ""
-
-#: ../include/classes.php:645
-msgid "Quick Info"
-msgstr ""
-
-#: ../include/classes.php:657
-#: ../include/functions.php:1956
-msgid "Type"
-msgstr ""
-
-#: ../include/classes.php:669
-#: ../include/functions.php:1742
-#: ../include/functions.php:1957
-msgid "Make Searchable"
-msgstr ""
-
-#: ../include/classes.php:683
-msgid "Make Required"
-msgstr ""
-
-#: ../include/classes.php:691
-#: ../include/functions.php:1743
-#: ../include/functions.php:1958
-msgid "Display in Results"
-msgstr ""
-
-#: ../include/classes.php:699
-#: ../include/functions.php:1744
-#: ../include/functions.php:1959
-msgid "Display as Contact Info"
-msgstr ""
-
-#: ../include/classes.php:707
-#: ../include/functions.php:1745
-#: ../include/functions.php:1960
-msgid "Display as Quick Info"
-msgstr ""
-
-#: ../include/classes.php:715
-#: ../include/functions.php:1746
-#: ../include/functions.php:1961
-msgid "Display as Property"
-msgstr ""
-
-#: ../include/classes.php:732
-#: ../include/functions.php:1968
-msgid "Display on Categories"
-msgstr ""
-
-#: ../include/classes.php:754
-#: ../include/classes.php:887
-#: ../include/functions.php:1741
-#: ../stats/index.php:21
 msgid "Choose Here"
 msgstr "Velg Her"
 
-#: ../include/classes.php:763
-#: ../include/classes.php:774
-msgid "Symbol"
-msgstr ""
+msgid "A-Z"
+msgstr "A-Z"
 
-#: ../include/classes.php:763
-#: ../include/classes.php:774
-msgid "Ref"
-msgstr ""
+msgid "Information"
+msgstr "Informasjon"
 
-#: ../include/classes.php:781
-msgid "Alternate text"
-msgstr ""
+msgid "Description"
+msgstr "Beskrivelse"
 
-#: ../include/classes.php:787
-msgid "Custom class"
-msgstr ""
+msgid "Text"
+msgstr "Tekst"
 
-#: ../include/classes.php:793
-msgid "Default value"
-msgstr ""
+msgid "Date"
+msgstr "Dato"
 
-#: ../include/classes.php:815
-msgid "Order number"
-msgstr ""
+msgid "E-mail"
+msgstr "E-post"
 
-#: ../include/classes.php:830
-#: ../include/functions.php:973
-msgid "Hidden"
-msgstr ""
+msgid "URL"
+msgstr "URL"
 
-#: ../include/classes.php:851
-#: ../include/functions.php:1925
-#, php-format
-msgid "Connect to new %s"
-msgstr ""
+msgid "Clock"
+msgstr "Klokke"
 
-#: ../include/classes.php:868
-#: ../include/functions.php:1378
-msgid "Customer No"
-msgstr ""
+msgid "Event"
+msgstr "Hendelse"
 
-#: ../include/classes.php:903
-msgid "Sort By"
-msgstr ""
+msgid "Page"
+msgstr "Side"
 
-#: ../include/classes.php:910
-#: ../stats/index.php:123
-msgid "Filter"
-msgstr ""
+msgid "File"
+msgstr "Fil"
 
-#: ../include/classes.php:1049
-#, fuzzy
-msgid "Distance"
-msgstr "Første svar"
+msgid "Address"
+msgstr "Adresse"
 
-#: ../include/classes.php:1069
-#: ../templates/single-mf_products.php:185
-#, php-format
-msgid "The type '%s' does not have a case"
-msgstr ""
+msgid "Settings"
+msgstr "Innstillinger"
 
-#: ../include/classes.php:1113
-#: ../include/functions.php:620
-#: ../include/functions.php:1437
+msgid "Display Filter"
+msgstr "Vis Filter"
+
+msgid "Search"
+msgstr "Søk"
+
 msgid "Choose"
 msgstr "Velg"
 
-#: ../include/classes.php:1120
-msgid "I could not find anything that corresponded to your choices"
-msgstr ""
-
-#: ../include/functions.php:55
-#, fuzzy
-msgid "Search for"
-msgstr "Søk"
-
-#: ../include/functions.php:232
-#, fuzzy
-msgid "Unread orders"
-msgstr "Les Mer"
-
-#: ../include/functions.php:243
-msgid "Everywhere"
-msgstr ""
-
-#: ../include/functions.php:244
-msgid "Only in search view"
-msgstr ""
-
-#: ../include/functions.php:245
-msgid "Only on single page"
-msgstr ""
-
-#: ../include/functions.php:246
-msgid "Nowhere"
-msgstr ""
-
-#: ../include/functions.php:266
-#: ../include/functions.php:267
-#: ../include/functions.php:268
-#: ../include/functions.php:269
-#: ../include/functions.php:270
-#: ../include/functions.php:317
-#: ../include/functions.php:320
-#: ../include/functions.php:322
-#: ../include/functions.php:336
-#: ../include/functions.php:338
-#: ../include/functions.php:339
-#: ../include/functions.php:343
-#: ../include/functions.php:363
-#: ../include/functions.php:365
-#: ../include/functions.php:382
-#: ../include/functions.php:383
-#: ../include/functions.php:384
-#: ../include/functions.php:385
-msgid "Replace Text"
-msgstr ""
-
-#: ../include/functions.php:273
-#: ../include/functions.php:282
-#, php-format
-msgid "Replace %s slug with"
-msgstr ""
-
-#: ../include/functions.php:281
-#, php-format
-msgid "Show %s on site"
-msgstr ""
-
-#: ../include/functions.php:287
-msgid "Payment Form"
-msgstr ""
-
-#: ../include/functions.php:295
-msgid "Local Storage"
-msgstr ""
-
-#: ../include/functions.php:307
-msgid "Display Sort"
-msgstr ""
-
-#: ../include/functions.php:313
-msgid "Sort Default"
-msgstr ""
-
-#: ../include/functions.php:316
-msgid "Display Filter"
-msgstr ""
-
-#: ../include/functions.php:319
-msgid "Max results to send quote"
-msgstr ""
-
-#: ../include/functions.php:324
-#: ../include/functions.php:325
-msgid "Switch Icon"
-msgstr ""
-
-#: ../include/functions.php:324
-msgid "On"
-msgstr ""
-
-#: ../include/functions.php:325
-msgid "Off"
-msgstr ""
-
-#: ../include/functions.php:329
-msgid "Form for quote request"
-msgstr ""
-
-#: ../include/functions.php:332
-msgid "Min results to show number"
-msgstr ""
-
-#: ../include/functions.php:333
-msgid "Default range minimum"
-msgstr ""
-
-#: ../include/functions.php:334
-msgid "Custom range choices"
-msgstr ""
-
-#: ../include/functions.php:335
-msgid "Require user to make some kind of search"
-msgstr ""
-
-#: ../include/functions.php:366
-msgid "Email Subject"
-msgstr ""
-
-#: ../include/functions.php:367
-msgid "Email Content"
-msgstr ""
-
-#: ../include/functions.php:379
-msgid "Display Breadcrumbs"
-msgstr ""
-
-#: ../include/functions.php:380
-msgid "Force Individual Contact"
-msgstr ""
-
-#: ../include/functions.php:389
-msgid "Form for quote request (single)"
-msgstr ""
-
-#: ../include/functions.php:431
-msgid "API key"
-msgstr ""
-
-#: ../include/functions.php:434
-#: ../include/functions.php:435
-msgid "Map visibility"
-msgstr ""
-
-#: ../include/functions.php:435
-msgid "Mobile"
-msgstr ""
-
-#: ../include/functions.php:436
-msgid "Symbol inactive image"
-msgstr ""
-
-#: ../include/functions.php:437
-msgid "Symbol active image"
-msgstr ""
-
-#: ../include/functions.php:441
-msgid "Ghost symbol inactive image"
-msgstr ""
-
-#: ../include/functions.php:442
-msgid "Ghost symbol active image"
-msgstr ""
-
-#: ../include/functions.php:447
-msgid "Symbol inactive color"
-msgstr ""
-
-#: ../include/functions.php:448
-msgid "Symbol active color"
-msgstr ""
-
-#: ../include/functions.php:451
-#: ../include/functions.php:760
-#: ../include/functions.php:1299
-#: ../templates/single-mf_products.php:3
-#, fuzzy
-msgid "Show Map"
-msgstr "Vis alle"
-
-#: ../include/functions.php:452
-#: ../include/functions.php:768
-#: ../include/functions.php:1300
-#: ../templates/single-mf_products.php:4
-msgid "Hide Map"
-msgstr ""
-
-#: ../include/functions.php:453
-msgid "Map Information"
-msgstr ""
-
-#: ../include/functions.php:455
-msgid "Info color"
-msgstr ""
-
-#: ../include/functions.php:456
-msgid "Info text color"
-msgstr ""
-
-#: ../include/functions.php:588
-#: ../include/functions.php:1221
-#, php-format
-msgid "Filter amongst %s products"
-msgstr ""
-
-#: ../include/functions.php:588
-#: ../include/functions.php:596
-#: ../include/functions.php:604
-msgid "Disable by adding any single character"
-msgstr ""
-
-#: ../include/functions.php:596
-#: ../include/functions.php:1225
-#, php-format
-msgid "Your search matches %s products"
-msgstr ""
-
-#: ../include/functions.php:604
-#: ../include/functions.php:1229
-#, php-format
-msgid "Here are your %s saved products"
-msgstr ""
-
-#: ../include/functions.php:612
-#: ../templates/single-mf_products.php:414
-msgid "Send request for quote"
-msgstr ""
-
-#: ../include/functions.php:644
-#: ../templates/single-mf_products.php:415
-#, fuzzy
-msgid "Add to Search"
-msgstr "Søk"
-
-#: ../include/functions.php:652
-#: ../templates/single-mf_products.php:416
-msgid "Remove from Search"
-msgstr ""
-
-#: ../include/functions.php:660
-msgid "Return to Search"
-msgstr ""
-
-#: ../include/functions.php:668
-#: ../templates/single-mf_products.php:418
-msgid "Search for Another"
-msgstr ""
-
-#: ../include/functions.php:678
-#: ../include/functions.php:1261
-msgid "Send request for quote to"
-msgstr ""
-
-#: ../include/functions.php:694
-#: ../include/functions.php:1278
-msgid "Email Your Products"
-msgstr ""
-
-#: ../include/functions.php:702
-#: ../include/functions.php:1255
-msgid "In order to send a quote you have to be specific what you want by filtering"
-msgstr ""
-
-#: ../include/functions.php:708
-msgid "I would like to share these products that I like"
-msgstr ""
-
-#: ../include/functions.php:716
-#, php-format
-msgid "Here are my favorites (%s)"
-msgstr ""
-
-#: ../include/functions.php:733
-msgid "Get yours here"
-msgstr ""
-
-#: ../include/functions.php:797
-msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
-msgstr ""
-
-#: ../include/functions.php:840
-#: ../include/functions.php:841
-#: ../include/functions.php:1590
 msgid "Yes"
 msgstr "Ja"
 
-#: ../include/functions.php:841
-msgid "Hidden behind a button"
-msgstr ""
-
-#: ../include/functions.php:842
-#: ../include/functions.php:1590
 msgid "No"
 msgstr "Nei"
 
-#: ../include/functions.php:861
-#, php-format
-msgid "%d will hide the link in the form"
-msgstr ""
+msgid "Hidden"
+msgstr "Skjult"
 
-#: ../include/functions.php:989
 msgid "This is hidden"
-msgstr ""
+msgstr "Dette er skjult"
 
-#: ../include/functions.php:1025
-msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
-msgstr ""
+msgid "Here I am"
+msgstr "Her er jeg"
 
-#: ../include/functions.php:1049
-msgid "Clear"
-msgstr ""
+msgid "Read More"
+msgstr "Les Mer"
 
-#: ../include/functions.php:1123
-msgid "The amount in stock and in the order is wrong"
-msgstr ""
+msgid "Continue Search"
+msgstr "Fortsett Søk"
 
-#: ../include/functions.php:1273
-msgid "Print List"
-msgstr ""
+msgid "Image"
+msgstr "Bilde"
 
-#: ../include/functions.php:1332
-msgid "Cart"
-msgstr ""
-
-#: ../include/functions.php:1354
-msgid "Proceed to Checkout"
-msgstr ""
-
-#: ../include/functions.php:1371
-msgid "Checkout"
-msgstr ""
-
-#: ../include/functions.php:1377
-msgid "Customer"
-msgstr ""
-
-#: ../include/functions.php:1381
-msgid "Name"
-msgstr "Navn"
-
-#: ../include/functions.php:1393
-msgid "Confirm Order"
-msgstr ""
-
-#: ../include/functions.php:1995
-msgid "Required"
-msgstr ""
-
-#: ../include/functions.php:2025
-#: ../stats/index.php:29
 msgid "All"
 msgstr "Alle"
 
-#: ../include/functions.php:2134
-#: ../templates/single-mf_products.php:417
-msgid "Continue Search"
-msgstr ""
+msgid "Choose all"
+msgstr "Velg alle"
 
-#: ../orders/index.php:16
-msgid "The order was deleted"
-msgstr ""
+msgid "Filter"
+msgstr "Filter"
 
-#: ../orders/index.php:44
-msgid "Shipping info"
-msgstr ""
+msgid "Distance"
+msgstr "Avstand"
 
-#: ../orders/index.php:45
-#, php-format
-msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
-msgstr ""
+msgid "Content"
+msgstr "Innhold"
 
-#: ../orders/index.php:67
-#: ../orders/index.php:98
-msgid "Invoice sent"
-msgstr ""
+msgid "Default %s"
+msgstr "Standard %s"
 
-#: ../orders/index.php:68
-#: ../orders/index.php:114
-#, fuzzy
-msgid "Delivered"
-msgstr "Slett"
+msgid "Amount"
+msgstr "Beløp"
 
-#: ../orders/index.php:69
-msgid "Ordered by"
-msgstr ""
+msgid "Search for"
+msgstr "Søk etter"
 
-#: ../orders/index.php:70
 msgid "Created"
-msgstr ""
+msgstr "Opprettet"
 
-#: ../orders/index.php:139
-#: ../templates/single-mf_products.php:153
 msgid "Delete"
 msgstr "Slett"
 
-#: ../stats/index.php:54
 msgid "unknown"
 msgstr "ukjent"
 
-#: ../stats/index.php:65
-msgid "Monthly"
-msgstr ""
-
-#: ../stats/index.php:103
 msgid "Months"
-msgstr ""
+msgstr "Måneder"
 
-#: ../stats/index.php:111
-#, fuzzy
-msgid "Years"
-msgstr "Ja"
-
-#: ../stats/index.php:125
-msgid "Limit"
-msgstr ""
-
-#: ../stats/index.php:127
 msgid "From"
 msgstr "Fra"
 
-#: ../stats/index.php:128
-msgid "To"
-msgstr ""
-
-#: ../stats/index.php:157
-msgid "Overall"
-msgstr ""
-
-#: ../stats/index.php:159
 msgid "First answer"
 msgstr "Første svar"
 
-#: ../stats/index.php:160
 msgid "Latest answer"
 msgstr "Siste svar"
 
-#: ../templates/aside.php:102
-msgid "The order has been completed"
-msgstr ""
-
-#: ../templates/aside.php:121
-msgid "You have to select the customer and correct customer number"
-msgstr ""
-
-#: ../templates/aside.php:127
-msgid "You have to enter customer, customer number, name and e-mail"
-msgstr ""
-
-#: ../templates/single-mf_products.php:149
-msgid "Update Cart"
-msgstr ""
-
-#: ../templates/single-mf_products.php:149
-msgid "Add to Cart"
-msgstr ""
+msgid "Name"
+msgstr "Navn"
 
