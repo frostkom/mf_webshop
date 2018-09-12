@@ -93,7 +93,7 @@ echo "<div class='wrap'>
 
 						if(!($strOrderInvoice > 0))
 						{
-							echo "<i class='fa fa-lg fa-ban red'></i>
+							echo "<i class='fa fa-ban fa-lg red'></i>
 							<div class='row-actions'>
 								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderInvoice&intOrderID=".$intOrderID2, 'order_invoice_'.$intOrderID2, '_wpnonce_order_invoice')."'>".__("Invoice sent", 'lang_webshop')."</a>
 							</div>";
@@ -101,7 +101,7 @@ echo "<div class='wrap'>
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-check green'></i>";
+							echo "<i class='fa fa-check fa-lg green'></i>";
 						}
 
 					echo "</td>
@@ -109,7 +109,7 @@ echo "<div class='wrap'>
 
 						if(!($strOrderDelivery > 0))
 						{
-							echo "<i class='fa fa-lg fa-ban red'></i>
+							echo "<i class='fa fa-ban fa-lg red'></i>
 							<div class='row-actions'>
 								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelivery&intOrderID=".$intOrderID2, 'order_delivery_'.$intOrderID2, '_wpnonce_order_delivery')."'>".__("Delivered", 'lang_webshop')."</a>
 							</div>";
@@ -117,7 +117,7 @@ echo "<div class='wrap'>
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-check green'></i>";
+							echo "<i class='fa fa-check fa-lg green'></i>";
 						}
 
 					echo "</td>
