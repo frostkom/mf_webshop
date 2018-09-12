@@ -729,7 +729,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "fa fa-close red"));
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "fa fa-times red"));
 	}
 
 	function setting_replace_add_to_search_callback()
@@ -1089,7 +1089,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 	}
 
 	function setting_quote_form_single_callback()
@@ -1099,7 +1099,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 	}
 
 	function setting_webshop_display_breadcrumbs_callback()
@@ -1125,7 +1125,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 	}
 
 	/*function setting_webshop_require_payment_callback()
@@ -2639,7 +2639,7 @@ class mf_webshop
 
 				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
-				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-close red")." fa-lg'></i>";
+				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
 			break;
 		}
 	}
@@ -2707,7 +2707,7 @@ class mf_webshop
 
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
-				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-close red")." fa-lg'></i>";
+				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
 
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_searchable_required', true);
 
@@ -2725,7 +2725,7 @@ class mf_webshop
 
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
-				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-close red")." fa-lg'></i>";
+				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
 			break;
 
 			case 'display_on_categories':
@@ -3021,7 +3021,7 @@ class mf_webshop
 			$setting_webshop_share_email_subject = get_option('setting_webshop_share_email_subject');
 			$setting_webshop_share_email_content = get_option('setting_webshop_share_email_content');
 
-			$out .= "<a href='mailto:?subject=".$setting_webshop_share_email_subject."&body=".$setting_webshop_share_email_content."' class='show_if_results button'><i class='far fa-envelope'></i>".$setting_webshop_replace_email_favorites."</a>";
+			$out .= "<a href='mailto:?subject=".$setting_webshop_share_email_subject."&body=".$setting_webshop_share_email_content."' class='show_if_results button'><i class='fa fa-envelope'></i>".$setting_webshop_replace_email_favorites."</a>";
 		}
 
 		if($out != '')
@@ -4461,7 +4461,7 @@ if(class_exists('RWMB_Field'))
 				$arr_data = array();
 				get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
 
-				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
+				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
 			}
 
 			else
@@ -4542,7 +4542,7 @@ if(class_exists('RWMB_Field'))
 					$arr_data = array();
 					get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
 
-					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
+					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
 				}
 
 				else
