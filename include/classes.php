@@ -2491,8 +2491,6 @@ class mf_webshop
 			$cols['category'] = get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'));
 		}
 
-		//$obj_webshop = new mf_webshop();
-
 		$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone'); //address
 		$arr_columns_admin = array('email', 'phone');
 
@@ -2526,8 +2524,6 @@ class mf_webshop
 		switch($col)
 		{
 			case 'category':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.$col, false);
 				$count_temp = count($post_meta);
 
@@ -2553,8 +2549,6 @@ class mf_webshop
 			break;
 
 			case 'ghost':
-				//$obj_webshop = new mf_webshop();
-
 				$post_name = $this->get_post_name_for_type($col);
 				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
@@ -2565,8 +2559,6 @@ class mf_webshop
 			break;
 
 			case 'location':
-				//$obj_webshop = new mf_webshop();
-
 				$post_name = $this->get_post_name_for_type($col);
 				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, false);
 				$count_temp = count($post_meta);
@@ -2582,8 +2574,6 @@ class mf_webshop
 
 			case 'address':
 			case 'local_address':
-				//$obj_webshop = new mf_webshop();
-
 				$post_name = $this->get_post_name_for_type($col);
 				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
@@ -2591,8 +2581,6 @@ class mf_webshop
 			break;
 
 			case 'email':
-				//$obj_webshop = new mf_webshop();
-
 				$post_name = $this->get_post_name_for_type($col);
 				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
@@ -2600,8 +2588,6 @@ class mf_webshop
 			break;
 
 			case 'phone':
-				//$obj_webshop = new mf_webshop();
-
 				$post_name = $this->get_post_name_for_type($col);
 				$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
@@ -2627,16 +2613,12 @@ class mf_webshop
 		switch($col)
 		{
 			case 'products':
-				//$obj_webshop = new mf_webshop();
-
 				$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $id));
 
 				echo $product_amount;
 			break;
 
 			case 'connect_new_products':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
 				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
@@ -2695,16 +2677,12 @@ class mf_webshop
 		switch($col)
 		{
 			case 'type':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
 				echo $this->get_types_for_select()[$post_meta];
 			break;
 
 			case 'searchable':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
 				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
@@ -2721,16 +2699,12 @@ class mf_webshop
 			case 'public_single':
 			case 'quick':
 			case 'property':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
 
 				echo "<i class='".($post_meta == "yes" ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
 			break;
 
 			case 'display_on_categories':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, false);
 
 				if(count($post_meta) > 0)
@@ -2768,8 +2742,6 @@ class mf_webshop
 		switch($col)
 		{
 			case 'location_hidden':
-				//$obj_webshop = new mf_webshop();
-
 				$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
 				if($post_meta == 'yes')
@@ -2779,8 +2751,6 @@ class mf_webshop
 			break;
 
 			case 'products':
-				//$obj_webshop = new mf_webshop();
-
 				$result = $this->get_products_from_location($id);
 
 				$count_temp = count($result);
@@ -2809,8 +2779,6 @@ class mf_webshop
 
 			else
 			{
-				//$obj_webshop = new mf_webshop();
-
 				$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = 'mf_categories' AND post_status = 'publish' AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes'");
 
 				foreach($result as $r)
@@ -2829,8 +2797,6 @@ class mf_webshop
 
 		if($post->post_type == 'mf_categories')
 		{
-			//$obj_webshop = new mf_webshop();
-
 			$post_meta_new = check_var($this->meta_prefix.'connect_new_products');
 			$post_meta_old = get_post_meta($post_id, $this->meta_prefix.'connect_new_products', false);
 
