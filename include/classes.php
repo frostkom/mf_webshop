@@ -349,7 +349,6 @@ class mf_webshop
 
 		$options_area_orig = $options_area = __FUNCTION__;
 
-		//$obj_webshop = new mf_webshop();
 		$ghost_post_name = $this->get_post_name_for_type('ghost');
 
 		$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
@@ -903,23 +902,18 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		//$obj_webshop = new mf_webshop();
-
 		if($option == 'yes')
 		{
 			$option = array('latest', 'random', 'alphabetical', 'size');
 		}
 
 		echo show_select(array('data' => $this->get_sort_for_select(), 'name' => $setting_key."[]", 'value' => $option));
-		//echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_webshop_sort_default_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option_or_default($setting_key, 'size');
-
-		//$obj_webshop = new mf_webshop();
 
 		echo show_select(array('data' => $this->get_sort_for_select(get_option('setting_webshop_display_sort')), 'name' => $setting_key, 'value' => $option));
 	}
@@ -1273,7 +1267,6 @@ class mf_webshop
 
 			else
 			{
-				//$obj_webshop = new mf_webshop();
 				$post_id = $this->get_document_types(array('select' => "ID", 'where_key' => "post_name = %s", 'where_value' => $data['key'], 'limit' => "0, 1"));
 
 				if($post_id > 0)
@@ -1289,8 +1282,6 @@ class mf_webshop
 	function filter_form_after_fields($out)
 	{
 		global $wpdb;
-
-		//$obj_webshop = new mf_webshop();
 
 		$out_left = $out_right = "";
 
@@ -1414,7 +1405,6 @@ class mf_webshop
 		global $wpdb, $error_text;
 
 		$obj_form = new mf_form();
-		//$obj_webshop = new mf_webshop();
 
 		$answer_text = "";
 
@@ -2397,7 +2387,6 @@ class mf_webshop
 
 		if($post_type == 'mf_products')
 		{
-			//$obj_webshop = new mf_webshop();
 			$location_post_name = $this->get_post_name_for_type('location');
 
 			if($location_post_name != '')
@@ -2439,8 +2428,6 @@ class mf_webshop
 
 		if($pagenow == 'edit.php')
 		{
-			//$obj_webshop = new mf_webshop();
-
 			if($post_type == 'mf_products')
 			{
 				$location_post_name = $this->get_post_name_for_type('location');
@@ -2554,7 +2541,7 @@ class mf_webshop
 
 				if($post_meta == true)
 				{
-					echo "<i class='".($post_meta == true ? "far fa-eye-slash" : "far fa-eye")." fa-lg'></i>";
+					echo "<i class='".($post_meta == true ? "fa fa-eye-slash" : "fa fa-eye")." fa-lg'></i>";
 				}
 			break;
 
@@ -2731,7 +2718,7 @@ class mf_webshop
 	{
 		unset($cols['date']);
 
-		$cols['location_hidden'] = "<i class='far fa-eye-slash fa-lg'></i>";
+		$cols['location_hidden'] = "<i class='fa fa-eye-slash fa-lg'></i>";
 		$cols['products'] = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
 		return $cols;
@@ -2746,7 +2733,7 @@ class mf_webshop
 
 				if($post_meta == 'yes')
 				{
-					echo "<i class='far fa-eye-slash fa-lg'></i>";
+					echo "<i class='fa fa-eye-slash fa-lg'></i>";
 				}
 			break;
 
