@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.0.11
+Version: 1.4.2.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -31,6 +31,8 @@ if(is_admin())
 	add_action('admin_init', array($obj_webshop, 'settings_webshop'));
 	add_action('admin_init', array($obj_webshop, 'admin_init'), 0);
 
+	add_action('updated_option', array($obj_webshop, 'updated_option'), 10, 3);
+
 	add_filter('wp_get_default_privacy_policy_content', array($obj_webshop, 'add_policy'));
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
@@ -40,20 +42,8 @@ if(is_admin())
 	add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
 	add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
 
-	add_filter('manage_mf_products_posts_columns', array($obj_webshop, 'column_header_products'), 5);
-	add_action('manage_mf_products_posts_custom_column', array($obj_webshop, 'column_cell_products'), 5, 2);
-
-	add_filter('manage_mf_categories_posts_columns', array($obj_webshop, 'column_header_categories'), 5);
-	add_action('manage_mf_categories_posts_custom_column', array($obj_webshop, 'column_cell_categories'), 5, 2);
-
-	add_filter('manage_mf_custom_categories_posts_columns', array($obj_webshop, 'column_header_custom_categories'), 5);
-	add_action('manage_mf_custom_categories_posts_custom_column', array($obj_webshop, 'column_cell_custom_categories'), 5, 2);
-
-	add_filter('manage_mf_document_type_posts_columns', array($obj_webshop, 'column_header_document_type'), 5);
-	add_action('manage_mf_document_type_posts_custom_column', array($obj_webshop, 'column_cell_document_type'), 5, 2);
-
-	add_filter('manage_mf_location_posts_columns', array($obj_webshop, 'column_header_location'), 5);
-	add_action('manage_mf_location_posts_custom_column', array($obj_webshop, 'column_cell_location'), 5, 2);
+	add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5, 2);
+	add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
 
 	add_action('save_post', array($obj_webshop, 'save_post'), 10, 3);
 	add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
@@ -89,7 +79,7 @@ load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))
 
 function activate_webshop()
 {
-	global $wpdb;
+	global $wpdb, $obj_webshop;
 
 	require_plugin("meta-box/meta-box.php", "Meta Box");
 	require_plugin("mf_maps/index.php", "MF Maps");
@@ -137,8 +127,6 @@ function activate_webshop()
 
 	update_columns($arr_update_column);
 
-	//replace_option(array('old' => 'settings_text_color_info', 'new' => 'setting_webshop_text_color_info'));
-
 	/*if(function_exists('add_css_selectors'))
 	{
 		add_css_selectors(array(
@@ -146,28 +134,133 @@ function activate_webshop()
 		));
 	}*/
 
+	replace_post_type(array('old' => 'mf_categories', 'new' => 'mf_category'));
+	replace_post_type(array('old' => 'mf_products', 'new' => 'mf_product'));
+	replace_post_type(array('old' => 'mf_custom_categories', 'new' => 'mf_cust_cat'));
+	replace_post_type(array('old' => 'mf_document_type', 'new' => 'mf_doc_type'));
+	replace_post_type(array('old' => 'mf_customers', 'new' => 'mf_customer'));
+	replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
+
+	replace_option(array('old' => 'setting_webshop_post_types', 'new' => 'setting_webshop_option_types'));
+
 	replace_user_meta(array('old' => 'mf_orders_viewed', 'new' => 'meta_orders_viewed'));
 
+	$obj_webshop->get_option_types();
+
+	$arr_options = array();
+
+	$arr_options[] = 'setting_local_storage';
+
+	foreach($obj_webshop->arr_option_types as $option_type)
+	{
+		$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+
+		$arr_options[] = 'settings_color_button_hover'.$obj_webshop->option_type;
+		$arr_options[] = 'settings_text_color_button_hover'.$obj_webshop->option_type;
+		$arr_options[] = 'settings_color_button_2_hover'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_mobile_breakpoint'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_require_payment'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_allow_individual_contant'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_product_default_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_ghost_title'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_ghost_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_ghost_text'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_color_button'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_text_color_button'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_color_button_2'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_color_button_negative'.$obj_webshop->option_type;
+	}
+
+	$obj_webshop->option_type = '';
+
 	mf_uninstall_plugin(array(
-		'options' => array('settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_local_storage', 'setting_webshop_allow_individual_contant'),
+		'options' => $arr_options,
 	));
 }
 
 function uninstall_webshop()
 {
+	global $obj_webshop;
+
+	$obj_webshop->get_option_types();
+
+	$arr_options = $arr_option_types = array();
+
+	$arr_options[] = 'setting_webshop_option_types';
+
+	foreach($obj_webshop->arr_option_types as $option_type)
+	{
+		$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+
+		$arr_options[] = 'setting_range_min_default'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_range_choices'.$obj_webshop->option_type;
+		$arr_options[] = 'settings_filter_diff'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_search_max'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_show_all_min'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_require_search'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_quote_form_popup'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_quote_form'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_quote_form_single'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_force_individual_contact'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_payment_form'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_webshop'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_product'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_products'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_categories'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_doc_types'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_send_request_for_quote'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_add_to_search'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_remove_from_search'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_return_to_search'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_search_for_another'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_quote_request'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_none_checked'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_too_many'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_show_map'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_hide_map'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_map_info'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_products_slug'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_categories_slug'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_show_categories'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_color_info'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_text_color_info'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_gmaps_api'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_map_visibility'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_map_visibility_mobile'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_symbol_inactive_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_symbol_active_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_ghost_inactive_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_ghost_active_image'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_symbol_inactive'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_symbol_active'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_filter_products'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_replace_search_result_info'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_favorites_info'.$obj_webshop->option_type;
+
+		$arr_option_types[] = $obj_webshop->post_type_categories.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_products.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_custom_categories.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_document_type.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_location.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_customers.$obj_webshop->option_type;
+		$arr_option_types[] = $obj_webshop->post_type_delivery_type.$obj_webshop->option_type;
+	}
+
+	$obj_webshop->option_type = '';
+
 	mf_uninstall_plugin(array(
-		'options' => array('setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_quote_form_popup', 'setting_quote_form', 'setting_quote_form_single', 'setting_webshop_force_individual_contact', 'setting_webshop_payment_form', 'setting_webshop_replace_webshop', 'setting_webshop_replace_product', 'setting_webshop_replace_products', 'setting_webshop_replace_categories', 'setting_webshop_replace_doc_types', 'setting_replace_send_request_for_quote', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_webshop_replace_show_map', 'setting_replace_hide_map', 'setting_map_info', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_categories_slug', 'setting_show_categories', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_filter_products', 'setting_replace_search_result_info', 'setting_webshop_replace_favorites_info'),
+		'options' => $arr_options,
 		'meta' => array('meta_orders_viewed'),
-		'post_types' => array('mf_categories', 'mf_products', 'mf_custom_categories', 'mf_document_type', 'mf_location', 'mf_customers', 'mf_delivery_type'),
+		'post_types' => $arr_option_types,
 		'tables' => array('webshop_order', 'webshop_product2user'),
 	));
 }
 
 function custom_templates_webshop($single_template)
 {
-	global $post;
+	global $post, $obj_webshop;
 
-	if(in_array($post->post_type, array("mf_categories", "mf_products")))
+	if(substr($post->post_type, 0, strlen($obj_webshop->post_type_categories)) == $obj_webshop->post_type_categories || substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $obj_webshop->post_type_products)
 	{
 		$single_template = plugin_dir_path(__FILE__)."templates/single-".$post->post_type.".php";
 	}
@@ -175,7 +268,7 @@ function custom_templates_webshop($single_template)
 	return $single_template;
 }
 
-/* Have to be here so that template directories is correct */
+/* Have to be here so that template directories are correct */
 class PageTemplater
 {
 	private static $instance;
@@ -194,6 +287,8 @@ class PageTemplater
 	// Initializes the plugin by setting filters and administration functions.
 	private function __construct()
 	{
+		global $obj_webshop;
+
 		$this->templates = array();
 
 		// Add a filter to the attributes metabox to inject template into the cache.
@@ -216,14 +311,28 @@ class PageTemplater
 		// Add a filter to the template include to determine if the page has our template assigned and return it's path
 		add_filter('template_include', array($this, 'view_project_template'));
 
+		$this->templates = array();
+
+		/*$obj_webshop->get_option_types();
+
+		foreach($obj_webshop->arr_option_types as $option_type)
+		{
+			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+
+			$name_webshop = get_option_or_default('setting_webshop_replace_webshop'.$obj_webshop->option_type, __("Webshop", 'lang_webshop'));
+
+			$this->templates['template_webshop.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop;
+			$this->templates['template_webshop_search.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop." (".__("Search", 'lang_webshop').")";
+			$this->templates['template_webshop_favorites.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
+		}
+
+		$obj_webshop->option_type = '';*/
+
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
-		// Add your templates to this array.
-		$this->templates = array(
-			'template_webshop.php' => $name_webshop,
-			'template_webshop_search.php' => $name_webshop." (".__("Search", 'lang_webshop').")",
-			'template_webshop_favorites.php' => $name_webshop." (".__("Favorites", 'lang_webshop').")",
-		);
+		$this->templates['template_webshop.php'] = $name_webshop;
+		$this->templates['template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
+		$this->templates['template_webshop_favorites.php'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
 	}
 
 	// Adds our template to the page dropdown for v4.7+

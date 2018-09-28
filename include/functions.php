@@ -79,11 +79,13 @@ function update_product_amount($intProductID2, $intProductAmount2)
 function get_product_list_item($post_id = 0, $current_post_id = 0)
 {
 	global $wpdb;
+	
+	$obj_webshop = new mf_webshop();
 
 	$out = "";
 	$is_ancestor = false;
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." WHERE post_type = 'mf_categories' AND post_status = 'publish' AND post_parent = '%d' ORDER BY menu_order ASC", $post_id));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND post_parent = '%d' ORDER BY menu_order ASC", $obj_webshop->post_type_categories, $post_id));
 
 	if($wpdb->num_rows > 0)
 	{

@@ -22,6 +22,8 @@ $json_output = array();
 
 if(1 == 1)
 {
+	$obj_webshop->option_type = check_var('option_type', 'char');
+
 	$order = check_var('order', 'char', true, get_option('setting_webshop_sort_default', 'alphabetical'));
 	//$sort = check_var('sort', 'char', true, 'asc');
 	$favorites = check_var('favorites', 'char');
@@ -82,7 +84,7 @@ if(1 == 1)
 
 	$json_output['product_response'] = array();
 
-	$result = $wpdb->get_results("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = 'mf_products' AND post_status = 'publish'".$query_where.($query_group != '' ? " GROUP BY ".$query_group : "").($query_order != '' ? " ORDER BY ".$query_order : ""));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish'".$query_where.($query_group != '' ? " GROUP BY ".$query_group : "").($query_order != '' ? " ORDER BY ".$query_order : ""), $obj_webshop->post_type_products.$obj_webshop->option_type));
 
 	//$json_output['last_query'] = $wpdb->last_query;
 

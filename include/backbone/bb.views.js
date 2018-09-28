@@ -64,7 +64,7 @@ var WebshopView = Backbone.View.extend(
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
 		/*"click .product_search .show_choose_all": "choose_all",*/
-		"click #product_form aside h2, #product_form .aside h2, .product_single h2": "toggle_aside",
+		"click #product_form aside h2, #product_form .aside h2, .product_single h2, .widget.webshop_map h2": "toggle_aside",
 
 		/* Result List */
 		"change #webshop_search input": "search_products_change",
@@ -125,6 +125,11 @@ var WebshopView = Backbone.View.extend(
 	{
 		if(jQuery("#webshop_search").length > 0)
 		{
+			if(jQuery("#mf-content .widget.webshop_search, #mf-content .widget.webshop_map").length > 0)
+			{
+				jQuery("body").addClass('is_webshop_search_page');
+			}
+
 			this.get_hash();
 
 			this.search_products(false);

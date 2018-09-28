@@ -1,5 +1,7 @@
 <?php
 
+$obj_webshop = new mf_webshop();
+
 $paged = check_var('paged', 'int', true, '0');
 $strSearch = check_var('s', 'char', true);
 
@@ -84,9 +86,7 @@ echo "<div class='wrap'>
 				$intUserID = $r->userID;
 				$strOrderCreated = $r->orderCreated;
 
-				$strCustomerName = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = 'mf_customers' AND post_status = 'publish' AND ID = '%d'", $intCustomerID));
-
-				//$user_data = get_userdata($intUserID);
+				$strCustomerName = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND ID = '%d'", $obj_webshop->post_type_customers, $intCustomerID));
 
 				echo "<tr>
 					<td>";
@@ -95,7 +95,7 @@ echo "<div class='wrap'>
 						{
 							echo "<i class='fa fa-ban fa-lg red'></i>
 							<div class='row-actions'>
-								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderInvoice&intOrderID=".$intOrderID2, 'order_invoice_'.$intOrderID2, '_wpnonce_order_invoice')."'>".__("Invoice sent", 'lang_webshop')."</a>
+								<a href='".wp_nonce_url("?post_type=".$obj_webshop->post_type_products."&page=mf_webshop/orders/index.php&btnOrderInvoice&intOrderID=".$intOrderID2, 'order_invoice_'.$intOrderID2, '_wpnonce_order_invoice')."'>".__("Invoice sent", 'lang_webshop')."</a>
 							</div>";
 						}
 
@@ -111,7 +111,7 @@ echo "<div class='wrap'>
 						{
 							echo "<i class='fa fa-ban fa-lg red'></i>
 							<div class='row-actions'>
-								<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelivery&intOrderID=".$intOrderID2, 'order_delivery_'.$intOrderID2, '_wpnonce_order_delivery')."'>".__("Delivered", 'lang_webshop')."</a>
+								<a href='".wp_nonce_url("?post_type=".$obj_webshop->post_type_products."&page=mf_webshop/orders/index.php&btnOrderDelivery&intOrderID=".$intOrderID2, 'order_delivery_'.$intOrderID2, '_wpnonce_order_delivery')."'>".__("Delivered", 'lang_webshop')."</a>
 							</div>";
 						}
 
@@ -122,7 +122,7 @@ echo "<div class='wrap'>
 
 					echo "</td>
 					<td>
-						<a href='?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderShow&intOrderID=".$intOrderID2."'>".$strCustomerName."</a>
+						<a href='?post_type=".$obj_webshop->post_type_products."&page=mf_webshop/orders/index.php&btnOrderShow&intOrderID=".$intOrderID2."'>".$strCustomerName."</a>
 						<div class='row-actions'>";
 
 							if($intUserID > 0)
@@ -136,7 +136,7 @@ echo "<div class='wrap'>
 					<td>"
 						.format_date($strOrderCreated)
 						."<div class='row-actions'>
-							<a href='".wp_nonce_url("?post_type=mf_products&page=mf_webshop/orders/index.php&btnOrderDelete&intOrderID=".$intOrderID2, 'order_delete_'.$intOrderID2, '_wpnonce_order_delete')."'>".__("Delete", 'lang_webshop')."</a>
+							<a href='".wp_nonce_url("?post_type=".$obj_webshop->post_type_products."&page=mf_webshop/orders/index.php&btnOrderDelete&intOrderID=".$intOrderID2, 'order_delete_'.$intOrderID2, '_wpnonce_order_delete')."'>".__("Delete", 'lang_webshop')."</a>
 						</div>
 					</td>
 				</tr>";
@@ -148,7 +148,7 @@ echo "<div class='wrap'>
 						<td colspan='".(count($arr_header) - 2)."'>
 							<table>";
 
-								$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, productAmount FROM ".$wpdb->posts." INNER JOIN ".$wpdb->prefix."webshop_product2user ON ".$wpdb->posts.".ID = ".$wpdb->prefix."webshop_product2user.productID WHERE post_type = 'mf_products' AND orderID = '%d'", $intOrderID2));
+								$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, productAmount FROM ".$wpdb->posts." INNER JOIN ".$wpdb->prefix."webshop_product2user ON ".$wpdb->posts.".ID = ".$wpdb->prefix."webshop_product2user.productID WHERE post_type = %s AND orderID = '%d'", $obj_webshop->post_type_products, $intOrderID2));
 
 								foreach($result2 as $r)
 								{

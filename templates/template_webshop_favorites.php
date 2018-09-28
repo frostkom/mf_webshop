@@ -10,7 +10,9 @@ get_header();
 
 	if(have_posts())
 	{
-		$post_amount = $wp_query->found_posts;
+		$obj_webshop = new mf_webshop();
+
+		//$post_amount = $wp_query->found_posts;
 
 		while(have_posts())
 		{
@@ -19,8 +21,6 @@ get_header();
 			$post_id = $post->ID;
 			$post_title = $post->post_title;
 			$post_content = $post->post_content;
-
-			$obj_webshop = new mf_webshop();
 
 			echo "<form action='".get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search product_favorites'>
 				<div class='aside'><div>".$obj_webshop->get_webshop_map()."</div></div>

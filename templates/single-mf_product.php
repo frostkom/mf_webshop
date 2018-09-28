@@ -1,37 +1,8 @@
 <?php
 
-function meta_webshop()
-{
-	global $wpdb, $post;
+$obj_webshop = new mf_webshop();
 
-	$post_id = $post->ID;
-
-	if($post_id > 0 && get_the_excerpt() == '')
-	{
-		$obj_webshop = new mf_webshop();
-		$size_post_name = $obj_webshop->get_post_name_for_type('description');
-		$product_description = get_post_meta($post_id, $obj_webshop->meta_prefix.$size_post_name, true);
-
-		/*if($product_description == '')
-		{
-			$name_product = get_option_or_default('setting_webshop_replace_product', __("Product", 'lang_webshop'));
-
-			$post_title = get_post_title($post_id);
-
-			$product_description = $name_product.": ".$post_title;
-		}*/
-
-		if($product_description != '')
-		{
-			echo "<meta name='description' content='".esc_attr($product_description)."'>";
-		}
-	}
-}
-
-$name_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
-$name_hide_map = get_option_or_default('setting_replace_hide_map', __("Hide Map", 'lang_webshop'));
-
-add_action('wp_head', 'meta_webshop');
+add_action('wp_head', array($obj_webshop, 'wp_head_single_product'));
 
 get_header();
 
@@ -48,7 +19,10 @@ get_header();
 				$post_id = $post->ID;
 				$post_content = $post->post_content;
 
-				$obj_webshop = new mf_webshop();
+				$obj_webshop->get_option_type_from_post_id($post_id);
+				
+				$name_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
+				$name_hide_map = get_option_or_default('setting_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
 
 				if($post_content == '')
 				{
@@ -250,14 +224,6 @@ get_header();
 
 				if($ghost_post_name != '' && get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.$ghost_post_name, true) == true)
 				{
-					/*$obj_webshop->product_title = get_option_or_default('setting_ghost_title', __("Hidden", 'lang_webshop'));
-					$obj_webshop->product_image = array(get_option('setting_ghost_image'));
-					$obj_webshop->product_meta = array(
-						array(
-							'class' => 'description',
-							'content' => get_option_or_default('setting_ghost_text', __("This is hidden", 'lang_webshop')),
-						)
-					);*/
 					$obj_webshop->product_meta = $obj_webshop->arr_product_quick = $obj_webshop->arr_product_property = array();
 				}
 
@@ -268,7 +234,7 @@ get_header();
 					$obj_slideshow = new mf_slideshow();
 				}
 
-				if(get_option('setting_webshop_display_breadcrumbs') == 'yes')
+				if(get_option('setting_webshop_display_breadcrumbs'.$obj_webshop->option_type) == 'yes')
 				{
 					echo "<div class='product_breadcrumbs'>";
 
@@ -363,7 +329,7 @@ get_header();
 													$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
 
 													$arr_categories = array();
-													get_post_children(array('post_type' => 'mf_categories'), $arr_categories);
+													get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
 
 													$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
 														.$obj_font_icons->get_symbol_tag($obj_webshop->arr_product_quick[$i]['symbol'])
@@ -437,13 +403,13 @@ get_header();
 
 							if($obj_webshop->product_has_email == true)
 							{
-								$quote_form_url = get_form_url(get_option('setting_quote_form_single'));
+								$quote_form_url = get_form_url(get_option('setting_quote_form_single'.$obj_webshop->option_type));
 
-								$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote', __("Send request for quote", 'lang_webshop'));
-								$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search', __("Add to Search", 'lang_webshop'));
-								$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search', __("Remove from Search", 'lang_webshop'));
-								$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search', __("Continue Search", 'lang_webshop'));
-								$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another', __("Search for Another", 'lang_webshop'));
+								$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$obj_webshop->option_type, __("Send request for quote", 'lang_webshop'));
+								$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search'.$obj_webshop->option_type, __("Add to Search", 'lang_webshop'));
+								$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search'.$obj_webshop->option_type, __("Remove from Search", 'lang_webshop'));
+								$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$obj_webshop->option_type, __("Continue Search", 'lang_webshop'));
+								$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another'.$obj_webshop->option_type, __("Search for Another", 'lang_webshop'));
 
 								echo "<div id='product_form' class='mf_form form_button_container'>
 									<div class='form_button'>
@@ -475,7 +441,7 @@ get_header();
 										$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
 
 										$arr_categories = array();
-										get_post_children(array('post_type' => 'mf_categories'), $arr_categories);
+										get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
 
 										$count_categories = count($arr_categories);
 										$count_chosen = 0;

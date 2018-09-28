@@ -1,83 +1,8 @@
 <?php
 
-function get_webshop_cart()
+if(!isset($obj_webshop))
 {
-	global $wpdb, $sesWebshopCookie, $intCustomerID, $intCustomerNo, $strOrderName, $emlOrderEmail, $strOrderText, $intDeliveryTypeID, $error_text, $done_text;
-
-	$out = get_notification();
-
-	$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, productAmount FROM ".$wpdb->posts." INNER JOIN ".$wpdb->prefix."webshop_product2user ON ".$wpdb->posts.".ID = ".$wpdb->prefix."webshop_product2user.productID WHERE post_type = 'mf_products' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", get_current_user_id(), $sesWebshopCookie));
-
-	if($wpdb->num_rows > 0)
-	{
-		$out .= "<h4>".__("Cart", 'lang_webshop')."</h4>
-		<ul>";
-
-			foreach($result as $r)
-			{
-				$post_id = $r->ID;
-				$post_title = $r->post_title;
-				$product_amount = $r->productAmount;
-
-				$post_url = get_permalink($post_id);
-
-				$out .= "<li>
-					<a href='".$post_url."'>
-						<span>".$post_title."</span>
-						<em>(".$product_amount.")</em>
-					</a>
-				</li>";
-			}
-
-		$out .= "</ul>
-		<form method='post' action='' id='order_proceed' class='mf_form".(isset($_POST['btnOrderConfirm']) ? " hide" : "")."'>
-			<div class='form_button'>"
-				.show_button(array('name' => 'btnOrderProceed', 'text' => __("Proceed to Checkout", 'lang_webshop'), 'type' => 'button'))
-			."</div>
-		</form>";
-
-		if(get_current_user_id() > 0 && !($intCustomerID > 0))
-		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT customerID, orderName, orderEmail FROM ".$wpdb->prefix."webshop_order WHERE userID = '%d' ORDER BY orderCreated DESC LIMIT 0, 1", get_current_user_id()));
-
-			foreach($result as $r)
-			{
-				$intCustomerID = $r->customerID;
-				$strOrderName = $r->orderName;
-				$emlOrderEmail = $r->orderEmail;
-			}
-		}
-
-		$out .= "<form method='post' action='' id='order_confirm' class='mf_form".(isset($_POST['btnOrderConfirm']) ? "" : " hide")."'>
-			<h4>".__("Checkout", 'lang_webshop')."</h4>";
-
-			$arr_data = get_posts_for_select(array('post_type' => 'mf_customers', 'order' => "post_title ASC", 'add_choose_here' => true));
-
-			if(count($arr_data) > 0)
-			{
-				$out .= show_select(array('data' => $arr_data, 'name' => 'intCustomerID', 'text' => __("Customer", 'lang_webshop'), 'value' => $intCustomerID))
-				.show_textfield(array('name' => 'intCustomerNo', 'text' => __("Customer No", 'lang_webshop'), 'value' => $intCustomerNo, 'type' => 'number'));
-			}
-
-			$out .= show_textfield(array('name' => 'strOrderName', 'text' => __("Name", 'lang_webshop'), 'value' => $strOrderName, 'required' => true))
-			.show_textfield(array('name' => 'emlOrderEmail', 'text' => __("E-mail", 'lang_webshop'), 'value' => $emlOrderEmail, 'required' => true))
-			.show_textarea(array('name' => 'strOrderText', 'text' => __("Text", 'lang_webshop'), 'value' => $strOrderText));
-
-			$arr_data = get_posts_for_select(array('post_type' => 'mf_delivery_type', 'order' => "post_title ASC"));
-
-			if(count($arr_data) > 0)
-			{
-				$out .= show_select(array('data' => $arr_data, 'name' => 'intDeliveryTypeID', 'text' => __("Delivery Type", 'lang_webshop'), 'value' => $intDeliveryTypeID));
-			}
-
-			$out .= "<div class='form_button'>"
-				.show_button(array('name' => 'btnOrderConfirm', 'text' => __("Confirm Order", 'lang_webshop')))
-			."</div>"
-			.wp_nonce_field('order_confirm', '_wpnonce_order_confirm', true, false)
-		."</form>";
-	}
-
-	return $out;
+	$obj_webshop = new mf_webshop();
 }
 
 if(get_option('setting_show_categories') == 'yes')
@@ -134,7 +59,7 @@ if(get_option('setting_show_categories') == 'yes')
 		{
 			$accepted = false;
 
-			$result	= $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_customers' AND post_status = 'publish' ORDER BY post_title ASC");
+			$result	= $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title ASC", $obj_webshop->post_type_customers));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -212,7 +137,7 @@ if(get_option('setting_show_categories') == 'yes')
 
 	list($list_output, $is_parent) = get_product_list_item(0, $cat_id);
 
-	$cart_output = get_webshop_cart();
+	$cart_output = $obj_webshop->get_cart();
 
 	if($list_output != '' || $cart_output != '')
 	{

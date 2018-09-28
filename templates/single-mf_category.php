@@ -18,7 +18,7 @@ get_header();
 
 			echo "<article>";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = 'mf_products' AND post_status = 'publish' AND post_parent = '0' AND meta_key = '".$obj_webshop->meta_prefix."category' AND meta_value = '%d' ORDER BY menu_order ASC", $cat_id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND post_parent = '0' AND meta_key = '".$obj_webshop->meta_prefix."category' AND meta_value = '%d' ORDER BY menu_order ASC", $obj_webshop->post_type_products, $cat_id));
 
 				if($wpdb->num_rows == 0)
 				{
