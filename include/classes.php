@@ -684,11 +684,6 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, array('child' => $option_type));
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop'.($option_type != '' ? "_".$option_type : ''), __("Webshop", 'lang_webshop'));
 
-		/*if($_SERVER['REMOTE_ADDR'] == "83.182.187.237")
-		{
-			echo $setting_key.", ".var_export($args, true)."<br>";
-		}*/
-
 		echo settings_header($setting_key, $setting_webshop_replace_webshop);
 	}
 
