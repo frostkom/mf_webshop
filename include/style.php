@@ -729,14 +729,9 @@ echo "@media all
 							.product_image_container i
 							{
 								color: #999;
-								font-size: 2em;
-								margin: 25% 0;
+								font-size: 7em;
+								margin: 10% 0;
 							}
-
-								/*.product_image_container i + img
-								{
-									background: none !important;
-								}*/
 
 							.product_image_container img
 							{
