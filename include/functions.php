@@ -79,7 +79,7 @@ function update_product_amount($intProductID2, $intProductAmount2)
 function get_product_list_item($post_id = 0, $current_post_id = 0)
 {
 	global $wpdb;
-	
+
 	$obj_webshop = new mf_webshop();
 
 	$out = "";

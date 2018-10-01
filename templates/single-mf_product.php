@@ -20,7 +20,7 @@ get_header();
 				$post_content = $post->post_content;
 
 				$obj_webshop->get_option_type_from_post_id($post_id);
-				
+
 				$name_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
 				$name_hide_map = get_option_or_default('setting_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
 
@@ -171,6 +171,14 @@ get_header();
 								case 'number':
 								case 'size':
 									$has_data = true;
+								break;
+
+								case 'content':
+									$arr_exclude = array("[", "]");
+									$arr_include = array("<", ">");
+
+									$post_content = str_replace($arr_exclude, $arr_include, $post_meta);
+									$post_meta = "";
 								break;
 
 								case 'categories':

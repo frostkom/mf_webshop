@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.2.9
+Version: 1.4.2.12
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -260,9 +260,14 @@ function custom_templates_webshop($single_template)
 {
 	global $post, $obj_webshop;
 
-	if(substr($post->post_type, 0, strlen($obj_webshop->post_type_categories)) == $obj_webshop->post_type_categories || substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $obj_webshop->post_type_products)
+	if(substr($post->post_type, 0, strlen($obj_webshop->post_type_categories)) == $obj_webshop->post_type_categories)
 	{
-		$single_template = plugin_dir_path(__FILE__)."templates/single-".$post->post_type.".php";
+		$single_template = plugin_dir_path(__FILE__)."templates/single-".$obj_webshop->post_type_categories.".php";
+	}
+
+	else if(substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $obj_webshop->post_type_products)
+	{
+		$single_template = plugin_dir_path(__FILE__)."templates/single-".$obj_webshop->post_type_products.".php";
 	}
 
 	return $single_template;

@@ -37,15 +37,9 @@ get_header();
 						$post_url = get_permalink($r);
 
 						$post_product_image_id = get_post_meta($post_id, $obj_webshop->meta_prefix.'product_image_image', true);
-						//$post_product_image = get_post_meta_file_src(array('post_id' => $post_id, 'meta_key' => $obj_webshop->meta_prefix.'product_image', 'image_size' => 'large'));
 
 						echo "<h1><a href='".$post_url."'>".$post_title."</a></h1>
 						<section>";
-
-							/*if($post_product_image != '')
-							{
-								echo "<img src='".$post_product_image."' alt='".$post_title."'>";
-							}*/
 
 							if($post_product_image_id > 0)
 							{
