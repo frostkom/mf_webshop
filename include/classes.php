@@ -526,6 +526,8 @@ class mf_webshop
 
 				'setting_webshop_replace_choose_product|'.$option_type => __("Replace Text", 'lang_webshop'),
 
+				'setting_webshop_display_images|'.$option_type => __("Display Images", 'lang_webshop'),
+
 				'setting_webshop_switch_icon_on|'.$option_type => __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")",
 				'setting_webshop_switch_icon_off|'.$option_type => __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")",
 			);
@@ -830,6 +832,14 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Choose", 'lang_webshop')));
+	}
+
+	function setting_webshop_display_images_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key, 'yes');
+
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_webshop_switch_icon_on_callback($args = array())
@@ -3740,7 +3750,7 @@ class mf_webshop
 			switch($data['type'])
 			{
 				case 'email':
-					$data['meta'] = "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>";
+					$data['meta'] = apply_filters('the_content', "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>");
 				break;
 
 				case 'phone':
@@ -3862,7 +3872,7 @@ class mf_webshop
 		$this->product_title = $post->post_title;
 		$this->product_description = $post->post_excerpt;
 
-		$this->category_icon = '';
+		$this->product_image = $this->category_icon = '';
 
 		if($data['single'] == true)
 		{
@@ -3874,7 +3884,10 @@ class mf_webshop
 			$this->product_url = get_permalink($this->product_id);
 		}
 
-		$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
+		if(get_option('setting_webshop_display_images', 'yes') == 'yes')
+		{
+			$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
+		}
 
 		$this->show_in_result = true;
 		$this->product_has_email = false;
@@ -3887,9 +3900,12 @@ class mf_webshop
 			$this->product_form_buy = "";
 			$this->arr_product_property = $this->arr_product_quick = $this->slideshow_images = array();
 
-			foreach($this->product_image as $product_image)
+			if(is_array($this->product_image) && count($this->product_image) > 0)
 			{
-				$this->slideshow_images[] = $product_image;
+				foreach($this->product_image as $product_image)
+				{
+					$this->slideshow_images[] = $product_image;
+				}
 			}
 		}
 
@@ -4839,16 +4855,13 @@ class widget_webshop_search extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
-				/*."<div class='aside'><div>".$this->obj_webshop->get_webshop_map()."</div></div>"*/
-				//."<div>"
-					.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
-					.$this->obj_webshop->get_webshop_search()
-					.$this->obj_webshop->get_search_result_info(array('type' => 'matches'))
-					."<ul id='product_result_search' class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
-					.$this->obj_webshop->get_quote_button()
-					.$this->obj_webshop->get_form_fields_passthru()
-				//."</div>"
+			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search'>" // webshop_option_type".$this->obj_webshop->option_type."
+				.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
+				.$this->obj_webshop->get_webshop_search()
+				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'))
+				."<ul id='product_result_search' class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+				.$this->obj_webshop->get_quote_button()
+				.$this->obj_webshop->get_form_fields_passthru()
 			."</form>"
 			.$this->obj_webshop->get_templates()
 		.$after_widget;
