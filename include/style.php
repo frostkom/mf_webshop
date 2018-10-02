@@ -640,9 +640,14 @@ echo "@media all
 			background: #f8f8f8;
 			clear: both;
 			overflow: hidden;
-			padding: 2.3em .8em 2em;
+			padding: 2em .8em;
 			position: relative;
 		}
+
+			.product_list > li:nth-child(2n + 1)
+			{
+				background: #f1f1f1;
+			}
 
 			.product_list > li.loading
 			{
@@ -662,15 +667,17 @@ echo "@media all
 
 				.product_list h2
 				{
-					margin-bottom: 0;
+					margin-bottom: 0 !important;
 					position: relative;
 				}
 
 					.product_list h2 a
 					{
+						border: 0 !important;
 						display: inline-block;
 						max-width: 75%;
 						overflow: hidden;
+						padding: 0;
 						text-overflow: ellipsis;
 						white-space: nowrap;
 					}
@@ -774,15 +781,17 @@ echo "@media all
 
 			.product_list > li > ul li a, .product_single ul li a
 			{
+				border: 0;
 				color: inherit;
+				padding: 0;
 			}
 
-			.product_list li.type_text
+			/*.product_list li.type_text
 			{
 				float: left;
 				white-space: nowrap;
 				width: 50%;
-			}
+			}*/
 
 			.product_meta li.description
 			{

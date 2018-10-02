@@ -3767,6 +3767,8 @@ class mf_webshop
 							foreach($data['meta'] as $meta)
 							{
 								$content .= ($i > 0 ? ", " : "").get_post_title($meta);
+
+								$i++;
 							}
 
 						$content .= "</span>";
@@ -4099,10 +4101,10 @@ class mf_webshop
 								$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
 							}
 
-							else
+							/*else //This makes it display duplicate
 							{
 								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
-							}
+							}*/
 
 							if($this->meta_public == 'no')
 							{
@@ -4837,7 +4839,7 @@ class widget_webshop_search extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search'>"
+			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
 				/*."<div class='aside'><div>".$this->obj_webshop->get_webshop_map()."</div></div>"*/
 				//."<div>"
 					.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
