@@ -671,7 +671,7 @@ echo "@media all
 					position: relative;
 				}
 
-					.product_list h2 a
+					.product_list h2 a, .product_list h2 span
 					{
 						border: 0 !important;
 						display: block;

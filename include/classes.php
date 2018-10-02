@@ -3490,7 +3490,7 @@ class mf_webshop
 
 						else
 						{ %>
-							<%= product_title %>
+							<span><%= product_title %></span>
 						<% } %>
 					</h2>
 					<% if(product_location != '')
@@ -3537,18 +3537,20 @@ class mf_webshop
 					<div class='product_description product_column'>
 						<%= product_description %>
 					</div>
+				<% } %>
+
+				<% if(product_has_email == 1 || 1 == 1)
+				{ %>"
+					// This can't be removed until '#product_result_search .products' can be checked and work
+					.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_webshop_payment_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
+				."<% } %>";
+
+				$out .= "<% if(product_url != '')
+				{ %>
+					<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
 				<% } %>";
 
-				if(get_option('setting_webshop_payment_form'.$this->option_type) > 0)
-				{
-					$out .= "<% if(product_has_email == 1 || 1 == 1)
-					{ %>"
-						.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => 'color_button_2')) //, 'compare' => '<%= product_id %>' //This makes it checked by default
-					."<% } %>";
-				}
-
-				$out .= "<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>"
-				.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
+				$out .= input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
 			."</li>
 		</script>";
 
@@ -3750,7 +3752,9 @@ class mf_webshop
 			switch($data['type'])
 			{
 				case 'email':
-					$data['meta'] = apply_filters('the_content', "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>");
+					//This messes up the search because it adds email_encrypt etc.
+					//$data['meta'] = apply_filters('the_content', "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>");
+					$data['meta'] = "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>";
 				break;
 
 				case 'phone':
@@ -3790,8 +3794,14 @@ class mf_webshop
 					}*/
 				break;
 
+				case 'content':
 				case 'description':
 				case 'textarea':
+					if($this->product_url == '')
+					{
+						$this->product_url = get_permalink($this->product_id);
+					}
+
 					$content = "<p>"
 						.$symbol_code.$data['meta']
 						."<a href='".$this->product_url."' class='product_link'>".__("Read More", 'lang_webshop')."&hellip;</a>
@@ -3872,7 +3882,7 @@ class mf_webshop
 		$this->product_title = $post->post_title;
 		$this->product_description = $post->post_excerpt;
 
-		$this->product_image = $this->category_icon = '';
+		$this->product_url = $this->product_image = $this->category_icon = '';
 
 		if($data['single'] == true)
 		{
@@ -3881,7 +3891,10 @@ class mf_webshop
 
 		else
 		{
-			$this->product_url = get_permalink($this->product_id);
+			if($post->post_content != '')
+			{
+				$this->product_url = get_permalink($this->product_id);
+			}
 		}
 
 		if(get_option('setting_webshop_display_images', 'yes') == 'yes')
@@ -4304,7 +4317,7 @@ class mf_webshop
 
 			if($ghost_post_name != '' && get_post_meta($this->product_id, $this->meta_prefix.$ghost_post_name, true) == true)
 			{
-				$this->product_url = "";
+				$this->product_url = '';
 				$this->product_meta = array(
 					array(
 						'class' => 'description',
