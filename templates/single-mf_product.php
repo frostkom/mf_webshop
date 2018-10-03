@@ -340,7 +340,7 @@ get_header();
 													get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
 
 													$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
-														.$obj_font_icons->get_symbol_tag($obj_webshop->arr_product_quick[$i]['symbol'])
+														.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
 														.$obj_webshop->arr_product_quick[$i]['title']
 													.":</span>
 													<ul>";
@@ -357,7 +357,7 @@ get_header();
 
 												default:
 													$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
-														.$obj_font_icons->get_symbol_tag($obj_webshop->arr_product_quick[$i]['symbol'])
+														.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
 														.$obj_webshop->arr_product_quick[$i]['title']
 													.":</span>
 													<span>".apply_filters('the_content', $obj_webshop->arr_product_quick[$i]['meta'])."</span>";
@@ -485,7 +485,7 @@ get_header();
 									{
 										echo "<li>
 											<h3>"
-												.$obj_font_icons->get_symbol_tag($product_property['symbol'])
+												.$obj_font_icons->get_symbol_tag(array('symbol' => $product_property['symbol']))
 												.$product_property['title']
 											."</h3>"
 											.$out_property

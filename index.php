@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.2.19
+Version: 1.4.3.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -187,6 +187,13 @@ function uninstall_webshop()
 	$arr_options = $arr_option_types = array();
 
 	$arr_options[] = 'setting_webshop_option_types';
+	$arr_options[] = 'setting_webshop_display_sort';
+	$arr_options[] = 'setting_webshop_sort_default';
+	$arr_options[] = 'setting_webshop_display_filter';
+	$arr_options[] = 'setting_map_visibility';
+	$arr_options[] = 'setting_map_visibility_mobile';
+	$arr_options[] = 'setting_webshop_color_info';
+	$arr_options[] = 'setting_webshop_text_color_info';
 
 	foreach($obj_webshop->arr_option_types as $option_type)
 	{
@@ -222,11 +229,7 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_replace_products_slug'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_categories_slug'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_show_categories'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_webshop_color_info'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_webshop_text_color_info'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_gmaps_api'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_map_visibility'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_map_visibility_mobile'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_inactive_image'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_active_image'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_ghost_inactive_image'.$obj_webshop->option_type;

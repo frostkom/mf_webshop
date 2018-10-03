@@ -15,17 +15,17 @@ if(!isset($obj_theme_core))
 }
 
 $obj_theme_core->get_params();
+$obj_webshop = new mf_webshop();
 
 $setting_mobile_breakpoint = $obj_theme_core->options['mobile_breakpoint'];
 
 $setting_webshop_display_sort = get_option('setting_webshop_display_sort');
 $setting_webshop_display_filter = get_option('setting_webshop_display_filter');
 
-$setting_color_info = get_option('setting_webshop_color_info');
-$setting_text_color_info = get_option('setting_webshop_text_color_info');
-
 $setting_map_visibility = get_option('setting_map_visibility');
 $setting_map_visibility_mobile = get_option('setting_map_visibility_mobile');
+$setting_color_info = get_option('setting_webshop_color_info');
+$setting_text_color_info = get_option('setting_webshop_text_color_info');
 
 switch($setting_map_visibility)
 {
@@ -733,14 +733,40 @@ echo "@media all
 							color: inherit;
 						}
 
-							.product_image_container i
+							.product_image_container .category_icon i
 							{
 								color: #999;
 								font-size: 5em;
 								margin: 5% 0;
-							}
+							}";
 
-							.product_image_container img
+								$obj_webshop->get_option_types();
+
+								//echo ".category_icon_test_".count($obj_webshop->arr_option_types)."{}\n";
+
+								foreach($obj_webshop->arr_option_types as $option_type)
+								{
+									//echo ".category_icon_test2".$option_type."{}\n";
+
+									$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+
+									$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $obj_webshop->post_type_categories.$obj_webshop->option_type, $obj_webshop->meta_prefix.'category_icon_color'));
+
+									//echo "/* ".$wpdb->last_query." */";
+
+									foreach($result as $r)
+									{
+										$post_id = $r->ID;
+										$post_color = $r->meta_value;
+
+										echo ".category_icon.category_".$post_id." i, .category_icon .category_".$post_id." i
+										{
+											color: ".$post_color.";
+										}";
+									}
+								}
+
+							echo ".product_image_container img
 							{
 								margin-bottom: -6px;
 								width: 100%;
@@ -925,7 +951,7 @@ echo "@media all
 			margin-top: 1em;
 		}
 
-			.product_single li + li
+			.product_single li + li, #product_result_form li + li
 			{
 				margin-top: 0;
 			}
