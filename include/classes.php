@@ -1437,7 +1437,7 @@ class mf_webshop
 		$setting_webshop_payment_form = get_option('setting_webshop_payment_form'.$this->option_type);
 		$setting_webshop_switch_icon_on = get_option('setting_webshop_switch_icon_on'.$this->option_type);
 		$setting_webshop_switch_icon_off = get_option('setting_webshop_switch_icon_off'.$this->option_type);
-		
+
 		$address_post_name = $this->get_post_name_for_type('address');
 
 		foreach($_REQUEST as $key => $value)
@@ -3800,7 +3800,7 @@ class mf_webshop
 			}
 
 			$symbol_code = (isset($data['symbol']) ? $this->obj_font_icons->get_symbol_tag(array('symbol' => $data['symbol'])) : "");
-
+			
 			switch($data['type'])
 			{
 				case 'email':
@@ -3814,7 +3814,10 @@ class mf_webshop
 				case 'url':
 					$data['meta'] = "<a href='".$data['meta']."'>".remove_protocol(array('url' => $data['meta'], 'clean' => true, 'trim' => true))."</a>";
 				break;
+			}
 
+			switch($data['type'])
+			{
 				case 'categories':
 					if(is_array($data['meta']))
 					{

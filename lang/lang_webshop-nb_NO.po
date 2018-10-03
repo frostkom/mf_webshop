@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-02 05:11+0100\n"
+"POT-Creation-Date: 2018-10-03 16:51+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -24,9 +24,6 @@ msgstr "Vis alle"
 msgid "Choose Here"
 msgstr "Velg Her"
 
-msgid "A-Z"
-msgstr "A-Z"
-
 msgid "Information"
 msgstr "Informasjon"
 
@@ -44,9 +41,6 @@ msgstr "Dato"
 
 msgid "E-mail"
 msgstr "E-post"
-
-msgid "URL"
-msgstr "URL"
 
 msgid "Clock"
 msgstr "Klokke"
@@ -72,14 +66,20 @@ msgstr "Vis Filter"
 msgid "Search"
 msgstr "Søk"
 
-msgid "Choose"
-msgstr "Velg"
-
 msgid "Yes"
 msgstr "Ja"
 
 msgid "No"
 msgstr "Nei"
+
+msgid "Filter amongst %s products"
+msgstr "Filter blant %s produkter"
+
+msgid "Your search matches %s products"
+msgstr "Ditt søk samsvarer med %s produkter"
+
+msgid "Choose"
+msgstr "Velg"
 
 msgid "Here I am"
 msgstr "Her er jeg"
@@ -101,9 +101,6 @@ msgstr "Alle"
 
 msgid "Choose all"
 msgstr "Velg alle"
-
-msgid "Filter"
-msgstr "Filter"
 
 msgid "Distance"
 msgstr "Avstand"
