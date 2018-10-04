@@ -808,7 +808,7 @@ echo "@media all
 			.product_list > li > ul li a, .product_single ul li a
 			{
 				border: 0;
-				color: inherit;
+				/*color: inherit;*/
 				padding: 0;
 			}
 
@@ -823,6 +823,12 @@ echo "@media all
 			{
 				overflow: hidden;
 				margin-bottom: .5em;
+			}
+
+			.product_meta li.divider hr
+			{
+				border-top: 0;
+				color: #333;
 			}
 
 			li.type_image
@@ -965,6 +971,11 @@ echo "@media all
 			.single-mf_product .product_description
 			{
 				margin: 2em 1.2em 0 0;
+			}
+
+			#product_result_form .contact_button, #product_result_form .read_more_button
+			{
+				display: none;
 			}
 
 			.product_quick

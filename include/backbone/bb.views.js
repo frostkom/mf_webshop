@@ -74,7 +74,7 @@ var WebshopView = Backbone.View.extend(
 		"mouseleave #product_result_search > li": "section_unhover",
 		"change .webshop_form form select": "search_product_amount",
 		"click #product_form.form_button_container .form_button button": "product_add_to_search_or_not",
-		"click #product_result_search li": "set_last_product",
+		"click #product_result_search > li": "set_last_product",
 
 		/* Favorites */
 		"click .quote_button .button_print": "print_favorites"

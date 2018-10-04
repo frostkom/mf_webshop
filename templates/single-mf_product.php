@@ -278,9 +278,14 @@ get_header();
 								echo "<p class='product_location'>".$obj_webshop->product_address."</p>";
 							}
 
-							if(shortcode_exists('mf_share'))
+							if(is_plugin_active("mf_share/index.php") && shortcode_exists('mf_share'))
 							{
-								echo apply_filters('the_content', "[mf_share type='options']");
+								$obj_share = new mf_share();
+
+								if($obj_share->is_correct_page())
+								{
+									echo apply_filters('the_content', "[mf_share type='options']");
+								}
 							}
 
 						echo "</div>
@@ -411,27 +416,47 @@ get_header();
 
 							if($obj_webshop->product_has_email == true)
 							{
-								$quote_form_url = get_form_url(get_option('setting_quote_form_single'.$obj_webshop->option_type));
+								$setting_quote_form = get_option('setting_quote_form'.$obj_webshop->option_type);
+								$setting_quote_form_single = get_option('setting_quote_form_single'.$obj_webshop->option_type);								
 
-								$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$obj_webshop->option_type, __("Send request for quote", 'lang_webshop'));
-								$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search'.$obj_webshop->option_type, __("Add to Search", 'lang_webshop'));
-								$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search'.$obj_webshop->option_type, __("Remove from Search", 'lang_webshop'));
-								$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$obj_webshop->option_type, __("Continue Search", 'lang_webshop'));
-								$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another'.$obj_webshop->option_type, __("Search for Another", 'lang_webshop'));
+								if($setting_quote_form_single > 0 || $setting_quote_form > 0)
+								{
+									echo "<div id='product_form' class='mf_form form_button_container'>
+										<div class='form_button'>";
 
-								echo "<div id='product_form' class='mf_form form_button_container'>
-									<div class='form_button'>
-										<div class='has_searched hide'>"
-											.show_button(array('type' => 'button', 'text' => "<i class='fa fa-check'></i> ".$setting_replace_add_to_search, 'class' => "button-primary add_to_search", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
-											.show_button(array('type' => 'button', 'text' => "<i class='fa fa-times'></i> ".$setting_replace_remove_from_search, 'class' => "color_button_negative remove_from_search hide", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
-											.show_button(array('type' => 'button', 'text' => "<i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search, 'class' => "button-secondary return_to_search", 'xtra' => "search_url='".$obj_webshop->search_url."'"))
-										."</div>
-										<div class='has_not_searched'>"
-											.show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$obj_webshop->product_id."' form_url='".$quote_form_url."'"))
-											.show_button(array('type' => 'button', 'text' => "<i class='fa fa-search'></i> ".$setting_replace_search_for_another, 'class' => "button-secondary search_for_another", 'xtra' => "search_url='".$obj_webshop->search_url."'"))
-										."</div>
-									</div>
-								</div>";
+											if($setting_quote_form > 0)
+											{
+												$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search'.$obj_webshop->option_type, __("Add to Search", 'lang_webshop'));
+												$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search'.$obj_webshop->option_type, __("Remove from Search", 'lang_webshop'));
+												$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$obj_webshop->option_type, __("Continue Search", 'lang_webshop'));
+
+												echo "<div class='has_searched hide'>"
+													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-check'></i> ".$setting_replace_add_to_search, 'class' => "button-primary add_to_search", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
+													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-times'></i> ".$setting_replace_remove_from_search, 'class' => "color_button_negative remove_from_search hide", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
+													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search, 'class' => "button-secondary return_to_search", 'xtra' => "search_url='".$obj_webshop->search_url."'"))
+												."</div>";
+											}
+
+											echo "<div class='has_not_searched'>";
+
+												if($setting_quote_form_single > 0)
+												{
+													$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$obj_webshop->option_type, __("Send request for quote", 'lang_webshop'));
+
+													echo show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$obj_webshop->product_id."' form_url='".get_form_url($setting_quote_form_single)."'"));
+												}
+
+												if($setting_quote_form > 0)
+												{
+													$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another'.$obj_webshop->option_type, __("Search for Another", 'lang_webshop'));
+
+													echo show_button(array('type' => 'button', 'text' => "<i class='fa fa-search'></i> ".$setting_replace_search_for_another, 'class' => "button-secondary search_for_another", 'xtra' => "search_url='".$obj_webshop->search_url."'"));
+												}
+
+											echo "</div>
+										</div>
+									</div>";
+								}
 							}
 
 						echo "</div>";

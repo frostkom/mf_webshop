@@ -178,6 +178,7 @@ class mf_webshop
 			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
 				'divider' => __("Divider", 'lang_webshop'),
 				'contact_button' => __("Contact Button", 'lang_webshop'),
+				'read_more_button' => __("Read More Button", 'lang_webshop'),
 				'container_start' => __("Start of Container", 'lang_webshop'),
 				'container_end' => __("End of Container", 'lang_webshop'),
 			'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
@@ -546,40 +547,41 @@ class mf_webshop
 
 			add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-			$arr_settings = array(
-				//'setting_webshop_display_sort|'.$option_type => __("Display Sort", 'lang_webshop'),
-				//'setting_webshop_sort_default|'.$option_type => __("Sort Default", 'lang_webshop'),
-				//'setting_webshop_display_filter|'.$option_type => __("Display Filter", 'lang_webshop'),
-				'setting_webshop_replace_filter_products|'.$option_type => __("Replace Text", 'lang_webshop'),
+			$arr_settings = array();
 
-				'setting_search_max|'.$option_type => __("Max results to send quote", 'lang_webshop'),
-				'setting_replace_search_result_info|'.$option_type => __("Replace Text", 'lang_webshop'),
+			$arr_settings['setting_show_all_min|'.$option_type] = __("Min results to show number", 'lang_webshop');
+			$arr_settings['setting_webshop_replace_filter_products|'.$option_type] = __("Replace Text", 'lang_webshop');
+			$arr_settings['setting_replace_search_result_info|'.$option_type] = __("Replace Text", 'lang_webshop');
 
-				'setting_webshop_replace_choose_product|'.$option_type => __("Replace Text", 'lang_webshop'),
-
-				'setting_webshop_display_images|'.$option_type => __("Display Images", 'lang_webshop'),
-
-				'setting_webshop_switch_icon_on|'.$option_type => __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")",
-				'setting_webshop_switch_icon_off|'.$option_type => __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")",
-			);
+			$arr_settings['setting_webshop_display_images|'.$option_type] = __("Display Images", 'lang_webshop');
 
 			if(is_plugin_active("mf_form/index.php"))
 			{
 				$arr_settings['setting_quote_form|'.$option_type] = __("Form for quote request", 'lang_webshop');
+				
+				if(get_option('setting_quote_form'.$this->option_type) > 0)
+				{
+					$arr_settings['setting_search_max|'.$option_type] = __("Max results to send quote", 'lang_webshop');
+					$arr_settings['setting_webshop_replace_choose_product|'.$option_type] = __("Replace Text", 'lang_webshop');
+					$arr_settings['setting_webshop_switch_icon_on|'.$option_type] = __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")";
+					$arr_settings['setting_webshop_switch_icon_off|'.$option_type] = __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")";
+
+					$arr_settings['setting_require_search|'.$option_type] = __("Require user to make some kind of search", 'lang_webshop');
+
+					if(get_option('setting_require_search'.$this->option_type) == 'yes')
+					{
+						$arr_settings['setting_webshop_replace_too_many|'.$option_type] = __("Replace Text", 'lang_webshop');
+					}
+
+					$arr_settings['setting_webshop_replace_none_checked|'.$option_type] = __("Replace Text", 'lang_webshop');
+					$arr_settings['setting_replace_quote_request|'.$option_type] = __("Replace Text", 'lang_webshop');
+				}
 			}
 
-			$arr_settings['setting_show_all_min|'.$option_type] = __("Min results to show number", 'lang_webshop');
-			$arr_settings['setting_range_min_default|'.$option_type] = __("Default range minimum", 'lang_webshop');
-			$arr_settings['setting_range_choices|'.$option_type] = __("Custom range choices", 'lang_webshop');
-			$arr_settings['setting_require_search|'.$option_type] = __("Require user to make some kind of search", 'lang_webshop');
-			$arr_settings['setting_webshop_replace_none_checked|'.$option_type] = __("Replace Text", 'lang_webshop');
-
-			$arr_settings['setting_replace_send_request_for_quote|'.$option_type] = __("Replace Text", 'lang_webshop');
-			$arr_settings['setting_replace_quote_request|'.$option_type] = __("Replace Text", 'lang_webshop');
-
-			if(get_option('setting_require_search') == 'yes')
+			if($this->get_post_name_for_type('interval') != '')
 			{
-				$arr_settings['setting_webshop_replace_too_many|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_range_min_default|'.$option_type] = __("Default range minimum", 'lang_webshop');
+				$arr_settings['setting_range_choices|'.$option_type] = __("Custom range choices", 'lang_webshop');
 			}
 
 			show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
@@ -587,18 +589,21 @@ class mf_webshop
 
 			/* Favorites */
 			############################
-			$options_area = $options_area_orig."_favorites";
+			if(get_option('setting_quote_form'.$this->option_type) > 0)
+			{
+				$options_area = $options_area_orig."_favorites";
 
-			add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+				add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-			$arr_settings = array(
-				'setting_webshop_replace_favorites_info|'.$option_type => __("Replace Text", 'lang_webshop'),
-				'setting_webshop_replace_email_favorites|'.$option_type => __("Replace Text", 'lang_webshop'),
-				'setting_webshop_share_email_subject|'.$option_type => __("Email Subject", 'lang_webshop'),
-				'setting_webshop_share_email_content|'.$option_type => __("Email Content", 'lang_webshop'),
-			);
+				$arr_settings = array(
+					'setting_webshop_replace_favorites_info|'.$option_type => __("Replace Text", 'lang_webshop'),
+					'setting_webshop_replace_email_favorites|'.$option_type => __("Replace Text", 'lang_webshop'),
+					'setting_webshop_share_email_subject|'.$option_type => __("Email Subject", 'lang_webshop'),
+					'setting_webshop_share_email_content|'.$option_type => __("Email Content", 'lang_webshop'),
+				);
 
-			show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
+				show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
+			}
 			############################
 
 			/* Product */
@@ -609,17 +614,31 @@ class mf_webshop
 
 			$arr_settings = array(
 				'setting_webshop_display_breadcrumbs|'.$option_type => __("Display Breadcrumbs", 'lang_webshop'),
-				'setting_webshop_force_individual_contact|'.$option_type => __("Force Individual Contact", 'lang_webshop'),
-
-				'setting_replace_add_to_search|'.$option_type => __("Replace Text", 'lang_webshop'),
-				'setting_replace_remove_from_search|'.$option_type => __("Replace Text", 'lang_webshop'),
-				'setting_replace_return_to_search|'.$option_type => __("Replace Text", 'lang_webshop'),
-				'setting_replace_search_for_another|'.$option_type => __("Replace Text", 'lang_webshop'),
 			);
 
-			if(is_plugin_active("mf_form/index.php")) // && get_option('setting_webshop_force_individual_contact') == 'yes' //Don't even think about this, because it is still used when new vistors arrive at the product page
+			if(is_plugin_active("mf_form/index.php"))
 			{
+				if($this->has_categories() > 0)
+				{
+					$arr_settings['setting_webshop_allow_multiple_categories|'.$option_type] = __("Allow Multiple Categories", 'lang_webshop');
+				}
+
+				if(get_option('setting_quote_form'.$this->option_type) > 0)
+				{
+					$arr_settings['setting_replace_add_to_search|'.$option_type] = __("Replace Text", 'lang_webshop');
+					$arr_settings['setting_replace_remove_from_search|'.$option_type] = __("Replace Text", 'lang_webshop');
+					$arr_settings['setting_replace_return_to_search|'.$option_type] = __("Replace Text", 'lang_webshop');
+					$arr_settings['setting_replace_search_for_another|'.$option_type] = __("Replace Text", 'lang_webshop');
+				}
+
 				$arr_settings['setting_quote_form_single|'.$option_type] = __("Form for quote request (single)", 'lang_webshop');
+
+				if(get_option('setting_quote_form_single'.$this->option_type) > 0)
+				{
+					$arr_settings['setting_replace_send_request_for_quote|'.$option_type] = __("Replace Text", 'lang_webshop');
+
+					$arr_settings['setting_webshop_force_individual_contact|'.$option_type] = __("Force Individual Contact", 'lang_webshop');
+				}
 			}
 
 			show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
@@ -627,42 +646,40 @@ class mf_webshop
 
 			//Map
 			############################
-			$options_area = $options_area_orig."_map";
-
-			add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
-
-			$arr_settings = array();
-
-			if(!is_plugin_active('mf_maps/index.php'))
+			if($this->get_post_name_for_type('gps') != '')
 			{
-				$arr_settings['setting_gmaps_api|'.$option_type] = __("API key", 'lang_webshop');
+				$options_area = $options_area_orig."_map";
+
+				add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+
+				$arr_settings = array();
+
+				if(!is_plugin_active('mf_maps/index.php'))
+				{
+					$arr_settings['setting_gmaps_api|'.$option_type] = __("API key", 'lang_webshop');
+				}
+
+				$arr_settings['setting_webshop_symbol_inactive_image|'.$option_type] = __("Symbol inactive image", 'lang_webshop');
+				$arr_settings['setting_webshop_symbol_active_image|'.$option_type] = __("Symbol active image", 'lang_webshop');
+
+				if($ghost_post_name != '')
+				{
+					$arr_settings['setting_ghost_inactive_image|'.$option_type] = __("Ghost symbol inactive image", 'lang_webshop');
+					$arr_settings['setting_ghost_active_image|'.$option_type] = __("Ghost symbol active image", 'lang_webshop');
+				}
+
+				if(get_option('setting_webshop_symbol_active_image'.$this->option_type) == '')
+				{
+					$arr_settings['setting_webshop_symbol_inactive|'.$option_type] = __("Symbol inactive color", 'lang_webshop');
+					$arr_settings['setting_webshop_symbol_active|'.$option_type] = __("Symbol active color", 'lang_webshop');
+				}
+
+				$arr_settings['setting_webshop_replace_show_map|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_replace_hide_map|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_map_info|'.$option_type] = __("Map Information", 'lang_webshop');
+
+				show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
 			}
-
-			//$arr_settings['setting_map_visibility|'.$option_type] = __("Map visibility", 'lang_webshop');
-			//$arr_settings['setting_map_visibility_mobile|'.$option_type] = __("Map visibility", 'lang_webshop')." (".__("Mobile", 'lang_webshop').")";
-			$arr_settings['setting_webshop_symbol_inactive_image|'.$option_type] = __("Symbol inactive image", 'lang_webshop');
-			$arr_settings['setting_webshop_symbol_active_image|'.$option_type] = __("Symbol active image", 'lang_webshop');
-
-			if($ghost_post_name != '')
-			{
-				$arr_settings['setting_ghost_inactive_image|'.$option_type] = __("Ghost symbol inactive image", 'lang_webshop');
-				$arr_settings['setting_ghost_active_image|'.$option_type] = __("Ghost symbol active image", 'lang_webshop');
-			}
-
-			if(get_option('setting_webshop_symbol_active_image'.$this->option_type) == '')
-			{
-				$arr_settings['setting_webshop_symbol_inactive|'.$option_type] = __("Symbol inactive color", 'lang_webshop');
-				$arr_settings['setting_webshop_symbol_active|'.$option_type] = __("Symbol active color", 'lang_webshop');
-			}
-
-			$arr_settings['setting_webshop_replace_show_map|'.$option_type] = __("Replace Text", 'lang_webshop');
-			$arr_settings['setting_replace_hide_map|'.$option_type] = __("Replace Text", 'lang_webshop');
-			$arr_settings['setting_map_info|'.$option_type] = __("Map Information", 'lang_webshop');
-
-			//$arr_settings['setting_webshop_color_info|'.$option_type] = __("Info color", 'lang_webshop');
-			//$arr_settings['setting_webshop_text_color_info|'.$option_type] = __("Info text color", 'lang_webshop');
-
-			show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
 			############################
 		}
 
@@ -966,6 +983,14 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "fa fa-times red"));
+	}
+
+	function setting_webshop_allow_multiple_categories_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key, 'yes');
+
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_replace_add_to_search_callback($args = array())
@@ -1388,7 +1413,12 @@ class mf_webshop
 		register_widget('widget_webshop_map');
 		register_widget('widget_webshop_form');
 		register_widget('widget_webshop_list');
-		register_widget('widget_webshop_favorites');
+
+		if(get_option('setting_quote_form') > 0)
+		{
+			register_widget('widget_webshop_favorites');
+		}
+
 		register_widget('widget_webshop_recent');
 	}
 
@@ -2111,24 +2141,25 @@ class mf_webshop
 
 			if(count($arr_categories) > 0)
 			{
-				$name_categories = get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop'));
-
 				$fields_settings[] = array(
-					'name' => $name_categories,
+					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
 					'id' => $this->meta_prefix.'category',
 					'type' => 'select',
 					'options'  => $arr_categories,
-					'multiple' => true,
+					'multiple' => (get_option('setting_webshop_allow_multiple_categories'.$this->option_type, 'yes') == 'yes'),
 				);
 			}
 
-			$fields_settings[] = array(
-				'name' => __("Image", 'lang_webshop'),
-				'id'   => $this->meta_prefix.'product_image',
-				'type' => 'file_advanced',
-			);
+			if(get_option('setting_webshop_display_images'.$this->option_type) == 'yes')
+			{
+				$fields_settings[] = array(
+					'name' => __("Image", 'lang_webshop'),
+					'id'   => $this->meta_prefix.'product_image',
+					'type' => 'file_advanced',
+				);
+			}
 
-			$arr_doc_types_ignore = array('heading', 'label', 'categories', 'divider', 'contact_button', 'container_start', 'container_end'); //, 'text', 'description'
+			$arr_doc_types_ignore = array('heading', 'label', 'categories', 'divider', 'contact_button', 'read_more_button', 'container_start', 'container_end'); //, 'text', 'description'
 
 			$result = $this->get_document_types(array('select' => "ID, post_title, post_name, post_parent", 'order' => "menu_order ASC"));
 
@@ -3480,6 +3511,7 @@ class mf_webshop
 							break;
 
 							case 'contact_button':
+							case 'read_more_button':
 								// Do nothing
 							break;
 
@@ -3778,7 +3810,7 @@ class mf_webshop
 
 	function gather_product_meta($data)
 	{
-		if($data['public'] == 'yes' && ($data['meta'] != '' || $data['type'] == 'heading'))
+		if($data['public'] == 'yes' && ($data['meta'] != '' || in_array($data['type'], array('divider', 'heading'))))
 		{
 			$class = $data['type'];
 			$content = "";
@@ -3834,14 +3866,14 @@ class mf_webshop
 
 						$content .= "</span>";
 					}
-
-					/*else
-					{
-						do_log(sprintf(__("Wrong meta (%s) when displaying categories", 'lang_webshop'), var_export($data['meta'])));
-					}*/
 				break;
 
-				case 'content':
+				case 'contact_button':
+				case 'read_more_button':
+					$content = $data['meta'];
+				break;
+
+				/*case 'content':
 				case 'description':
 				case 'textarea':
 					if($this->product_url == '')
@@ -3853,6 +3885,10 @@ class mf_webshop
 						.$symbol_code.$data['meta']
 						."<a href='".$this->product_url."' class='product_link'>".__("Read More", 'lang_webshop')."&hellip;</a>
 					</p>";
+				break;*/
+
+				case 'divider':
+					$content = "<hr>";
 				break;
 
 				case 'event':
@@ -3894,16 +3930,12 @@ class mf_webshop
 					$content = $symbol_code.$data['meta'];
 				break;
 
+				case 'location':
+					$content = $data['meta'];
+				break;
+
 				case 'heading':
 					$content = "<h3>".$symbol_code.$data['title']."</h3>";
-				break;
-
-				case 'content':
-					//Do nothing
-				break;
-
-				case 'contact_button':
-					$content = $data['meta'];
 				break;
 
 				default:
@@ -3932,10 +3964,12 @@ class mf_webshop
 		$this->product_title = $post->post_title;
 		$this->product_description = $post->post_excerpt;
 
+		$this->has_content = false;
 		$this->product_url = $this->product_image = $this->category_id = $this->category_icon = '';
 
 		if($data['single'] == true)
 		{
+			$this->has_content = true;
 			$this->product_content = apply_filters('the_content', $post->post_content);
 		}
 
@@ -3943,6 +3977,7 @@ class mf_webshop
 		{
 			if($post->post_content != '')
 			{
+				$this->has_content = true;
 				$this->product_url = get_permalink($this->product_id);
 			}
 		}
@@ -4080,295 +4115,318 @@ class mf_webshop
 
 			$post_meta = '';
 
-			if($this->meta_type == 'file_advanced')
+			switch($this->meta_type)
 			{
-				$post_meta = get_post_meta_file_src(array('post_id' => $this->meta_id, 'meta_key' => $this->meta_prefix.$this->meta_name, 'is_image' => false));
-			}
+				case 'categories':
+					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
 
-			else if($this->meta_type == 'categories')
-			{
-				$post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
-
-				if(is_array($post_meta) && count($post_meta) > 0 && isset($post_meta[0]))
-				{
-					$this->category_id = $post_meta[0];
-					$this->category_icon = get_post_meta($post_meta[0], $this->meta_prefix.'category_icon', true);
-				}
-
-				if($post_search != '' && !in_array($post_search, $post_meta))
-				{
-					$this->show_in_result = false;
-
-					break;
-				}
-			}
-
-			else if($this->meta_type == 'contact_button')
-			{
-				if($this->product_has_email)
-				{
-					$setting_quote_form = get_option('setting_quote_form_single'.$this->option_type);
-
-					if($setting_quote_form > 0)
+					if(is_array($post_meta) && count($post_meta) > 0 && isset($post_meta[0]))
 					{
-						$post_meta = "<div class='form_button'>
-							<a href='".get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button color_button'>".$this->meta_title."</a>
-						</div>";
+						$this->category_id = $post_meta[0];
+						$this->category_icon = get_post_meta($post_meta[0], $this->meta_prefix.'category_icon', true);
 					}
-				}
-			}
 
-			else if($this->meta_type == 'location')
-			{
-				$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, false);
-
-				if(count($post_meta) == 0)
-				{
-					if($post_search != '')
-					{
-						$this->show_in_result = false;
-
-						break;
-					}
-				}
-
-				else
-				{
 					if($post_search != '' && !in_array($post_search, $post_meta))
 					{
 						$this->show_in_result = false;
 
 						break;
 					}
+				break;
 
-					$arr_locations = $this->sort_location(array('array' => $post_meta, 'reverse' => true));
-
-					$str_locations = "";
-
-					foreach($arr_locations as $location_id)
+				case 'contact_button':
+					if($this->product_has_email)
 					{
-						$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
+						$setting_quote_form = get_option('setting_quote_form_single'.$this->option_type);
+
+						if($setting_quote_form > 0)
+						{
+							$post_meta = "<div class='form_button'>
+								<a href='".get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button color_button'>".$this->meta_title."</a>
+							</div>";
+						}
 					}
+				break;
 
-					if($data['show_location_in_data'] == true)
+				case 'file_advanced':
+					$post_meta = get_post_meta_file_src(array('post_id' => $this->meta_id, 'meta_key' => $this->meta_prefix.$this->meta_name, 'is_image' => false));
+				break;
+
+				case 'location':
+					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, false);
+
+					if(count($post_meta) == 0)
 					{
-						$this->product_data .= "<span class='".$this->meta_type."'>".$str_locations."</span>";
+						if($post_search != '')
+						{
+							$this->show_in_result = false;
+
+							break;
+						}
 					}
 
 					else
 					{
-						$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$str_locations."</span>";
-					}
+						if($post_search != '' && !in_array($post_search, $post_meta))
+						{
+							$this->show_in_result = false;
 
-					if($this->meta_public == 'no')
-					{
-						$post_meta = "";
-					}
-				}
-			}
+							break;
+						}
 
-			else
-			{
-				$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, true);
+						$str_locations = "";
 
-				if($post_meta == '')
-				{
-					if($post_search != '')
-					{
-						$this->show_in_result = false;
+						foreach($this->sort_location(array('array' => $post_meta, 'reverse' => true)) as $location_id)
+						{
+							$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
+						}
 
-						break;
-					}
-				}
+						if($data['show_location_in_data'] == true)
+						{
+							$this->product_data .= "<span class='".$this->meta_type."'>".$str_locations."</span>";
+						}
 
-				else
-				{
-					switch($this->meta_type)
-					{
-						case 'address':
-							if($post_search != '' && $post_search != $post_meta)
-							{
-								$this->show_in_result = false;
-
-								break;
-							}
-
-							if($data['show_location_in_data'] == true)
-							{
-								$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
-							}
-
-							/*else //This makes it display duplicate
-							{
-								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
-							}*/
-
+						else
+						{
 							if($this->meta_public == 'no')
 							{
-								$post_meta = "";
-							}
-						break;
-
-						case 'checkbox':
-							if($post_search != '' && $post_search != $post_meta)
-							{
-								$this->show_in_result = false;
-
-								break;
+								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$str_locations."</span>";
 							}
 
-							$post_meta = $post_meta == 1 ? "<i class='fa fa-check green'></i>" : "";
-						break;
-
-						case 'clock':
-							if($this->meta_public == 'yes')
+							else
 							{
-								if($this->meta_symbol != '')
-								{
-									$this->meta_symbol = $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
-								}
-
-								$this->product_clock .= $this->meta_symbol.$post_meta;
-
-								$post_meta = "";
+								$post_meta = $str_locations;
 							}
-						break;
+						}
 
-						case 'custom_categories':
-							if($post_search != '' && $post_search != $post_meta)
-							{
-								$this->show_in_result = false;
-
-								break;
-							}
-						break;
-
-						case 'email':
-							$this->product_has_email = true;
-						break;
-
-						case 'event':
-							/*if(is_plugin_active('mf_calendar/index.php'))
-							{
-								$obj_calendar = new mf_calendar();
-								$obj_calendar->get_events(array('feeds' => array($post_meta), 'limit' => 1));
-
-								$post_meta = $obj_calendar->arr_events;
-							}*/
-						break;
-
-						case 'gps':
-							$this->product_map = $post_meta;
-
+						if($this->meta_public == 'no')
+						{
 							$post_meta = "";
-						break;
+						}
+					}
+				break;
 
-						case 'interval':
-							if($this->interval_type == $this->meta_name && $this->interval_range != '')
-							{
-								list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
+				case 'read_more_button':
+					if($this->has_content)
+					{
+						$product_url = $this->product_url;
 
-								if(!$this->is_between(array('value' => array($post_meta_min, $post_meta_max), 'compare' => array($this->interval_range_min, $this->interval_range_max))))
+						if($product_url == '')
+						{
+							$product_url = get_permalink($this->product_id);
+						}
+
+						$post_meta = "<div class='form_button'>
+							<a href='".$product_url."' class='button color_button'>".$this->meta_title."</a>
+						</div>";
+					}
+				break;
+
+				default:
+					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, true);
+
+					if($post_meta == '')
+					{
+						if($post_search != '')
+						{
+							$this->show_in_result = false;
+
+							break;
+						}
+					}
+
+					else
+					{
+						switch($this->meta_type)
+						{
+							case 'address':
+								if($post_search != '' && $post_search != $post_meta)
 								{
 									$this->show_in_result = false;
 
 									break;
 								}
-							}
-						break;
 
-						case 'local_address':
-							if($post_search != '' && $post_search != $post_meta)
-							{
-								$this->show_in_result = false;
-
-								break;
-							}
-
-							if($data['show_location_in_data'] == false)
-							{
-								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
-							}
-
-							if($this->meta_public == 'no')
-							{
-								$post_meta = "";
-							}
-						break;
-
-						case 'number':
-						case 'price':
-						case 'size':
-							if($post_search != '')
-							{
-								if(strpos($post_search, "-"))
+								if($data['show_location_in_data'] == true)
 								{
-									list($post_search_min, $post_search_max) = explode("-", $post_search);
-
-									if($this->is_between(array('value' => array($post_meta), 'compare' => array($post_search_min, $post_search_max))))
-									{
-										$this->show_in_result = false;
-
-										break;
-									}
+									$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
 								}
 
-								else
+								/*else //This makes it display duplicate
 								{
-									$post_meta_min = $post_meta_max = $post_meta;
+									$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
+								}*/
 
-									if($post_search < $post_meta_min || $post_search > $post_meta_max)
-									{
-										$this->show_in_result = false;
-
-										break;
-									}
+								if($this->meta_public == 'no')
+								{
+									$post_meta = "";
 								}
-							}
+							break;
 
-							if($this->meta_type == 'number' && $this->number_amount == 1 || $this->meta_type == 'price' && $this->price_amount == 1 || $this->meta_type == 'size' && $this->size_amount == 1)
-							{
-								$this->product_data .= "<span class='".$this->meta_type."'>";
+							case 'checkbox':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
 
+									break;
+								}
+
+								$post_meta = $post_meta == 1 ? "<i class='fa fa-check green'></i>" : "";
+							break;
+
+							case 'clock':
+								if($this->meta_public == 'yes')
+								{
 									if($this->meta_symbol != '')
 									{
-										$this->product_data .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
+										$this->meta_symbol = $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
+									}
+
+									$this->product_clock .= $this->meta_symbol.$post_meta;
+
+									$post_meta = "";
+								}
+							break;
+
+							case 'custom_categories':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+							break;
+
+							case 'email':
+								$this->product_has_email = true;
+							break;
+
+							case 'event':
+								/*if(is_plugin_active('mf_calendar/index.php'))
+								{
+									$obj_calendar = new mf_calendar();
+									$obj_calendar->get_events(array('feeds' => array($post_meta), 'limit' => 1));
+
+									$post_meta = $obj_calendar->arr_events;
+								}*/
+							break;
+
+							case 'gps':
+								$this->product_map = $post_meta;
+
+								$post_meta = "";
+							break;
+
+							case 'interval':
+								if($this->interval_type == $this->meta_name && $this->interval_range != '')
+								{
+									list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
+
+									if(!$this->is_between(array('value' => array($post_meta_min, $post_meta_max), 'compare' => array($this->interval_range_min, $this->interval_range_max))))
+									{
+										$this->show_in_result = false;
+
+										break;
+									}
+								}
+							break;
+
+							case 'local_address':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+
+								if($data['show_location_in_data'] == false)
+								{
+									$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
+								}
+
+								if($this->meta_public == 'no')
+								{
+									$post_meta = "";
+								}
+							break;
+
+							case 'number':
+							case 'price':
+							case 'size':
+								if($post_search != '')
+								{
+									if(strpos($post_search, "-"))
+									{
+										list($post_search_min, $post_search_max) = explode("-", $post_search);
+
+										if($this->is_between(array('value' => array($post_meta), 'compare' => array($post_search_min, $post_search_max))))
+										{
+											$this->show_in_result = false;
+
+											break;
+										}
 									}
 
 									else
 									{
-										$this->product_data .= $this->meta_title;
+										$post_meta_min = $post_meta_max = $post_meta;
+
+										if($post_search < $post_meta_min || $post_search > $post_meta_max)
+										{
+											$this->show_in_result = false;
+
+											break;
+										}
 									}
+								}
 
-									$this->product_data .= "&nbsp;".$post_meta
-								."</span>";
+								if($this->meta_type == 'number' && $this->number_amount == 1 || $this->meta_type == 'price' && $this->price_amount == 1 || $this->meta_type == 'size' && $this->size_amount == 1)
+								{
+									$this->product_data .= "<span class='".$this->meta_type."'>";
 
-								$post_meta = "";
-							}
-						break;
+										if($this->meta_symbol != '')
+										{
+											$this->product_data .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
+										}
 
-						case 'page':
-							$this->meta_title = get_the_title($post_meta);
+										else
+										{
+											$this->product_data .= $this->meta_title;
+										}
 
-							$post_meta = get_permalink($post_meta);
-						break;
+										$this->product_data .= "&nbsp;".$post_meta
+									."</span>";
 
-						case 'content':
-						case 'description':
-						case 'ghost':
-						case 'phone':
-						case 'social':
-						case 'text':
-						case 'textarea':
-						case 'url':
-							//Do nothing
-						break;
+									$post_meta = "";
+								}
+							break;
 
-						default:
-							do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
-						break;
+							case 'page':
+								$this->meta_title = get_the_title($post_meta);
+
+								$post_meta = get_permalink($post_meta);
+							break;
+
+							case 'content':
+							case 'description':
+							case 'textarea':
+								$this->has_content = true;
+							break;
+
+							case 'ghost':
+							case 'phone':
+							case 'social':
+							case 'text':
+							case 'url':
+								//Do nothing
+							break;
+
+							default:
+								do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
+							break;
+						}
 					}
-				}
+				break;
 			}
 
 			$this->gather_product_meta(array(

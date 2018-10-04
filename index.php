@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.3.2
+Version: 1.4.3.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -321,26 +321,15 @@ class PageTemplater
 
 		$this->templates = array();
 
-		/*$obj_webshop->get_option_types();
-
-		foreach($obj_webshop->arr_option_types as $option_type)
-		{
-			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
-
-			$name_webshop = get_option_or_default('setting_webshop_replace_webshop'.$obj_webshop->option_type, __("Webshop", 'lang_webshop'));
-
-			$this->templates['template_webshop.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop;
-			$this->templates['template_webshop_search.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop." (".__("Search", 'lang_webshop').")";
-			$this->templates['template_webshop_favorites.php'.($option_type != '' ? "?post_type=".$option_type : '')] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
-		}
-
-		$obj_webshop->option_type = '';*/
-
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
 		$this->templates['template_webshop.php'] = $name_webshop;
 		$this->templates['template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
-		$this->templates['template_webshop_favorites.php'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
+
+		if(get_option('setting_quote_form') > 0)
+		{
+			$this->templates['template_webshop_favorites.php'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
+		}
 	}
 
 	// Adds our template to the page dropdown for v4.7+
