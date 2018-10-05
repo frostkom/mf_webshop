@@ -743,7 +743,15 @@ echo "@media all
 								color: #999;
 								font-size: 5em;
 								margin: 5% 0;
-							}";
+							}
+							
+								.product_image_container .category_icon i + i
+								{
+									/*position: absolute;
+									transform: translateX(-90%);*/
+									margin-top: -33%;
+									opacity: .7;
+								}";
 
 								$obj_webshop->get_option_types();
 
@@ -758,9 +766,9 @@ echo "@media all
 										$post_id = $r->ID;
 										$post_color = $r->meta_value;
 
-										echo ".category_icon.category_".$post_id." i, .category_icon .category_".$post_id." i
+										echo ".category_icon .category_".$post_id."
 										{
-											color: ".$post_color.";
+											color: ".$post_color." !important;
 										}";
 									}
 								}

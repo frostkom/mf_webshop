@@ -42,7 +42,7 @@ get_header();
 					$obj_webshop->meta_init(array('meta' => $r, 'single' => true));
 
 					$post_meta = '';
-					$has_data = false;
+					//$has_data = false;
 
 					switch($obj_webshop->meta_type)
 					{
@@ -63,7 +63,9 @@ get_header();
 
 							if(is_array($post_meta) && count($post_meta) > 0)
 							{
-								$arr_locations = $obj_webshop->sort_location(array('array' => $post_meta, 'reverse' => true));
+								//Does not work properly
+								//$arr_locations = $obj_webshop->sort_location(array('array' => $post_meta, 'reverse' => true));
+								$arr_locations = $post_meta;
 
 								$post_meta = "";
 
@@ -118,7 +120,7 @@ get_header();
 									{
 										$post_meta = "<i class='fa fa-check green'></i>";
 
-										$has_data = true;
+										//$has_data = true;
 									}
 
 									else
@@ -130,7 +132,7 @@ get_header();
 								case 'clock':
 								case 'number':
 								case 'size':
-									$has_data = true;
+									//$has_data = true;
 								break;
 
 								case 'content':
@@ -139,6 +141,13 @@ get_header();
 
 									$post_content = str_replace($arr_exclude, $arr_include, $post_meta);
 									$post_meta = "";
+
+									//$has_data = true;
+								break;
+								
+								case 'custom_categories':
+									$post_meta = get_post_title($post_meta);
+									//$has_data = true;
 								break;
 
 								case 'email':
@@ -164,6 +173,8 @@ get_header();
 								case 'page':
 									$obj_webshop->meta_title = get_the_title($post_meta);
 									$post_meta = get_permalink($post_meta);
+
+									//$has_data = true;
 								break;
 
 								case 'phone':
@@ -193,12 +204,22 @@ get_header();
 										.input_hidden(array('name' => 'intProductID', 'value' => $obj_webshop->product_id))
 										.wp_nonce_field('product_buy_'.$obj_webshop->product_id, '_wpnonce_product_buy', true, false)
 									."</form>";
+
+									//$has_data = true;
 								break;
 
 								case 'social':
 									$obj_webshop->product_social = $post_meta;
 
 									$post_meta = "";
+								break;
+
+								case 'container_start':
+
+								break;
+
+								case 'container_end':
+
 								break;
 
 								case 'description':
@@ -243,7 +264,7 @@ get_header();
 							'title' => $obj_webshop->meta_title,
 							'meta' => $post_meta,
 							'type' => $obj_webshop->meta_type,
-							'has_data' => $has_data,
+							//'has_data' => $has_data,
 						);
 					}
 				}
@@ -257,7 +278,7 @@ get_header();
 
 				$obj_font_icons = new mf_font_icons();
 
-				if(class_exists('mf_slideshow'))
+				if(is_plugin_active("mf_slideshow/index.php"))
 				{
 					$obj_slideshow = new mf_slideshow();
 				}
@@ -330,7 +351,7 @@ get_header();
 
 							if($count_temp > 0)
 							{
-								$has_data = false;
+								//$has_data = false;
 
 								$product_quick_temp = "<ul class='product_quick'>";
 
@@ -358,7 +379,7 @@ get_header();
 														{
 															$product_quick_temp .= $obj_calendar->get_next_event(array('array' => $data_temp));
 
-															$has_data = true;
+															//$has_data = true;
 														}
 													}
 												break;
@@ -392,10 +413,10 @@ get_header();
 													.":</span>
 													<span>".apply_filters('the_content', $obj_webshop->arr_product_quick[$i]['meta'])."</span>";
 
-													if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
+													/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
 													{
 														$has_data = true;
-													}
+													}*/
 												break;
 											}
 
@@ -404,10 +425,10 @@ get_header();
 
 								$product_quick_temp .= "</ul>";
 
-								if(true == $has_data)
-								{
+								/*if($has_data == true)
+								{*/
 									echo $product_quick_temp;
-								}
+								//}
 							}
 
 						echo "</div>

@@ -2371,10 +2371,9 @@ class mf_webshop
 					'options' => $arr_yes_no,
 					'std' => $default_searchable,
 					'attributes' => array(
-						'condition_type' => 'show_if',
-						'condition_value' => 'yes',
-						'condition_field' => $this->meta_prefix.'document_searchable_required',
-						'condition_default' => 'no',
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"heading", "checkbox", "categories", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
 					),
 				),
 				array(
@@ -2383,6 +2382,11 @@ class mf_webshop
 					'type' => 'select',
 					'options' => $arr_yes_no,
 					'std' => 'no',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'document_searchable',
+						'condition_value' => 'yes',
+					),
 				),
 				array(
 					'name' => __("Display in Results", 'lang_webshop'),
@@ -2390,6 +2394,11 @@ class mf_webshop
 					'type' => 'select',
 					'options' => $arr_yes_no,
 					'std' => $default_public,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps"',
+					),
 				),
 				array(
 					'name' => __("Display as Contact Info", 'lang_webshop'),
@@ -2397,6 +2406,11 @@ class mf_webshop
 					'type' => 'select',
 					'options' => $arr_yes_no,
 					'std' => $default_public_single,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps", "read_more_button"',
+					),
 				),
 				array(
 					'name' => __("Display as Quick Info", 'lang_webshop'),
@@ -2404,6 +2418,11 @@ class mf_webshop
 					'type' => 'select',
 					'options' => $arr_yes_no,
 					'std' => $default_quick,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps", "read_more_button"',
+					),
 				),
 				array(
 					'name' => __("Display as Property", 'lang_webshop'),
@@ -2411,6 +2430,11 @@ class mf_webshop
 					'type' => 'select',
 					'options'  => $arr_yes_no,
 					'std' => $default_property,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps", "read_more_button"',
+					),
 				),
 			);
 
@@ -2432,7 +2456,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => 'categories',
+						'condition_value' => '"categories", "description", "container_start", "container_end"',
 					),
 				);
 			}
@@ -2446,20 +2470,30 @@ class mf_webshop
 			if(count($arr_data_symbols) > 1)
 			{
 				$arr_fields[] = array(
-					'name' => __("Symbol", 'lang_webshop')." (<a href='//fortawesome.github.io/Font-Awesome/icons/'>".__("Ref", 'lang_webshop')."</a>)",
+					'name' => __("Symbol", 'lang_webshop')." (<a href='//fontawesome.com/icons'>".__("Ref", 'lang_webshop')."</a>)",
 					'id' => $this->meta_prefix.'document_symbol',
 					'type' => 'select',
 					'options' => $arr_data_symbols,
 					//'multiple' => false,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps", "container_start", "container_end"',
+					),
 				);
 			}
 
 			else
 			{
 				$arr_fields[] = array(
-					'name' => __("Symbol", 'lang_webshop')." (<a href='//fortawesome.github.io/Font-Awesome/icons/'>".__("Ref", 'lang_webshop')."</a>)",
+					'name' => __("Symbol", 'lang_webshop')." (<a href='//fontawesome.com/icons'>".__("Ref", 'lang_webshop')."</a>)",
 					'id' => $this->meta_prefix.'document_symbol',
 					'type' => 'text',
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => '"description", "color", "gps", "container_start", "container_end"',
+					),
 				);
 			}
 
@@ -2467,18 +2501,35 @@ class mf_webshop
 				'name' => __("Alternate text", 'lang_webshop'),
 				'id' => $this->meta_prefix.'document_alt_text',
 				'type' => 'text',
+				'attributes' => array(
+					'condition_type' => 'hide_this_if',
+					'condition_selector' => $this->meta_prefix.'document_type',
+					'condition_value' => '"description", "color", "gps", "container_start", "container_end"',
+				),
 			);
 
 			$arr_fields[] = array(
 				'name' => __("Custom class", 'lang_webshop'),
 				'id' => $this->meta_prefix.'custom_class',
 				'type' => 'text',
+				/* Same as document_searchable */
+				'attributes' => array(
+					'condition_type' => 'show_this_if',
+					'condition_selector' => $this->meta_prefix.'document_type',
+					'condition_value' => '"checkbox", "categories", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
+				),
 			);
 
 			$arr_fields[] = array(
 				'name' => __("Default value", 'lang_webshop'),
 				'id' => $this->meta_prefix.'document_default',
 				'type' => 'textarea',
+				/* Same as document_searchable */
+				'attributes' => array(
+					'condition_type' => 'show_this_if',
+					'condition_selector' => $this->meta_prefix.'document_type',
+					'condition_value' => '"checkbox", "categories", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
+				),
 			);
 
 			$meta_boxes[] = array(
@@ -2719,6 +2770,8 @@ class mf_webshop
 
 			else if($post_type == $this->post_type_products.$this->option_type)
 			{
+				$obj_font_icons = new mf_font_icons();
+
 				unset($cols['date']);
 
 				if(get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'count' => true, 'limit' => 1)) > 0)
@@ -2743,7 +2796,8 @@ class mf_webshop
 
 							if($column_icon != '')
 							{
-								$column_title = "<i class='fa fa-".$column_icon." fa-lg' title='".$column_title."'></i>";
+								$column_title = $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $column_title, 'nbsp' => false));
+								//$column_title = "<i class='fa fa-".$column_icon." fa-lg' title='".$column_title."'></i>";
 							}
 
 							$cols[$column] = $column_title;
@@ -2822,7 +2876,7 @@ class mf_webshop
 						{
 							$obj_font_icons = new mf_font_icons();
 
-							echo "<div class='category_".$id."'>".$obj_font_icons->get_symbol_tag(array('symbol' => $post_meta, 'class' => "fa-lg"))."</div>";
+							echo $obj_font_icons->get_symbol_tag(array('symbol' => $post_meta, 'class' => "category_".$id." fa-lg"));
 						}
 					break;
 
@@ -3189,6 +3243,8 @@ class mf_webshop
 	{
 		if(!isset($data['type'])){		$data['type'] = '';}
 
+		$out = "";
+
 		switch($data['type'])
 		{
 			case 'filter':
@@ -3431,8 +3487,6 @@ class mf_webshop
 									}
 								}
 
-								//$arr_data = array_sort(array('array' => $arr_data, 'on' => 0, 'keep_index' => true));
-
 								if($is_numeric)
 								{
 									if(count($arr_data) > 5)
@@ -3493,16 +3547,16 @@ class mf_webshop
 								$out .= "<label".$custom_class.">".$post_title."</label>";
 							break;
 
-							case 'divider':
-								$out .= "<hr".$custom_class.">";
-							break;
-
 							case 'container_start':
 								$out .= "<div".$custom_class.">";
 							break;
 
 							case 'container_end':
 								$out .= "</div>";
+							break;
+
+							case 'divider':
+								$out .= "<hr".$custom_class.">";
 							break;
 
 							case 'contact_button':
@@ -3871,6 +3925,14 @@ class mf_webshop
 					$content = $data['meta'];
 				break;
 
+				/*case 'container_start':
+					$content = "<ul>";
+				break;
+
+				case 'container_start':
+					$content = "</ul>";
+				break;*/
+
 				case 'divider':
 					$content = "<hr>";
 				break;
@@ -3888,7 +3950,7 @@ class mf_webshop
 							$obj_calendar = new mf_calendar();
 							$content = $obj_calendar->get_next_event(array('array' => $data));
 
-							$has_data = true;
+							//$has_data = true;
 						}
 					}
 				break;
@@ -3949,7 +4011,7 @@ class mf_webshop
 		$this->product_description = $post->post_excerpt;
 
 		$this->has_content = $this->has_read_more = false;
-		$this->product_url = $this->product_image = $this->category_id = $this->category_icon = '';
+		$this->product_url = $this->product_image = $this->arr_category_id = '';
 
 		if($data['single'] == true)
 		{
@@ -4102,13 +4164,7 @@ class mf_webshop
 			switch($this->meta_type)
 			{
 				case 'categories':
-					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
-
-					if(is_array($post_meta) && count($post_meta) > 0 && isset($post_meta[0]))
-					{
-						$this->category_id = $post_meta[0];
-						$this->category_icon = get_post_meta($post_meta[0], $this->meta_prefix.'category_icon', true);
-					}
+					$this->arr_category_id = $post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
 
 					if($post_search != '' && !in_array($post_search, $post_meta))
 					{
@@ -4160,7 +4216,7 @@ class mf_webshop
 
 						$str_locations = "";
 
-						foreach($this->sort_location(array('array' => $post_meta, 'reverse' => true)) as $location_id)
+						foreach($post_meta as $location_id) //$this->sort_location(array('array' => $post_meta, 'reverse' => true))
 						{
 							$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
 						}
@@ -4442,9 +4498,18 @@ class mf_webshop
 				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
 			}
 
-			else if($this->category_icon != '')
+			else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
 			{
-				$product_image = "<div class='category_icon category_".$this->category_id."'>".$this->obj_font_icons->get_symbol_tag(array('symbol' => $this->category_icon, 'nbsp' => false))."</div>";
+				$product_image = "<div class='category_icon'>";
+				
+					foreach($this->arr_category_id as $category_id)
+					{
+						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
+						
+						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'nbsp' => false, 'class' => "category_".$category_id));
+					}
+					
+				$product_image .= "</div>";
 			}
 
 			else
@@ -4811,7 +4876,7 @@ if(class_exists('RWMB_Field'))
 				//'debug' => true,
 			), $arr_data);
 
-			return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'required' => true, 'xtra' => self::render_attributes($field['attributes'])));
+			return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'xtra' => self::render_attributes($field['attributes']))); //, 'required' => true
 		}
 	}
 
@@ -4980,7 +5045,7 @@ class widget_webshop_search extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search'>" // webshop_option_type".$this->obj_webshop->option_type."
+			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search'>"
 				.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
 				.$this->obj_webshop->get_webshop_search()
 				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'))
