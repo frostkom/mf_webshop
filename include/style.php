@@ -9,6 +9,11 @@ if(!defined('ABSPATH'))
 	require_once($folder."wp-load.php");
 }
 
+else
+{
+	global $wpdb;
+}
+
 if(!isset($obj_theme_core))
 {
 	$obj_theme_core = new mf_theme_core();
@@ -694,7 +699,7 @@ echo "@media all
 				{
 					float: right;
 					font-size: .8em;
-					padding-top: .3em;
+					margin-top: 1em;
 					text-align: right;
 					width: 30%;
 				}
@@ -742,17 +747,11 @@ echo "@media all
 
 								$obj_webshop->get_option_types();
 
-								//echo ".category_icon_test_".count($obj_webshop->arr_option_types)."{}\n";
-
 								foreach($obj_webshop->arr_option_types as $option_type)
 								{
-									//echo ".category_icon_test2".$option_type."{}\n";
-
 									$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
 
 									$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $obj_webshop->post_type_categories.$obj_webshop->option_type, $obj_webshop->meta_prefix.'category_icon_color'));
-
-									//echo "/* ".$wpdb->last_query." */";
 
 									foreach($result as $r)
 									{
@@ -968,10 +967,15 @@ echo "@media all
 				width: 100%;
 			}
 
-			.single-mf_product .product_description
+			/*.single-mf_product .product_description
 			{
-				margin: 2em 1.2em 0 0;
-			}
+				margin: 0 1.2em 0 0;
+			}*/
+
+				.single-mf_product .product_slideshow + .product_description
+				{
+					margin-top: 2em;
+				}
 
 			#product_result_form .contact_button, #product_result_form .read_more_button
 			{

@@ -46,6 +46,10 @@ get_header();
 
 					switch($obj_webshop->meta_type)
 					{
+						case 'categories':
+							$post_meta = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.$obj_webshop->meta_name, false);
+						break;
+
 						case 'file_advanced':
 							$post_meta = get_post_meta_file_src(array('post_id' => $obj_webshop->product_id, 'meta_key' => $obj_webshop->meta_prefix.$obj_webshop->meta_name, 'is_image' => false));
 						break;
@@ -59,16 +63,33 @@ get_header();
 
 							if(is_array($post_meta) && count($post_meta) > 0)
 							{
-								if($obj_webshop->meta_type == 'location')
+								$arr_locations = $obj_webshop->sort_location(array('array' => $post_meta, 'reverse' => true));
+
+								$post_meta = "";
+
+								foreach($arr_locations as $location_id)
 								{
-									$arr_locations = $obj_webshop->sort_location(array('array' => $post_meta, 'reverse' => true));
+									$location_title = get_the_title($location_id);
+									$obj_webshop->search_url = $obj_webshop->get_template_url(array('location_id' => $location_id));
 
-									foreach($arr_locations as $location_id)
+									if($obj_webshop->search_url != '')
 									{
-										$location_title = get_the_title($location_id);
-										$obj_webshop->search_url = $obj_webshop->get_template_url(array('location_id' => $location_id));
+										$location_tag = "<a href='".$obj_webshop->search_url."'>".$location_title."</a>";
+									}
 
-										$obj_webshop->product_address .= "<a href='".$obj_webshop->search_url."'>".$location_title."</a>";
+									else
+									{
+										$location_tag = $location_title;
+									}
+
+									if($obj_webshop->meta_public == 'no')
+									{
+										$obj_webshop->product_address .= $location_tag;
+									}
+
+									else
+									{
+										$post_meta .= $location_tag;
 									}
 								}
 							}
@@ -85,10 +106,9 @@ get_header();
 							{
 								case 'address':
 								case 'local_address':
-									$obj_webshop->product_address .= "<span>".$post_meta."</span>";
-
 									if($obj_webshop->meta_public == 'no')
 									{
+										$obj_webshop->product_address .= "<span>".$post_meta."</span>";
 										$post_meta = "";
 									}
 								break;
@@ -105,6 +125,20 @@ get_header();
 									{
 										$post_meta = "<i class='fa fa-times red'></i>";
 									}
+								break;
+
+								case 'clock':
+								case 'number':
+								case 'size':
+									$has_data = true;
+								break;
+
+								case 'content':
+									$arr_exclude = array("[", "]");
+									$arr_include = array("<", ">");
+
+									$post_content = str_replace($arr_exclude, $arr_include, $post_meta);
+									$post_meta = "";
 								break;
 
 								case 'email':
@@ -167,24 +201,10 @@ get_header();
 									$post_meta = "";
 								break;
 
-								case 'clock':
-								case 'number':
-								case 'size':
-									$has_data = true;
-								break;
-
-								case 'content':
-									$arr_exclude = array("[", "]");
-									$arr_include = array("<", ">");
-
-									$post_content = str_replace($arr_exclude, $arr_include, $post_meta);
-									$post_meta = "";
-								break;
-
-								case 'categories':
 								case 'description':
 								case 'ghost':
 								case 'interval':
+								case 'location':
 								case 'text':
 								case 'textarea':
 								case 'url':
@@ -270,28 +290,33 @@ get_header();
 
 				echo "<h1>".$obj_webshop->product_title."</h1>
 				<section>
-					<div class='product_single'>
-						<div>";
+					<div class='product_single'>";
 
-							if($obj_webshop->product_address != '')
+						$product_address_and_share = "";
+
+						if($obj_webshop->product_address != '')
+						{
+							$product_address_and_share .= "<p class='product_location'>".$obj_webshop->product_address."</p>";
+						}
+
+						if(is_plugin_active("mf_share/index.php") && shortcode_exists('mf_share'))
+						{
+							$obj_share = new mf_share();
+
+							if($obj_share->is_correct_page())
 							{
-								echo "<p class='product_location'>".$obj_webshop->product_address."</p>";
+								$product_address_and_share .= apply_filters('the_content', "[mf_share type='options']");
 							}
+						}
 
-							if(is_plugin_active("mf_share/index.php") && shortcode_exists('mf_share'))
-							{
-								$obj_share = new mf_share();
+						if($product_address_and_share != '')
+						{
+							echo "<div>".$product_address_and_share."</div>";
+						}
 
-								if($obj_share->is_correct_page())
-								{
-									echo apply_filters('the_content', "[mf_share type='options']");
-								}
-							}
+						echo "<div class='product_container'>";
 
-						echo "</div>
-						<div class='product_container'>";
-
-							if(isset($obj_slideshow))
+							if(isset($obj_slideshow) && count($obj_webshop->slideshow_images) > 0)
 							{
 								echo "<div class='product_slideshow'>".$obj_slideshow->show(array('images' => $obj_webshop->slideshow_images))."</div>";
 							}
@@ -529,9 +554,8 @@ get_header();
 							."</div>";
 						}
 
-						echo "<div class='product_previous_next flex_flow'></div>";
-
-					echo "</div>
+						echo "<div class='product_previous_next flex_flow'></div>
+					</div>
 				</section>";
 			}
 

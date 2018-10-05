@@ -1,6 +1,4 @@
 var map_initialized = false,
-	map_object,
-	markers = [],
 	has_maps = false,
 	has_map_search = false,
 	search_map = "webshop_map",
@@ -8,108 +6,7 @@ var map_initialized = false,
 	search_input = "webshop_map_input",
 	search_input_obj = "",
 	search_coords_obj = "",
-	map_bounds_obj = "",
-	zoom_default = 12;
-
-function add_marker(data)
-{
-	if(!data.id){		data.id = "";}
-	if(!data.name){		data.name = "";}
-	if(!data.text){		data.text = "";}
-	if(!data.url){		data.url = "";}
-	if(!data.icon){		data.icon = "";}
-
-	if(!data.pos)
-	{
-		data.pos = new google.maps.LatLng(data.lat, data.long);
-	}
-
-	if(data.name != '' && data.url != '')
-	{
-		data.text += "<a href='" + data.url + "'>" + script_webshop.read_more + "</a>"
-	}
-
-	if(data.text != '')
-	{
-		var infowindow = new google.maps.InfoWindow({
-			content: "<div class='marker_content'>"
-				+ (data.name != '' ? "<h3>" + data.name + "</h3>" : "")
-				+ (data.text != '' ? "<p>" + data.text + "</p>" : "")
-			+ "</div>"
-		});
-	}
-
-	/*if(data.icon != '')
-	{
-		var image = {
-			url: data.icon
-		};
-	}
-
-	else
-	{
-		icon = {};
-	}
-
-	var marker = new google.maps.Marker(
-	{
-		map: map_object,
-		icon: image,
-		position: data.pos,
-		title: data.name,
-		id: data.id,
-	});*/
-
-	if(data.icon)
-	{
-		var marker_data = {
-			map: map_object,
-			icon: {url: data.icon},
-			position: data.pos,
-			title: data.name,
-			id: data.id,
-		};
-	}
-
-	else
-	{
-		var marker_data = {
-			map: map_object,
-			label: data.letter || '',
-			position: data.pos,
-			title: data.name,
-			id: data.id,
-		};
-	}
-
-	var marker = new google.maps.Marker(marker_data);
-
-	if(data.text != '' || data.url != '')
-	{
-		google.maps.event.addListener(marker, 'click', function()
-		{
-			if(data.text != '')
-			{
-				infowindow.open(map_object, marker);
-			}
-
-			else
-			{
-				if(typeof process_url == 'function')
-				{
-					process_url(data.url);
-				}
-
-				else
-				{
-					location.href = data.url;
-				}
-			}
-		});
-	}
-
-	markers.push(marker);
-}
+	map_bounds_obj = "";
 
 function remove_markers()
 {
@@ -122,14 +19,6 @@ function remove_markers()
 	}
 
 	markers = [];
-}
-
-function get_position_from_string(string)
-{
-	var coords = string.replace("(", "").replace(")", "").split(", "),
-		position = new google.maps.LatLng(coords[0], coords[1]);
-
-	return position;
 }
 
 function add_map_location(data)
@@ -145,7 +34,7 @@ function add_map_location(data)
 			name = data.dom_obj.attr('data-name'),
 			url = data.dom_obj.attr('data-url');
 
-		add_marker({'pos': pos, 'icon': data.icon, 'id': id, 'name': name, 'url': url});
+		add_marker({'pos': pos, 'icon': data.icon, 'id': id, 'name': name, 'text': "<a href='" + url + "'>" + script_webshop.read_more + "</a>"});
 	}
 }
 
@@ -250,18 +139,7 @@ function init_maps()
 
 	if(has_maps == true)
 	{
-		var mapOptions = {
-			center: new google.maps.LatLng(59.3428, 18.0982),
-			disableDefaultUI: true,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			zoomControl: true,
-			zoomControlOptions: {
-				style: google.maps.ZoomControlStyle.SMALL /* DEFAULT, LARGE */
-			},
-			zoom: zoom_default
-		};
-
-		map_object = new google.maps.Map(document.getElementById(search_map), mapOptions);
+		init_map_object(document.getElementById(search_map));
 	}
 
 	if(has_map_search == true)
@@ -293,7 +171,7 @@ function init_maps()
 
 			for(var i = 0, place; place = places[i]; i++)
 			{
-				add_marker({'pos': place.geometry.location, 'name': place.name, 'letter': 'S'}); /*, 'icon': script_webshop.plugins_url + '/mf_maps/images/star.png'*/
+				add_marker({'pos': place.geometry.location, 'name': place.name, 'letter': 'S'});
 
 				bounds.extend(place.geometry.location);
 

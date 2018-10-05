@@ -186,8 +186,6 @@ class mf_webshop
 				'global_code' => __("Global Code", 'lang_webshop'),
 		);
 
-		//$arr_data = array_sort(array('array' => $arr_data, 'on' => 0, 'order' => 'asc', 'keep_index' => true));
-
 		return $arr_data;
 	}
 
@@ -1076,7 +1074,6 @@ class mf_webshop
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
 			'editor_height' => 100,
-			//'statusbar' => false,
 		));
 	}
 
@@ -1115,7 +1112,6 @@ class mf_webshop
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
 			'editor_height' => 100,
-			//'statusbar' => false,
 		));
 	}
 
@@ -1273,13 +1269,12 @@ class mf_webshop
 
 		wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, array(), $plugin_version);
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
-			'here_i_am' => __("Here I am", 'lang_webshop'),
 			'plugins_url' => $plugin_base_url,
 			'read_more' => __("Read More", 'lang_webshop'),
 			'symbol_active_image' => $symbol_active_image,
 			'symbol_active' => trim($symbol_active, "#"),
 			'mobile_breakpoint' => $setting_mobile_breakpoint,
-			'product_missing' => get_option_or_default('setting_webshop_replace_none_checked', __("You have to choose at least one product to proceed", 'lang_webshop')), //__("You have to select at least one before you submit", 'lang_webshop')
+			'product_missing' => get_option_or_default('setting_webshop_replace_none_checked', __("You have to choose at least one product to proceed", 'lang_webshop')),
 		), $plugin_version);
 	}
 
@@ -1531,7 +1526,7 @@ class mf_webshop
 										}
 
 									$out_left .= "</div>"
-									.show_checkbox(array('name' => $key.'[]', 'value' => $product_id, 'text' => $name_choose, 'compare' => $product_id, 'switch' => true, 'switch_icon_on' => $setting_webshop_switch_icon_on, 'switch_icon_off' => $setting_webshop_switch_icon_off, 'xtra_class' => "color_button_2".(get_option('setting_webshop_payment_form'.$this->option_type) > 0 ? "" : " hide")))
+									.show_checkbox(array('name' => $key.'[]', 'value' => $product_id, 'text' => $name_choose, 'compare' => $product_id, 'switch' => true, 'switch_icon_on' => $setting_webshop_switch_icon_on, 'switch_icon_off' => $setting_webshop_switch_icon_off, 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide")))
 									."<ul class='product_meta product_column'>";
 
 										foreach($arr_product['product_meta'] as $product_meta)
@@ -3634,9 +3629,9 @@ class mf_webshop
 				/*."<% if(product_has_email == 1 || 1 == 1)
 				{ %>"*/
 					// This can't be removed until '#product_result_search .products' can be checked and work
-					.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_webshop_payment_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
+					.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
 				//."<% } %>"
-				."<% if(product_url != '')
+				."<% if(product_url != '' && product_has_read_more == false)
 				{ %>
 					<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
 				<% } %>"
@@ -3718,13 +3713,16 @@ class mf_webshop
 
 		$post_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '_wp_page_template' AND meta_value = '".$data['template']."'");
 
-		$out = $post_url = get_permalink($post_id);
-
-		if($data['location_id'] > 0)
+		if($post_id > 0)
 		{
-			$location_post_name = $this->get_post_name_for_type('location');
+			$out = get_permalink($post_id);
 
-			$out .= "?".$location_post_name."=".$data['location_id']."#".$location_post_name."=".$data['location_id'];
+			if($data['location_id'] > 0)
+			{
+				$location_post_name = $this->get_post_name_for_type('location');
+
+				$out .= "?".$location_post_name."=".$data['location_id']."#".$location_post_name."=".$data['location_id'];
+			}
 		}
 
 		return $out;
@@ -3857,9 +3855,9 @@ class mf_webshop
 
 							$i = 0;
 
-							foreach($data['meta'] as $meta)
+							foreach($data['meta'] as $category_id)
 							{
-								$content .= ($i > 0 ? ", " : "").get_post_title($meta);
+								$content .= ($i > 0 ? ", " : "").get_post_title($category_id);
 
 								$i++;
 							}
@@ -3872,20 +3870,6 @@ class mf_webshop
 				case 'read_more_button':
 					$content = $data['meta'];
 				break;
-
-				/*case 'content':
-				case 'description':
-				case 'textarea':
-					if($this->product_url == '')
-					{
-						$this->product_url = get_permalink($this->product_id);
-					}
-
-					$content = "<p>"
-						.$symbol_code.$data['meta']
-						."<a href='".$this->product_url."' class='product_link'>".__("Read More", 'lang_webshop')."&hellip;</a>
-					</p>";
-				break;*/
 
 				case 'divider':
 					$content = "<hr>";
@@ -3964,7 +3948,7 @@ class mf_webshop
 		$this->product_title = $post->post_title;
 		$this->product_description = $post->post_excerpt;
 
-		$this->has_content = false;
+		$this->has_content = $this->has_read_more = false;
 		$this->product_url = $this->product_image = $this->category_id = $this->category_icon = '';
 
 		if($data['single'] == true)
@@ -4209,15 +4193,10 @@ class mf_webshop
 				case 'read_more_button':
 					if($this->has_content)
 					{
-						$product_url = $this->product_url;
-
-						if($product_url == '')
-						{
-							$product_url = get_permalink($this->product_id);
-						}
+						$this->has_read_more = true;
 
 						$post_meta = "<div class='form_button'>
-							<a href='".$product_url."' class='button color_button'>".$this->meta_title."</a>
+							<a href='".$this->product_url."' class='button color_button'>".$this->meta_title."</a>
 						</div>";
 					}
 				break;
@@ -4411,6 +4390,11 @@ class mf_webshop
 							case 'description':
 							case 'textarea':
 								$this->has_content = true;
+
+								if($this->product_url == '')
+								{
+									$this->product_url = get_permalink($this->product_id);
+								}
 							break;
 
 							case 'ghost':
@@ -4476,6 +4460,7 @@ class mf_webshop
 				'product_data' => $this->product_data,
 				'product_location' => $this->product_location,
 				'product_url' => $this->product_url,
+				'product_has_read_more' => $this->has_read_more,
 				'product_image' => $product_image,
 				'product_meta' => $this->product_meta,
 				'product_description' => apply_filters('the_content', $this->product_description),
@@ -5160,7 +5145,7 @@ class widget_webshop_form extends WP_Widget
 						'' => $post_title."?"
 					);
 
-					get_post_children(array('post_type' => $this->post_type_location), $arr_data);
+					get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data);
 
 					$out = show_select(array('data' => $arr_data, 'name' => $post_name, 'value' => $data['value']));
 				break;
