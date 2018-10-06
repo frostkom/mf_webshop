@@ -18,6 +18,47 @@ class mf_webshop
 		$this->post_type_customers = 'mf_customer';
 		$this->post_type_delivery_type = 'mf_delivery';
 
+		$this->default_template = "[breadcrumbs]
+		[heading]
+		<section>
+			<div class='product_single'>
+				<div>
+					[address]
+					[share]
+				</div>
+				<div class='product_container'>
+					[slideshow]
+					[description]
+					[quick]
+				</div>
+				<div class='product_aside'>
+					[map]
+					[meta]
+					[form]
+				</div>
+				[property]
+				[social]
+				[previous_next]
+			</div>
+		</section>";
+
+		$this->template_shortcodes = array(
+			'breadcrumbs' => array('html' => "", 'formatting' => "<div class='product_breadcrumbs'>[html]</div>"),
+			'heading' => array('html' => "", 'formatting' => "<h1>[html]</h1>"),
+			'address' => array('html' => "", 'formatting' => "<p class='product_location'>[html]</p>"),
+			'categories' => array('html' => "", 'formatting' => "<p class='product_categories category_icon'>[html]</p>"),
+			'share' => array('html' => "", 'formatting' => "[html]"),
+			'slideshow' => array('html' => "", 'formatting' => "<div class='product_slideshow'>[html]</div>"),
+			'description' => array('html' => "", 'formatting' => "<div class='product_description'>[html]</div>"),
+			'quick' => array('html' => "", 'formatting' => "<ul class='product_quick'>[html]</ul>"),
+			'map' => array('html' => "", 'formatting' => "[html]"),
+			'meta' => array('html' => "", 'formatting' => "<ul class='product_meta'>[html]</ul>"),
+			'form' => array('html' => "", 'formatting' => "[html]"),
+			'property' => array('html' => "", 'formatting' => "<ul class='product_property'>[html]</ul>"),
+			'social' => array('html' => "", 'formatting' => "[html]"),
+			'previous_next' => array('html' => "", 'formatting' => "[html]"),
+		);
+
 		$this->option_type = '';
 
 		// Needs to be here because Poedit does not pick up this from below
@@ -185,6 +226,8 @@ class mf_webshop
 				'ghost' => __("Hide Information", 'lang_webshop'),
 				'global_code' => __("Global Code", 'lang_webshop'),
 		);
+
+		$arr_data = apply_filters('get_webshop_filters_for_select', $arr_data);
 
 		return $arr_data;
 	}
@@ -556,7 +599,7 @@ class mf_webshop
 			if(is_plugin_active("mf_form/index.php"))
 			{
 				$arr_settings['setting_quote_form|'.$option_type] = __("Form for quote request", 'lang_webshop');
-				
+
 				if(get_option('setting_quote_form'.$this->option_type) > 0)
 				{
 					$arr_settings['setting_search_max|'.$option_type] = __("Max results to send quote", 'lang_webshop');
@@ -611,8 +654,13 @@ class mf_webshop
 			add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 			$arr_settings = array(
-				'setting_webshop_display_breadcrumbs|'.$option_type => __("Display Breadcrumbs", 'lang_webshop'),
+				'setting_webshop_product_template|'.$option_type => __("Template for Presentation", 'lang_webshop'),
 			);
+
+			if(!(get_option('setting_webshop_product_template'.$this->option_type) > 0))
+			{
+				$arr_settings['setting_webshop_display_breadcrumbs|'.$option_type] = __("Display Breadcrumbs", 'lang_webshop');
+			}
 
 			if(is_plugin_active("mf_form/index.php"))
 			{
@@ -629,7 +677,7 @@ class mf_webshop
 					$arr_settings['setting_replace_search_for_another|'.$option_type] = __("Replace Text", 'lang_webshop');
 				}
 
-				$arr_settings['setting_quote_form_single|'.$option_type] = __("Form for quote request (single)", 'lang_webshop');
+				$arr_settings['setting_quote_form_single|'.$option_type] = __("Form for quote request", 'lang_webshop')." (".__("single", 'lang_webshop').")";
 
 				if(get_option('setting_quote_form_single'.$this->option_type) > 0)
 				{
@@ -1223,6 +1271,19 @@ class mf_webshop
 		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 	}
 
+	function setting_webshop_product_template_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		$arr_data = array();
+		get_post_children(array('add_choose_here' => true), $arr_data);
+
+		$post_content = "[product_default]";
+
+		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&content=".$post_content)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+	}
+
 	function setting_webshop_display_breadcrumbs_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1420,6 +1481,16 @@ class mf_webshop
 	function uninit()
 	{
 		@session_destroy();
+	}
+
+	function default_content($post_content, $post)
+	{
+		if($post_content == "[product_default]")
+		{
+			$post_content = $this->default_template;
+		}
+
+		return $post_content;
 	}
 
 	function is_a_webshop_meta_value($data)
@@ -3884,7 +3955,7 @@ class mf_webshop
 			}
 
 			$symbol_code = (isset($data['symbol']) ? $this->obj_font_icons->get_symbol_tag(array('symbol' => $data['symbol'])) : "");
-			
+
 			switch($data['type'])
 			{
 				case 'email':
@@ -3905,13 +3976,21 @@ class mf_webshop
 				case 'categories':
 					if(is_array($data['meta']))
 					{
+						$obj_font_icons = new mf_font_icons();
+
 						$content = "<span title='".$data['title']."'>";
 
 							$i = 0;
 
 							foreach($data['meta'] as $category_id)
 							{
-								$content .= ($i > 0 ? ", " : "").get_post_title($category_id);
+								$category_title = get_post_title($category_id);
+
+								$content .= ($i > 0 ? ", " : "").$category_title;
+
+								$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
+
+								$this->product_categories .= "<span>".$obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'class' => "category_".$category_id)).$category_title."</span>";
 
 								$i++;
 							}
@@ -4037,7 +4116,7 @@ class mf_webshop
 		$this->product_has_email = false;
 		$this->number_amount = $this->price_amount = $this->size_amount = 0;
 
-		$this->product_address = $this->product_map = $this->product_social = $this->search_url = "";
+		$this->product_address = $this->product_categories = $this->product_map = $this->product_social = $this->search_url = "";
 
 		if($data['single'] == true)
 		{
@@ -4501,14 +4580,14 @@ class mf_webshop
 			else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
 			{
 				$product_image = "<div class='category_icon'>";
-				
+
 					foreach($this->arr_category_id as $category_id)
 					{
 						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
-						
+
 						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'nbsp' => false, 'class' => "category_".$category_id));
 					}
-					
+
 				$product_image .= "</div>";
 			}
 

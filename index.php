@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.3.9
+Version: 1.4.3.13
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -69,6 +69,8 @@ add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
 
 add_action('wp_login', array($obj_webshop, 'uninit'));
 add_action('wp_logout', array($obj_webshop, 'uninit'));
+
+add_filter('default_content', array($obj_webshop, 'default_content'));
 
 add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
 add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
@@ -216,6 +218,8 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_replace_categories'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_doc_types'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_send_request_for_quote'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_display_breadcrumbs'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_allow_multiple_categories'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_add_to_search'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_remove_from_search'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_return_to_search'.$obj_webshop->option_type;

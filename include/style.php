@@ -475,7 +475,7 @@ echo "@media all
 			min-width: 40%;
 		}
 
-			#product_form .aside h2, .product_single h2, .widget.webshop_map h2
+			#product_form .aside h2, .product_single h2.is_map_toggler, .widget.webshop_map h2
 			{
 				cursor: pointer;
 				font-size: 1.3em;
@@ -484,7 +484,7 @@ echo "@media all
 				text-align: center;
 			}
 
-				#product_form .aside h2:hover, .product_single h2:hover, .widget.webshop_map h2:hover
+				#product_form .aside h2:hover, .product_single h2.is_map_toggler:hover, .widget.webshop_map h2:hover
 				{
 					box-shadow: inset 0 0 10em rgba(0, 0, 0, .2);
 				}
@@ -744,7 +744,7 @@ echo "@media all
 								font-size: 5em;
 								margin: 5% 0;
 							}
-							
+
 								.product_image_container .category_icon i + i
 								{
 									/*position: absolute;
@@ -920,31 +920,52 @@ echo "@media all
 		overflow: hidden;
 	}
 
-	.product_single .product_location
-	{
-		display: inline-block;
-		margin-bottom: 1em;
-	}
-
-		.product_single .product_location span, .product_single .product_location a
+		.product_single .product_location
 		{
-			border-radius: .2em;
 			display: inline-block;
-			margin-right: .5em;
-			padding: .25em .5em;
+			margin-bottom: 1em;
 		}
 
-			.product_single .product_location span
+			.product_single .product_location span, .product_single .product_location a
 			{
-				background: ".$setting_color_info.";
-				color: ".$setting_text_color_info.";
+				border-radius: .2em;
+				display: inline-block;
+				margin-right: .5em;
+				padding: .25em .5em;
 			}
 
-			.product_single .product_location a
+				.product_single .product_location span
+				{
+					background: ".$setting_color_info.";
+					color: ".$setting_text_color_info.";
+				}
+
+				.product_single .product_location a
+				{
+					border-bottom: 0;
+					text-decoration: none;
+				}
+
+		.product_single .product_categories
+		{
+			display: inline-block;
+			margin-bottom: 1em;
+		}
+
+			.product_single .product_categories span
 			{
-				border-bottom: 0;
-				text-decoration: none;
+				border-radius: .2em;
+				display: inline-block;
+				margin-right: .5em;
+				padding: .25em .5em;
 			}
+
+				.product_single .product_categories span
+				{
+					background: ".$setting_color_info.";
+					color: ".$setting_text_color_info.";
+				}
+
 
 		.product_single .mf_share
 		{
@@ -975,10 +996,10 @@ echo "@media all
 				width: 100%;
 			}
 
-			/*.single-mf_product .product_description
+			.single-mf_product .product_description
 			{
-				margin: 0 1.2em 0 0;
-			}*/
+				margin-bottom: .5em;
+			}
 
 				.single-mf_product .product_slideshow + .product_description
 				{
@@ -1013,7 +1034,7 @@ echo "@media all
 								margin-right: .4em;
 							}
 
-						.product_quick > li > span:last-child, .product_quick > li > ul
+						.product_quick > li > div, .product_quick > li > ul
 						{
 							float: left;
 							width: 58%;
@@ -1237,52 +1258,6 @@ echo "@media all
 			float: right;
 			width: 30%;
 		}
-
-	.product_quick
-	{
-		display: -webkit-box;
-		display: -ms-flexbox;
-		display: -webkit-flex;
-		display: flex;
-		-webkit-box-flex-wrap: wrap;
-		-webkit-flex-wrap: wrap;
-		-ms-flex-wrap: wrap;
-		flex-wrap: wrap;
-	}
-
-			.product_quick > li
-			{
-				-webkit-box-flex: 0 0 50%;
-				-webkit-flex: 0 0 50%;
-				-ms-flex: 0 0 50%;
-				flex: 0 0 50%;
-				float: left;
-
-				/* Ugly fix to make it work in IE10-11 since they don't respect border-box when using flex */
-				max-width: 49%;
-			}
-
-				.product_quick > li:nth-child(2n)
-				{
-					border-right: 1px solid #e8e8e8;
-					padding-right: 5%;
-				}
-
-				.product_quick > li:nth-child(2n + 1)
-				{
-					padding-left: 5%;
-				}
-
-				.product_quick > li:first-child
-				{
-					-webkit-box-flex: 1 0 100%;
-					-webkit-flex: 1 0 100%;
-					-ms-flex: 1 0 100%;
-					flex: 1 0 100%;
-					border: 0;
-					padding-left: 0;
-					max-width: 100%;
-				}
 
 		.product_property li
 		{
