@@ -612,6 +612,10 @@ get_header();
 					$template = $obj_webshop->default_template;
 				}
 
+				//This adds a bunch of empty p tags
+				//$template = apply_filters('the_content', $template);
+				$template = do_shortcode($template);
+
 				foreach($obj_webshop->template_shortcodes as $key => $value)
 				{
 					$html = ($value['html'] != '' ? str_replace("[html]", $value['html'], $value['formatting']) : '');

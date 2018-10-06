@@ -1666,9 +1666,14 @@ class mf_webshop
 			{
 				if($key == 'products')
 				{
-					if($value > 0)
+					if(is_array($value) && count($value) > 0)
 					{
 						$arr_product_ids = $value;
+					}
+
+					else if($value > 0)
+					{
+						$arr_product_ids[] = $value;
 					}
 				}
 
