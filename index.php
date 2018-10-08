@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.3.14
+Version: 1.4.3.21
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -70,7 +70,7 @@ add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
 add_action('wp_login', array($obj_webshop, 'uninit'));
 add_action('wp_logout', array($obj_webshop, 'uninit'));
 
-add_filter('default_content', array($obj_webshop, 'default_content'));
+add_filter('default_content', array($obj_webshop, 'default_content'), 10, 2);
 
 add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
 add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
@@ -144,6 +144,7 @@ function activate_webshop()
 	replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 	replace_option(array('old' => 'setting_webshop_post_types', 'new' => 'setting_webshop_option_types'));
+	replace_option(array('old' => 'setting_replace_hide_map', 'new' => 'setting_webshop_replace_hide_map'));
 
 	replace_user_meta(array('old' => 'mf_orders_viewed', 'new' => 'meta_orders_viewed'));
 
@@ -228,7 +229,7 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_replace_none_checked'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_too_many'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_show_map'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_replace_hide_map'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_hide_map'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_map_info'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_products_slug'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_categories_slug'.$obj_webshop->option_type;

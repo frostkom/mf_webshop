@@ -721,7 +721,7 @@ class mf_webshop
 				}
 
 				$arr_settings['setting_webshop_replace_show_map|'.$option_type] = __("Replace Text", 'lang_webshop');
-				$arr_settings['setting_replace_hide_map|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_hide_map|'.$option_type] = __("Replace Text", 'lang_webshop');
 				$arr_settings['setting_map_info|'.$option_type] = __("Map Information", 'lang_webshop');
 
 				show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
@@ -1143,7 +1143,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Show Map", 'lang_webshop')));
 	}
 
-	function setting_replace_hide_map_callback($args = array())
+	function setting_webshop_replace_hide_map_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1258,7 +1258,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_quote_form_single_callback($args = array())
@@ -1268,7 +1268,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_webshop_product_template_callback($args = array())
@@ -1281,7 +1281,7 @@ class mf_webshop
 
 		$post_content = "[product_default]";
 
-		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&content=".$post_content)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => get_option_page_suffix(array('value' => $option, 'content' => $post_content))));
 	}
 
 	function setting_webshop_display_breadcrumbs_callback($args = array())
@@ -1307,7 +1307,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function combined_head()
@@ -3403,24 +3403,26 @@ class mf_webshop
 		global $wpdb;
 
 		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$this->option_type, __("Show Map", 'lang_webshop'));
-		$setting_replace_hide_map = get_option_or_default('setting_replace_hide_map'.$this->option_type, __("Hide Map", 'lang_webshop'));
+		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$this->option_type, __("Hide Map", 'lang_webshop'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
 
-		$out = "<h2 class='is_map_toggler color_button'>
-			<span>".$setting_replace_show_map."</span>
-			<span>".$setting_replace_hide_map."</span>
-		</h2>
-		<div class='map_wrapper'>
-			<div id='webshop_map'></div>";
+		$out = "<div class='form_button'>
+			<h2 class='is_map_toggler button color_button'>
+				<span>".$setting_replace_show_map."</span>
+				<span>".$setting_webshop_replace_hide_map."</span>
+			</h2>
+			<div class='map_wrapper'>
+				<div id='webshop_map'></div>";
 
-			if($setting_map_info != '')
-			{
-				$out .= "<div class='webshop_map_info'>".nl2br($setting_map_info)."</div>";
-			}
+				if($setting_map_info != '')
+				{
+					$out .= "<div class='webshop_map_info'>".nl2br($setting_map_info)."</div>";
+				}
 
-			$out .= input_hidden(array('name' => 'webshop_map_coords', 'allow_empty' => true))
-			.input_hidden(array('name' => 'webshop_map_bounds', 'allow_empty' => true))
-			."</div>";
+				$out .= input_hidden(array('name' => 'webshop_map_coords', 'allow_empty' => true))
+				.input_hidden(array('name' => 'webshop_map_bounds', 'allow_empty' => true))
+			."</div>
+		</div>";
 
 		return $out;
 	}
@@ -4546,7 +4548,17 @@ class mf_webshop
 							break;
 
 							default:
-								do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
+								$arr_filtered_meta_type = apply_filters('filter_webshop_meta_type', array('page' => 'list', 'meta_type' => $this->meta_type, 'post_meta' => $post_meta, 'meta_type_found' => false));
+
+								if($arr_filtered_meta_type['meta_type_found'])
+								{
+									$post_meta = $arr_filtered_meta_type['post_meta'];
+								}
+
+								else
+								{
+									do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
+								}
 							break;
 						}
 					}
@@ -5129,7 +5141,7 @@ class widget_webshop_search extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search'>"
+			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
 				.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
 				.$this->obj_webshop->get_webshop_search()
 				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'))
@@ -5202,7 +5214,7 @@ class widget_webshop_map extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<div>".$this->obj_webshop->get_webshop_map()."</div>"
+			echo "<div class='section'>".$this->obj_webshop->get_webshop_map()."</div>"
 		.$after_widget;
 	}
 

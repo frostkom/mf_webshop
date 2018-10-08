@@ -22,9 +22,6 @@ get_header();
 
 				$obj_webshop->get_option_type_from_post_id($post_id);
 
-				$name_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
-				$name_hide_map = get_option_or_default('setting_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
-
 				if($post_content == '')
 				{
 					$post_content = $post->post_excerpt;
@@ -456,14 +453,19 @@ get_header();
 
 							if($obj_webshop->product_map != '')
 							{
-								$obj_webshop->template_shortcodes['map']['html'] = "<h2 class='is_map_toggler color_button'>
-									<span>".$name_show_map."</span>
-									<span>".$name_hide_map."</span>
-								</h2>
-								<div class='map_wrapper'>
-									<div id='webshop_map'></div>"
-									.input_hidden(array('name' => "webshop_map_coords", 'value' => $obj_webshop->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$obj_webshop->product_title."' data-url=''"))
-								."</div>";
+								$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
+								$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
+
+								$obj_webshop->template_shortcodes['map']['html'] = "<div class='form_button'>
+									<h2 class='is_map_toggler button color_button'>
+										<span>".$setting_webshop_replace_show_map."</span>
+										<span>".$setting_webshop_replace_hide_map."</span>
+									</h2>
+									<div class='map_wrapper'>
+										<div id='webshop_map'></div>"
+										.input_hidden(array('name' => "webshop_map_coords", 'value' => $obj_webshop->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$obj_webshop->product_title."' data-url=''"))
+									."</div>
+								</div>";
 							}
 
 							//echo "<ul class='product_meta'>";
