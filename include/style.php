@@ -738,20 +738,30 @@ echo "@media all
 							color: inherit;
 						}
 
-							.product_image_container .category_icon i
+							.is_mobile .product_image_container .category_icon
 							{
-								color: #999;
-								font-size: 5em;
-								margin: 5% 0;
+								max-width: 35%;
 							}
 
-								.product_image_container .category_icon i + i
+								.product_image_container .category_icon i:first-of-type
 								{
-									/*position: absolute;
-									transform: translateX(-90%);*/
-									margin-top: -33%;
-									opacity: .7;
-								}";
+									display: block;
+									font-size: 5em;
+									margin-top: 5%;
+								}
+
+									.product_image_container .category_icon i + i
+									{
+										display: inline-block;
+										font-size: 1.1em;
+										margin-right: .3em;
+									}
+									
+									.product_image_container .category_icon i:last-of-type
+									{
+										margin-right: 0;
+										margin-bottom: 5%;
+									}";
 
 								$obj_webshop->get_option_types();
 

@@ -2210,7 +2210,9 @@ class mf_webshop
 
 			$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = array();
 
-			if(count($arr_categories) > 0)
+			$count_temp = count($arr_categories);
+
+			if($count_temp > 0)
 			{
 				$fields_settings[] = array(
 					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
@@ -2218,6 +2220,9 @@ class mf_webshop
 					'type' => 'select',
 					'options'  => $arr_categories,
 					'multiple' => (get_option('setting_webshop_allow_multiple_categories'.$this->option_type, 'yes') == 'yes'),
+					'attributes' => array(
+						'size' => get_select_size(array('count' => $count_temp)),
+					),
 				);
 			}
 
@@ -2296,6 +2301,7 @@ class mf_webshop
 
 						$fields_array['options'] = $arr_locations;
 						$fields_array['multiple'] = true;
+						$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_locations)));
 					}
 
 					if($post_document_public_single == 'yes')
@@ -2533,6 +2539,7 @@ class mf_webshop
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
 						'condition_value' => '"categories", "description", "container_start", "container_end"',
+						'size' => get_select_size(array('count' => count($arr_categories))),
 					),
 				);
 			}
@@ -2550,7 +2557,6 @@ class mf_webshop
 					'id' => $this->meta_prefix.'document_symbol',
 					'type' => 'select',
 					'options' => $arr_data_symbols,
-					//'multiple' => false,
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
