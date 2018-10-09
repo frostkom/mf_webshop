@@ -747,7 +747,7 @@ echo "@media all
 								{
 									display: block;
 									font-size: 5em;
-									margin-top: 5%;
+									margin: 5% 0;
 								}
 
 									.product_image_container .category_icon i + i
@@ -959,7 +959,7 @@ echo "@media all
 		.product_single .product_categories
 		{
 			display: inline-block;
-			margin-bottom: 1em;
+			margin-bottom: .5em;
 		}
 
 			.product_single .product_categories span
@@ -967,6 +967,7 @@ echo "@media all
 				border-radius: .2em;
 				display: inline-block;
 				margin-right: .5em;
+				margin-bottom: .5em;
 				padding: .25em .5em;
 			}
 

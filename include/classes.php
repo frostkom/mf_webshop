@@ -40,7 +40,7 @@ class mf_webshop
 				[social]
 				[previous_next]
 			</div>
-		</section>";
+		</section>"; //[categories]
 
 		$this->template_shortcodes = array(
 			'breadcrumbs' => array('html' => "", 'formatting' => "<div class='product_breadcrumbs'>[html]</div>"),
@@ -3413,7 +3413,7 @@ class mf_webshop
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
 
 		$out = "<div class='form_button'>
-			<h2 class='is_map_toggler button color_button'>
+			<h2 class='is_map_toggler button'>
 				<span>".$setting_replace_show_map."</span>
 				<span>".$setting_webshop_replace_hide_map."</span>
 			</h2>
@@ -4274,7 +4274,7 @@ class mf_webshop
 						if($setting_quote_form > 0)
 						{
 							$post_meta = "<div class='form_button'>
-								<a href='".get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button color_button'>".$this->meta_title."</a>
+								<a href='".get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button'>".$this->meta_title."</a>
 							</div>";
 						}
 					}
@@ -4344,7 +4344,7 @@ class mf_webshop
 						$this->has_read_more = true;
 
 						$post_meta = "<div class='form_button'>
-							<a href='".$this->product_url."' class='button color_button'>".$this->meta_title."</a>
+							<a href='".$this->product_url."' class='button'>".$this->meta_title."</a>
 						</div>";
 					}
 				break;
@@ -4608,7 +4608,7 @@ class mf_webshop
 					{
 						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 
-						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'nbsp' => false, 'class' => "category_".$category_id));
+						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_post_title($category_id), 'nbsp' => false, 'class' => "category_".$category_id));
 					}
 
 				$product_image .= "</div>";

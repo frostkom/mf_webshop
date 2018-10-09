@@ -457,7 +457,7 @@ get_header();
 								$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
 
 								$obj_webshop->template_shortcodes['map']['html'] = "<div class='form_button'>
-									<h2 class='is_map_toggler button color_button'>
+									<h2 class='is_map_toggler button'>
 										<span>".$setting_webshop_replace_show_map."</span>
 										<span>".$setting_webshop_replace_hide_map."</span>
 									</h2>
