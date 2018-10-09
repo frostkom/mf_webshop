@@ -3265,7 +3265,7 @@ class mf_webshop
 		}
 	}
 
-	function show_profile($user)
+	function show_user_profile($user)
 	{
 		if(IS_ADMIN && get_option('setting_webshop_payment_form') > 0)
 		{
@@ -3289,7 +3289,7 @@ class mf_webshop
 		}
 	}
 
-	function save_profile($user_id)
+	function personal_options_update($user_id)
 	{
 		if(current_user_can('edit_user', $user_id))
 		{
@@ -3980,7 +3980,9 @@ class mf_webshop
 				break;
 
 				case 'url':
-					$data['meta'] = "<a href='".$data['meta']."'>".remove_protocol(array('url' => $data['meta'], 'clean' => true, 'trim' => true))."</a>";
+					$url_parts = parse_url($data['meta']);
+
+					$data['meta'] = "<a href='".$data['meta']."'>".str_replace("www.", "", $url_parts['host'])."</a>";
 				break;
 			}
 
