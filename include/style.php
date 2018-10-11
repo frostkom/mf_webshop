@@ -1156,6 +1156,7 @@ echo "@media all
 		{
 			float: none;
 			width: auto;
+			min-width: 100%;
 		}
 
 	.product_single > div
