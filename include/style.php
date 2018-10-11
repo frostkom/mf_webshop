@@ -756,7 +756,7 @@ echo "@media all
 										font-size: 1.1em;
 										margin-right: .3em;
 									}
-									
+
 									.product_image_container .category_icon i:last-of-type
 									{
 										margin-right: 0;

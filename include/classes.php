@@ -1538,6 +1538,9 @@ class mf_webshop
 
 		foreach($_REQUEST as $key => $value)
 		{
+			$key = check_var($key, 'char', false);
+			$value = check_var($value, 'char', false);
+
 			if($key == "interval_range" && $value != '')
 			{
 				$key = $_POST['interval_type'];
@@ -1662,6 +1665,9 @@ class mf_webshop
 
 		foreach($_REQUEST as $key => $value)
 		{
+			$key = check_var($key, 'char', false);
+			$value = check_var($value, 'char', false);
+
 			if($this->is_a_webshop_meta_value(array('key' => $key, 'value' => $value)))
 			{
 				if($key == 'products')
@@ -3682,6 +3688,9 @@ class mf_webshop
 
 			foreach($_REQUEST as $key => $value)
 			{
+				$key = check_var($key, 'char', false);
+				$value = check_var($value, 'char', false);
+
 				if(substr($key, 0, $count_prefix_length) == $query_prefix)
 				{
 					$out .= input_hidden(array('name' => $key, 'value' => $value));

@@ -472,6 +472,11 @@ get_header();
 
 								foreach($obj_webshop->product_meta as $product_meta)
 								{
+									if(is_array($product_meta['content']))
+									{
+										do_log("Content is array: ".var_export($product_meta['content'], true));
+									}
+
 									$obj_webshop->template_shortcodes['meta']['html'] .= "<li class='".$product_meta['class']."'>".$product_meta['content']."</a>";
 								}
 
