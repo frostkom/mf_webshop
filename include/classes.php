@@ -2223,7 +2223,7 @@ class mf_webshop
 				$fields_settings[] = array(
 					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
 					'id' => $this->meta_prefix.'category',
-					'type' => 'select',
+					'type' => 'select3',
 					'options'  => $arr_categories,
 					'multiple' => (get_option('setting_webshop_allow_multiple_categories'.$this->option_type, 'yes') == 'yes'),
 					'attributes' => array(
@@ -2538,7 +2538,7 @@ class mf_webshop
 				$arr_fields[] = array(
 					'name' => __("Display on Categories", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_display_on_categories',
-					'type' => 'select',
+					'type' => 'select3',
 					'options' => $arr_categories,
 					'multiple' => true,
 					'attributes' => array(
@@ -4014,7 +4014,13 @@ class mf_webshop
 
 								$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 
-								$this->product_categories .= "<span>".$obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'class' => "category_".$category_id)).$category_title."</span>";
+								$this->product_categories .= "<span>"
+									.$obj_font_icons->get_symbol_tag(array(
+										'symbol' => $category_icon,
+										'class' => "category_".$category_id
+									))
+									.$category_title
+								."</span>";
 
 								$i++;
 							}
@@ -5055,7 +5061,30 @@ if(class_exists('RWMB_Field'))
 		}
 	}
 
-	class RWMB_Location_Field extends RWMB_Select_Field{}
+	class RWMB_Location_Field extends RWMB_Select_Field
+	{
+		public static function html($meta, $field)
+		{
+			$options                     = self::transform_options( $field['options'] );
+			$attributes                  = self::call( 'get_attributes', $field, $meta );
+			$attributes['data-selected'] = $meta;
+			$walker                      = new RWMB_Walker_Select( $field, $meta );
+
+			$attributes['class'] .= " multiselect";
+
+			$output                      = sprintf(
+				'<select %s>',
+				self::render_attributes( $attributes )
+			);
+			if ( ! $field['multiple'] && $field['placeholder'] ) {
+				$output .= '<option value="">' . esc_html( $field['placeholder'] ) . '</option>';
+			}
+			$output .= $walker->walk( $options, $field['flatten'] ? -1 : 0 );
+			$output .= '</select>';
+			$output .= self::get_select_all_html( $field );
+			return $output;
+		}
+	}
 
 	class RWMB_Price_Field extends RWMB_Field
 	{

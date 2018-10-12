@@ -291,321 +291,289 @@ get_header();
 
 				if(get_option('setting_webshop_display_breadcrumbs'.$obj_webshop->option_type) == 'yes')
 				{
-					//echo "<div class='product_breadcrumbs'>";
+					$arr_categories = get_post_meta($post_id, $obj_webshop->meta_prefix.'category', false);
 
-						$arr_categories = get_post_meta($post_id, $obj_webshop->meta_prefix.'category', false);
+					if(count($arr_categories) > 0)
+					{
+						$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "<span>";
 
-						if(count($arr_categories) > 0)
+							$i = 0;
+
+							foreach($arr_categories as $key => $value)
+							{
+								$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= ($i > 0 ? ", " : "").get_post_title($value);
+
+								$i++;
+							}
+
+						$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "</span>";
+					}
+
+					$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "<span>".$obj_webshop->product_title."</span>";
+				}
+
+				$obj_webshop->template_shortcodes['heading']['html'] = $obj_webshop->product_title;
+
+				if($obj_webshop->product_address != '')
+				{
+					$obj_webshop->template_shortcodes['address']['html'] .= $obj_webshop->product_address;
+				}
+
+				if($obj_webshop->product_categories != '')
+				{
+					$obj_webshop->template_shortcodes['categories']['html'] .= $obj_webshop->product_categories;
+				}
+
+				if(is_plugin_active("mf_share/index.php") && shortcode_exists('mf_share'))
+				{
+					$obj_share = new mf_share();
+
+					if($obj_share->is_correct_page())
+					{
+						$obj_webshop->template_shortcodes['share']['html'] .= apply_filters('the_content', "[mf_share type='options']");
+					}
+				}
+
+				/*if($obj_webshop->template_shortcodes['address']['html'] != '' || $obj_webshop->template_shortcodes['share']['html'] != '')
+				{
+					echo "<div>".$obj_webshop->template_shortcodes['address']['html'].$obj_webshop->template_shortcodes['share']['html']."</div>";
+				}*/
+
+				if(isset($obj_slideshow) && count($obj_webshop->slideshow_images) > 0)
+				{
+					$obj_webshop->template_shortcodes['slideshow']['html'] = $obj_slideshow->show(array('images' => $obj_webshop->slideshow_images));
+				}
+
+				if($post_content != '')
+				{
+					$obj_webshop->template_shortcodes['description']['html'] = apply_filters('the_content', $post_content);
+				}
+
+				$count_temp = count($obj_webshop->arr_product_quick);
+
+				if($count_temp > 0)
+				{
+					//$has_data = false;
+
+					$product_quick_temp = "";
+
+					for($i = 0; $i < $count_temp; $i++)
+					{
+						$product_quick_temp .= "<li class='".$obj_webshop->arr_product_quick[$i]['type']."'>";
+
+							switch($obj_webshop->arr_product_quick[$i]['type'])
+							{
+								case 'heading':
+									$product_quick_temp .= "<h3>".$obj_webshop->arr_product_quick[$i]['title']."</h3>";
+								break;
+
+								case 'event':
+									if(is_plugin_active('mf_calendar/index.php'))
+									{
+										$data_temp = $obj_webshop->arr_product_quick[$i];
+
+										$obj_calendar = new mf_calendar();
+										$obj_calendar->get_events(array('feeds' => array($data_temp['meta']), 'limit' => 1));
+
+										$data_temp['meta'] = $obj_calendar->arr_events;
+
+										if(is_array($data_temp['meta']) && count($data_temp['meta']) > 0)
+										{
+											$product_quick_temp .= $obj_calendar->get_next_event(array('array' => $data_temp));
+
+											//$has_data = true;
+										}
+									}
+								break;
+
+								case 'categories':
+									$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
+
+									$arr_categories = array();
+									get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
+
+									$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
+										.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
+										.$obj_webshop->arr_product_quick[$i]['title']
+									.":</span>
+									<ul>";
+
+										foreach($arr_categories as $key => $value)
+										{
+											$is_chosen = in_array($key, $product_categories);
+
+											$product_quick_temp .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
+										}
+
+									$product_quick_temp .= "</ul>";
+								break;
+
+								default:
+									$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
+										.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
+										.$obj_webshop->arr_product_quick[$i]['title']
+									.":</span>
+									<div>".$obj_webshop->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, lke from 'education'  //apply_filters('the_content', )
+
+									/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
+									{
+										$has_data = true;
+									}*/
+								break;
+							}
+
+						$product_quick_temp .= "</li>";
+					}
+
+					/*if($has_data == true)
+					{*/
+						//echo $product_quick_temp;
+						$obj_webshop->template_shortcodes['quick']['html'] = $product_quick_temp;
+					//}
+				}
+
+				if($obj_webshop->product_map != '')
+				{
+					$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
+					$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
+
+					$obj_webshop->template_shortcodes['map']['html'] = "<div class='form_button'>
+						<h2 class='is_map_toggler button'>
+							<span>".$setting_webshop_replace_show_map."</span>
+							<span>".$setting_webshop_replace_hide_map."</span>
+						</h2>
+						<div class='map_wrapper'>
+							<div id='webshop_map'></div>"
+							.input_hidden(array('name' => "webshop_map_coords", 'value' => $obj_webshop->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$obj_webshop->product_title."' data-url=''"))
+						."</div>
+					</div>";
+				}
+
+				foreach($obj_webshop->product_meta as $product_meta)
+				{
+					if(is_array($product_meta['content']))
+					{
+						do_log("Content is array: ".var_export($product_meta, true));
+					}
+
+					$obj_webshop->template_shortcodes['meta']['html'] .= "<li class='".$product_meta['class']."'>".$product_meta['content']."</a>";
+				}
+
+				if($obj_webshop->product_form_buy != '')
+				{
+					$obj_webshop->template_shortcodes['meta']['html'] .= "<li>".$obj_webshop->product_form_buy."</li>";
+				}
+
+				if($obj_webshop->product_has_email == true)
+				{
+					$setting_quote_form = get_option('setting_quote_form'.$obj_webshop->option_type);
+					$setting_quote_form_single = get_option('setting_quote_form_single'.$obj_webshop->option_type);
+
+					if($setting_quote_form_single > 0 || $setting_quote_form > 0)
+					{
+						$obj_webshop->template_shortcodes['form']['html'] .= "<div id='product_form' class='mf_form form_button_container'>
+							<div class='form_button'>";
+
+								if($setting_quote_form > 0)
+								{
+									$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search'.$obj_webshop->option_type, __("Add to Search", 'lang_webshop'));
+									$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search'.$obj_webshop->option_type, __("Remove from Search", 'lang_webshop'));
+									$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$obj_webshop->option_type, __("Continue Search", 'lang_webshop'));
+
+									$obj_webshop->template_shortcodes['form']['html'] .= "<div class='has_searched hide'>"
+										.show_button(array('type' => 'button', 'text' => "<i class='fa fa-check'></i> ".$setting_replace_add_to_search, 'class' => "button-primary add_to_search", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
+										.show_button(array('type' => 'button', 'text' => "<i class='fa fa-times'></i> ".$setting_replace_remove_from_search, 'class' => "color_button_negative remove_from_search hide", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
+										.show_button(array('type' => 'button', 'text' => "<i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search, 'class' => "button-secondary return_to_search", 'xtra' => "search_url='".$obj_webshop->search_url."'"))
+									."</div>";
+								}
+
+								$obj_webshop->template_shortcodes['form']['html'] .= "<div class='has_not_searched'>";
+
+									if($setting_quote_form_single > 0)
+									{
+										$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$obj_webshop->option_type, __("Send request for quote", 'lang_webshop'));
+
+										$obj_webshop->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$obj_webshop->product_id."' form_url='".get_form_url($setting_quote_form_single)."'"));
+									}
+
+									if($setting_quote_form > 0)
+									{
+										$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another'.$obj_webshop->option_type, __("Search for Another", 'lang_webshop'));
+
+										$obj_webshop->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-search'></i> ".$setting_replace_search_for_another, 'class' => "button-secondary search_for_another", 'xtra' => "search_url='".$obj_webshop->search_url."'"));
+									}
+
+								$obj_webshop->template_shortcodes['form']['html'] .= "</div>
+							</div>
+						</div>";
+					}
+				}
+
+				if(count($obj_webshop->arr_product_property) > 0)
+				{
+					foreach($obj_webshop->arr_product_property as $product_property)
+					{
+						$out_property = "";
+
+						if($product_property['type'] == 'categories')
 						{
-							$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "<span>";
+							$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
 
-								$i = 0;
+							$arr_categories = array();
+							get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
+
+							$count_categories = count($arr_categories);
+							$count_chosen = 0;
+
+							$out_property .= "<ul>";
 
 								foreach($arr_categories as $key => $value)
 								{
-									$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= ($i > 0 ? ", " : "").get_post_title($value);
+									$is_chosen = in_array($key, $product_categories);
 
-									$i++;
+									$out_property .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
+
+									if($is_chosen)
+									{
+										$count_chosen++;
+									}
 								}
 
-							$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "</span>";
+							$out_property .= "</ul>";
+
+							if($count_chosen == $count_categories)
+							{
+								$out_property = "";
+							}
 						}
 
-						$obj_webshop->template_shortcodes['breadcrumbs']['html'] .= "<span>".$obj_webshop->product_title."</span>";
+						else
+						{
+							$out_property .= "<div>".apply_filters('the_content', $product_property['content'])."</div>";
+						}
 
-					//echo "</div>";
+						if($out_property != '')
+						{
+							$obj_webshop->template_shortcodes['property']['html'] .= "<li>
+								<h3>"
+									.$obj_font_icons->get_symbol_tag(array('symbol' => $product_property['symbol']))
+									.$product_property['title']
+								."</h3>"
+								.$out_property
+							."</li>";
+						}
+					}
 				}
 
-				//echo "<h1>".$obj_webshop->product_title."</h1>";
-				$obj_webshop->template_shortcodes['heading']['html'] = $obj_webshop->product_title;
-
-				/*echo "<section>
-					<div class='product_single'>";*/
-
-						if($obj_webshop->product_address != '')
-						{
-							$obj_webshop->template_shortcodes['address']['html'] .= $obj_webshop->product_address;
-						}
-
-						if($obj_webshop->product_categories != '')
-						{
-							$obj_webshop->template_shortcodes['categories']['html'] .= $obj_webshop->product_categories;
-						}
-
-						if(is_plugin_active("mf_share/index.php") && shortcode_exists('mf_share'))
-						{
-							$obj_share = new mf_share();
-
-							if($obj_share->is_correct_page())
-							{
-								$obj_webshop->template_shortcodes['share']['html'] .= apply_filters('the_content', "[mf_share type='options']");
-							}
-						}
-
-						/*if($obj_webshop->template_shortcodes['address']['html'] != '' || $obj_webshop->template_shortcodes['share']['html'] != '')
-						{
-							echo "<div>".$obj_webshop->template_shortcodes['address']['html'].$obj_webshop->template_shortcodes['share']['html']."</div>";
-						}*/
-
-						//echo "<div class='product_container'>";
-
-							if(isset($obj_slideshow) && count($obj_webshop->slideshow_images) > 0)
-							{
-								//echo "<div class='product_slideshow'>".$obj_slideshow->show(array('images' => $obj_webshop->slideshow_images))."</div>";
-								$obj_webshop->template_shortcodes['slideshow']['html'] = $obj_slideshow->show(array('images' => $obj_webshop->slideshow_images));
-							}
-
-							if($post_content != '')
-							{
-								//echo "<div class='product_description'>".apply_filters('the_content', $post_content)."</div>";
-								$obj_webshop->template_shortcodes['description']['html'] = apply_filters('the_content', $post_content);
-							}
-
-							$count_temp = count($obj_webshop->arr_product_quick);
-
-							if($count_temp > 0)
-							{
-								//$has_data = false;
-
-								$product_quick_temp = "";
-
-								//$product_quick_temp .= "<ul class='product_quick'>";
-
-									for($i = 0; $i < $count_temp; $i++)
-									{
-										$product_quick_temp .= "<li class='".$obj_webshop->arr_product_quick[$i]['type']."'>";
-
-											switch($obj_webshop->arr_product_quick[$i]['type'])
-											{
-												case 'heading':
-													$product_quick_temp .= "<h3>".$obj_webshop->arr_product_quick[$i]['title']."</h3>";
-												break;
-
-												case 'event':
-													if(is_plugin_active('mf_calendar/index.php'))
-													{
-														$data_temp = $obj_webshop->arr_product_quick[$i];
-
-														$obj_calendar = new mf_calendar();
-														$obj_calendar->get_events(array('feeds' => array($data_temp['meta']), 'limit' => 1));
-
-														$data_temp['meta'] = $obj_calendar->arr_events;
-
-														if(is_array($data_temp['meta']) && count($data_temp['meta']) > 0)
-														{
-															$product_quick_temp .= $obj_calendar->get_next_event(array('array' => $data_temp));
-
-															//$has_data = true;
-														}
-													}
-												break;
-
-												case 'categories':
-													$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
-
-													$arr_categories = array();
-													get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
-
-													$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
-														.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
-														.$obj_webshop->arr_product_quick[$i]['title']
-													.":</span>
-													<ul>";
-
-														foreach($arr_categories as $key => $value)
-														{
-															$is_chosen = in_array($key, $product_categories);
-
-															$product_quick_temp .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
-														}
-
-													$product_quick_temp .= "</ul>";
-												break;
-
-												default:
-													$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
-														.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
-														.$obj_webshop->arr_product_quick[$i]['title']
-													.":</span>
-													<div>".$obj_webshop->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, lke from 'education'  //apply_filters('the_content', )
-
-													/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
-													{
-														$has_data = true;
-													}*/
-												break;
-											}
-
-										$product_quick_temp .= "</li>";
-									}
-
-								//$product_quick_temp .= "</ul>";
-
-								/*if($has_data == true)
-								{*/
-									//echo $product_quick_temp;
-									$obj_webshop->template_shortcodes['quick']['html'] = $product_quick_temp;
-								//}
-							}
-
-						/*echo "</div>
-						<div class='product_aside'>";*/
-
-							if($obj_webshop->product_map != '')
-							{
-								$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$obj_webshop->option_type, __("Show Map", 'lang_webshop'));
-								$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$obj_webshop->option_type, __("Hide Map", 'lang_webshop'));
-
-								$obj_webshop->template_shortcodes['map']['html'] = "<div class='form_button'>
-									<h2 class='is_map_toggler button'>
-										<span>".$setting_webshop_replace_show_map."</span>
-										<span>".$setting_webshop_replace_hide_map."</span>
-									</h2>
-									<div class='map_wrapper'>
-										<div id='webshop_map'></div>"
-										.input_hidden(array('name' => "webshop_map_coords", 'value' => $obj_webshop->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$obj_webshop->product_title."' data-url=''"))
-									."</div>
-								</div>";
-							}
-
-							//echo "<ul class='product_meta'>";
-
-								foreach($obj_webshop->product_meta as $product_meta)
-								{
-									if(is_array($product_meta['content']))
-									{
-										do_log("Content is array: ".var_export($product_meta['content'], true));
-									}
-
-									$obj_webshop->template_shortcodes['meta']['html'] .= "<li class='".$product_meta['class']."'>".$product_meta['content']."</a>";
-								}
-
-								if($obj_webshop->product_form_buy != '')
-								{
-									$obj_webshop->template_shortcodes['meta']['html'] .= "<li>".$obj_webshop->product_form_buy."</li>";
-								}
-
-							//echo "</ul>";
-
-							if($obj_webshop->product_has_email == true)
-							{
-								$setting_quote_form = get_option('setting_quote_form'.$obj_webshop->option_type);
-								$setting_quote_form_single = get_option('setting_quote_form_single'.$obj_webshop->option_type);
-
-								if($setting_quote_form_single > 0 || $setting_quote_form > 0)
-								{
-									$obj_webshop->template_shortcodes['form']['html'] .= "<div id='product_form' class='mf_form form_button_container'>
-										<div class='form_button'>";
-
-											if($setting_quote_form > 0)
-											{
-												$setting_replace_add_to_search = get_option_or_default('setting_replace_add_to_search'.$obj_webshop->option_type, __("Add to Search", 'lang_webshop'));
-												$setting_replace_remove_from_search = get_option_or_default('setting_replace_remove_from_search'.$obj_webshop->option_type, __("Remove from Search", 'lang_webshop'));
-												$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$obj_webshop->option_type, __("Continue Search", 'lang_webshop'));
-
-												$obj_webshop->template_shortcodes['form']['html'] .= "<div class='has_searched hide'>"
-													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-check'></i> ".$setting_replace_add_to_search, 'class' => "button-primary add_to_search", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
-													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-times'></i> ".$setting_replace_remove_from_search, 'class' => "color_button_negative remove_from_search hide", 'xtra' => "product_id='".$obj_webshop->product_id."'"))
-													.show_button(array('type' => 'button', 'text' => "<i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search, 'class' => "button-secondary return_to_search", 'xtra' => "search_url='".$obj_webshop->search_url."'"))
-												."</div>";
-											}
-
-											$obj_webshop->template_shortcodes['form']['html'] .= "<div class='has_not_searched'>";
-
-												if($setting_quote_form_single > 0)
-												{
-													$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$obj_webshop->option_type, __("Send request for quote", 'lang_webshop'));
-
-													$obj_webshop->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$obj_webshop->product_id."' form_url='".get_form_url($setting_quote_form_single)."'"));
-												}
-
-												if($setting_quote_form > 0)
-												{
-													$setting_replace_search_for_another = get_option_or_default('setting_replace_search_for_another'.$obj_webshop->option_type, __("Search for Another", 'lang_webshop'));
-
-													$obj_webshop->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-search'></i> ".$setting_replace_search_for_another, 'class' => "button-secondary search_for_another", 'xtra' => "search_url='".$obj_webshop->search_url."'"));
-												}
-
-											$obj_webshop->template_shortcodes['form']['html'] .= "</div>
-										</div>
-									</div>";
-								}
-							}
-
-						//echo "</div>";
-
-						if(count($obj_webshop->arr_product_property) > 0)
-						{
-							//echo "<ul class='product_property'>";
-
-								foreach($obj_webshop->arr_product_property as $product_property)
-								{
-									$out_property = "";
-
-									if($product_property['type'] == 'categories')
-									{
-										$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
-
-										$arr_categories = array();
-										get_post_children(array('post_type' => $obj_webshop->post_type_categories.$obj_webshop->option_type), $arr_categories);
-
-										$count_categories = count($arr_categories);
-										$count_chosen = 0;
-
-										$out_property .= "<ul>";
-
-											foreach($arr_categories as $key => $value)
-											{
-												$is_chosen = in_array($key, $product_categories);
-
-												$out_property .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
-
-												if($is_chosen)
-												{
-													$count_chosen++;
-												}
-											}
-
-										$out_property .= "</ul>";
-
-										if($count_chosen == $count_categories)
-										{
-											$out_property = "";
-										}
-									}
-
-									else
-									{
-										$out_property .= "<div>".apply_filters('the_content', $product_property['content'])."</div>";
-									}
-
-									if($out_property != '')
-									{
-										$obj_webshop->template_shortcodes['property']['html'] .= "<li>
-											<h3>"
-												.$obj_font_icons->get_symbol_tag(array('symbol' => $product_property['symbol']))
-												.$product_property['title']
-											."</h3>"
-											.$out_property
-										."</li>";
-									}
-								}
-
-							//echo "</ul>";
-						}
-
-						if($obj_webshop->product_social > 0 && is_plugin_active('mf_social_feed/index.php'))
-						{
-							$obj_webshop->template_shortcodes['social']['html'] = "<div class='product_social'>
-								<h3>".get_post_title($obj_webshop->product_social)."</h3>"
-								.apply_filters('the_content', "[mf_social_feed id=".$obj_webshop->product_social." amount=4 filter=no border=no text=no likes=no]")
-							."</div>";
-						}
-
-						$obj_webshop->template_shortcodes['previous_next']['html'] = "<div class='product_previous_next flex_flow'></div>";
-
-					/*echo "</div>
-				</section>";*/
+				if($obj_webshop->product_social > 0 && is_plugin_active('mf_social_feed/index.php'))
+				{
+					$obj_webshop->template_shortcodes['social']['html'] = "<div class='product_social'>
+						<h3>".get_post_title($obj_webshop->product_social)."</h3>"
+						.apply_filters('the_content', "[mf_social_feed id=".$obj_webshop->product_social." amount=4 filter=no border=no text=no likes=no]")
+					."</div>";
+				}
+
+				$obj_webshop->template_shortcodes['previous_next']['html'] = "<div class='product_previous_next flex_flow'></div>";
 
 				$setting_webshop_product_template = get_option('setting_webshop_product_template'.$obj_webshop->option_type);
 
