@@ -355,7 +355,7 @@ class mf_webshop
 
 			$name_products = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
 
-			$arr_supports = array('title', 'excerpt', 'author');
+			$arr_supports = array('title', 'excerpt', 'revisions', 'author');
 
 			if($this->get_post_name_for_type('content') == '')
 			{

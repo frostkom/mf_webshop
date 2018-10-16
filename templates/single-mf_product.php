@@ -93,6 +93,11 @@ get_header();
 									}
 								}
 							}
+
+							else
+							{
+								$post_meta = "";
+							}
 						break;
 					}
 
