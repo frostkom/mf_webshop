@@ -560,6 +560,7 @@ class mf_webshop
 			$arr_settings = array(
 				'setting_webshop_replace_product|'.$option_type => __("Replace Text", 'lang_webshop'),
 				'setting_webshop_replace_products|'.$option_type => __("Replace Text", 'lang_webshop'),
+				'setting_webshop_replace_enter_title_here|'.$option_type => __("Replace Text", 'lang_webshop'),
 				'setting_webshop_replace_categories|'.$option_type => __("Replace Text", 'lang_webshop'),
 				'setting_webshop_replace_doc_types|'.$option_type => __("Replace Text", 'lang_webshop'),
 
@@ -925,6 +926,14 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Products", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_enter_title_here_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Enter title here", 'lang_webshop')));
 	}
 
 	function setting_webshop_replace_products_slug_callback($args = array())
@@ -3168,6 +3177,30 @@ class mf_webshop
 				break;
 			}
 		}
+	}
+
+	function enter_title_here($title)
+	{
+		$screen = get_current_screen();
+
+		$this->get_option_types();
+
+		foreach($this->arr_option_types as $option_type)
+		{
+			$this->option_type = ($option_type != '' ? "_".$option_type : '');
+
+			if($screen->post_type == $this->post_type_products.$this->option_type)
+			{
+				$setting_webshop_replace_enter_title_here = get_option_or_default('setting_webshop_replace_enter_title_here'.$this->option_type);
+
+				if($setting_webshop_replace_enter_title_here != '')
+				{
+					return $setting_webshop_replace_enter_title_here;
+				}
+			}
+		}
+
+		return $title;
 	}
 
 	function save_post($post_id, $post, $update)

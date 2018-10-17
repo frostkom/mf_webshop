@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.4.8
+Version: 1.4.4.9
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -44,6 +44,8 @@ if(is_admin())
 
 	add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5, 2);
 	add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
+
+	add_filter('enter_title_here', array($obj_webshop, 'enter_title_here'));
 
 	add_action('save_post', array($obj_webshop, 'save_post'), 10, 3);
 	add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
@@ -216,6 +218,7 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_replace_webshop'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_product'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_products'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_replace_enter_title_here'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_categories'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_doc_types'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_send_request_for_quote'.$obj_webshop->option_type;
