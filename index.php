@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.4.9
+Version: 1.4.4.11
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -36,8 +36,6 @@ if(is_admin())
 	add_filter('wp_get_default_privacy_policy_content', array($obj_webshop, 'add_policy'));
 
 	add_action('admin_menu', array($obj_webshop, 'admin_menu'));
-	add_action('rwmb_meta_boxes', array($obj_webshop, 'rwmb_meta_boxes'));
-	add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 
 	add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
 	add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
@@ -48,6 +46,9 @@ if(is_admin())
 	add_filter('enter_title_here', array($obj_webshop, 'enter_title_here'));
 
 	add_action('save_post', array($obj_webshop, 'save_post'), 10, 3);
+
+	add_action('rwmb_meta_boxes', array($obj_webshop, 'rwmb_meta_boxes'));
+	add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 	add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
 
 	add_action('manage_users_columns', array($obj_webshop, 'manage_users_columns'));

@@ -413,6 +413,19 @@ get_header();
 									$product_quick_temp .= "</ul>";
 								break;
 
+								case 'textarea':
+									$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
+										.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
+										.$obj_webshop->arr_product_quick[$i]['title']
+									.":</span>
+									<div>".apply_filters('the_content', $obj_webshop->arr_product_quick[$i]['meta'])."</div>";
+
+									/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
+									{
+										$has_data = true;
+									}*/
+								break;
+
 								default:
 									$product_quick_temp .= "<span title='".$obj_webshop->arr_product_quick[$i]['title']."'>"
 										.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))

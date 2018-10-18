@@ -2208,14 +2208,14 @@ class mf_webshop
 
 			//Default values for type
 			################
-			$post_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
+			$last_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
 
-			$default_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
-			$default_searchable = get_post_meta($post_id, $this->meta_prefix.'document_searchable', true);
-			$default_public = get_post_meta($post_id, $this->meta_prefix.'document_public', true);
-			$default_public_single = get_post_meta($post_id, $this->meta_prefix.'document_public_single', true);
-			$default_quick = get_post_meta($post_id, $this->meta_prefix.'document_quick', true);
-			$default_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
+			$default_type = get_post_meta($last_id, $this->meta_prefix.'document_type', true);
+			$default_searchable = get_post_meta($last_id, $this->meta_prefix.'document_searchable', true);
+			$default_public = get_post_meta($last_id, $this->meta_prefix.'document_public', true);
+			$default_public_single = get_post_meta($last_id, $this->meta_prefix.'document_public_single', true);
+			$default_quick = get_post_meta($last_id, $this->meta_prefix.'document_quick', true);
+			$default_property = get_post_meta($last_id, $this->meta_prefix.'document_property', true);
 			################
 
 			// Products
