@@ -89,7 +89,7 @@ get_header();
 
 									else
 									{
-										$post_meta .= $location_tag;
+										$post_meta .= ($post_meta != '' ? ", " : "").$location_tag;
 									}
 								}
 							}
