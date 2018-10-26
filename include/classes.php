@@ -4091,8 +4091,6 @@ class mf_webshop
 						{
 							$obj_calendar = new mf_calendar();
 							$content = $obj_calendar->get_next_event(array('array' => $data));
-
-							//$has_data = true;
 						}
 					}
 				break;

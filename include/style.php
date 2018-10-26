@@ -825,16 +825,8 @@ echo "@media all
 			.product_list > li > ul li a, .product_single ul li a
 			{
 				border: 0;
-				/*color: inherit;*/
 				padding: 0;
 			}
-
-			/*.product_list li.type_text
-			{
-				float: left;
-				white-space: nowrap;
-				width: 50%;
-			}*/
 
 			.product_meta li.description
 			{

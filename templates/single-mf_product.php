@@ -40,7 +40,6 @@ get_header();
 					$obj_webshop->meta_init(array('meta' => $r, 'single' => true));
 
 					$post_meta = '';
-					//$has_data = false;
 
 					switch($obj_webshop->meta_type)
 					{
@@ -122,8 +121,6 @@ get_header();
 									if($post_meta == 1)
 									{
 										$post_meta = "<i class='fa fa-check green'></i>";
-
-										//$has_data = true;
 									}
 
 									else
@@ -132,25 +129,16 @@ get_header();
 									}
 								break;
 
-								case 'clock':
-								case 'number':
-								case 'size':
-									//$has_data = true;
-								break;
-
 								case 'content':
 									$arr_exclude = array("[", "]");
 									$arr_include = array("<", ">");
 
 									$post_content = str_replace($arr_exclude, $arr_include, $post_meta);
 									$post_meta = "";
-
-									//$has_data = true;
 								break;
 
 								case 'custom_categories':
 									$post_meta = get_post_title($post_meta);
-									//$has_data = true;
 								break;
 
 								case 'email':
@@ -176,8 +164,6 @@ get_header();
 								case 'page':
 									$obj_webshop->meta_title = get_the_title($post_meta);
 									$post_meta = get_permalink($post_meta);
-
-									//$has_data = true;
 								break;
 
 								case 'phone':
@@ -207,8 +193,6 @@ get_header();
 										.input_hidden(array('name' => 'intProductID', 'value' => $obj_webshop->product_id))
 										.wp_nonce_field('product_buy_'.$obj_webshop->product_id, '_wpnonce_product_buy', true, false)
 									."</form>";
-
-									//$has_data = true;
 								break;
 
 								case 'social':
@@ -225,10 +209,13 @@ get_header();
 
 								break;
 
+								case 'clock':
 								case 'description':
 								case 'ghost':
 								case 'interval':
 								case 'location':
+								case 'number':
+								case 'size':
 								case 'text':
 								case 'textarea':
 								case 'url':
@@ -277,7 +264,6 @@ get_header();
 							'title' => $obj_webshop->meta_title,
 							'meta' => $post_meta,
 							'type' => $obj_webshop->meta_type,
-							//'has_data' => $has_data,
 						);
 					}
 				}
@@ -358,8 +344,6 @@ get_header();
 
 				if($count_temp > 0)
 				{
-					//$has_data = false;
-
 					$product_quick_temp = "";
 
 					for($i = 0; $i < $count_temp; $i++)
@@ -385,8 +369,6 @@ get_header();
 										if(is_array($data_temp['meta']) && count($data_temp['meta']) > 0)
 										{
 											$product_quick_temp .= $obj_calendar->get_next_event(array('array' => $data_temp));
-
-											//$has_data = true;
 										}
 									}
 								break;
@@ -419,11 +401,6 @@ get_header();
 										.$obj_webshop->arr_product_quick[$i]['title']
 									.":</span>
 									<div>".apply_filters('the_content', $obj_webshop->arr_product_quick[$i]['meta'])."</div>";
-
-									/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
-									{
-										$has_data = true;
-									}*/
 								break;
 
 								default:
@@ -431,23 +408,14 @@ get_header();
 										.$obj_font_icons->get_symbol_tag(array('symbol' => $obj_webshop->arr_product_quick[$i]['symbol']))
 										.$obj_webshop->arr_product_quick[$i]['title']
 									.":</span>
-									<div>".$obj_webshop->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, lke from 'education'  //apply_filters('the_content', )
-
-									/*if($obj_webshop->arr_product_quick[$i]['has_data'] == true)
-									{
-										$has_data = true;
-									}*/
+									<div>".$obj_webshop->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, like from 'education'  //apply_filters('the_content', )
 								break;
 							}
 
 						$product_quick_temp .= "</li>";
 					}
 
-					/*if($has_data == true)
-					{*/
-						//echo $product_quick_temp;
-						$obj_webshop->template_shortcodes['quick']['html'] = $product_quick_temp;
-					//}
+					$obj_webshop->template_shortcodes['quick']['html'] = $product_quick_temp;
 				}
 
 				if($obj_webshop->product_map != '')
@@ -572,7 +540,7 @@ get_header();
 
 						if($out_property != '')
 						{
-							$obj_webshop->template_shortcodes['property']['html'] .= "<li>
+							$obj_webshop->template_shortcodes['property']['html'] .= "<li class='".$product_property['type']."'>
 								<h3>"
 									.$obj_font_icons->get_symbol_tag(array('symbol' => $product_property['symbol']))
 									.$product_property['title']
