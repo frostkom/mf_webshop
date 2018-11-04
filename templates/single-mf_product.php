@@ -575,6 +575,7 @@ get_header();
 
 				//This adds a bunch of empty p tags
 				//$template = apply_filters('the_content', $template);
+				$template = str_replace("[product_id]", $post_id, $template);
 				$template = do_shortcode($template);
 
 				foreach($obj_webshop->template_shortcodes as $key => $value)

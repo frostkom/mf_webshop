@@ -3573,7 +3573,26 @@ class mf_webshop
 									'' => $name_choose_here,
 								);
 
-								get_post_children(array('post_type' => $this->post_type_location.$this->option_type, 'post_status' => 'publish'), $arr_data);
+								$location_post_name = $this->get_post_name_for_type('location');
+
+								get_post_children(array(
+									'post_type' => $this->post_type_location.$this->option_type,
+									'post_status' => 'publish',
+								), $arr_data);
+
+								// Filter those locations that aren't used
+								foreach($arr_data as $key => $value)
+								{
+									if($key > 0)
+									{
+										$result = $this->get_products_from_location($key);
+
+										if(count($result) == 0)
+										{
+											unset($arr_data[$key]);
+										}
+									}
+								}
 
 								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
 							break;
@@ -3914,7 +3933,7 @@ class mf_webshop
 
 		$location_post_name = $this->get_post_name_for_type('location');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '".$this->meta_prefix.$location_post_name."' AND meta_value = '%d'", $id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d'", 'publish', $this->meta_prefix.$location_post_name, $id));
 
 		return $result;
 	}
