@@ -462,7 +462,7 @@ var WebshopView = Backbone.View.extend(
 
 	update_total_amount: function()
 	{
-		jQuery(".search_result_info span").html(this.model.get('products_total'));
+		jQuery(".search_result_info > span").html(this.model.get('products_total'));
 	},
 
 	update_quote_amount: function()

@@ -357,11 +357,6 @@ echo "@media all
 				margin-bottom: .2em;
 			}
 
-			.widget .webshop_item_list .product_description .product_categories
-			{
-
-			}
-
 			.widget .webshop_item_list .product_description p
 			{
 				margin-top: .5em;
@@ -501,7 +496,7 @@ echo "@media all
 					padding: 1.2em 0 0;
 				}
 
-				#product_form .search_result_info span
+				#product_form .search_result_info > span
 				{
 					font-weight: bold;
 				}
@@ -613,6 +608,37 @@ echo "@media all
 					margin-bottom: 10px;
 				}
 
+				#webshop_search .product_categories.category_icon li
+				{
+					display: inline-block;
+					margin-right: .5em;
+					margin-bottom: .5em;
+				}
+
+					#webshop_search .product_categories.category_icon li input
+					{
+						display: none;
+					}
+
+						#webshop_search .product_categories.category_icon li label
+						{
+							background: ".$setting_color_info.";
+							border-radius: .2em;
+							color: ".$setting_text_color_info.";
+							display: inline-block;
+							padding: .25em .5em;
+						}
+
+							#webshop_search .product_categories.category_icon li input:checked + label
+							{
+								box-shadow: inset 0 0 10em rgba(0, 0, 0, .1);
+							}
+
+							#webshop_search .product_categories.category_icon li i
+							{
+								margin-right: .4em;
+							}
+
 				.form_button .info_text
 				{
 					position: relative;
@@ -627,12 +653,6 @@ echo "@media all
 						right: 50%;
 						top: -2em;
 					}
-
-				/*.form_button button, .form_button .button
-				{
-					font-size: 1.3em;
-					font-weight: bold;
-				}*/
 
 	/* Result List */
 	.product_list
@@ -948,27 +968,27 @@ echo "@media all
 					text-decoration: none;
 				}
 
-		.product_single .product_categories
+		.product_single .product_categories.category_icon
 		{
 			display: inline-block;
 			margin-bottom: .5em;
 		}
 
-			.product_single .product_categories span
+			.product_single .product_categories.category_icon span
 			{
+				background: ".$setting_color_info.";
 				border-radius: .2em;
+				color: ".$setting_text_color_info.";
 				display: inline-block;
 				margin-right: .5em;
 				margin-bottom: .5em;
 				padding: .25em .5em;
 			}
 
-				.product_single .product_categories span
+				.product_single .product_categories.category_icon span i
 				{
-					background: ".$setting_color_info.";
-					color: ".$setting_text_color_info.";
+					margin-right: .4em;
 				}
-
 
 		.product_single .mf_share
 		{

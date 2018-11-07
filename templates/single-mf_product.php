@@ -501,7 +501,7 @@ get_header();
 					{
 						$out_property = "";
 
-						if($product_property['type'] == 'categories')
+						if(in_array($product_property['type'], array('categories')))
 						{
 							$product_categories = get_post_meta($obj_webshop->product_id, $obj_webshop->meta_prefix.'category', false);
 

@@ -202,6 +202,7 @@ class mf_webshop
 				'page' => __("Page", 'lang_webshop'),
 				'file_advanced' => __("File", 'lang_webshop'),
 				'categories' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop')),
+				'categories_v2' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'))." (".__("v2", 'lang_webshop').")",
 				'custom_categories' => __("Custom Categories", 'lang_webshop'),
 				'social' => __("Social Feed", 'lang_webshop'),
 			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
@@ -2250,7 +2251,7 @@ class mf_webshop
 				);
 			}
 
-			$arr_doc_types_ignore = array('heading', 'label', 'categories', 'divider', 'contact_button', 'read_more_button', 'container_start', 'container_end'); //, 'text', 'description'
+			$arr_doc_types_ignore = array('heading', 'label', 'categories', 'categories_v2', 'divider', 'contact_button', 'read_more_button', 'container_start', 'container_end'); //, 'text', 'description'
 
 			$result = $this->get_document_types(array('select' => "ID, post_title, post_name, post_parent", 'order' => "menu_order ASC"));
 
@@ -2470,7 +2471,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'show_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"heading", "checkbox", "categories", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
+						'condition_value' => '"heading", "checkbox", "categories", "categories_v2", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
 					),
 				),
 				array(
@@ -2494,7 +2495,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"description", "color", "gps"',
+						'condition_value' => '"categories_v2", "description", "color", "gps"',
 					),
 				),
 				array(
@@ -2506,7 +2507,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
 					),
 				),
 				array(
@@ -2518,7 +2519,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
 					),
 				),
 				array(
@@ -2530,7 +2531,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
 					),
 				),
 			);
@@ -2553,7 +2554,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories", "description", "container_start", "container_end"',
+						'condition_value' => '"categories", "categories_v2", "description", "container_start", "container_end"',
 						'size' => get_select_size(array('count' => count($arr_categories))),
 					),
 				);
@@ -2613,7 +2614,7 @@ class mf_webshop
 				'attributes' => array(
 					'condition_type' => 'show_this_if',
 					'condition_selector' => $this->meta_prefix.'document_type',
-					'condition_value' => '"checkbox", "categories", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
+					'condition_value' => '"checkbox", "categories", "categories_v2", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
 				),
 			);
 
@@ -3553,6 +3554,28 @@ class mf_webshop
 								$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
 							break;
 
+							case 'categories_v2':
+								$arr_data = array();
+								get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'add_choose_here' => true, 'post_status' => 'publish'), $arr_data);
+
+								$obj_font_icons = new mf_font_icons();
+
+								foreach($arr_data as $key => $value)
+								{
+									$category_icon = get_post_meta($key, $this->meta_prefix.'category_icon', true);
+
+									$arr_data[$key] = "<span>"
+										.$obj_font_icons->get_symbol_tag(array(
+											'symbol' => $category_icon,
+											'class' => "category_".$key,
+										))
+										.$value
+									."</span>";
+								}
+
+								$out .= show_form_alternatives(array('data' => $arr_data, 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
+							break;
+
 							case 'custom_categories':
 								$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type.$this->option_type, $post_name));
 
@@ -4007,7 +4030,7 @@ class mf_webshop
 
 	function gather_product_meta($data)
 	{
-		if($data['public'] == 'yes' && ($data['meta'] != '' || in_array($data['type'], array('divider', 'heading'))))
+		if($data['public'] == 'yes' && (is_array($data['meta']) && count($data['meta']) > 0 || $data['meta'] != '' || in_array($data['type'], array('divider', 'heading'))))
 		{
 			$class = $data['type'];
 			$content = "";
@@ -4069,7 +4092,7 @@ class mf_webshop
 								$this->product_categories .= "<span>"
 									.$obj_font_icons->get_symbol_tag(array(
 										'symbol' => $category_icon,
-										'class' => "category_".$category_id
+										'class' => "category_".$category_id,
 									))
 									.$category_title
 								."</span>";
@@ -4323,6 +4346,7 @@ class mf_webshop
 			switch($this->meta_type)
 			{
 				case 'categories':
+				case 'categories_v2':
 					$this->arr_category_id = $post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
 
 					if($post_search != '' && !in_array($post_search, $post_meta))
