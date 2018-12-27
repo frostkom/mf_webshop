@@ -34,8 +34,6 @@ switch($type)
 
 		$obj_webshop->option_type = ($strOptionType != '' ? "_".$strOptionType : '');
 
-		//do_log("Get ".$intAmount." events starting ".$dteDate." from ".$strOptionType);
-
 		$json_output['widget_id'] = $strID;
 		$json_output['event_response'] = array();
 
@@ -47,14 +45,22 @@ switch($type)
 		{
 			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = '".$obj_webshop->meta_prefix.$events_post_name."' AND meta_value > '0'", $obj_webshop->post_type_products.$obj_webshop->option_type));
 
-			//do_log("Get events: ".$wpdb->last_query);
-
 			foreach($result as $r)
 			{
+				$arr_categories = get_post_meta($r->ID, $obj_webshop->meta_prefix.'category', false);
+
+				$product_categories = "";
+
+				foreach($arr_categories as $key => $value)
+				{
+					$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
+				}
+
 				$arr_product_ids[] = $r->meta_value;
 				$arr_product_translate_ids[$r->meta_value] = array(
 					'product_id' => $r->ID,
 					'product_title' => $r->post_title,
+					'product_categories' => $product_categories,
 				);
 			}
 
@@ -66,15 +72,12 @@ switch($type)
 					INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'
 				WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."') AND start.meta_value >= %s ORDER BY start.meta_value ASC", 'mf_calendar_event', $dteDate));
 
-				//do_log("Get events: ".$wpdb->last_query);
-
 				foreach($result as $r)
 				{
-					$calendar_id = $r->calendar_id;
-					$product_id = $arr_product_translate_ids[$calendar_id]['product_id'];
-					$product_title = $arr_product_translate_ids[$calendar_id]['product_title'];
-
-					$product_categories = "";
+					$feed_id = $r->calendar_id;
+					$product_id = $arr_product_translate_ids[$feed_id]['product_id'];
+					$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
+					$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
 
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
@@ -89,6 +92,7 @@ switch($type)
 						'product_id' => $product_id,
 						'product_title' => $product_title,
 						'product_categories' => $product_categories,
+						'feed_id' => $feed_id,
 						'post_id' => $post_id,
 						'post_title' => $post_title,
 						'post_url' => $post_url,

@@ -360,9 +360,59 @@ echo "@media all
 			.widget .webshop_item_list .product_description p
 			{
 				margin-top: .5em;
+			}";
+
+	if(is_plugin_active("mf_calendar/index.php"))
+	{
+		echo ".widget.webshop_events li.event_item
+		{
+			background: #f2f2f2;
+			border-left: .3em solid #e2e2e2;
+			margin-bottom: .5em;
+			padding: .5em;
+			transition: all .5s ease;
+		}
+
+			.widget.webshop_events li.event_item:hover
+			{
+				background: #e9e9e9;
+				border-left-width: .6em;
 			}
 
-	/* Map */
+			#wrapper .widget.webshop_events li h2
+			{
+				font-weight: normal;
+				margin-bottom: 0;
+			}
+			
+				#wrapper .widget.webshop_events li h2 span:last-of-type
+				{
+					margin-left: .5em;
+					font-size: .7em;
+				}";
+
+		$obj_calendar = new mf_calendar();
+
+		$result = $obj_calendar->get_calendar_colors();
+
+		foreach($result as $r)
+		{
+			$post_id = $r->ID;
+			$post_color = $r->meta_value;
+
+			echo ".widget.webshop_events li.calendar_feed_".$post_id."
+			{
+				border-left-color: ".$post_color.";
+			}
+			
+				#wrapper .widget.webshop_events li h2 span:first-of-type
+				{
+					color: ".$post_color.";
+				}";
+		}
+	}
+
+	echo "/* Map */
 	.map_wrapper
 	{
 		position: relative;

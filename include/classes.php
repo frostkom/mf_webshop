@@ -3803,8 +3803,8 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_event_item'>
-					<li id='product_<%= product_id %>'>
-						<h2><%= post_title %></h2>
+					<li class='event_item calendar_feed_<%= feed_id %>'>
+						<h2><span><%= post_title %></span><span>(<%= product_categories %>)</span></h2>
 					</li>
 				</script>";
 			break;
