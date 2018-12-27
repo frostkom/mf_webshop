@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 1.4.5.6
+Version: 2.0.1.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -99,7 +99,7 @@ function activate_webshop()
 		orderDelivery DATETIME NOT NULL,
 		customerID INT UNSIGNED NOT NULL,
 		orderName VARCHAR(60) NOT NULL,
-		orderEmail VARCHAR(200) NOT NULL,
+		orderEmail VARCHAR(100) NOT NULL,
 		orderText TEXT NOT NULL,
 		deliveryTypeID INT UNSIGNED NOT NULL,
 		userID INT UNSIGNED DEFAULT NULL,

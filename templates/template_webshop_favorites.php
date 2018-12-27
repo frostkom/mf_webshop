@@ -12,8 +12,6 @@ get_header();
 	{
 		$obj_webshop = new mf_webshop();
 
-		//$post_amount = $wp_query->found_posts;
-
 		while(have_posts())
 		{
 			the_post();
@@ -36,7 +34,7 @@ get_header();
 					."</section>
 				</article>
 			</form>"
-			.$obj_webshop->get_templates();
+			.$obj_webshop->get_templates(array('type' => 'products'));
 		}
 	}
 

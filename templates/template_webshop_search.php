@@ -23,6 +23,6 @@ get_header();
 			."</section>
 		</article>
 	</form>"
-	.$obj_webshop->get_templates();
+	.$obj_webshop->get_templates(array('type' => 'products'));
 
 get_footer();

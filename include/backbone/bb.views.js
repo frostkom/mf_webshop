@@ -14,10 +14,12 @@ var WebshopView = Backbone.View.extend(
 
 	initialize: function()
 	{
+		this.model.on("change:event_response", this.show_events, this);
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
 
 		this.is_favorites_view = jQuery(".product_favorites").length > 0;
+		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
 		this.has_product_result = jQuery("#product_result_search").length > 0;
 
 		this.get_products_storage();
@@ -44,6 +46,11 @@ var WebshopView = Backbone.View.extend(
 			{
 				this.show_no_results_view();
 			}
+		}
+
+		else if(this.is_events_view)
+		{
+			this.load_events();
 		}
 
 		else
@@ -78,6 +85,8 @@ var WebshopView = Backbone.View.extend(
 
 		/* Favorites */
 		"click .quote_button .button_print": "print_favorites"
+
+		/* Events */
 	},
 
 	search_all_products: function(e)
@@ -119,6 +128,53 @@ var WebshopView = Backbone.View.extend(
 	{
 		jQuery(".favorite_result").addClass('hide');
 		jQuery(".favorite_fallback").removeClass('hide');
+	},
+
+	load_events: function()
+	{
+		var self = this;
+
+		jQuery(".webshop_widget.webshop_events").each(function()
+		{
+			var dom_child = jQuery(this).children("ul"),
+				widget_id = dom_child.attr('id'),
+				option_type = dom_child.attr('data-option-date') || '',
+				date = dom_child.attr('data-date'),
+				amount = dom_child.attr('data-amount');
+
+			self.model.getPage("type=events&strID=" + widget_id + "&strOptionType=" + option_type + "&dteDate=" + date + "&intAmount=" + amount);
+		});
+	},
+
+	show_events: function()
+	{
+		var widget_id = this.model.get('widget_id'),
+			response = this.model.get('event_response'),
+			amount = response.length,
+			html = '';
+
+		console.log(widget_id , amount , response);
+
+		if(amount > 0)
+		{
+			var dom_template = jQuery("#template_event_item").html();
+
+			for(var i = 0; i < amount; i++)
+			{
+				html += _.template(dom_template)(response[i]);
+			}
+
+			jQuery("#" + widget_id).html(html);
+		}
+
+		else
+		{
+			html = _.template(jQuery("#template_event_message").html())('');
+
+			jQuery("#" + widget_id).html(html);
+		}
+
+		this.show_quote_request_button();
 	},
 
 	if_search_view: function()
@@ -586,7 +642,7 @@ var WebshopView = Backbone.View.extend(
 
 	search_product_amount: function()
 	{
-		this.model.getPage("get_amount=true&" + jQuery('.webshop_form form').serialize());
+		this.model.getPage("type=amount&" + jQuery('.webshop_form form').serialize());
 	},
 
 	product_add_to_search_or_not: function(e)

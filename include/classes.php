@@ -1480,12 +1480,19 @@ class mf_webshop
 		register_widget('widget_webshop_form');
 		register_widget('widget_webshop_list');
 
-		if(get_option('setting_quote_form') > 0)
+		if(is_plugin_active("mf_form/index.php") && get_option('setting_quote_form') > 0)
 		{
 			register_widget('widget_webshop_favorites');
 		}
 
 		register_widget('widget_webshop_recent');
+
+		//$events_post_name = $this->get_post_name_for_type('events');
+
+		if(is_plugin_active("mf_calendar/index.php")) //$events_post_name != ''
+		{
+			register_widget('widget_webshop_events');
+		}
 	}
 
 	function uninit()
@@ -1791,21 +1798,26 @@ class mf_webshop
 					$obj_form->mail_data['content'] = $obj_form->get_page_content_for_email();
 					//$obj_form->mail_data['subject'] = $obj_form->page_content_data['subject'];
 
-					if($data['obj_form']->email_visitor != '')
+					if(isset($data['obj_form']->answer_data['email']) && $data['obj_form']->answer_data['email'] != '')
 					{
-						if($data['obj_form']->email_admin != '' && strpos($data['obj_form']->email_admin, "<"))
+						if(isset($data['obj_form']->answer_data['name']) && $data['obj_form']->answer_data['name'] != '')
+						{
+							$name_temp = $data['obj_form']->answer_data['name'];
+						}
+
+						else if($data['obj_form']->email_admin != '' && strpos($data['obj_form']->email_admin, "<"))
 						{
 							$arr_mail_from = explode("<", $data['obj_form']->email_admin);
 
-							$mail_from_name = $arr_mail_from[0];
+							$name_temp = $arr_mail_from[0];
 						}
 
 						else
 						{
-							$mail_from_name = get_bloginfo('name');
+							$name_temp = get_bloginfo('name');
 						}
 
-						$obj_form->mail_data['headers'] = "From: ".$mail_from_name." <".$data['obj_form']->email_visitor.">\r\n";
+						$obj_form->mail_data['headers'] = "From: ".$name_temp." <".$data['obj_form']->answer_data['email'].">\r\n";
 					}
 
 					$obj_form->send_transactional_email();
@@ -2014,9 +2026,7 @@ class mf_webshop
 
 		if($data['paid'] > 0 && $data['user_id'] > 0)
 		{
-			$amount = $data['paid'];
-
-			if($amount > 0)
+			if($data['paid'] > 0)
 			{
 				$meta_key = 'profile_webshop_payment';
 				$meta_value = get_the_author_meta($meta_key, $data['user_id']);
@@ -2471,7 +2481,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'show_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"heading", "checkbox", "categories", "categories_v2", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
+						'condition_value' => '"heading", "checkbox", "categories", "categories_v2", "custom_categories", "event", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
 					),
 				),
 				array(
@@ -3776,90 +3786,109 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_templates()
+	function get_templates($data)
 	{
 		$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
 
 		$obj_base = new mf_base();
 		$out = $obj_base->get_templates(array('lost_connection'));
 
-		$out .= "<script type='text/template' id='template_product_message'>
-			<li class='info_text'>
-				<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
-			</li>
-		</script>
+		switch($data['type'])
+		{
+			case 'events':
+				$out .= "<script type='text/template' id='template_event_message'>
+					<li class='info_text'>
+						<p>".__("I could not find any events", 'lang_webshop')."</p>
+					</li>
+				</script>
 
-		<script type='text/template' id='template_product_item'>
-			<li id='product_<%= product_id %>'<%= (product_url != '' ? '' : ' class=ghost') %>>
-				<div class='product_heading product_column'>
-					<h2>
-						<% if(product_url != '')
+				<script type='text/template' id='template_event_item'>
+					<li id='product_<%= product_id %>'>
+						<h2><%= post_title %></h2>
+					</li>
+				</script>";
+			break;
+
+			case 'products':
+				$out .= "<script type='text/template' id='template_product_message'>
+					<li class='info_text'>
+						<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
+					</li>
+				</script>
+
+				<script type='text/template' id='template_product_item'>
+					<li id='product_<%= product_id %>'<%= (product_url != '' ? '' : ' class=ghost') %>>
+						<div class='product_heading product_column'>
+							<h2>
+								<% if(product_url != '')
+								{ %>
+									<a href='<%= product_url %>'><%= product_title %></a>
+								<% }
+
+								else
+								{ %>
+									<span><%= product_title %></span>
+								<% } %>
+							</h2>
+							<% if(product_location != '')
+							{ %>
+								<p class='product_location'><%= product_location %></p>
+							<% }
+
+							if(product_clock != '')
+							{ %>
+								<span class='product_clock'><%= product_clock %></span>
+							<% } %>
+						</div>
+
+						<div class='product_image_container'>
+							<% if(product_url != '')
+							{ %>
+								<a href='<%= product_url %>'>
+							<% } %>
+
+								<%= product_image %>
+
+							<% if(product_url != '')
+							{ %>
+								</a>
+							<% }
+
+							if(product_data != '')
+							{ %>
+								<div class='product_data'><%= product_data %></div>
+							<% } %>
+						</div>
+
+						<ul class='product_meta product_column'>
+							<% _.each(product_meta, function(meta)
+							{ %>
+								<li class='<%= meta.class %>'>
+									<%= meta.content %>
+								</li>
+							<% }); %>
+						</ul>
+
+						<% if(product_description != '')
 						{ %>
-							<a href='<%= product_url %>'><%= product_title %></a>
-						<% }
-
-						else
+							<div class='product_description product_column'>
+								<%= product_description %>
+							</div>
+						<% } %>"
+						/*."<% if(product_has_email == 1 || 1 == 1)
+						{ %>"*/
+							// This can't be removed until '#product_result_search .products' can be checked and work
+							.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
+						//."<% } %>"
+						."<% if(product_url != '' && product_has_read_more == false)
 						{ %>
-							<span><%= product_title %></span>
-						<% } %>
-					</h2>
-					<% if(product_location != '')
-					{ %>
-						<p class='product_location'><%= product_location %></p>
-					<% }
-
-					if(product_clock != '')
-					{ %>
-						<span class='product_clock'><%= product_clock %></span>
-					<% } %>
-				</div>
-
-				<div class='product_image_container'>
-					<% if(product_url != '')
-					{ %>
-						<a href='<%= product_url %>'>
-					<% } %>
-
-						<%= product_image %>
-
-					<% if(product_url != '')
-					{ %>
-						</a>
-					<% }
-
-					if(product_data != '')
-					{ %>
-						<div class='product_data'><%= product_data %></div>
-					<% } %>
-				</div>
-
-				<ul class='product_meta product_column'>
-					<% _.each(product_meta, function(meta)
-					{ %>
-						<li class='<%= meta.class %>'>
-							<%= meta.content %>
-						</li>
-					<% }); %>
-				</ul>
-
-				<% if(product_description != '')
-				{ %>
-					<div class='product_description product_column'>
-						<%= product_description %>
-					</div>
-				<% } %>"
-				/*."<% if(product_has_email == 1 || 1 == 1)
-				{ %>"*/
-					// This can't be removed until '#product_result_search .products' can be checked and work
-					.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
-				//."<% } %>"
-				."<% if(product_url != '' && product_has_read_more == false)
-				{ %>
-					<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
-				<% } %>"
-				.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
-			."</li>
-		</script>";
+							<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
+						<% } %>"
+						.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
+					."</li>
+				</script>";
+			break;
+		}
 
 		return $out;
 	}
@@ -3995,6 +4024,8 @@ class mf_webshop
 		if(!isset($this->post_name_for_type[$this->option_type][$type]))
 		{
 			$this->post_name_for_type[$this->option_type][$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = '".$this->meta_prefix."document_type' AND meta_value = %s LIMIT 0, 1", $this->post_type_document_type.$this->option_type, 'publish', $type));
+
+			//do_log("Get post name for type (".$type.") -> ".$wpdb->last_query);
 		}
 
 		return $this->post_name_for_type[$this->option_type][$type];
@@ -4083,6 +4114,11 @@ class mf_webshop
 
 							foreach($data['meta'] as $category_id)
 							{
+								if(is_array($category_id))
+								{
+									do_log("Is Array: ".var_export($category_id, true)." (".var_export($data['meta'], true).")");
+								}
+
 								$category_title = get_post_title($category_id);
 
 								$content .= ($i > 0 ? ", " : "").$category_title;
@@ -5005,8 +5041,6 @@ class mf_webshop_import extends mf_import
 
 		$saved_option = false;
 
-		//$obj_webshop = new mf_webshop();
-
 		foreach($this->arr_type as $type)
 		{
 			$result = $this->obj_webshop->get_post_type_info(array('type' => $type, 'single' => false));
@@ -5269,7 +5303,7 @@ class widget_webshop_search extends WP_Widget
 				.$this->obj_webshop->get_quote_button()
 				.$this->obj_webshop->get_form_fields_passthru()
 			."</form>"
-			.$this->obj_webshop->get_templates()
+			.$this->obj_webshop->get_templates(array('type' => 'products'))
 		.$after_widget;
 	}
 
@@ -5843,7 +5877,7 @@ class widget_webshop_recent extends WP_Widget
 	{
 		$widget_ops = array(
 			'classname' => 'webshop_recent webshop_widget',
-			'description' => __("Display recent", 'lang_webshop')
+			'description' => __("Display Recent", 'lang_webshop')
 		);
 
 		$this->arr_default = array(
@@ -5940,6 +5974,80 @@ class widget_webshop_recent extends WP_Widget
 				}
 
 			echo "</div>
+		</div>";
+	}
+}
+
+class widget_webshop_events extends WP_Widget
+{
+	function __construct()
+	{
+		$widget_ops = array(
+			'classname' => 'webshop_events webshop_widget',
+			'description' => __("Display Events", 'lang_webshop')
+		);
+
+		$this->arr_default = array(
+			'webshop_heading' => '',
+			'webshop_option_type' => '',
+			'webshop_amount' => 3,
+		);
+
+		$this->obj_webshop = new mf_webshop();
+
+		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+		parent::__construct('webshop-events-widget', $name_webshop." (".__("Events", 'lang_webshop').")", $widget_ops);
+	}
+
+	function widget($args, $instance)
+	{
+		global $wpdb;
+
+		extract($args);
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		if($instance['webshop_amount'] > 0)
+		{
+			echo $before_widget;
+
+				if($instance['webshop_heading'] != '')
+				{
+					echo $before_title
+						.$instance['webshop_heading']
+					.$after_title;
+				}
+
+				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".date("Y-m-d")."' data-amount='".$instance['webshop_amount']."'><li><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+			.$after_widget
+			.$this->obj_webshop->get_templates(array('type' => 'events'));
+		}
+	}
+
+	function update($new_instance, $old_instance)
+	{
+		$instance = $old_instance;
+
+		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
+
+		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
+		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
+
+		return $instance;
+	}
+
+	function form($instance)
+	{
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		echo "<div class='mf_form'>"
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			."<div class='flex_flow'>"
+				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
+				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
+			."</div>
 		</div>";
 	}
 }
