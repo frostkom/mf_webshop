@@ -3796,6 +3796,8 @@ class mf_webshop
 		switch($data['type'])
 		{
 			case 'events':
+				$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
+
 				$out .= "<script type='text/template' id='template_event_message'>
 					<li class='info_text'>
 						<p>".__("I could not find any events", 'lang_webshop')."</p>
@@ -3804,7 +3806,24 @@ class mf_webshop
 
 				<script type='text/template' id='template_event_item'>
 					<li class='event_item calendar_feed_<%= feed_id %>'>
-						<h2><span><%= post_title %></span><span>(<%= product_categories %>)</span></h2>
+						<div>
+							<span class='time'><%= post_start_hour %><sup><%= post_start_minute %></sup></span>
+							<span class='date'><%= post_start_date %></span>
+						</div>
+						<div>
+							<h2><a href='<%= product_url %>'><%= post_title %></a><span>(<%= product_categories %>)</span></h2>
+							<p>
+								<span class='duration'><i class='far fa-clock'></i> <%= post_duration %></span>
+								<% if(post_location != '')
+								{ %>
+									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= post_location %></span>
+								<% } %>
+							</p>
+							<p>".$name_product.": <%= product_title %></p>
+						</div>
+						<div>
+							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
+						</div>
 					</li>
 				</script>";
 			break;

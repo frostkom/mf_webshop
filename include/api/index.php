@@ -81,7 +81,7 @@ switch($type)
 
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
-					$post_url = get_permalink($post_id);
+					//$post_url = get_permalink($post_id);
 
 					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
 					$post_start = $r->post_start;
@@ -89,15 +89,20 @@ switch($type)
 					$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
 
 					$json_output['event_response'][] = array(
-						'product_id' => $product_id,
+						//'product_id' => $product_id,
 						'product_title' => $product_title,
 						'product_categories' => $product_categories,
+						'product_url' => get_permalink($product_id),
 						'feed_id' => $feed_id,
-						'post_id' => $post_id,
+						//'post_id' => $post_id,
 						'post_title' => $post_title,
-						'post_url' => $post_url,
-						'post_start' => $post_start,
-						'post_end' => $post_end,
+						//'post_url' => get_permalink($post_id),
+						//'post_start' => $post_start,
+						'post_start_hour' => date("H", strtotime($post_start)),
+						'post_start_minute' => date("i", strtotime($post_start)),
+						'post_start_date' => (date("Y-m-d", strtotime($post_start)) == date("Y-m-d") ? __("Today", 'lang_webshop') : date("j", strtotime($post_start))." ".substr(month_name(date("m", strtotime($post_start))), 0, 3)),
+						//'post_end' => $post_end,
+						'post_duration' => date("H:i", strtotime($post_start))." - ".date("H:i", strtotime($post_end)),
 						'post_location' => $post_location,
 					);
 				}

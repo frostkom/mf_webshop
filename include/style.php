@@ -368,8 +368,12 @@ echo "@media all
 		{
 			background: #f2f2f2;
 			border-left: .3em solid #e2e2e2;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
 			margin-bottom: .5em;
-			padding: .5em;
+			padding: 1em 1em 1em .5em;
 			transition: all .5s ease;
 		}
 
@@ -379,17 +383,73 @@ echo "@media all
 				border-left-width: .6em;
 			}
 
-			#wrapper .widget.webshop_events li h2
+			#wrapper .widget.webshop_events li div
 			{
-				font-weight: normal;
-				margin-bottom: 0;
+				-webkit-box-flex: 1 1 auto;
+				-webkit-flex: 1 1 auto;
+				-ms-flex: 1 1 auto;
+				flex: 1 1 auto;
 			}
-			
-				#wrapper .widget.webshop_events li h2 span:last-of-type
+
+				#wrapper .widget.webshop_events li div:first-of-type
 				{
-					margin-left: .5em;
-					font-size: .7em;
-				}";
+					-webkit-box-flex: 0 0 4em;
+					-webkit-flex: 0 0 4em;
+					-ms-flex: 0 0 4em;
+					flex: 0 0 4em;
+				}
+
+					#wrapper .widget.webshop_events li div:first-of-type .time
+					{
+						font-size: 2em;
+					}
+
+						#wrapper .widget.webshop_events li div:first-of-type sup
+						{
+							font-size: .5em;
+						}
+
+					#wrapper .widget.webshop_events li div:first-of-type .date
+					{
+						text-transform: uppercase;
+					}
+
+				#wrapper .widget.webshop_events li h2
+				{
+					font-weight: normal;
+					margin-bottom: 0;
+				}
+
+					#wrapper .widget.webshop_events li h2 a
+					{
+						display: inline;
+						text-transform: uppercase;
+					}
+				
+					#wrapper .widget.webshop_events li h2 span
+					{
+						margin-left: .5em;
+						font-size: .7em;
+					}
+					
+				#wrapper .widget.webshop_events li div:last-of-type
+				{
+					-webkit-box-flex: 0 0 6em;
+					-webkit-flex: 0 0 6em;
+					-ms-flex: 0 0 6em;
+					flex: 0 0 6em;
+					text-align: center;
+				}
+				
+					#wrapper .widget.webshop_events li div:last-of-type a
+					{
+						background: #666;
+						border-radius: 2em;
+						color: #fff;
+						top: 50%;
+						-webkit-transform: translateY(-50%);
+						transform: translateY(-50%);
+					}";
 
 		$obj_calendar = new mf_calendar();
 
@@ -405,7 +465,7 @@ echo "@media all
 				border-left-color: ".$post_color.";
 			}
 			
-				#wrapper .widget.webshop_events li h2 span:first-of-type
+				#wrapper .widget.webshop_events li.calendar_feed_".$post_id." h2 a
 				{
 					color: ".$post_color.";
 				}";
