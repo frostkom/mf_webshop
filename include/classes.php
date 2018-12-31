@@ -3807,8 +3807,8 @@ class mf_webshop
 				<script type='text/template' id='template_event_item'>
 					<li class='event_item calendar_feed_<%= feed_id %>'>
 						<div>
-							<span class='time'><%= post_start_hour %><sup><%= post_start_minute %></sup></span>
-							<span class='date'><%= post_start_date %></span>
+							<div><%= post_start_row_1 %></div>
+							<div><%= post_start_row_2 %></div>
 						</div>
 						<div>
 							<h2><a href='<%= product_url %>'><%= post_title %></a><span>(<%= product_categories %>)</span></h2>

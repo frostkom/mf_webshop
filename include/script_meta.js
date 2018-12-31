@@ -24,10 +24,5 @@ jQuery(function($)
 		{
 			connect_obj.val(out);
 		}
-
-		/*else
-		{
-			console.log('Do something else (' + dom_obj.attr('id') + ' connected from ' + connect_obj.attr('id') + ')');
-		}*/
 	});
 });

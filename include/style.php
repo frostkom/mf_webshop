@@ -383,7 +383,7 @@ echo "@media all
 				border-left-width: .6em;
 			}
 
-			#wrapper .widget.webshop_events li div
+			#wrapper .widget.webshop_events li > div
 			{
 				-webkit-box-flex: 1 1 auto;
 				-webkit-flex: 1 1 auto;
@@ -391,7 +391,7 @@ echo "@media all
 				flex: 1 1 auto;
 			}
 
-				#wrapper .widget.webshop_events li div:first-of-type
+				#wrapper .widget.webshop_events li > div:first-of-type
 				{
 					-webkit-box-flex: 0 0 4em;
 					-webkit-flex: 0 0 4em;
@@ -399,17 +399,18 @@ echo "@media all
 					flex: 0 0 4em;
 				}
 
-					#wrapper .widget.webshop_events li div:first-of-type .time
+					#wrapper .widget.webshop_events li > div:first-of-type > div:first-of-type
 					{
 						font-size: 2em;
 					}
 
-						#wrapper .widget.webshop_events li div:first-of-type sup
+						#wrapper .widget.webshop_events li > div:first-of-type sup
 						{
 							font-size: .5em;
+							white-space: nowrap;
 						}
 
-					#wrapper .widget.webshop_events li div:first-of-type .date
+					#wrapper .widget.webshop_events li > div:first-of-type > div:last-of-type
 					{
 						text-transform: uppercase;
 					}
@@ -425,14 +426,14 @@ echo "@media all
 						display: inline;
 						text-transform: uppercase;
 					}
-				
+
 					#wrapper .widget.webshop_events li h2 span
 					{
 						margin-left: .5em;
 						font-size: .7em;
 					}
-					
-				#wrapper .widget.webshop_events li div:last-of-type
+
+				#wrapper .widget.webshop_events li > div:last-of-type
 				{
 					-webkit-box-flex: 0 0 6em;
 					-webkit-flex: 0 0 6em;
@@ -440,8 +441,8 @@ echo "@media all
 					flex: 0 0 6em;
 					text-align: center;
 				}
-				
-					#wrapper .widget.webshop_events li div:last-of-type a
+
+					#wrapper .widget.webshop_events li > div:last-of-type a
 					{
 						background: #666;
 						border-radius: 2em;
@@ -464,7 +465,7 @@ echo "@media all
 			{
 				border-left-color: ".$post_color.";
 			}
-			
+
 				#wrapper .widget.webshop_events li.calendar_feed_".$post_id." h2 a
 				{
 					color: ".$post_color.";

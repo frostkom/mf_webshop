@@ -88,6 +88,50 @@ switch($type)
 					//$post_start = get_post_meta($post_id, $obj_calendar->meta_prefix.'start', true);
 					$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
 
+					$post_start_date = date("Y-m-d", strtotime($post_start));
+					$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
+					$post_start_day = date("j", strtotime($post_start));
+
+					$post_end_date = date("Y-m-d", strtotime($post_end));
+					$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
+					$post_end_day = date("j", strtotime($post_end));
+
+					if($post_start_date == date("Y-m-d"))
+					{
+						$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
+						$post_start_row_2 = __("Today", 'lang_webshop');
+					}
+
+					else
+					{
+						$post_start_row_1 = $post_start_day;
+						
+						if($post_end_date != $post_start_date)
+						{
+							$post_start_row_1 .= "<sup>-".$post_end_day." ".$post_end_month_name."</sup>";
+						}
+
+						$post_start_row_2 = $post_start_month_name;
+					}
+
+					$post_duration = "";
+
+					if($post_end_date != $post_start_date)
+					{
+						$post_duration .= "(".$post_start_day." ".$post_start_month_name.") ";
+					}
+
+					$post_duration .= date("H:i", strtotime($post_start))." - ";
+
+					if($post_end_date != $post_start_date)
+					{
+						$post_duration .= "(".$post_end_day." ".$post_end_month_name.") ";
+					}
+						
+					$post_duration .= date("H:i", strtotime($post_end));
+
+
+
 					$json_output['event_response'][] = array(
 						//'product_id' => $product_id,
 						'product_title' => $product_title,
@@ -98,11 +142,10 @@ switch($type)
 						'post_title' => $post_title,
 						//'post_url' => get_permalink($post_id),
 						//'post_start' => $post_start,
-						'post_start_hour' => date("H", strtotime($post_start)),
-						'post_start_minute' => date("i", strtotime($post_start)),
-						'post_start_date' => (date("Y-m-d", strtotime($post_start)) == date("Y-m-d") ? __("Today", 'lang_webshop') : date("j", strtotime($post_start))." ".substr(month_name(date("m", strtotime($post_start))), 0, 3)),
+						'post_start_row_1' => $post_start_row_1,
+						'post_start_row_2' => $post_start_row_2,
 						//'post_end' => $post_end,
-						'post_duration' => date("H:i", strtotime($post_start))." - ".date("H:i", strtotime($post_end)),
+						'post_duration' => $post_duration,
 						'post_location' => $post_location,
 					);
 				}

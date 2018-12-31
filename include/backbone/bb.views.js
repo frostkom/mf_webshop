@@ -153,7 +153,7 @@ var WebshopView = Backbone.View.extend(
 			amount = response.length,
 			html = '';
 
-		console.log(widget_id , amount , response);
+		/*console.log(widget_id , amount , response);*/
 
 		if(amount > 0)
 		{
@@ -202,8 +202,6 @@ var WebshopView = Backbone.View.extend(
 					function(msg)
 					{
 						jQuery(".product_search input[type=range]").parent(".form_textfield").addClass('hide');
-
-						/*console.log(typeof msg == 'string' ? msg : 'Error retrieving GPS coordinates');*/
 					});
 				}
 			}
@@ -671,8 +669,6 @@ var WebshopView = Backbone.View.extend(
 
 				else
 				{
-					console.log("Something went wrong with form URL...");
-
 					if(typeof process_url == 'function')
 					{
 						process_url(script_webshop_views.site_url);
