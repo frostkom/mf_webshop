@@ -153,8 +153,6 @@ var WebshopView = Backbone.View.extend(
 			amount = response.length,
 			html = '';
 
-		/*console.log(widget_id , amount , response);*/
-
 		if(amount > 0)
 		{
 			var dom_template = jQuery("#template_event_item").html();
@@ -174,7 +172,20 @@ var WebshopView = Backbone.View.extend(
 			jQuery("#" + widget_id).html(html);
 		}
 
-		this.show_quote_request_button();
+		var event_amount = this.model.get('event_amount'),
+			event_rest = event_amount - amount;
+
+		if(event_rest > 0)
+		{
+			var dom_template = jQuery("#template_event_load_more").html();
+
+			jQuery("#" + widget_id).append(_.template(dom_template)({'event_rest': event_rest}));
+		}
+
+		else
+		{
+			jQuery("#" + widget_id).children(".event_load_more").remove();
+		}
 	},
 
 	if_search_view: function()

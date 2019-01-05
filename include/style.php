@@ -373,6 +373,7 @@ echo "@media all
 			display: -webkit-flex;
 			display: flex;
 			margin-bottom: .5em;
+			overflow: hidden;
 			padding: 1em 1em 1em .5em;
 			transition: all .5s ease;
 		}
@@ -391,7 +392,7 @@ echo "@media all
 				flex: 1 1 auto;
 			}
 
-				#wrapper .widget.webshop_events li > div:first-of-type
+				#wrapper .widget.webshop_events li .event_date
 				{
 					-webkit-box-flex: 0 0 4em;
 					-webkit-flex: 0 0 4em;
@@ -399,19 +400,34 @@ echo "@media all
 					flex: 0 0 4em;
 				}
 
-					#wrapper .widget.webshop_events li > div:first-of-type > div:first-of-type
+					#wrapper .widget.webshop_events li .event_date > div:first-of-type
 					{
 						font-size: 2em;
 					}
 
-						#wrapper .widget.webshop_events li > div:first-of-type sup
+						#wrapper .widget.webshop_events li .event_date sup
 						{
 							font-size: .5em;
 							white-space: nowrap;
 						}
 
-					#wrapper .widget.webshop_events li > div:first-of-type > div:last-of-type
+						#wrapper .widget.webshop_events li .event_date > div:first-of-type span
+						{
+							float: left;
+							width: 60%;
+						}
+
+							#wrapper .widget.webshop_events li .event_date > div:first-of-type span + span
+							{
+								font-size: 0.35em;
+								padding-top: 0.5em;
+								padding-left: 5%;
+								width: 35%;
+							}
+
+					#wrapper .widget.webshop_events li .event_date > div:last-of-type
 					{
+						clear: both;
 						text-transform: uppercase;
 					}
 
@@ -433,7 +449,7 @@ echo "@media all
 						font-size: .7em;
 					}
 
-				#wrapper .widget.webshop_events li > div:last-of-type
+				#wrapper .widget.webshop_events li .event_url
 				{
 					-webkit-box-flex: 0 0 6em;
 					-webkit-flex: 0 0 6em;
@@ -442,15 +458,29 @@ echo "@media all
 					text-align: center;
 				}
 
-					#wrapper .widget.webshop_events li > div:last-of-type a
+					#wrapper .widget.webshop_events li .event_url a
 					{
 						background: #666;
 						border-radius: 2em;
 						color: #fff;
+						opacity: 0;
 						top: 50%;
-						-webkit-transform: translateY(-50%);
-						transform: translateY(-50%);
-					}";
+						transition: all .8s ease;
+						-webkit-transform: translateY(100%, -50%);
+						transform: translate(100%, -50%);
+					}
+					
+						#wrapper .widget.webshop_events li:hover .event_url a
+						{
+							opacity: 1;
+							-webkit-transform: translateY(0%, -50%);
+							transform: translate(0%, -50%);
+						}
+						
+		.widget.webshop_events li.event_load_more
+		{
+			text-align: center;
+		}";
 
 		$obj_calendar = new mf_calendar();
 

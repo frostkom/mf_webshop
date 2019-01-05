@@ -3806,11 +3806,11 @@ class mf_webshop
 
 				<script type='text/template' id='template_event_item'>
 					<li class='event_item calendar_feed_<%= feed_id %>'>
-						<div>
+						<div class='event_date'>
 							<div><%= post_start_row_1 %></div>
 							<div><%= post_start_row_2 %></div>
 						</div>
-						<div>
+						<div class='event_info'>
 							<h2><a href='<%= product_url %>'><%= post_title %></a><span>(<%= product_categories %>)</span></h2>
 							<p>
 								<span class='duration'><i class='far fa-clock'></i> <%= post_duration %></span>
@@ -3821,10 +3821,16 @@ class mf_webshop
 							</p>
 							<p>".$name_product.": <%= product_title %></p>
 						</div>
-						<div>
+						<div class='event_url'>
 							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 						</div>
 					</li>
+				</script>
+				
+				<script type='text/template' id='template_event_load_more'>
+					<li class='event_load_more form_button'>"
+						.show_button(array('text' => __("Display More Events (<%= event_rest %>)", 'lang_webshop'), 'class' => "button"))
+					."</li>
 				</script>";
 			break;
 

@@ -66,14 +66,23 @@ switch($type)
 
 			if(count($arr_product_ids) > 0)
 			{
+				$i = 0;
+
 				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, calendar.meta_value AS calendar_id, start.meta_value AS post_start 
 					FROM ".$wpdb->postmeta." AS calendar 
 					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = calendar.post_id AND calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'
 					INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'
 				WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."') AND start.meta_value >= %s ORDER BY start.meta_value ASC", 'mf_calendar_event', $dteDate));
 
+				$json_output['event_amount'] = $wpdb->num_rows;
+
 				foreach($result as $r)
 				{
+					if($i >= $intAmount)
+					{
+						break;
+					}
+
 					$feed_id = $r->calendar_id;
 					$product_id = $arr_product_translate_ids[$feed_id]['product_id'];
 					$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
@@ -104,11 +113,11 @@ switch($type)
 
 					else
 					{
-						$post_start_row_1 = $post_start_day;
-						
+						$post_start_row_1 = "<span>".$post_start_day."</span>";
+
 						if($post_end_date != $post_start_date)
 						{
-							$post_start_row_1 .= "<sup>-".$post_end_day." ".$post_end_month_name."</sup>";
+							$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
 						}
 
 						$post_start_row_2 = $post_start_month_name;
@@ -127,10 +136,8 @@ switch($type)
 					{
 						$post_duration .= "(".$post_end_day." ".$post_end_month_name.") ";
 					}
-						
+
 					$post_duration .= date("H:i", strtotime($post_end));
-
-
 
 					$json_output['event_response'][] = array(
 						//'product_id' => $product_id,
@@ -148,6 +155,8 @@ switch($type)
 						'post_duration' => $post_duration,
 						'post_location' => $post_location,
 					);
+
+					$i++;
 				}
 			}
 
