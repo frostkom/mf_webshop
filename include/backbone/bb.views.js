@@ -14,15 +14,19 @@ var WebshopView = Backbone.View.extend(
 
 	initialize: function()
 	{
-		this.model.on("change:event_response", this.show_events, this);
+		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
 
 		this.is_favorites_view = jQuery(".product_favorites").length > 0;
-		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
 		this.has_product_result = jQuery("#product_result_search").length > 0;
 
 		this.get_products_storage();
+
+		/* Events */
+		this.model.on("change:event_response", this.show_events, this);
+
+		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
 
 		if(this.is_favorites_view)
 		{
@@ -50,7 +54,7 @@ var WebshopView = Backbone.View.extend(
 
 		else if(this.is_events_view)
 		{
-			this.load_events();
+			this.load_all_events();
 		}
 
 		else
@@ -84,9 +88,10 @@ var WebshopView = Backbone.View.extend(
 		"click #product_result_search > li": "set_last_product",
 
 		/* Favorites */
-		"click .quote_button .button_print": "print_favorites"
+		"click .quote_button .button_print": "print_favorites",
 
 		/* Events */
+		"click .event_load_more button": "load_more_button"
 	},
 
 	search_all_products: function(e)
@@ -128,64 +133,6 @@ var WebshopView = Backbone.View.extend(
 	{
 		jQuery(".favorite_result").addClass('hide');
 		jQuery(".favorite_fallback").removeClass('hide');
-	},
-
-	load_events: function()
-	{
-		var self = this;
-
-		jQuery(".webshop_widget.webshop_events").each(function()
-		{
-			var dom_child = jQuery(this).children("ul"),
-				widget_id = dom_child.attr('id'),
-				option_type = dom_child.attr('data-option-date') || '',
-				date = dom_child.attr('data-date'),
-				amount = dom_child.attr('data-amount');
-
-			self.model.getPage("type=events&strID=" + widget_id + "&strOptionType=" + option_type + "&dteDate=" + date + "&intAmount=" + amount);
-		});
-	},
-
-	show_events: function()
-	{
-		var widget_id = this.model.get('widget_id'),
-			response = this.model.get('event_response'),
-			amount = response.length,
-			html = '';
-
-		if(amount > 0)
-		{
-			var dom_template = jQuery("#template_event_item").html();
-
-			for(var i = 0; i < amount; i++)
-			{
-				html += _.template(dom_template)(response[i]);
-			}
-
-			jQuery("#" + widget_id).html(html);
-		}
-
-		else
-		{
-			html = _.template(jQuery("#template_event_message").html())('');
-
-			jQuery("#" + widget_id).html(html);
-		}
-
-		var event_amount = this.model.get('event_amount'),
-			event_rest = event_amount - amount;
-
-		if(event_rest > 0)
-		{
-			var dom_template = jQuery("#template_event_load_more").html();
-
-			jQuery("#" + widget_id).append(_.template(dom_template)({'event_rest': event_rest}));
-		}
-
-		else
-		{
-			jQuery("#" + widget_id).children(".event_load_more").remove();
-		}
 	},
 
 	if_search_view: function()
@@ -832,6 +779,103 @@ var WebshopView = Backbone.View.extend(
 
 			this.show_map_coords(true);
 		}
+	},
+
+	load_events: function(dom_obj)
+	{
+		dom_obj.children(".event_load_more").remove();
+
+		if(dom_obj.children(".event_spinner").length == 0)
+		{
+			dom_obj.append(_.template(jQuery("#template_event_spinner").html())(''));
+		}
+
+		var widget_id = dom_obj.attr('id'),
+			option_type = dom_obj.attr('data-option-date') || '',
+			date = dom_obj.attr('data-date'),
+			limit = dom_obj.attr('data-limit'),
+			amount = dom_obj.attr('data-amount');
+
+		var get_vars = "type=events&strID=" + widget_id + "&dteDate=" + date + "&intAmount=" + amount;
+
+		if(option_type != '')
+		{
+			get_vars += "&strOptionType=" + option_type;
+		}
+
+		if(limit > 0)
+		{
+			get_vars += "&intLimit=" + limit;
+		}
+
+		this.model.getPage(get_vars);
+	},
+
+	load_all_events: function()
+	{
+		var self = this;
+
+		jQuery(".webshop_widget.webshop_events").each(function()
+		{
+			self.load_events(jQuery(this).children("ul"));
+		});
+	},
+
+	show_or_hide_load_more: function(widget_id, amount)
+	{
+		var event_amount = this.model.get('event_amount'),
+			event_rest = event_amount - amount;
+
+		if(event_rest > 0)
+		{
+			var dom_template = jQuery("#template_event_load_more").html();
+
+			jQuery("#" + widget_id).append(_.template(dom_template)({'event_rest': event_rest}));
+		}
+	},
+
+	show_events: function()
+	{
+		var widget_id = this.model.get('widget_id'),
+			response = this.model.get('event_response'),
+			amount = response.length,
+			html = '';
+
+		jQuery("#" + widget_id).children(".event_spinner").remove();
+
+		if(amount > 0)
+		{
+			var dom_template = jQuery("#template_event_item").html();
+
+			for(var i = 0; i < amount; i++)
+			{
+				html += _.template(dom_template)(response[i]);
+			}
+
+			jQuery("#" + widget_id).append(html);
+		}
+
+		else
+		{
+			html = _.template(jQuery("#template_event_message").html())('');
+
+			jQuery("#" + widget_id).html(html);
+		}
+
+		this.show_or_hide_load_more(widget_id, amount);
+	},
+
+	load_more_button: function(e)
+	{
+		var dom_list = jQuery(e.currentTarget).parents(".webshop_events").children("ul"),
+			limit = dom_list.attr('data-limit'),
+			amount = dom_list.attr('data-amount');
+
+		dom_list.attr({'data-limit': (parseInt(amount) + parseInt(limit))});
+
+		this.load_events(dom_list);
+
+		return false;
 	}
 });
 

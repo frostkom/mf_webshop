@@ -1828,6 +1828,11 @@ class mf_webshop
 					$i++;
 				}
 
+				if(!isset($obj_form->answer_id))
+				{
+					do_log("AnswerID not set: ".var_export($obj_form, true));
+				}
+
 				$this->insert_sent(array('product_id' => $product_id, 'answer_id' => $obj_form->answer_id));
 			}
 		}
@@ -2887,7 +2892,7 @@ class mf_webshop
 					$cols['category'] = get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop'));
 				}
 
-				$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone'); //address
+				$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone', 'event'); //address
 				$arr_columns_admin = array('email', 'phone');
 
 				foreach($arr_columns as $column)
@@ -2905,7 +2910,6 @@ class mf_webshop
 							if($column_icon != '')
 							{
 								$column_title = $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $column_title, 'nbsp' => false));
-								//$column_title = "<i class='fa fa-".$column_icon." fa-lg' title='".$column_title."'></i>";
 							}
 
 							$cols[$column] = $column_title;
@@ -3077,6 +3081,22 @@ class mf_webshop
 						$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
 
 						echo "<a href='".format_phone_no($post_meta)."'>".$post_meta."</a>";
+					break;
+
+					case 'event':
+						$post_name = $this->get_post_name_for_type($col);
+						$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+
+						if(is_plugin_active("mf_calendar/index.php"))
+						{
+							$obj_calendar = new mf_calendar();
+							echo $obj_calendar->get_amount_of_posts_for_td($post_meta);
+						}
+
+						else
+						{
+							do_log("MF Calendar does not seam to be activated");
+						}
 					break;
 				}
 
@@ -3786,6 +3806,13 @@ class mf_webshop
 		return $out;
 	}
 
+	function get_spinner_template()
+	{
+		return "<li class='event_spinner'>
+			<i class='fa fa-spinner fa-spin fa-3x'></i>
+		</li>";
+	}
+
 	function get_templates($data)
 	{
 		$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
@@ -3803,6 +3830,10 @@ class mf_webshop
 						<p>".__("I could not find any events", 'lang_webshop')."</p>
 					</li>
 				</script>
+
+				<script type='text/template' id='template_event_spinner'>"
+					.$this->get_spinner_template()
+				."</script>
 
 				<script type='text/template' id='template_event_item'>
 					<li class='event_item calendar_feed_<%= feed_id %>'>
@@ -4024,7 +4055,7 @@ class mf_webshop
 
 		$limit = $data['single'] == true ? " LIMIT 0, 1" : "";
 
-		$query = $wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '".$this->meta_prefix."document_type' AND meta_value = %s".$limit, $data['type']);
+		$query = $wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = %s".$limit, $this->post_type_document_type.$this->option_type, $this->meta_prefix.'document_type', $data['type']);
 
 		$result = $wpdb->get_results($query);
 
@@ -4048,7 +4079,7 @@ class mf_webshop
 
 		if(!isset($this->post_name_for_type[$this->option_type][$type]))
 		{
-			$this->post_name_for_type[$this->option_type][$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = '".$this->meta_prefix."document_type' AND meta_value = %s LIMIT 0, 1", $this->post_type_document_type.$this->option_type, 'publish', $type));
+			$this->post_name_for_type[$this->option_type][$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s LIMIT 0, 1", $this->post_type_document_type.$this->option_type, 'publish', $this->meta_prefix.'document_type', $type));
 
 			//do_log("Get post name for type (".$type.") -> ".$wpdb->last_query);
 		}
@@ -6044,7 +6075,7 @@ class widget_webshop_events extends WP_Widget
 					.$after_title;
 				}
 
-				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".date("Y-m-d")."' data-amount='".$instance['webshop_amount']."'><li><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".date("Y-m-d")."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template()."</ul>"
 			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
 		}

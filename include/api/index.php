@@ -28,6 +28,7 @@ switch($type)
 		$strID = check_var('strID');
 		$strOptionType = check_var('strOptionType');
 		$dteDate = check_var('dteDate', 'date', true, date("Y-m-d H:i:s"));
+		$intLimit = check_var('intLimit', 'int', true, '0');
 		$intAmount = check_var('intAmount');
 
 		$obj_calendar = new mf_calendar();
@@ -36,6 +37,7 @@ switch($type)
 
 		$json_output['widget_id'] = $strID;
 		$json_output['event_response'] = array();
+		$json_output['event_amount'] = 0;
 
 		$arr_product_ids = $arr_product_translate_ids = array();
 
@@ -72,7 +74,9 @@ switch($type)
 					FROM ".$wpdb->postmeta." AS calendar 
 					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = calendar.post_id AND calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'
 					INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'
-				WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."') AND start.meta_value >= %s ORDER BY start.meta_value ASC", 'mf_calendar_event', $dteDate));
+				WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."') AND start.meta_value >= %s ORDER BY start.meta_value ASC LIMIT ".$intLimit.", 1000", 'mf_calendar_event', $dteDate));
+
+				//$json_output['debug'] = $wpdb->last_query;
 
 				$json_output['event_amount'] = $wpdb->num_rows;
 

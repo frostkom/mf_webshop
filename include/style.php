@@ -255,7 +255,7 @@ echo "@media all
 
 		section p .fa
 		{
-			margin-right: 0.5em;
+			margin-right: .5em;
 		}
 
 	/* Widgets */
@@ -364,7 +364,12 @@ echo "@media all
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
-		echo ".widget.webshop_events li.event_item
+		echo ".widget.webshop_events li.event_spinner
+		{
+			text-align: center;
+		}
+		
+		.widget.webshop_events li.event_item
 		{
 			background: #f2f2f2;
 			border-left: .3em solid #e2e2e2;
@@ -374,8 +379,8 @@ echo "@media all
 			display: flex;
 			margin-bottom: .5em;
 			overflow: hidden;
-			padding: 1em 1em 1em .5em;
-			transition: all .5s ease;
+			padding: 1em 1em 1em .8em;
+			transition: all .8s ease;
 		}
 
 			.widget.webshop_events li.event_item:hover
@@ -419,8 +424,8 @@ echo "@media all
 
 							#wrapper .widget.webshop_events li .event_date > div:first-of-type span + span
 							{
-								font-size: 0.35em;
-								padding-top: 0.5em;
+								font-size: .35em;
+								padding-top: .5em;
 								padding-left: 5%;
 								width: 35%;
 							}
@@ -465,7 +470,7 @@ echo "@media all
 						color: #fff;
 						opacity: 0;
 						top: 50%;
-						transition: all .8s ease;
+						transition: all 1.2s ease;
 						-webkit-transform: translateY(100%, -50%);
 						transform: translate(100%, -50%);
 					}
@@ -526,7 +531,7 @@ echo "@media all
 				border: 1px solid #ccc;
 				font-size: 1.4em;
 				left: 0;
-				margin: 0.5em;
+				margin: .5em;
 				opacity: 1;
 				padding: 1em;
 				position: absolute;
