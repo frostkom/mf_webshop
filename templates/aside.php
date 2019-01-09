@@ -135,7 +135,7 @@ if(get_option('setting_show_categories') == 'yes')
 
 	if(!isset($cat_id)){	$cat_id = 0;}
 
-	list($list_output, $is_parent) = get_product_list_item(0, $cat_id);
+	list($list_output, $is_parent) = $obj_webshop->get_product_list_item(0, $cat_id);
 
 	$cart_output = $obj_webshop->get_cart();
 

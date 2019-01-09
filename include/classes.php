@@ -243,6 +243,47 @@ class mf_webshop
 		);
 	}
 
+	function get_symbols_for_select()
+	{
+		$obj_font_icons = new mf_font_icons();
+
+		$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
+
+		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
+		);
+
+		foreach($arr_icons as $icon)
+		{
+			$arr_data[$icon] = $icon;
+		}
+
+		return $arr_data;
+	}
+
+	function get_categories_for_select()
+	{
+		$arr_data = array();
+		get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'add_choose_here' => true, 'post_status' => 'publish'), $arr_data);
+
+		$obj_font_icons = new mf_font_icons();
+
+		foreach($arr_data as $key => $value)
+		{
+			$category_icon = get_post_meta($key, $this->meta_prefix.'category_icon', true);
+
+			$arr_data[$key] = "<span>"
+				.$obj_font_icons->get_symbol_tag(array(
+					'symbol' => $category_icon,
+					'class' => "category_".$key,
+				))
+				.$value
+			."</span>";
+		}
+
+		return $arr_data;
+	}
+
 	function has_categories()
 	{
 		global $wpdb;
@@ -314,6 +355,61 @@ class mf_webshop
 		}
 
 		return $option;
+	}
+
+	function get_product_list_item($post_id = 0, $current_post_id = 0)
+	{
+		global $wpdb;
+
+		$obj_webshop = new mf_webshop();
+
+		$out = "";
+		$is_ancestor = false;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND post_parent = '%d' ORDER BY menu_order ASC", $obj_webshop->post_type_categories, $post_id));
+
+		if($wpdb->num_rows > 0)
+		{
+			$out .= "<ul".($post_id > 0 ? " class='children'" : "").">";
+
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+					$post_title = $r->post_title;
+
+					$post_url = get_permalink($r);
+
+					list($list_output, $is_parent) = $this->get_product_list_item($post_id, $current_post_id);
+
+					$class = "";
+
+					if($post_id == $current_post_id)
+					{
+						$class = "current_page_item";
+
+						$is_ancestor = true;
+					}
+
+					else if($is_parent == true)
+					{
+						$class = "current_page_parent";
+
+						$is_ancestor = true;
+					}
+
+					$out .= "<li".($class != '' ? " class='".$class."'" : "").">
+						<a href='".$post_url."'>
+							<i class='fa fa-caret-right'></i>"
+							.$post_title
+						."</a>"
+						.$list_output
+					."</li>";
+				}
+
+			$out .= "</ul>";
+		}
+
+		return array($out, $is_ancestor);
 	}
 
 	function init()
@@ -2194,24 +2290,6 @@ class mf_webshop
 		$this->option_type = '';
 	}
 
-	function get_symbols_for_select()
-	{
-		$obj_font_icons = new mf_font_icons();
-
-		$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
-
-		$arr_data = array(
-			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-		);
-
-		foreach($arr_icons as $icon)
-		{
-			$arr_data[$icon] = $icon;
-		}
-
-		return $arr_data;
-	}
-
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $wpdb;
@@ -3585,25 +3663,7 @@ class mf_webshop
 							break;
 
 							case 'categories_v2':
-								$arr_data = array();
-								get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'add_choose_here' => true, 'post_status' => 'publish'), $arr_data);
-
-								$obj_font_icons = new mf_font_icons();
-
-								foreach($arr_data as $key => $value)
-								{
-									$category_icon = get_post_meta($key, $this->meta_prefix.'category_icon', true);
-
-									$arr_data[$key] = "<span>"
-										.$obj_font_icons->get_symbol_tag(array(
-											'symbol' => $category_icon,
-											'class' => "category_".$key,
-										))
-										.$value
-									."</span>";
-								}
-
-								$out .= show_form_alternatives(array('data' => $arr_data, 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
+								$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
 							break;
 
 							case 'custom_categories':
@@ -6053,6 +6113,7 @@ class widget_webshop_events extends WP_Widget
 
 		$this->arr_default = array(
 			'webshop_heading' => '',
+			'webshop_filters' => array(),
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
@@ -6084,6 +6145,30 @@ class widget_webshop_events extends WP_Widget
 					.$after_title;
 				}
 
+				if(count($instance['webshop_filters']) > 0)
+				{
+					echo "<form action='#' method='post' class='event_filters mf_form'>";
+
+						if(in_array('calendar', $instance['webshop_filters']))
+						{
+							// Display calendar
+						}
+
+						if(in_array('category', $instance['webshop_filters']))
+						{
+							$event_filter_category = check_var('event_filter_category', 'char');
+
+							echo show_form_alternatives(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => 'event_filter_category', 'value' => $event_filter_category, 'class' => "product_categories category_icon")); //, 'required' => ($post_custom_required == 'yes')
+						}
+
+						if(in_array('location', $instance['webshop_filters']))
+						{
+							// Display location filter
+						}
+
+					echo "</form>";
+				}
+
 				if($instance['webshop_text'] != '')
 				{
 					echo "<div class='event_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
@@ -6102,11 +6187,21 @@ class widget_webshop_events extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
 
 		return $instance;
+	}
+
+	function get_filters_for_select()
+	{
+		return array(
+			'calendar' => __("Calendar", 'lang_webshop'),
+			'category' => __("Category", 'lang_webshop'),
+			'location' => __("Location", 'lang_webshop'),
+		);
 	}
 
 	function form($instance)
@@ -6115,91 +6210,12 @@ class widget_webshop_events extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']))
 			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
 			."</div>
 		</div>";
-	}
-}
-
-if(!class_exists('pagination'))
-{
-	class pagination
-	{
-		function __construct()
-		{
-			$this->range = 5;
-			$this->per_page = 20;
-			$this->count = 0;
-		}
-
-		function show($data)
-		{
-			global $intLimitStart;
-
-			if(!is_array($data['result']) && $data['result'] > 0)
-			{
-				$rows = $data['result'];
-			}
-
-			else
-			{
-				$rows = $data['result'] != '' ? count($data['result']) : 0;
-			}
-
-			if($rows > $this->per_page)
-			{
-				$first = 1;
-				$last = ceil($rows / $this->per_page);
-				$this->current = floor($intLimitStart / $this->per_page) + 1;
-
-				$start = $first < ($this->current - $this->range - 1) ? $this->current - $this->range : $first;
-				$stop = $last > ($this->current + $this->range + 1) ? $this->current + $this->range : $last;
-
-				$out = "<div class='tablenav'>
-					<div class='tablenav-pages'>";
-
-						if($this->current > $first)
-						{
-							$out .= $this->button(array('page' => ($this->current - 1), 'text' => "&laquo;&laquo;"));
-						}
-
-						if($start != $first)
-						{
-							$out .= $this->button(array('page' => $first))."<span>...</span>";
-						}
-
-						for($i = $start; $i <= $stop; $i++)
-						{
-							$out .= $this->button(array('page' => $i));
-						}
-
-						if($stop != $last)
-						{
-							$out .= "<span>...</span>".$this->button(array('page' => $last));
-						}
-
-						if($this->current < $last)
-						{
-							$out .= $this->button(array('page' => ($this->current + 1), 'text' => "&raquo;&raquo;"));
-						}
-
-					$out .= "</div>
-				</div>";
-
-				$this->count++;
-
-				return $out;
-			}
-		}
-
-		function button($data)
-		{
-			return "<a href='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."&paged=".($data['page'] - 1)."'".($this->current == $data['page'] ? " class='disabled'" : "").">"
-				.(isset($data['text']) ? $data['text'] : $data['page'])
-			."</a>";
-		}
 	}
 }

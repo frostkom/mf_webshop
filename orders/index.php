@@ -1,5 +1,155 @@
 <?php
 
+if(!class_exists('pagination'))
+{
+	class pagination
+	{
+		function __construct()
+		{
+			$this->range = 5;
+			$this->per_page = 20;
+			$this->count = 0;
+		}
+
+		function show($data)
+		{
+			global $intLimitStart;
+
+			if(!is_array($data['result']) && $data['result'] > 0)
+			{
+				$rows = $data['result'];
+			}
+
+			else
+			{
+				$rows = $data['result'] != '' ? count($data['result']) : 0;
+			}
+
+			if($rows > $this->per_page)
+			{
+				$first = 1;
+				$last = ceil($rows / $this->per_page);
+				$this->current = floor($intLimitStart / $this->per_page) + 1;
+
+				$start = $first < ($this->current - $this->range - 1) ? $this->current - $this->range : $first;
+				$stop = $last > ($this->current + $this->range + 1) ? $this->current + $this->range : $last;
+
+				$out = "<div class='tablenav'>
+					<div class='tablenav-pages'>";
+
+						if($this->current > $first)
+						{
+							$out .= $this->button(array('page' => ($this->current - 1), 'text' => "&laquo;&laquo;"));
+						}
+
+						if($start != $first)
+						{
+							$out .= $this->button(array('page' => $first))."<span>...</span>";
+						}
+
+						for($i = $start; $i <= $stop; $i++)
+						{
+							$out .= $this->button(array('page' => $i));
+						}
+
+						if($stop != $last)
+						{
+							$out .= "<span>...</span>".$this->button(array('page' => $last));
+						}
+
+						if($this->current < $last)
+						{
+							$out .= $this->button(array('page' => ($this->current + 1), 'text' => "&raquo;&raquo;"));
+						}
+
+					$out .= "</div>
+				</div>";
+
+				$this->count++;
+
+				return $out;
+			}
+		}
+
+		function button($data)
+		{
+			return "<a href='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."&paged=".($data['page'] - 1)."'".($this->current == $data['page'] ? " class='disabled'" : "").">"
+				.(isset($data['text']) ? $data['text'] : $data['page'])
+			."</a>";
+		}
+	}
+}
+
+if(!function_exists('get_list_navigation'))
+{
+	function get_list_navigation($resultPagination)
+	{
+		global $wpdb, $intLimitAmount, $strSearch;
+
+		$out = "";
+
+		$rowsPagination = $wpdb->num_rows;
+
+		if($rowsPagination > $intLimitAmount || $strSearch != '')
+		{
+			$out .= "<form method='post' action='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."'>
+				<p class='search-box'>"
+					//."<input type='search' name='s' value='".$strSearch."'>"
+					.show_textfield(array('type' => 'search', 'name' => 's', 'value' => $strSearch, 'placeholder' => __("Search for", 'lang_webshop'), 'xtra' => " autocomplete='off'"))
+					.show_button(array('text' => __("Search", 'lang_webshop'), 'class' => "button"))
+				."</p>
+			</form>";
+		}
+
+		if($rowsPagination > 0)
+		{
+			$pagination_obj = new pagination();
+
+			$out .= $pagination_obj->show(array('result' => $resultPagination));
+		}
+
+		return $out;
+	}
+}
+
+function update_product_amount($intProductID2, $intProductAmount2)
+{
+	global $wpdb;
+
+	$obj_webshop = new mf_webshop();
+
+	$error_text = "";
+
+	$result = $obj_webshop->get_document_types(array('select' => "ID, post_name", 'where_key' => "ID = '%d'", 'where_value' => $intProductID2, 'order' => "menu_order ASC"));
+
+	foreach($result as $r)
+	{
+		$post_id = $r->ID;
+		$post_name = $r->post_name;
+
+		$post_custom_type = get_post_meta($post_id, $obj_webshop->meta_prefix.'document_type', true);
+
+		if($post_custom_type == 'price')
+		{
+			$post_meta = get_post_meta($intProductID2, $obj_webshop->meta_prefix.$post_name, true);
+
+			if($post_meta > 0 && $intProductAmount2 > 0)
+			{
+				$intProductAmount_result = $post_meta - $intProductAmount2 > 0 ? $post_meta - $intProductAmount2 : 0;
+
+				update_post_meta($intProductID2, $obj_webshop->meta_prefix.$post_name, $intProductAmount_result);
+			}
+
+			else
+			{
+				$error_text = __("The amount in stock and in the order is wrong", 'lang_webshop')." (".$post_meta." - ".$intProductAmount2.")";
+			}
+		}
+	}
+
+	return $error_text;
+}
+
 $obj_webshop = new mf_webshop();
 
 $paged = check_var('paged', 'int', true, '0');
