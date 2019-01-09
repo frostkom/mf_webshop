@@ -97,8 +97,8 @@ function hide_products()
 	for(i in markers)
 	{
 		var dom_id = markers[i].id,
-			dom_obj = jQuery('#products_' + dom_id),
-			dom_parent = dom_obj.parents('li');
+			dom_obj = jQuery("#products_" + dom_id),
+			dom_parent = dom_obj.parents("li");
 
 		if(map_object.getBounds().contains(markers[i].getPosition()))
 		{
@@ -218,11 +218,11 @@ function init_maps()
 
 function show_list_active_or_not(self)
 {
-	var dom_product = self.parents('li');
+	var dom_product = self.parents("li");
 
 	if(self.is(":checked"))
 	{
-		jQuery('#product_result_form').siblings('.form_button_container').find('.form_button .show_if_none_checked').remove();
+		jQuery("#product_result_form").siblings(".form_button_container").find(".form_button .show_if_none_checked").remove();
 
 		dom_product.addClass('active');
 	}
@@ -239,26 +239,26 @@ jQuery(function($)
 	has_maps = false;
 	has_map_search = false;
 
-	search_map_obj = $('#' + search_map);
-	search_input_obj = $('#' + search_input);
+	search_map_obj = $("#" + search_map);
+	search_input_obj = $("#" + search_input);
 	search_coords_obj = $("#webshop_map_coords");
 	map_bounds_obj = $("#webshop_map_bounds");
 
 	init_maps();
 
-	$('.mf_form > #product_result_form .form_switch input').each(function()
+	$(".mf_form > #product_result_form .form_switch input").each(function()
 	{
 		show_list_active_or_not($(this));
 	});
 
-	$('.mf_form > #product_result_form').parents('.mf_form').on('submit', function()
+	$(".mf_form > #product_result_form").parents(".mf_form").on('submit', function()
 	{
-		var dom_result = $(this).find('#product_result_form'),
-			dom_buttons = $(this).find('.form_button');
+		var dom_result = $(this).find("#product_result_form"),
+			dom_buttons = $(this).find(".form_button");
 
-		if(dom_result.find('.products:checked').length == 0)
+		if(dom_result.find(".products:checked").length == 0)
 		{
-			if(dom_buttons.children('.show_if_none_checked').length == 0)
+			if(dom_buttons.children(".show_if_none_checked").length == 0)
 			{
 				dom_buttons.append("<p class='show_if_none_checked info_text'>" + script_webshop.product_missing + "</p>");
 			}
@@ -267,18 +267,18 @@ jQuery(function($)
 		}
 	});
 
-	$(document).on('click', '#product_delete', function()
+	$(document).on('click', "#product_delete", function()
 	{
-		$('#product_amount').val('0');
+		$("#product_amount").val('0');
 	});
 
-	$(document).on('click', '#order_proceed button', function()
+	$(document).on('click', "#order_proceed button", function()
 	{
-		$('#order_confirm').show();
-		$('#order_proceed').hide();
+		$("#order_confirm").show();
+		$("#order_proceed").hide();
 	});
 
-	$(document).on('change', '.mf_form > #product_result_form .form_switch input', function()
+	$(document).on('change', ".mf_form > #product_result_form .form_switch input", function()
 	{
 		show_list_active_or_not($(this));
 	});

@@ -24,7 +24,7 @@ var WebshopView = Backbone.View.extend(
 		this.get_products_storage();
 
 		/* Events */
-		this.model.on("change:event_response", this.show_events, this);
+		this.model.on("change:event_hash", this.show_events, this);
 
 		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
 
@@ -826,6 +826,8 @@ var WebshopView = Backbone.View.extend(
 		var event_amount = this.model.get('event_amount'),
 			event_rest = event_amount - amount;
 
+		jQuery("#" + widget_id).siblings(".event_text").find("span").text(event_amount);
+
 		if(event_rest > 0)
 		{
 			var dom_template = jQuery("#template_event_load_more").html();
@@ -853,6 +855,8 @@ var WebshopView = Backbone.View.extend(
 			}
 
 			jQuery("#" + widget_id).append(html);
+
+			this.show_map_coords(true);
 		}
 
 		else

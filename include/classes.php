@@ -3855,12 +3855,16 @@ class mf_webshop
 						<div class='event_url'>
 							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 						</div>
+						<% if(product_map != '')
+						{ %>"
+							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
+						."<% } %>
 					</li>
 				</script>
-				
+
 				<script type='text/template' id='template_event_load_more'>
 					<li class='event_load_more form_button'>"
-						.show_button(array('text' => __("Display More Events (<%= event_rest %>)", 'lang_webshop'), 'class' => "button"))
+						.show_button(array('text' => sprintf(__("Display More Events (%s)", 'lang_webshop'), "<%= event_rest %>"), 'class' => "button"))
 					."</li>
 				</script>";
 			break;
@@ -3939,9 +3943,13 @@ class mf_webshop
 						."<% if(product_url != '' && product_has_read_more == false)
 						{ %>
 							<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
-						<% } %>"
+						<% }
+
+						if(product_map != '')
+						{ %>"
 						.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
-					."</li>
+						."<% } %>
+					</li>
 				</script>";
 			break;
 		}
@@ -6045,6 +6053,7 @@ class widget_webshop_events extends WP_Widget
 
 		$this->arr_default = array(
 			'webshop_heading' => '',
+			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
 		);
@@ -6075,6 +6084,11 @@ class widget_webshop_events extends WP_Widget
 					.$after_title;
 				}
 
+				if($instance['webshop_text'] != '')
+				{
+					echo "<div class='event_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+				}
+
 				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".date("Y-m-d")."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template()."</ul>"
 			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
@@ -6088,6 +6102,7 @@ class widget_webshop_events extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
 
@@ -6100,6 +6115,7 @@ class widget_webshop_events extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))

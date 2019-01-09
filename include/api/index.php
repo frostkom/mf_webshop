@@ -36,6 +36,7 @@ switch($type)
 		$obj_webshop->option_type = ($strOptionType != '' ? "_".$strOptionType : '');
 
 		$json_output['widget_id'] = $strID;
+		$json_output['event_hash'] = md5($strID.$strOptionType.$dteDate.$intLimit.$intAmount);
 		$json_output['event_response'] = array();
 		$json_output['event_amount'] = 0;
 
@@ -49,6 +50,9 @@ switch($type)
 
 			foreach($result as $r)
 			{
+				$gps_post_name = $obj_webshop->get_post_name_for_type('gps');
+
+				$product_map = get_post_meta($r->ID, $obj_webshop->meta_prefix.$gps_post_name, true);
 				$arr_categories = get_post_meta($r->ID, $obj_webshop->meta_prefix.'category', false);
 
 				$product_categories = "";
@@ -62,6 +66,7 @@ switch($type)
 				$arr_product_translate_ids[$r->meta_value] = array(
 					'product_id' => $r->ID,
 					'product_title' => $r->post_title,
+					'product_map' => $product_map,
 					'product_categories' => $product_categories,
 				);
 			}
@@ -90,6 +95,7 @@ switch($type)
 					$feed_id = $r->calendar_id;
 					$product_id = $arr_product_translate_ids[$feed_id]['product_id'];
 					$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
+					$product_map = $arr_product_translate_ids[$feed_id]['product_map'];
 					$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
 
 					$post_id = $r->ID;
@@ -144,9 +150,10 @@ switch($type)
 					$post_duration .= date("H:i", strtotime($post_end));
 
 					$json_output['event_response'][] = array(
-						//'product_id' => $product_id,
+						'product_id' => $product_id,
 						'product_title' => $product_title,
 						'product_categories' => $product_categories,
+						'product_map' => $product_map,
 						'product_url' => get_permalink($product_id),
 						'feed_id' => $feed_id,
 						//'post_id' => $post_id,
