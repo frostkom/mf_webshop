@@ -91,6 +91,7 @@ var WebshopView = Backbone.View.extend(
 		"click .quote_button .button_print": "print_favorites",
 
 		/* Events */
+		"click .event_calendar .day a": "change_date",
 		"click .event_load_more button": "load_more_button"
 	},
 
@@ -796,16 +797,16 @@ var WebshopView = Backbone.View.extend(
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');
 
-		var get_vars = "type=events&strID=" + widget_id + "&dteDate=" + date + "&intAmount=" + amount;
+		var get_vars = "type=events&id=" + widget_id + "&start_date=" + date + "&amount=" + amount;
 
 		if(option_type != '')
 		{
-			get_vars += "&strOptionType=" + option_type;
+			get_vars += "&option_type=" + option_type;
 		}
 
 		if(limit > 0)
 		{
-			get_vars += "&intLimit=" + limit;
+			get_vars += "&limit=" + limit;
 		}
 
 		this.model.getPage(get_vars);
@@ -867,6 +868,19 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		this.show_or_hide_load_more(widget_id, amount);
+	},
+
+	change_date: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			dom_list = dom_obj.parents(".webshop_events").children("ul"),
+			date = dom_obj.attr('data-date');
+
+		dom_list.attr({'data-date': date}).empty();
+
+		this.load_events(dom_list);
+
+		return false;
 	},
 
 	load_more_button: function(e)

@@ -2132,14 +2132,14 @@ class mf_webshop
 				$meta_key = 'profile_webshop_payment';
 				$meta_value = get_the_author_meta($meta_key, $data['user_id']);
 
-				if($meta_value > date('Y-m-d'))
+				if($meta_value > date("Y-m-d"))
 				{
-					$meta_value = date('Y-m-d', strtotime($meta_value." +12 month"));
+					$meta_value = date("Y-m-d", strtotime($meta_value." +12 month"));
 				}
 
 				else
 				{
-					$meta_value = date('Y-m-d', strtotime("+12 month"));
+					$meta_value = date("Y-m-d", strtotime("+12 month"));
 				}
 
 				update_user_meta($data['user_id'], $meta_key, $meta_value);
@@ -2264,7 +2264,7 @@ class mf_webshop
 					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'group/index.php');
 				}
 
-				if(get_option('setting_webshop_payment_form'.$this->option_type) > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date('Y-m-d'))
+				if(get_option('setting_webshop_payment_form'.$this->option_type) > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date("Y-m-d"))
 				{
 					$menu_title = sprintf(__("Pay to Access %s", 'lang_webshop'), $name_webshop);
 					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, 'admin_menu_payment_page', array($this, 'admin_menu_payment_page'));
@@ -2273,7 +2273,7 @@ class mf_webshop
 
 			else
 			{
-				if(get_option('setting_webshop_payment_form'.$this->option_type) > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date('Y-m-d'))
+				if(get_option('setting_webshop_payment_form'.$this->option_type) > 0 && get_the_author_meta('profile_webshop_payment', get_current_user_id()) < date("Y-m-d"))
 				{
 					$menu_title = sprintf(__("Pay to Access %s", 'lang_webshop'), $name_webshop);
 
@@ -3866,6 +3866,310 @@ class mf_webshop
 		return $out;
 	}
 
+	function get_events($data)
+	{
+		global $wpdb;
+
+		if(!isset($data['id'])){			$data['id'] = "";}
+		if(!isset($data['start_date'])){	$data['start_date'] = "";}
+		if(!isset($data['exact_date'])){	$data['exact_date'] = "";}
+		if(!isset($data['limit'])){			$data['limit'] = 0;}
+		if(!isset($data['get_results'])){	$data['get_results'] = true;}
+
+		$out = "";
+
+		if(isset($data['option_type']))
+		{
+			$this->option_type = ($data['option_type'] != '' ? "_".$data['option_type'] : '');
+		}
+
+		$events_post_name = $this->get_post_name_for_type('event');
+
+		if($events_post_name != '')
+		{
+			$obj_calendar = new mf_calendar();
+			
+			$arr_product_ids = $arr_product_translate_ids = array();			
+
+			if($data['id'] != '')
+			{
+				$out['widget_id'] = $data['id'];
+				$out['event_hash'] = md5(var_export($_REQUEST, true));
+			}
+
+			$out['event_response'] = array();
+			$out['event_amount'] = 0;
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = '".$this->meta_prefix.$events_post_name."' AND meta_value > '0'", $this->post_type_products.$this->option_type));
+
+			foreach($result as $r)
+			{
+				$gps_post_name = $this->get_post_name_for_type('gps');
+
+				$product_map = get_post_meta($r->ID, $this->meta_prefix.$gps_post_name, true);
+				$arr_categories = get_post_meta($r->ID, $this->meta_prefix.'category', false);
+
+				$product_categories = "";
+
+				foreach($arr_categories as $key => $value)
+				{
+					$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
+				}
+
+				$arr_product_ids[] = $r->meta_value;
+				$arr_product_translate_ids[$r->meta_value] = array(
+					'product_id' => $r->ID,
+					'product_title' => $r->post_title,
+					'product_map' => $product_map,
+					'product_categories' => $product_categories,
+				);
+			}
+
+			if(count($arr_product_ids) > 0)
+			{
+				$i = 0;
+
+				$query_join = $query_where = $query_order = $query_limit = "";
+
+				if($data['start_date'] > DEFAULT_DATE)
+				{
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS end ON ".$wpdb->posts.".ID = end.post_id AND end.meta_key = '".$obj_calendar->meta_prefix."end'";
+					$query_where .= " AND (SUBSTRING(start.meta_value, 1, 10) >= '".$data['start_date']."' OR SUBSTRING(end.meta_value, 1, 10) >= '".$data['start_date']."')";
+					$query_order = " ORDER BY start.meta_value ASC";
+				}
+
+				if($data['exact_date'] > DEFAULT_DATE)
+				{
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS end ON ".$wpdb->posts.".ID = end.post_id AND end.meta_key = '".$obj_calendar->meta_prefix."end'";
+					$query_where .= " AND (SUBSTRING(start.meta_value, 1, 10) <= '".$data['exact_date']."' AND SUBSTRING(end.meta_value, 1, 10) >= '".$data['exact_date']."')";
+				}
+
+				if($data['limit'] > 0)
+				{
+					$query_limit = " LIMIT ".$data['limit'].", 1000";
+				}
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, calendar.meta_value AS calendar_id, start.meta_value AS post_start 
+					FROM ".$wpdb->postmeta." AS calendar 
+					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = calendar.post_id AND calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'"
+					.$query_join
+				."WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_order.$query_limit, 'mf_calendar_event'));
+
+				//do_log("Test: ".$wpdb->last_query);
+
+				$out['event_amount'] = $wpdb->num_rows;
+
+				if($data['get_results'])
+				{
+					foreach($result as $r)
+					{
+						if(isset($data['amount']) && $i >= $data['amount'])
+						{
+							break;
+						}
+
+						$feed_id = $r->calendar_id;
+						$product_id = $arr_product_translate_ids[$feed_id]['product_id'];
+						$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
+						$product_map = $arr_product_translate_ids[$feed_id]['product_map'];
+						$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
+
+						$post_id = $r->ID;
+						$post_title = $r->post_title;
+						//$post_url = get_permalink($post_id);
+
+						$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
+						$post_start = $r->post_start;
+						$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
+
+						$post_start_date = date("Y-m-d", strtotime($post_start));
+						$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
+						$post_start_day = date("j", strtotime($post_start));
+						$post_start_time = date("H:i", strtotime($post_start));
+
+						$post_end_date = date("Y-m-d", strtotime($post_end));
+						$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
+						$post_end_day = date("j", strtotime($post_end));
+						$post_end_time = date("H:i", strtotime($post_end));
+
+						if($post_start_date == date("Y-m-d"))
+						{
+							$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
+							$post_start_row_2 = __("Today", 'lang_webshop');
+						}
+
+						else
+						{
+							$post_start_row_1 = "<span>".$post_start_day."</span>";
+
+							if($post_end_date != $post_start_date)
+							{
+								$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
+							}
+
+							$post_start_row_2 = $post_start_month_name;
+						}
+
+						$post_duration = "";
+
+						if($post_start_time != "00:00")
+						{
+							if($post_end_date != $post_start_date)
+							{
+								$post_duration .= "(".$post_start_day." ".$post_start_month_name.") ";
+							}
+
+							$post_duration .= $post_start_time;
+						}
+
+						else
+						{
+							if($post_end_date != $post_start_date)
+							{
+								$post_duration .= $post_start_day." ".$post_start_month_name;
+							}
+						}
+							
+						$post_duration .= " - ";
+
+						if($post_end_time != "00:00")
+						{
+							if($post_end_date != $post_start_date)
+							{
+								$post_duration .= "(".$post_end_day." ".$post_end_month_name.") ";
+							}
+
+							$post_duration .= $post_end_time;
+						}
+
+						else
+						{
+							if($post_end_date != $post_start_date)
+							{
+								$post_duration .= $post_end_day." ".$post_end_month_name;
+							}
+						}
+
+						$out['event_response'][] = array(
+							'product_id' => $product_id,
+							'product_title' => $product_title,
+							'product_categories' => $product_categories,
+							'product_map' => $product_map,
+							'product_url' => get_permalink($product_id),
+							'feed_id' => $feed_id,
+							//'post_id' => $post_id,
+							'post_title' => $post_title,
+							//'post_url' => get_permalink($post_id),
+							//'post_start' => $post_start,
+							'post_start_row_1' => $post_start_row_1,
+							'post_start_row_2' => $post_start_row_2,
+							//'post_end' => $post_end,
+							'post_duration' => $post_duration,
+							'post_location' => $post_location,
+						);
+
+						$i++;
+					}
+				}
+			}
+
+			$out['success'] = true;
+		}
+
+		else
+		{
+			$out['success'] = false;
+			$out['message'] = __("There was no post_name_for_type for event", 'lang_webshop');
+		}
+
+		return $out;
+	}
+
+	function get_event_calendar($data)
+	{
+		$out = "<div class='event_calendar'>
+			<div class='event_calendar_header'>
+				<button>&laquo;</button>
+				<span>"
+					.month_name(date("m", strtotime($data['date'])))." ".date("Y", strtotime($data['date']))
+				."</span>
+				<button>&raquo;</button>
+			</div>
+			<div class='event_calendar_days'>";
+
+				for($i = 0; $i < 7; $i++)
+				{
+					$out .= "<span class='day_name'>".day_name(array('number' => ($i < 6 ? $i + 1 : 0), 'short' => true))."</span>";
+				}
+
+				$year_now = date("Y", strtotime($data['date']));
+				$month_now = date("m", strtotime($data['date']));
+
+				$first_date_of_month = date("Y-m-d", mktime(0, 0, 0, $month_now, 1, $year_now));
+				$first_weekday_of_the_month = date("N", strtotime($first_date_of_month));
+
+				$last_date_of_month = date("Y-m-t", strtotime($data['date']));
+
+				$date_start = date("Y-m-d", strtotime($first_date_of_month." -".($first_weekday_of_the_month - 1)." day"));
+				$date_end = date("Y-m-d", strtotime($last_date_of_month." +".(7 - $first_weekday_of_the_month - 1)." day"));
+
+				$date_temp = $date_start;
+
+				while($date_temp < $date_end)
+				{
+					$day_number = date("j", strtotime($date_temp));
+
+					$out .= "<div class='day";
+
+						if($date_temp == date("Y-m-d"))
+						{
+							$out .= " today";
+						}
+					
+						if(substr($date_temp, 0, 7) != substr($data['date'], 0, 7))
+						{
+							$out .= " disabled";
+						}
+						
+						$out .= "'>";
+
+						$result = $this->get_events(array('exact_date' => $date_temp, 'amount' => 5, 'get_results' => false));
+
+						if($result['event_amount'] > 0)
+						{
+							$out .= "<a href='#' data-date='".$date_temp."'>".$day_number."</a>
+							<ul>";
+
+								for($i = 0; $i < $result['event_amount']; $i++)
+								{
+									$out .= "<li></li>";
+								}
+							
+							$out .= "</ul>";
+						}
+
+						else
+						{
+							$out .= "<span>".$day_number."</span>";
+						}
+
+					$out .= "</div>";
+
+					$date_temp = date("Y-m-d", strtotime($date_temp." +1 day"));
+				}
+
+				/*$out .= "<section class='task warning' style='grid-row: 2; grid-column: 4 / span 3; align-self: center;'>Project 1</section>
+				<section class='task danger' style='grid-row: 2; grid-column: 2 / span 3; align-self: end;'>Project 2</section>
+				<section class='task info' style='grid-row: 5; grid-column: 6 / span 2; align-self: end;'>Project 4</section>";*/
+
+			$out .= "</div>
+		</div>";
+
+		return $out;
+	}
+
 	function get_spinner_template()
 	{
 		return "<li class='event_spinner'>
@@ -3885,15 +4189,19 @@ class mf_webshop
 			case 'events':
 				$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
 
-				$out .= "<script type='text/template' id='template_event_message'>
-					<li class='info_text'>
-						<p>".__("I could not find any events", 'lang_webshop')."</p>
-					</li>
-				</script>
+				$out .= "<script type='text/template' id='template_event_calendar'>"
+					//.$this->get_event_calendar(array('date' => "<%= date %>"))
+				."</script>
 
 				<script type='text/template' id='template_event_spinner'>"
 					.$this->get_spinner_template()
 				."</script>
+					
+				<script type='text/template' id='template_event_message'>
+					<li class='info_text'>
+						<p>".__("I could not find any events", 'lang_webshop')."</p>
+					</li>
+				</script>
 
 				<script type='text/template' id='template_event_item'>
 					<li class='event_item calendar_feed_<%= feed_id %>'>
@@ -6136,6 +6444,8 @@ class widget_webshop_events extends WP_Widget
 
 		if($instance['webshop_amount'] > 0)
 		{
+			$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
+
 			echo $before_widget;
 
 				if($instance['webshop_heading'] != '')
@@ -6145,13 +6455,15 @@ class widget_webshop_events extends WP_Widget
 					.$after_title;
 				}
 
+				$date = date("Y-m-d");
+
 				if(count($instance['webshop_filters']) > 0)
 				{
 					echo "<form action='#' method='post' class='event_filters mf_form'>";
 
 						if(in_array('calendar', $instance['webshop_filters']))
 						{
-							// Display calendar
+							echo $this->obj_webshop->get_event_calendar(array('date' => $date));
 						}
 
 						if(in_array('category', $instance['webshop_filters']))
@@ -6174,7 +6486,7 @@ class widget_webshop_events extends WP_Widget
 					echo "<div class='event_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
 				}
 
-				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".date("Y-m-d")."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template()."</ul>"
+				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template()."</ul>"
 			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
 		}

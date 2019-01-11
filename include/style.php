@@ -20,9 +20,9 @@ if(!isset($obj_theme_core))
 }
 
 $obj_theme_core->get_params();
-$obj_webshop = new mf_webshop();
-
 $setting_mobile_breakpoint = $obj_theme_core->options['mobile_breakpoint'];
+
+$obj_webshop = new mf_webshop();
 
 $setting_webshop_display_sort = get_option('setting_webshop_display_sort');
 $setting_webshop_display_filter = get_option('setting_webshop_display_filter');
@@ -35,13 +35,13 @@ $setting_text_color_info = get_option('setting_webshop_text_color_info');
 switch($setting_map_visibility)
 {
 	default:
-	case "everywhere":
+	case 'everywhere':
 		$desktop_aside = "block";
 		$desktop_search_h2 = $desktop_product_h2 = "none";
 		$desktop_search_div = $desktop_product_div = "block !important";
 	break;
 
-	case "search":
+	case 'search':
 		$desktop_aside = "block";
 		$desktop_search_h2 = "none";
 		$desktop_product_h2 = "block";
@@ -51,7 +51,7 @@ switch($setting_map_visibility)
 		$desktop_product_div = "none";
 	break;
 
-	case "single":
+	case 'single':
 		$desktop_aside = "none";
 		$desktop_search_h2 = "block";
 		$desktop_search_show = "none";
@@ -61,7 +61,7 @@ switch($setting_map_visibility)
 		$desktop_product_div = "block !important";
 	break;
 
-	case "nowhere":
+	case 'nowhere':
 		$desktop_aside = "none";
 		$desktop_search_h2 = $desktop_product_h2 = "block";
 		$desktop_search_show = $desktop_product_show = "block";
@@ -364,7 +364,168 @@ echo "@media all
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
-		echo ".widget.webshop_events li.event_spinner
+		echo ".widget.webshop_events .event_filters
+		{
+			margin-bottom: 0;
+			padding-bottom: 0;
+		}
+		
+		.event_calendar
+		{
+			background-color: #fff;
+			border: .1em solid #eee;
+			border-bottom: 0;
+		}
+
+			.event_calendar_header
+			{
+				border-bottom: .1em solid #eee;
+				text-align: center;
+				padding: 1em 0;
+			}
+
+				.event_calendar_header button
+				{
+					background: none !important;
+					border: 0;
+					color: inherit !important;
+					cursor: pointer;
+					font-size: 1em;
+					padding: 0 .5em;
+				}
+
+			.event_calendar_days
+			{
+				display: grid;
+				grid-template-columns: repeat(7, 1fr);
+				grid-template-rows: 3.2em;
+				grid-auto-rows: minmax(4.5em, auto);
+			}
+
+				.event_calendar_days .day_name
+				{
+					border-bottom: .1em solid #eee;
+					font-weight: bold;
+					font-size: .8em;
+					line-height: 4;
+					text-transform: uppercase;
+					text-align: center;
+				}
+
+				.event_calendar_days .day
+				{
+					background-color: #fff;
+					border-bottom: .1em solid #eee;
+					border-right: .1em solid #eee;
+					color: #999;
+					font-size: 1em;
+					padding-top: .8em;
+					text-align: center;
+					transition: all 1s ease;
+				}
+
+					.event_calendar_days .day:hover
+					{
+						background-color: #eee;
+					}
+
+					.event_calendar_days .day.today
+					{
+						background-color: #f5f5f5;
+					}
+
+					.event_calendar_days .day.disabled
+					{
+						background-image: url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f6f6f6' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0H10L0 10M20 20V10L10 20'/%3E%3C/g%3E%3C/svg%3E\");
+						cursor: not-allowed;
+					}
+					
+					.event_calendar_days .day a, .event_calendar_days .day span
+					{
+						display: block;
+						transition: all 1s ease;
+					}
+
+						.event_calendar_days .day:hover a, .event_calendar_days .day:hover span
+						{
+							-webkit-transform: scale(1.5);
+							transform: scale(1.5);
+						}
+
+					.event_calendar_days .day a
+					{
+						color: #333;
+					}
+
+					.event_calendar_days .day ul
+					{
+						list-style: none;
+					}
+
+						.event_calendar_days .day li
+						{
+							background: #999;
+							border-radius: 50%;
+							content: ' ';
+							display: inline-block;
+							height: .5em;
+							width: .5em;
+						}
+
+					.event_calendar_days .day:nth-of-type(7n + 7)
+					{
+						border-right: 0;
+					}
+
+					.event_calendar_days .day:nth-of-type(n + 1):nth-of-type(-n + 7){		grid-row: 2;}
+					.event_calendar_days .day:nth-of-type(n + 8):nth-of-type(-n + 14){		grid-row: 3;}
+					.event_calendar_days .day:nth-of-type(n + 15):nth-of-type(-n + 21){		grid-row: 4;}
+					.event_calendar_days .day:nth-of-type(n + 22):nth-of-type(-n + 28){		grid-row: 5;}
+					.event_calendar_days .day:nth-of-type(n + 29):nth-of-type(-n + 35){		grid-row: 6;}
+
+					.event_calendar_days .day:nth-of-type(7n + 1){							grid-column: 1/1;}
+					.event_calendar_days .day:nth-of-type(7n + 2){							grid-column: 2/2;}
+					.event_calendar_days .day:nth-of-type(7n + 3){							grid-column: 3/3;}
+					.event_calendar_days .day:nth-of-type(7n + 4){							grid-column: 4/4;}
+					.event_calendar_days .day:nth-of-type(7n + 5){							grid-column: 5/5;}
+					.event_calendar_days .day:nth-of-type(7n + 6){							grid-column: 6/6;}
+					.event_calendar_days .day:nth-of-type(7n + 7){							grid-column: 7/7;}";
+
+				/*echo ".event_calendar_days .task
+				{
+					border-left: .3em solid;
+					font-size: .8em;
+					margin: .5em;
+					padding: .5em .8em;
+				}
+
+					.event_calendar_days .task.warning
+					{
+						background: #fef0db;
+						border-left-color: #fdb44d;
+						color: #fc9b10;
+					}
+
+					.event_calendar_days .task.danger
+					{
+						background: #f9d1d9;
+						border-left-color: #fa607e;
+						color: #f8254e;
+					}
+
+					.event_calendar_days .task.info
+					{
+						background: #e2ecfd;
+						border-left-color: #4786ff;
+						color: #0a5eff;
+					}";*/
+		
+		echo ".widget.webshop_events .product_categories
+		{
+			margin-top: 1em;
+		}
+		
+		.widget.webshop_events li.event_spinner
 		{
 			text-align: center;
 		}
