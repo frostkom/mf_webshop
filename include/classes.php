@@ -3888,8 +3888,8 @@ class mf_webshop
 		if($events_post_name != '')
 		{
 			$obj_calendar = new mf_calendar();
-			
-			$arr_product_ids = $arr_product_translate_ids = array();			
+
+			$arr_product_ids = $arr_product_translate_ids = array();
 
 			if($data['id'] != '')
 			{
@@ -4031,7 +4031,7 @@ class mf_webshop
 								$post_duration .= $post_start_day." ".$post_start_month_name;
 							}
 						}
-							
+
 						$post_duration .= " - ";
 
 						if($post_end_time != "00:00")
@@ -4053,21 +4053,19 @@ class mf_webshop
 						}
 
 						$out['event_response'][] = array(
+							'feed_id' => $feed_id,
 							'product_id' => $product_id,
 							'product_title' => $product_title,
 							'product_categories' => $product_categories,
 							'product_map' => $product_map,
 							'product_url' => get_permalink($product_id),
-							'feed_id' => $feed_id,
-							//'post_id' => $post_id,
-							'post_title' => $post_title,
-							//'post_url' => get_permalink($post_id),
-							//'post_start' => $post_start,
-							'post_start_row_1' => $post_start_row_1,
-							'post_start_row_2' => $post_start_row_2,
-							//'post_end' => $post_end,
-							'post_duration' => $post_duration,
-							'post_location' => $post_location,
+							'event_title' => $post_title,
+							'event_start_date_c' => date("c", strtotime($post_start)),
+							'event_end_date_c' =>date("c", strtotime($post_end)) ,
+							'event_start_row_1' => $post_start_row_1,
+							'event_start_row_2' => $post_start_row_2,
+							'event_duration' => $post_duration,
+							'event_location' => $post_location,
 						);
 
 						$i++;
@@ -4087,15 +4085,13 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_event_calendar($data)
+	function get_event_calendar()
 	{
-		$out = "<div class='event_calendar'>
+		$out = "<div class='event_calendar_container'>
 			<div class='event_calendar_header'>
-				<button>&laquo;</button>
-				<span>"
-					.month_name(date("m", strtotime($data['date'])))." ".date("Y", strtotime($data['date']))
-				."</span>
-				<button>&raquo;</button>
+				<button data-month='<%= last_month %>'>&laquo;</button>
+				<span><%= nice_month %></span>
+				<button data-month='<%= next_month %>'>&raquo;</button>
 			</div>
 			<div class='event_calendar_days'>";
 
@@ -4104,61 +4100,26 @@ class mf_webshop
 					$out .= "<span class='day_name'>".day_name(array('number' => ($i < 6 ? $i + 1 : 0), 'short' => true))."</span>";
 				}
 
-				$year_now = date("Y", strtotime($data['date']));
-				$month_now = date("m", strtotime($data['date']));
-
-				$first_date_of_month = date("Y-m-d", mktime(0, 0, 0, $month_now, 1, $year_now));
-				$first_weekday_of_the_month = date("N", strtotime($first_date_of_month));
-
-				$last_date_of_month = date("Y-m-t", strtotime($data['date']));
-
-				$date_start = date("Y-m-d", strtotime($first_date_of_month." -".($first_weekday_of_the_month - 1)." day"));
-				$date_end = date("Y-m-d", strtotime($last_date_of_month." +".(7 - $first_weekday_of_the_month - 1)." day"));
-
-				$date_temp = $date_start;
-
-				while($date_temp < $date_end)
-				{
-					$day_number = date("j", strtotime($date_temp));
-
-					$out .= "<div class='day";
-
-						if($date_temp == date("Y-m-d"))
-						{
-							$out .= " today";
-						}
-					
-						if(substr($date_temp, 0, 7) != substr($data['date'], 0, 7))
-						{
-							$out .= " disabled";
-						}
+				$out .= "<% _.each(days, function(day)
+				{ %>
+					<div class='day<%= day.class %>'>
+						<% if(day.event_amount > 0)
+						{ %>
+							<a href='#' data-date='<%= day.date %>'><%= day.number %></a>
+							<ul>
+								<% _.each(day.events, function(event)
+								{ %>
+									<li class='calendar_feed_<%= event.feed_id %>'></li>
+								<% }); %>
+							</ul>
+						<% }
 						
-						$out .= "'>";
-
-						$result = $this->get_events(array('exact_date' => $date_temp, 'amount' => 5, 'get_results' => false));
-
-						if($result['event_amount'] > 0)
-						{
-							$out .= "<a href='#' data-date='".$date_temp."'>".$day_number."</a>
-							<ul>";
-
-								for($i = 0; $i < $result['event_amount']; $i++)
-								{
-									$out .= "<li></li>";
-								}
-							
-							$out .= "</ul>";
-						}
-
 						else
-						{
-							$out .= "<span>".$day_number."</span>";
-						}
-
-					$out .= "</div>";
-
-					$date_temp = date("Y-m-d", strtotime($date_temp." +1 day"));
-				}
+						{ %>
+							<span><%= day.number %></span>
+						<% } %>
+					</div>
+				<% }); %>";
 
 				/*$out .= "<section class='task warning' style='grid-row: 2; grid-column: 4 / span 3; align-self: center;'>Project 1</section>
 				<section class='task danger' style='grid-row: 2; grid-column: 2 / span 3; align-self: end;'>Project 2</section>
@@ -4170,11 +4131,11 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_spinner_template()
+	function get_spinner_template($data)
 	{
-		return "<li class='event_spinner'>
-			<i class='fa fa-spinner fa-spin fa-3x'></i>
-		</li>";
+		return "<".$data['tag']." class='event_spinner'>
+			<i class='fa fa-spinner fa-spin ".$data['size']."'></i>
+		</".$data['tag'].">";
 	}
 
 	function get_templates($data)
@@ -4189,14 +4150,18 @@ class mf_webshop
 			case 'events':
 				$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
 
-				$out .= "<script type='text/template' id='template_event_calendar'>"
-					//.$this->get_event_calendar(array('date' => "<%= date %>"))
+				$out .= "<script type='text/template' id='template_calendar_spinner'>"
+					.$this->get_spinner_template(array('tag' => 'div', 'size' => "fa-2x"))
+				."</script>
+					
+				<script type='text/template' id='template_calendar'>"
+					.$this->get_event_calendar()
 				."</script>
 
 				<script type='text/template' id='template_event_spinner'>"
-					.$this->get_spinner_template()
+					.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
 				."</script>
-					
+
 				<script type='text/template' id='template_event_message'>
 					<li class='info_text'>
 						<p>".__("I could not find any events", 'lang_webshop')."</p>
@@ -4204,18 +4169,18 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_event_item'>
-					<li class='event_item calendar_feed_<%= feed_id %>'>
+					<li itemscope itemtype='//schema.org/Event' class='event_item calendar_feed_<%= feed_id %>'>
 						<div class='event_date'>
-							<div><%= post_start_row_1 %></div>
-							<div><%= post_start_row_2 %></div>
+							<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
+							<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
 						</div>
 						<div class='event_info'>
-							<h2><a href='<%= product_url %>'><%= post_title %></a><span>(<%= product_categories %>)</span></h2>
+							<h2><a href='<%= product_url %>' itemprop='name'><%= event_title %></a><span>(<%= product_categories %>)</span></h2>
 							<p>
-								<span class='duration'><i class='far fa-clock'></i> <%= post_duration %></span>
-								<% if(post_location != '')
+								<span class='duration'><i class='far fa-clock'></i> <%= event_duration %></span>
+								<% if(event_location != '')
 								{ %>
-									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= post_location %></span>
+									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= event_location %></span>
 								<% } %>
 							</p>
 							<p>".$name_product.": <%= product_title %></p>
@@ -6463,7 +6428,7 @@ class widget_webshop_events extends WP_Widget
 
 						if(in_array('calendar', $instance['webshop_filters']))
 						{
-							echo $this->obj_webshop->get_event_calendar(array('date' => $date));
+							echo "<div class='event_calendar' data-date='".date("Y-m-d")."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'div', 'size' => "fa-3x"))."</div>";
 						}
 
 						if(in_array('category', $instance['webshop_filters']))
@@ -6486,7 +6451,7 @@ class widget_webshop_events extends WP_Widget
 					echo "<div class='event_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
 				}
 
-				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template()."</ul>"
+				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>"
 			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
 		}

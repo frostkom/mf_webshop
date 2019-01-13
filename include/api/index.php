@@ -24,6 +24,78 @@ $type = check_var('type');
 
 switch($type)
 {
+	case 'calendar':
+		$date = check_var('date', 'date', true, date("Y-m-d"));
+
+		$month = date("Y-m", strtotime($date));
+
+		$nice_month = month_name(date("m", strtotime($date)))." ".date("Y", strtotime($date));
+
+		$year_now = date("Y", strtotime($date));
+		$month_now = date("m", strtotime($date));
+
+		$first_date_of_month = date("Y-m-d", mktime(0, 0, 0, $month_now, 1, $year_now));
+		$first_weekday_of_the_month = date("N", strtotime($first_date_of_month));
+
+		$last_date_of_month = date("Y-m-t", strtotime($date));
+		$last_weekday_of_the_month = date("N", strtotime($last_date_of_month));
+
+		$date_start = date("Y-m-d", strtotime($first_date_of_month." -".($first_weekday_of_the_month - 1)." day"));
+		$date_end = date("Y-m-d", strtotime($last_date_of_month." +".(7 - $last_weekday_of_the_month)." day"));
+
+		$date_temp = $date_start;
+
+		$arr_days = array();
+
+		while($date_temp <= $date_end)
+		{
+			$day_number = date("j", strtotime($date_temp));
+
+			$class = "";
+
+			if($date_temp == date("Y-m-d"))
+			{
+				$class .= " today";
+			}
+
+			if(substr($date_temp, 0, 7) != substr($date, 0, 7))
+			{
+				$class .= " disabled";
+			}
+
+			$arr_events = array();
+
+			$result = $obj_webshop->get_events(array('exact_date' => $date_temp, 'amount' => 5)); //, 'get_results' => false
+
+			foreach($result['event_response'] as $event)
+			{
+				$arr_events[] = array(
+					'feed_id' => $event['feed_id'],
+				);
+			}
+
+			$arr_days[] = array(
+				'date' => $date_temp,
+				'number' => $day_number,
+				'class' => $class,
+				'event_amount' => $result['event_amount'],
+				'events' => $arr_events,
+			);
+			
+			$date_temp = date("Y-m-d", strtotime($date_temp." +1 day"));
+		}
+
+		$json_output['calendar_response'] = array(
+			//'month' => $month,
+			'last_month' => date("Y-m-d", strtotime($date." -1 month")),
+			'next_month' => date("Y-m-d", strtotime($date." +1 month")),
+			'nice_month' => $nice_month,
+			'days' => $arr_days,
+		);
+
+		$json_output['success'] = true;
+	break;
+
 	case 'events':
 		$id = check_var('id', 'char');
 		$option_type = check_var('option_type', 'char');

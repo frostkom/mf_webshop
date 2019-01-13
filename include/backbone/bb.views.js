@@ -24,6 +24,7 @@ var WebshopView = Backbone.View.extend(
 		this.get_products_storage();
 
 		/* Events */
+		this.model.on("change:calendar_response", this.show_calendars, this);
 		this.model.on("change:event_hash", this.show_events, this);
 
 		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
@@ -54,6 +55,14 @@ var WebshopView = Backbone.View.extend(
 
 		else if(this.is_events_view)
 		{
+			this.dom_calendar = jQuery(".webshop_widget.webshop_events .event_calendar");
+			this.has_calendar = this.dom_calendar.length > 0;
+
+			if(this.has_calendar)
+			{
+				this.load_calendar();
+			}
+
 			this.load_all_events();
 		}
 
@@ -91,6 +100,7 @@ var WebshopView = Backbone.View.extend(
 		"click .quote_button .button_print": "print_favorites",
 
 		/* Events */
+		"click .event_calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
 		"click .event_load_more button": "load_more_button"
 	},
@@ -782,6 +792,58 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
+	load_calendar: function()
+	{
+		var date = this.dom_calendar.attr('data-date');
+
+		if(this.dom_calendar.find(".event_calendar_header").length > 0)
+		{
+			this.dom_calendar.find(".event_calendar_header").html(_.template(jQuery("#template_calendar_spinner").html())(''));
+		}
+
+		var get_vars = "type=calendar&date=" + date;
+
+		this.model.getPage(get_vars);
+	},
+
+	show_calendars: function()
+	{
+		var response = this.model.get('calendar_response'),
+			html = '';
+
+		this.dom_calendar.children(".event_spinner").remove();
+
+		var dom_template = jQuery("#template_calendar").html();
+
+		this.dom_calendar.html(_.template(dom_template)(response));
+	},
+
+	change_month: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			new_month = dom_obj.attr('data-month');
+
+		this.dom_calendar.attr({'data-date': new_month});
+		this.load_calendar();
+
+		return false;
+	},
+
+	change_date: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			dom_list = dom_obj.parents(".webshop_events").children("ul"),
+			date = dom_obj.attr('data-date');
+
+		dom_obj.parent(".day").addClass('today').siblings(".day").removeClass('today');
+
+		dom_list.attr({'data-date': date}).empty();
+
+		this.load_events(dom_list);
+
+		return false;
+	},
+
 	load_events: function(dom_obj)
 	{
 		dom_obj.children(".event_load_more").remove();
@@ -868,19 +930,6 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		this.show_or_hide_load_more(widget_id, amount);
-	},
-
-	change_date: function(e)
-	{
-		var dom_obj = jQuery(e.currentTarget),
-			dom_list = dom_obj.parents(".webshop_events").children("ul"),
-			date = dom_obj.attr('data-date');
-
-		dom_list.attr({'data-date': date}).empty();
-
-		this.load_events(dom_list);
-
-		return false;
 	},
 
 	load_more_button: function(e)

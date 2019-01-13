@@ -369,8 +369,8 @@ echo "@media all
 			margin-bottom: 0;
 			padding-bottom: 0;
 		}
-		
-		.event_calendar
+
+		.event_calendar_container
 		{
 			background-color: #fff;
 			border: .1em solid #eee;
@@ -439,7 +439,7 @@ echo "@media all
 						background-image: url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f6f6f6' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0H10L0 10M20 20V10L10 20'/%3E%3C/g%3E%3C/svg%3E\");
 						cursor: not-allowed;
 					}
-					
+
 					.event_calendar_days .day a, .event_calendar_days .day span
 					{
 						display: block;
@@ -519,13 +519,13 @@ echo "@media all
 						border-left-color: #4786ff;
 						color: #0a5eff;
 					}";*/
-		
+
 		echo ".widget.webshop_events .product_categories
 		{
 			margin-top: 1em;
 		}
-		
-		.widget.webshop_events li.event_spinner
+
+		.widget.webshop_events .event_spinner
 		{
 			text-align: center;
 		}
@@ -665,7 +665,12 @@ echo "@media all
 				#wrapper .widget.webshop_events li.calendar_feed_".$post_id." h2 a
 				{
 					color: ".$post_color.";
-				}";
+				}
+				
+			.event_calendar_days .day li.calendar_feed_".$post_id."
+			{
+				background: ".$post_color.";
+			}";
 		}
 	}
 
@@ -679,7 +684,7 @@ echo "@media all
 			min-height: 300px;
 			max-height: 100vh;
 		}
-		
+
 		.is_webshop_search_page #webshop_map
 		{
 			min-height: 754px !important;
@@ -926,7 +931,7 @@ echo "@media all
 					margin-right: .5em;
 					margin-bottom: .5em;
 				}
-				
+
 					.product_categories.category_icon li label, .product_single .product_categories.category_icon span
 					{
 						background: ".$setting_color_info.";

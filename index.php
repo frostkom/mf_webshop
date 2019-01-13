@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.0.2.4
+Version: 2.0.2.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
