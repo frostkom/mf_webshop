@@ -360,7 +360,12 @@ echo "@media all
 			.widget .webshop_item_list .product_description p
 			{
 				margin-top: .5em;
-			}";
+			}
+			
+	.widget.webshop_widget .widget_spinner
+	{
+		text-align: center;
+	}";
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
@@ -525,11 +530,6 @@ echo "@media all
 			margin-top: 1em;
 		}
 
-		.widget.webshop_events .event_spinner
-		{
-			text-align: center;
-		}
-
 		.widget.webshop_events li.event_item
 		{
 			background: #f2f2f2;
@@ -674,7 +674,83 @@ echo "@media all
 		}
 	}
 
-	echo "/* Map */
+	echo ".widget.webshop_filter_products li.filter_products_item
+		{
+			background: #e4eff3;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			margin-bottom: .5em;
+			overflow: hidden;
+			padding: 1em 1em 1em .8em;
+			transition: all .8s ease;
+		}
+
+			.widget.webshop_filter_products li.filter_products_item:hover
+			{
+				background: #bddae5;
+			}
+
+			#wrapper .widget.webshop_filter_products li > div
+			{
+				-webkit-box-flex: 1 1 auto;
+				-webkit-flex: 1 1 auto;
+				-ms-flex: 1 1 auto;
+				flex: 1 1 auto;
+			}
+
+				#wrapper .widget.webshop_filter_products li h2
+				{
+					font-weight: normal;
+					margin-bottom: 0;
+				}
+
+					#wrapper .widget.webshop_filter_products li h2 a
+					{
+						display: inline;
+					}
+
+					#wrapper .widget.webshop_filter_products li h2 span
+					{
+						/*margin-left: .5em;*/
+						font-size: .7em;
+					}
+
+				#wrapper .widget.webshop_filter_products li .product_url
+				{
+					-webkit-box-flex: 0 0 6em;
+					-webkit-flex: 0 0 6em;
+					-ms-flex: 0 0 6em;
+					flex: 0 0 6em;
+					text-align: center;
+				}
+
+					#wrapper .widget.webshop_filter_products li .product_url a
+					{
+						background: #666;
+						border-radius: 2em;
+						color: #fff;
+						opacity: 0;
+						top: 50%;
+						transition: all 1.2s ease;
+						-webkit-transform: translateY(100%, -50%);
+						transform: translate(100%, -50%);
+					}
+
+						#wrapper .widget.webshop_filter_products li:hover .product_url a
+						{
+							opacity: 1;
+							-webkit-transform: translateY(0%, -50%);
+							transform: translate(0%, -50%);
+						}
+
+		.widget.webshop_filter_products li.filter_products_load_more
+		{
+			text-align: center;
+		}
+	
+	/* Map */
 	.map_wrapper
 	{
 		position: relative;

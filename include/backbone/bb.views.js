@@ -29,6 +29,11 @@ var WebshopView = Backbone.View.extend(
 
 		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
 
+		/* Filter Products */
+		this.model.on("change:filter_products_hash", this.show_filter_products, this);
+
+		this.is_filter_products_view = jQuery(".webshop_widget.webshop_filter_products").length > 0;
+
 		if(this.is_favorites_view)
 		{
 			if(typeof this.form_products != 'undefined' && this.form_products != '')
@@ -53,17 +58,25 @@ var WebshopView = Backbone.View.extend(
 			}
 		}
 
-		else if(this.is_events_view)
+		else if(this.is_events_view || this.is_filter_products_view)
 		{
-			this.dom_calendar = jQuery(".webshop_widget.webshop_events .event_calendar");
-			this.has_calendar = this.dom_calendar.length > 0;
-
-			if(this.has_calendar)
+			if(this.is_events_view)
 			{
-				this.load_calendar();
+				this.dom_calendar = jQuery(".webshop_widget.webshop_events .event_calendar");
+				this.has_calendar = this.dom_calendar.length > 0;
+
+				if(this.has_calendar)
+				{
+					this.load_calendar();
+				}
+
+				this.load_all_events();
 			}
 
-			this.load_all_events();
+			if(this.is_filter_products_view)
+			{
+				this.load_all_filter_products();
+			}
 		}
 
 		else
@@ -102,7 +115,10 @@ var WebshopView = Backbone.View.extend(
 		/* Events */
 		"click .event_calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
-		"click .event_load_more button": "load_more_button"
+		"click .event_load_more button": "load_more_button",
+
+		/* Filter Products */
+		"click .filter_products_load_more button": "load_more_button"
 	},
 
 	search_all_products: function(e)
@@ -811,7 +827,7 @@ var WebshopView = Backbone.View.extend(
 		var response = this.model.get('calendar_response'),
 			html = '';
 
-		this.dom_calendar.children(".event_spinner").remove();
+		this.dom_calendar.children(".widget_spinner").remove();
 
 		var dom_template = jQuery("#template_calendar").html();
 
@@ -848,13 +864,13 @@ var WebshopView = Backbone.View.extend(
 	{
 		dom_obj.children(".event_load_more").remove();
 
-		if(dom_obj.children(".event_spinner").length == 0)
+		if(dom_obj.children(".widget_spinner").length == 0)
 		{
 			dom_obj.append(_.template(jQuery("#template_event_spinner").html())(''));
 		}
 
 		var widget_id = dom_obj.attr('id'),
-			option_type = dom_obj.attr('data-option-date') || '',
+			option_type = dom_obj.attr('data-option-type') || '',
 			date = dom_obj.attr('data-date'),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');
@@ -884,29 +900,15 @@ var WebshopView = Backbone.View.extend(
 		});
 	},
 
-	show_or_hide_load_more: function(widget_id, amount)
-	{
-		var event_amount = this.model.get('event_amount'),
-			event_rest = event_amount - amount;
-
-		jQuery("#" + widget_id).siblings(".event_text").find("span").text(event_amount);
-
-		if(event_rest > 0)
-		{
-			var dom_template = jQuery("#template_event_load_more").html();
-
-			jQuery("#" + widget_id).append(_.template(dom_template)({'event_rest': event_rest}));
-		}
-	},
-
 	show_events: function()
 	{
 		var widget_id = this.model.get('widget_id'),
+			dom_widget = jQuery("#" + widget_id),
 			response = this.model.get('event_response'),
 			amount = response.length,
 			html = '';
 
-		jQuery("#" + widget_id).children(".event_spinner").remove();
+		dom_widget.children(".widget_spinner").remove();
 
 		if(amount > 0)
 		{
@@ -917,7 +919,7 @@ var WebshopView = Backbone.View.extend(
 				html += _.template(dom_template)(response[i]);
 			}
 
-			jQuery("#" + widget_id).append(html);
+			dom_widget.append(html);
 
 			this.show_map_coords(true);
 		}
@@ -926,21 +928,141 @@ var WebshopView = Backbone.View.extend(
 		{
 			html = _.template(jQuery("#template_event_message").html())('');
 
-			jQuery("#" + widget_id).html(html);
+			dom_widget.html(html);
 		}
 
 		this.show_or_hide_load_more(widget_id, amount);
 	},
 
+	load_filter_products: function(dom_obj)
+	{
+		dom_obj.children(".filter_products_load_more").remove();
+
+		if(dom_obj.children(".widget_spinner").length == 0)
+		{
+			dom_obj.append(_.template(jQuery("#template_filter_products_spinner").html())(''));
+		}
+
+		var widget_id = dom_obj.attr('id'),
+			option_type = dom_obj.attr('data-option-type') || '',
+			category = dom_obj.attr('data-category'),
+			limit = dom_obj.attr('data-limit'),
+			amount = dom_obj.attr('data-amount');
+
+		var get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
+
+		if(option_type != '')
+		{
+			get_vars += "&option_type=" + option_type;
+		}
+
+		if(limit > 0)
+		{
+			get_vars += "&limit=" + limit;
+		}
+
+		this.model.getPage(get_vars);
+	},
+
+	load_all_filter_products: function()
+	{
+		var self = this;
+
+		jQuery(".webshop_widget.webshop_filter_products").each(function()
+		{
+			self.load_filter_products(jQuery(this).children("ul"));
+		});
+	},
+
+	show_filter_products: function()
+	{
+		var widget_id = this.model.get('widget_id'),
+			dom_widget = jQuery("#" + widget_id),
+			response = this.model.get('filter_products_response'),
+			amount = response.length,
+			html = '';
+
+		dom_widget.children(".widget_spinner").remove();
+
+		if(amount > 0)
+		{
+			var dom_template = jQuery("#template_filter_products_item").html();
+
+			for(var i = 0; i < amount; i++)
+			{
+				html += _.template(dom_template)(response[i]);
+			}
+
+			dom_widget.append(html);
+		}
+
+		else
+		{
+			html = _.template(jQuery("#template_filter_products_message").html())('');
+
+			dom_widget.html(html);
+		}
+
+		this.show_or_hide_load_more(widget_id, amount);
+	},
+
+	show_or_hide_load_more: function(widget_id, amount)
+	{
+		var dom_widget = jQuery("#" + widget_id),
+			dom_parent = dom_widget.parents(".webshop_widget"),
+			dom_type = dom_parent.hasClass('webshop_event') ? "events" : "filter_products";
+
+		if(dom_type == "events")
+		{
+			var event_amount = this.model.get('event_amount'),
+				event_rest = event_amount - amount;
+
+			dom_widget.siblings(".event_text").find("span").text(event_amount);
+
+			if(event_rest > 0)
+			{
+				var dom_template = jQuery("#template_event_load_more").html();
+
+				dom_widget.append(_.template(dom_template)({'event_rest': event_rest}));
+			}
+		}
+
+		else
+		{
+			var filter_products_amount = this.model.get('filter_products_amount'),
+				filter_products_rest = filter_products_amount - amount;
+
+			dom_widget.siblings(".filter_products_text").find("span").text(filter_products_amount);
+
+			if(filter_products_rest > 0)
+			{
+				var dom_template = jQuery("#template_filter_products_load_more").html();
+
+				dom_widget.append(_.template(dom_template)({'filter_products_rest': filter_products_rest}));
+			}
+		}
+	},
+
 	load_more_button: function(e)
 	{
-		var dom_list = jQuery(e.currentTarget).parents(".webshop_events").children("ul"),
+		var dom_obj = jQuery(e.currentTarget),
+			dom_parent = dom_obj.parents(".webshop_widget"),
+			dom_type = dom_parent.hasClass('webshop_event') ? "events" : "filter_products",
+			dom_list = dom_parent.children("ul"),
 			limit = dom_list.attr('data-limit'),
 			amount = dom_list.attr('data-amount');
 
 		dom_list.attr({'data-limit': (parseInt(amount) + parseInt(limit))});
 
-		this.load_events(dom_list);
+		if(dom_type == "events")
+		{
+			this.load_events(dom_list);
+		}
+
+		else
+		{
+			this.load_filter_products(dom_list);
+		}
 
 		return false;
 	}

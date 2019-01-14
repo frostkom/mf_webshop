@@ -65,7 +65,7 @@ switch($type)
 
 			$arr_events = array();
 
-			$result = $obj_webshop->get_events(array('exact_date' => $date_temp, 'amount' => 5)); //, 'get_results' => false
+			$result = $obj_webshop->get_events(array('exact_date' => $date_temp, 'amount' => 5));
 
 			foreach($result['event_response'] as $event)
 			{
@@ -104,6 +104,16 @@ switch($type)
 		$amount = check_var('amount', 'int');
 
 		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'start_date' => $start_date, 'limit' => $limit, 'amount' => $amount));
+	break;
+
+	case 'filter_products':
+		$id = check_var('id', 'char');
+		$option_type = check_var('option_type', 'char');
+		$category = check_var('category', 'char');
+		$limit = check_var('limit', 'int', true, '0');
+		$amount = check_var('amount', 'int');
+
+		$json_output = $obj_webshop->get_filter_products(array('id' => $id, 'option_type' => $option_type, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
 	break;
 
 	case 'amount':
