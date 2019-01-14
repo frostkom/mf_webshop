@@ -81,7 +81,7 @@ switch($type)
 				'event_amount' => $result['event_amount'],
 				'events' => $arr_events,
 			);
-			
+
 			$date_temp = date("Y-m-d", strtotime($date_temp." +1 day"));
 		}
 
@@ -100,10 +100,12 @@ switch($type)
 		$id = check_var('id', 'char');
 		$option_type = check_var('option_type', 'char');
 		$start_date = check_var('start_date', 'date', true, date("Y-m-d H:i:s"));
+		$category = check_var('category', 'char');
+		$option_type = check_var('option_type', 'char');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
-		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'start_date' => $start_date, 'limit' => $limit, 'amount' => $amount));
+		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
 	break;
 
 	case 'filter_products':
@@ -133,6 +135,9 @@ switch($type)
 			$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS meta_ghost ON ".$wpdb->posts.".ID = meta_ghost.post_id AND meta_ghost.meta_key = '".esc_sql($obj_webshop->meta_prefix.$ghost_post_name)."'";
 			$query_order .= ($query_order != '' ? ", " : "")."meta_ghost.meta_value + 0 ASC";
 		}*/
+
+		$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key = '".$obj_webshop->meta_prefix.'searchable'."'";
+		$query_where .= " AND (searchable.meta_value IS null OR searchable.meta_value = 'yes')";
 
 		switch($order)
 		{
@@ -182,8 +187,6 @@ switch($type)
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish'".$query_where.($query_group != '' ? " GROUP BY ".$query_group : "").($query_order != '' ? " ORDER BY ".$query_order : ""), $obj_webshop->post_type_products.$obj_webshop->option_type));
 
-		//$json_output['last_query'] = $wpdb->last_query;
-
 		foreach($result as $r)
 		{
 			$obj_webshop->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $json_output);
@@ -191,7 +194,7 @@ switch($type)
 
 		$json_output['success'] = true;
 
-		if($type == 'amount') //isset($_REQUEST['get_amount'])
+		if($type == 'amount')
 		{
 			$json_output['product_amount'] = count($json_output['product_response']);
 

@@ -113,12 +113,10 @@ var WebshopView = Backbone.View.extend(
 		"click .quote_button .button_print": "print_favorites",
 
 		/* Events */
-		"click .event_calendar_header button": "change_month",
+		"click .webshop_widget .calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
-		"click .event_load_more button": "load_more_button",
-
-		/* Filter Products */
-		"click .filter_products_load_more button": "load_more_button"
+		"change .webshop_events .event_filters .product_categories input[type='radio']": "change_category",
+		"click .webshop_widget .widget_load_more button": "load_more_button"
 	},
 
 	search_all_products: function(e)
@@ -853,16 +851,34 @@ var WebshopView = Backbone.View.extend(
 
 		dom_obj.parent(".day").addClass('today').siblings(".day").removeClass('today');
 
-		dom_list.attr({'data-date': date}).empty();
+		dom_list.attr(
+		{
+			'data-date': date,
+			'data-limit': 0
+		}).empty();
 
 		this.load_events(dom_list);
 
 		return false;
 	},
 
+	change_category: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			dom_list = dom_obj.parents(".webshop_events").children("ul"),
+			category = dom_obj.attr('value');
+
+		dom_list.attr(
+		{
+			'data-category': category
+		}).empty();
+
+		this.load_events(dom_list);
+	},
+
 	load_events: function(dom_obj)
 	{
-		dom_obj.children(".event_load_more").remove();
+		dom_obj.children(".widget_load_more").remove();
 
 		if(dom_obj.children(".widget_spinner").length == 0)
 		{
@@ -872,6 +888,7 @@ var WebshopView = Backbone.View.extend(
 		var widget_id = dom_obj.attr('id'),
 			option_type = dom_obj.attr('data-option-type') || '',
 			date = dom_obj.attr('data-date'),
+			category = dom_obj.attr('data-category') || '',
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');
 
@@ -880,6 +897,11 @@ var WebshopView = Backbone.View.extend(
 		if(option_type != '')
 		{
 			get_vars += "&option_type=" + option_type;
+		}
+
+		if(category != '')
+		{
+			get_vars += "&category=" + category;
 		}
 
 		if(limit > 0)
@@ -936,7 +958,7 @@ var WebshopView = Backbone.View.extend(
 
 	load_filter_products: function(dom_obj)
 	{
-		dom_obj.children(".filter_products_load_more").remove();
+		dom_obj.children(".widget_load_more").remove();
 
 		if(dom_obj.children(".widget_spinner").length == 0)
 		{
@@ -1010,14 +1032,14 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_widget = jQuery("#" + widget_id),
 			dom_parent = dom_widget.parents(".webshop_widget"),
-			dom_type = dom_parent.hasClass('webshop_event') ? "events" : "filter_products";
+			dom_type = dom_parent.hasClass('webshop_events') ? "events" : "filter_products";
 
 		if(dom_type == "events")
 		{
 			var event_amount = this.model.get('event_amount'),
 				event_rest = event_amount - amount;
 
-			dom_widget.siblings(".event_text").find("span").text(event_amount);
+			dom_widget.siblings(".widget_text").find("span").text(event_amount);
 
 			if(event_rest > 0)
 			{
@@ -1032,7 +1054,7 @@ var WebshopView = Backbone.View.extend(
 			var filter_products_amount = this.model.get('filter_products_amount'),
 				filter_products_rest = filter_products_amount - amount;
 
-			dom_widget.siblings(".filter_products_text").find("span").text(filter_products_amount);
+			dom_widget.siblings(".widget_text").find("span").text(filter_products_amount);
 
 			if(filter_products_rest > 0)
 			{
@@ -1047,7 +1069,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget),
 			dom_parent = dom_obj.parents(".webshop_widget"),
-			dom_type = dom_parent.hasClass('webshop_event') ? "events" : "filter_products",
+			dom_type = dom_parent.hasClass('webshop_events') ? "events" : "filter_products",
 			dom_list = dom_parent.children("ul"),
 			limit = dom_list.attr('data-limit'),
 			amount = dom_list.attr('data-amount');

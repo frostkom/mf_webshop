@@ -1,8 +1,5 @@
 <?php
-/**
- * @package WordPress
- * @subpackage MF Webshop
-
+/*
 Template Name: Webshop Search
 */
 

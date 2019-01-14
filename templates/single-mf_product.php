@@ -201,20 +201,15 @@ get_header();
 									$post_meta = "";
 								break;
 
-								case 'container_start':
-
-								break;
-
-								case 'container_end':
-
-								break;
-
 								case 'clock':
+								case 'container_start':
+								case 'container_end':
 								case 'description':
 								case 'ghost':
 								case 'interval':
 								case 'location':
 								case 'number':
+								case 'overlay':
 								case 'size':
 								case 'text':
 								case 'textarea':

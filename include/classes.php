@@ -205,6 +205,7 @@ class mf_webshop
 				'categories_v2' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'))." (".__("v2", 'lang_webshop').")",
 				'custom_categories' => __("Custom Categories", 'lang_webshop'),
 				'social' => __("Social Feed", 'lang_webshop'),
+				'overlay' => __("Overlay", 'lang_webshop'),
 			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
 				'number' => __("Number", 'lang_webshop'),
 				'price' => __("Number", 'lang_webshop')." (".__("Price", 'lang_webshop').")",
@@ -313,9 +314,9 @@ class mf_webshop
 
 		foreach($this->arr_option_types as $option_type)
 		{
-			$this->option_type = ($option_type != '' ? "_".$option_type : '');
+			$option_type_temp = ($option_type != '' ? "_".$option_type : '');
 
-			$arr_data[$option_type] = get_option_or_default('setting_webshop_replace_webshop'.$this->option_type, __("Webshop", 'lang_webshop'));
+			$arr_data[$option_type] = get_option_or_default('setting_webshop_replace_webshop'.$option_type_temp, __("Webshop", 'lang_webshop'));
 		}
 
 		return $arr_data;
@@ -1544,6 +1545,33 @@ class mf_webshop
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js", $plugin_version);
 	}
 
+	function wp_footer()
+	{
+		global $post;
+
+		if(isset($post->ID) && $post->ID > 0)
+		{
+			$post_id = $post->ID;
+
+			$this->get_option_type_from_post_id($post_id);
+
+			if($post->post_type == $this->post_type_products.$this->option_type)
+			{
+				$overlay_post_name = $this->get_post_name_for_type('overlay');
+
+				if($overlay_post_name != '')
+				{
+					$post_overlay = get_post_meta($post_id, $this->meta_prefix.$overlay_post_name, true);
+
+					if($post_overlay != '')
+					{
+						echo "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
+					}
+				}
+			}
+		}
+	}
+
 	function get_option_type_from_post_id($post_id)
 	{
 		$this->option_type = str_replace($this->post_type_products, "", get_post_type($post_id));
@@ -2323,13 +2351,22 @@ class mf_webshop
 
 			$count_temp = count($arr_categories);
 
+			$arr_yes_no = get_yes_no_for_select();
+
 			if($count_temp > 0)
 			{
+				$fields_settings[] = array(
+					'name' => __("Searchable", 'lang_webshop'),
+					'id' => $this->meta_prefix.'searchable',
+					'type' => 'select',
+					'options' => $arr_yes_no,
+				);
+
 				$fields_settings[] = array(
 					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
 					'id' => $this->meta_prefix.'category',
 					'type' => 'select3',
-					'options'  => $arr_categories,
+					'options' => $arr_categories,
 					'multiple' => (get_option('setting_webshop_allow_multiple_categories'.$this->option_type, 'yes') == 'yes'),
 					'attributes' => array(
 						'size' => get_select_size(array('count' => $count_temp)),
@@ -2341,7 +2378,7 @@ class mf_webshop
 			{
 				$fields_settings[] = array(
 					'name' => __("Image", 'lang_webshop'),
-					'id'   => $this->meta_prefix.'product_image',
+					'id' => $this->meta_prefix.'product_image',
 					'type' => 'file_advanced',
 				);
 			}
@@ -2534,8 +2571,6 @@ class mf_webshop
 
 			// Document Types
 			####################################
-			$arr_yes_no = get_yes_no_for_select();
-
 			$arr_fields = array(
 				array(
 					'name' => __("Type", 'lang_webshop'),
@@ -2590,7 +2625,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "overlay"',
 					),
 				),
 				array(
@@ -2602,7 +2637,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
 					),
 				),
 				array(
@@ -2614,7 +2649,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
 					),
 				),
 				array(
@@ -2626,7 +2661,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
 					),
 				),
 			);
@@ -3890,7 +3925,7 @@ class mf_webshop
 				$out .= "<script type='text/template' id='template_calendar_spinner'>"
 					.$this->get_spinner_template(array('tag' => 'div', 'size' => "fa-2x"))
 				."</script>
-					
+
 				<script type='text/template' id='template_calendar'>"
 					.$this->get_event_calendar()
 				."</script>
@@ -3906,12 +3941,12 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_event_item'>
-					<li itemscope itemtype='//schema.org/Event' class='event_item calendar_feed_<%= feed_id %>'>
+					<li itemscope itemtype='//schema.org/Event' class='list_item calendar_feed_<%= feed_id %>'>
 						<div class='event_date'>
 							<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
 							<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
 						</div>
-						<div class='event_info'>
+						<div>
 							<h2><a href='<%= product_url %>' itemprop='name'><%= event_title %></a><span>(<%= product_categories %>)</span></h2>
 							<p>
 								<span class='duration'><i class='far fa-clock'></i> <%= event_duration %></span>
@@ -3922,7 +3957,7 @@ class mf_webshop
 							</p>
 							<p>".$name_product.": <%= product_title %></p>
 						</div>
-						<div class='event_url'>
+						<div class='list_url'>
 							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 						</div>
 						<% if(product_map != '')
@@ -3933,7 +3968,7 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_event_load_more'>
-					<li class='event_load_more form_button'>"
+					<li class='widget_load_more form_button'>"
 						.show_button(array('text' => sprintf(__("Display More Events (%s)", 'lang_webshop'), "<%= event_rest %>"), 'class' => "button"))
 					."</li>
 				</script>";
@@ -3953,8 +3988,8 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_filter_products_item'>
-					<li class='filter_products_item'>
-						<div class='filter_products_info'>
+					<li class='list_item'>
+						<div>
 							<h2><a href='<%= product_url %>'><%= product_title %></a>
 								<% if(product_location != '')
 								{ %>
@@ -3968,14 +4003,14 @@ class mf_webshop
 								<% } %>
 							</p>
 						</div>
-						<div class='product_url'>
+						<div class='list_url'>
 							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 						</div>
 					</li>
 				</script>
 
 				<script type='text/template' id='template_filter_products_load_more'>
-					<li class='filter_products_load_more form_button'>"
+					<li class='widget_load_more form_button'>"
 						.show_button(array('text' => sprintf(__("Display More %s (%s)", 'lang_webshop'), $name_products, "<%= filter_products_rest %>"), 'class' => "button"))
 					."</li>
 				</script>";
@@ -4071,13 +4106,13 @@ class mf_webshop
 
 	function get_event_calendar()
 	{
-		$out = "<div class='event_calendar_container'>
-			<div class='event_calendar_header'>
+		$out = "<div class='calendar_container'>
+			<div class='calendar_header'>
 				<button data-month='<%= last_month %>'>&laquo;</button>
 				<span><%= nice_month %></span>
 				<button data-month='<%= next_month %>'>&raquo;</button>
 			</div>
-			<div class='event_calendar_days'>";
+			<div class='calendar_days'>";
 
 				for($i = 0; $i < 7; $i++)
 				{
@@ -4097,7 +4132,7 @@ class mf_webshop
 								<% }); %>
 							</ul>
 						<% }
-						
+
 						else
 						{ %>
 							<span><%= day.number %></span>
@@ -4122,6 +4157,7 @@ class mf_webshop
 		if(!isset($data['id'])){			$data['id'] = "";}
 		if(!isset($data['start_date'])){	$data['start_date'] = "";}
 		if(!isset($data['exact_date'])){	$data['exact_date'] = "";}
+		if(!isset($data['category'])){		$data['category'] = "";}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		$out = "";
@@ -4142,7 +4178,7 @@ class mf_webshop
 			if($data['id'] != '')
 			{
 				$out['widget_id'] = $data['id'];
-				$out['event_hash'] = md5(var_export($_REQUEST, true));
+				$out['event_hash'] = md5(var_export($_REQUEST, true).date("YmdHis"));
 			}
 
 			$out['event_response'] = array();
@@ -4157,20 +4193,23 @@ class mf_webshop
 				$product_map = get_post_meta($r->ID, $this->meta_prefix.$gps_post_name, true);
 				$arr_categories = get_post_meta($r->ID, $this->meta_prefix.'category', false);
 
-				$product_categories = "";
-
-				foreach($arr_categories as $key => $value)
+				if($data['category'] == '' || in_array($data['category'], $arr_categories))
 				{
-					$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
-				}
+					$product_categories = "";
 
-				$arr_product_ids[] = $r->meta_value;
-				$arr_product_translate_ids[$r->meta_value] = array(
-					'product_id' => $r->ID,
-					'product_title' => $r->post_title,
-					'product_map' => $product_map,
-					'product_categories' => $product_categories,
-				);
+					foreach($arr_categories as $key => $value)
+					{
+						$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
+					}
+
+					$arr_product_ids[] = $r->meta_value;
+					$arr_product_translate_ids[$r->meta_value] = array(
+						'product_id' => $r->ID,
+						'product_title' => $r->post_title,
+						'product_map' => $product_map,
+						'product_categories' => $product_categories,
+					);
+				}
 			}
 
 			if(count($arr_product_ids) > 0)
@@ -4348,9 +4387,9 @@ class mf_webshop
 		if($data['id'] != '')
 		{
 			$out['widget_id'] = $data['id'];
-			$out['filter_products_hash'] = md5(var_export($_REQUEST, true));
+			$out['filter_products_hash'] = md5(var_export($_REQUEST, true).date("YmdHis"));
 		}
-		
+
 		$out['filter_products_response'] = array();
 
 		$query_limit = "";
@@ -5684,24 +5723,39 @@ if(class_exists('RWMB_Field'))
 	{
 		public static function html($meta, $field)
 		{
-			$options                     = self::transform_options( $field['options'] );
-			$attributes                  = self::call( 'get_attributes', $field, $meta );
+			$options = self::transform_options($field['options']);
+			$attributes = self::call('get_attributes', $field, $meta);
 			$attributes['data-selected'] = $meta;
-			$walker                      = new RWMB_Walker_Select( $field, $meta );
+			$walker = new RWMB_Walker_Select( $field, $meta );
 
 			$attributes['class'] .= " multiselect";
 
-			$output                      = sprintf(
-				'<select %s>',
-				self::render_attributes( $attributes )
+			$output = sprintf(
+				"<select %s>",
+				self::render_attributes($attributes)
 			);
-			if ( ! $field['multiple'] && $field['placeholder'] ) {
-				$output .= '<option value="">' . esc_html( $field['placeholder'] ) . '</option>';
-			}
-			$output .= $walker->walk( $options, $field['flatten'] ? -1 : 0 );
-			$output .= '</select>';
-			$output .= self::get_select_all_html( $field );
+
+				if(!$field['multiple'] && $field['placeholder'])
+				{
+					$output .= "<option value=''>".esc_html($field['placeholder'])."</option>";
+				}
+
+				$output .= $walker->walk($options, $field['flatten'] ? -1 : 0)
+			."</select>"
+			.self::get_select_all_html($field);
+
 			return $output;
+		}
+	}
+
+	class RWMB_Overlay_Field extends RWMB_Textarea_Field
+	{
+		static public function html($meta, $field)
+		{
+			$attributes = self::get_attributes($field, $meta);
+
+			return sprintf("<textarea %s>%s</textarea>", self::render_attributes($attributes), $meta);
+			//return show_textarea(array('name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-content large-text", 'xtra' => self::render_attributes($field['attributes'])));
 		}
 	}
 
@@ -6562,7 +6616,7 @@ class widget_webshop_events extends WP_Widget
 
 				if($instance['webshop_text'] != '')
 				{
-					echo "<div class='event_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+					echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
 				}
 
 				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>"
@@ -6622,10 +6676,10 @@ class widget_webshop_filter_products extends WP_Widget
 
 		$this->arr_default = array(
 			'webshop_heading' => '',
-			'webshop_category' => '',
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
+			'webshop_category' => '',
 		);
 
 		$this->obj_webshop = new mf_webshop();
@@ -6658,7 +6712,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 				if($instance['webshop_text'] != '')
 				{
-					echo "<div class='filter_products_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+					echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
 				}
 
 				echo "<ul id='".$widget_id."' data-option-type='".$instance['webshop_option_type']."' data-category='".$instance['webshop_category']."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>"
@@ -6674,10 +6728,10 @@ class widget_webshop_filter_products extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
-		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
+		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 
 		return $instance;
 	}
@@ -6688,14 +6742,16 @@ class widget_webshop_filter_products extends WP_Widget
 
 		$name_category = get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop'));
 
+		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
+
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
-			.show_select(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
 			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
-			."</div>
-		</div>";
+			."</div>"
+			.show_select(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
+		."</div>";
 	}
 }
