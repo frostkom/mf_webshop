@@ -202,7 +202,7 @@ class mf_webshop
 				'page' => __("Page", 'lang_webshop'),
 				'file_advanced' => __("File", 'lang_webshop'),
 				'categories' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop')),
-				'categories_v2' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'))." (".__("v2", 'lang_webshop').")",
+				'categories_v2' => get_option_or_default('setting_webshop_replace_categories', __("Categories", 'lang_webshop'))." (v2)",
 				'custom_categories' => __("Custom Categories", 'lang_webshop'),
 				'social' => __("Social Feed", 'lang_webshop'),
 				'overlay' => __("Overlay", 'lang_webshop'),
@@ -4124,13 +4124,15 @@ class mf_webshop
 					<div class='day<%= day.class %>'>
 						<% if(day.event_amount > 0)
 						{ %>
-							<a href='#' data-date='<%= day.date %>'><%= day.number %></a>
-							<ul>
-								<% _.each(day.events, function(event)
-								{ %>
-									<li class='calendar_feed_<%= event.feed_id %>'></li>
-								<% }); %>
-							</ul>
+							<a href='#' data-date='<%= day.date %>'>
+								<%= day.number %>
+								<ul>
+									<% _.each(day.events, function(event)
+									{ %>
+										<li class='calendar_feed_<%= event.feed_id %>'></li>
+									<% }); %>
+								</ul>
+							</a>
 						<% }
 
 						else
@@ -6603,7 +6605,7 @@ class widget_webshop_events extends WP_Widget
 						{
 							$event_filter_category = check_var('event_filter_category', 'char');
 
-							echo show_form_alternatives(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => 'event_filter_category', 'value' => $event_filter_category, 'class' => "product_categories category_icon")); //, 'required' => ($post_custom_required == 'yes')
+							echo show_form_alternatives(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => 'event_filter_category[]', 'value' => $event_filter_category, 'class' => "product_categories category_icon")); //, 'required' => ($post_custom_required == 'yes')
 						}
 
 						if(in_array('location', $instance['webshop_filters']))

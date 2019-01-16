@@ -204,11 +204,6 @@ echo "@media all
 		text-decoration: line-through;
 	}
 
-	/*#wrapper
-	{
-		overflow: hidden;
-	}*/
-
 	content > div > form, #mf-content > div > form
 	{
 		display: inherit;
@@ -228,19 +223,6 @@ echo "@media all
 			position: relative;
 			text-decoration: none;
 		}
-
-			/* This affects all aside h4 across all plugins */
-			/*.aside ul i
-			{
-				position: absolute;
-				right: 0;
-			}*/
-
-	/* This affects all aside h4 across all plugins */
-	/*.aside h4
-	{
-		margin: 1.5em 0 .5em;
-	}*/
 
 	#wrapper h1 a
 	{
@@ -279,7 +261,7 @@ echo "@media all
 			max-width: 40%;
 		}
 
-			body:not(.is_mobile)/*.is_webshop_search_page*/ .widget.webshop_map > div
+			body:not(.is_mobile) .widget.webshop_map > div
 			{
 				padding: 0 !important;
 			}
@@ -439,19 +421,26 @@ echo "@media all
 					background: #666;
 					border-radius: 2em;
 					color: #fff;
-					opacity: 0;
+					opacity: 1;
 					top: 50%;
 					transition: all 1.2s ease;
-					-webkit-transform: translateY(100%, -50%);
-					transform: translate(100%, -50%);
+					-webkit-transform: translateY(0%, -50%);
+					transform: translate(0%, -50%);
 				}
 
-					#wrapper .webshop_events li:hover .list_url a, #wrapper .webshop_filter_products li:hover .list_url a
+					.is_desktop #wrapper .webshop_events li .list_url a, .is_desktop #wrapper .webshop_filter_products li .list_url a
 					{
-						opacity: 1;
-						-webkit-transform: translateY(0%, -50%);
-						transform: translate(0%, -50%);
+						opacity: 0;
+						-webkit-transform: translateY(100%, -50%);
+						transform: translate(100%, -50%);
 					}
+
+						.is_desktop #wrapper .webshop_events li:hover .list_url a, .is_desktop #wrapper .webshop_filter_products li:hover .list_url a
+						{
+							opacity: 1;
+							-webkit-transform: translateY(0%, -50%);
+							transform: translate(0%, -50%);
+						}
 
 	.webshop_widget .widget_load_more
 	{
@@ -460,6 +449,15 @@ echo "@media all
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
+		$setting_calendar_date_bg = get_option_or_default('setting_calendar_date_bg', '#019cdb');
+
+		$obj_calendar = new mf_calendar();
+
+		$rgb = $obj_calendar->HTMLToRGB($setting_calendar_date_bg);
+		$hsl = $obj_calendar->RGBToHSL($rgb);
+
+		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");
+
 		echo ".widget.webshop_events .event_filters
 		{
 			margin-bottom: 0;
@@ -515,7 +513,7 @@ echo "@media all
 					border-right: .1em solid #eee;
 					color: #999;
 					font-size: 1em;
-					padding-top: .8em;
+					overflow: hidden;
 					text-align: center;
 					transition: all 1s ease;
 				}
@@ -527,8 +525,13 @@ echo "@media all
 
 					.webshop_events .calendar_days .day.today
 					{
-						background-color: #f5f5f5;
+						background-color: ".$setting_calendar_date_bg.";
 					}
+
+						.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
+						{
+							color: ".$setting_calendar_date_text_color.";
+						}
 
 					.webshop_events .calendar_days .day.disabled
 					{
@@ -539,6 +542,7 @@ echo "@media all
 					.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
 					{
 						display: block;
+						padding-top: .8em;
 						transition: all 1s ease;
 					}
 
@@ -548,25 +552,25 @@ echo "@media all
 							transform: scale(1.5);
 						}
 
-					.webshop_events .calendar_days .day a
+					/*.webshop_events .calendar_days .day a
 					{
 						color: #333;
-					}
+					}*/
 
-					.webshop_events .calendar_days .day ul
-					{
-						list-style: none;
-					}
-
-						.webshop_events .calendar_days .day li
+						.webshop_events .calendar_days .day ul
 						{
-							background: #999;
-							border-radius: 50%;
-							content: ' ';
-							display: inline-block;
-							height: .5em;
-							width: .5em;
+							list-style: none;
 						}
+
+							.webshop_events .calendar_days .day li
+							{
+								background: #999;
+								border-radius: 50%;
+								content: ' ';
+								display: inline-block;
+								height: .5em;
+								width: .5em;
+							}
 
 					.webshop_events .calendar_days .day:nth-of-type(7n + 7)
 					{

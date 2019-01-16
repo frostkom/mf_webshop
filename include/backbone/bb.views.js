@@ -115,7 +115,7 @@ var WebshopView = Backbone.View.extend(
 		/* Events */
 		"click .webshop_widget .calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
-		"change .webshop_events .event_filters .product_categories input[type='radio']": "change_category",
+		"change .webshop_events .event_filters .event_filter_category": "change_category",
 		"click .webshop_widget .widget_load_more button": "load_more_button"
 	},
 
@@ -865,13 +865,26 @@ var WebshopView = Backbone.View.extend(
 	change_category: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
-			dom_list = dom_obj.parents(".webshop_events").children("ul"),
-			category = dom_obj.attr('value');
+			dom_list = dom_obj.parents(".webshop_events").children("ul");
 
-		dom_list.attr(
+		if(dom_obj.is(':checked'))
 		{
-			'data-category': category
-		}).empty();
+			dom_obj.parent(".form_checkbox").siblings(".form_checkbox").children(".event_filter_category").prop('checked', false);
+			
+			var category = dom_obj.attr('value');
+
+			dom_list.attr(
+			{
+				'data-category': category
+			});
+		}
+
+		else
+		{
+			dom_list.removeAttr('data-category');
+		}
+
+		dom_list.empty();
 
 		this.load_events(dom_list);
 	},
