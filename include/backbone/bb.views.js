@@ -97,7 +97,7 @@ var WebshopView = Backbone.View.extend(
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
 		/*"click .product_search .show_choose_all": "choose_all",*/
-		"click #product_form aside h2, #product_form .aside h2, .product_single h2.is_map_toggler, .widget.webshop_map h2": "toggle_aside",
+		"click #product_form aside h2, #product_form .aside h2, .single-mf_product h2.is_map_toggler, .widget.webshop_map h2": "toggle_aside",
 
 		/* Result List */
 		"change #webshop_search input": "search_products_change",
@@ -808,14 +808,20 @@ var WebshopView = Backbone.View.extend(
 
 	load_calendar: function()
 	{
-		var date = this.dom_calendar.attr('data-date');
+		var date = this.dom_calendar.attr('data-date'),
+			product_id = this.dom_calendar.attr('data-product_id') || 0;
 
-		if(this.dom_calendar.find(".event_calendar_header").length > 0)
+		if(this.dom_calendar.find(".calendar_header").length > 0)
 		{
-			this.dom_calendar.find(".event_calendar_header").html(_.template(jQuery("#template_calendar_spinner").html())(''));
+			this.dom_calendar.find(".calendar_header").html(_.template(jQuery("#template_calendar_spinner").html())(''));
 		}
 
 		var get_vars = "type=calendar&date=" + date;
+
+		if(product_id > 0)
+		{
+			get_vars += "&product_id=" + product_id;
+		}
 
 		this.model.getPage(get_vars);
 	},
@@ -823,11 +829,10 @@ var WebshopView = Backbone.View.extend(
 	show_calendars: function()
 	{
 		var response = this.model.get('calendar_response'),
-			html = '';
+			html = '',
+			dom_template = jQuery("#template_calendar").html();
 
 		this.dom_calendar.children(".widget_spinner").remove();
-
-		var dom_template = jQuery("#template_calendar").html();
 
 		this.dom_calendar.html(_.template(dom_template)(response));
 	},
@@ -846,7 +851,7 @@ var WebshopView = Backbone.View.extend(
 	change_date: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
-			dom_list = dom_obj.parents(".webshop_events").children("ul"),
+			dom_list = dom_obj.parents(".webshop_events").find(".widget_list"),
 			date = dom_obj.attr('data-date');
 
 		dom_obj.parent(".day").addClass('today').siblings(".day").removeClass('today');
@@ -865,7 +870,7 @@ var WebshopView = Backbone.View.extend(
 	change_category: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
-			dom_list = dom_obj.parents(".webshop_events").children("ul");
+			dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
 
 		if(dom_obj.is(':checked'))
 		{
@@ -900,6 +905,7 @@ var WebshopView = Backbone.View.extend(
 
 		var widget_id = dom_obj.attr('id'),
 			option_type = dom_obj.attr('data-option-type') || '',
+			product_id = dom_obj.attr('data-product_id') || 0,
 			date = dom_obj.attr('data-date'),
 			category = dom_obj.attr('data-category') || '',
 			limit = dom_obj.attr('data-limit'),
@@ -910,6 +916,11 @@ var WebshopView = Backbone.View.extend(
 		if(option_type != '')
 		{
 			get_vars += "&option_type=" + option_type;
+		}
+
+		if(product_id > 0)
+		{
+			get_vars += "&product_id=" + product_id;
 		}
 
 		if(category != '')
@@ -931,7 +942,7 @@ var WebshopView = Backbone.View.extend(
 
 		jQuery(".webshop_widget.webshop_events").each(function()
 		{
-			self.load_events(jQuery(this).children("ul"));
+			self.load_events(jQuery(this).find(".widget_list"));
 		});
 	},
 
@@ -1005,7 +1016,7 @@ var WebshopView = Backbone.View.extend(
 
 		jQuery(".webshop_widget.webshop_filter_products").each(function()
 		{
-			self.load_filter_products(jQuery(this).children("ul"));
+			self.load_filter_products(jQuery(this).find(".widget_list"));
 		});
 	},
 
@@ -1083,7 +1094,7 @@ var WebshopView = Backbone.View.extend(
 		var dom_obj = jQuery(e.currentTarget),
 			dom_parent = dom_obj.parents(".webshop_widget"),
 			dom_type = dom_parent.hasClass('webshop_events') ? "events" : "filter_products",
-			dom_list = dom_parent.children("ul"),
+			dom_list = dom_parent.find(".widget_list"),
 			limit = dom_list.attr('data-limit'),
 			amount = dom_list.attr('data-amount');
 

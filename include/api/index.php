@@ -25,6 +25,7 @@ $type = check_var('type');
 switch($type)
 {
 	case 'calendar':
+		$product_id = check_var('product_id', 'int');
 		$date = check_var('date', 'date', true, date("Y-m-d"));
 
 		$month = date("Y-m", strtotime($date));
@@ -65,7 +66,7 @@ switch($type)
 
 			$arr_events = array();
 
-			$result = $obj_webshop->get_events(array('exact_date' => $date_temp, 'amount' => 5));
+			$result = $obj_webshop->get_events(array('product_id' => $product_id, 'exact_date' => $date_temp, 'amount' => 5));
 
 			foreach($result['event_response'] as $event)
 			{
@@ -102,10 +103,11 @@ switch($type)
 		$start_date = check_var('start_date', 'date', true, date("Y-m-d H:i:s"));
 		$category = check_var('category', 'char');
 		$option_type = check_var('option_type', 'char');
+		$product_id = check_var('product_id', 'int');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
-		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
+		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'product_id' => $product_id, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
 	break;
 
 	case 'filter_products':

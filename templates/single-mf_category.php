@@ -4,17 +4,35 @@ get_header();
 
 	if(have_posts())
 	{
+		$obj_webshop = new mf_webshop();
+
+		//include_once("aside.php");
+
 		while(have_posts())
 		{
 			the_post();
-
-			$obj_webshop = new mf_webshop();
 
 			$cat_id = $post->ID;
 			$cat_title = $post->post_title;
 			$cat_content = $post->post_content;
 
-			include_once("aside.php");
+			$after_heading = "";
+
+			if(is_active_sidebar('widget_after_heading') && !post_password_required())
+			{
+				ob_start();
+
+				dynamic_sidebar('widget_after_heading');
+
+				$widget_content = ob_get_clean();
+
+				if($widget_content != '')
+				{
+					$after_heading .= "<div class='aside after_heading'>"
+						.$widget_content
+					."</div>";
+				}
+			}
 
 			echo "<article>";
 
@@ -22,8 +40,9 @@ get_header();
 
 				if($wpdb->num_rows == 0)
 				{
-					echo "<h1>".$cat_title."</h1>
-					<div>".$cat_content."</div>";
+					echo "<h1>".$cat_title."</h1>"
+					.$after_heading
+					."<div>".$cat_content."</div>";
 				}
 
 				else
@@ -38,8 +57,9 @@ get_header();
 
 						$post_product_image_id = get_post_meta($post_id, $obj_webshop->meta_prefix.'product_image_image', true);
 
-						echo "<h1><a href='".$post_url."'>".$post_title."</a></h1>
-						<section>";
+						echo "<h1><a href='".$post_url."'>".$post_title."</a></h1>"
+						.$after_heading
+						."<section>";
 
 							if($post_product_image_id > 0)
 							{
