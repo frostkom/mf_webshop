@@ -875,7 +875,7 @@ var WebshopView = Backbone.View.extend(
 		if(dom_obj.is(':checked'))
 		{
 			dom_obj.parent(".form_checkbox").siblings(".form_checkbox").children(".event_filter_category").prop('checked', false);
-			
+
 			var category = dom_obj.attr('value');
 
 			dom_list.attr(

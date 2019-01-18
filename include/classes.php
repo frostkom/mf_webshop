@@ -3919,16 +3919,12 @@ class mf_webshop
 
 	function get_templates($data)
 	{
-		$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
-
 		$obj_base = new mf_base();
 		$out = $obj_base->get_templates(array('lost_connection'));
 
 		switch($data['type'])
 		{
 			case 'events':
-				$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
-
 				$out .= "<script type='text/template' id='template_calendar_spinner'>"
 					.$this->get_spinner_template(array('tag' => 'div', 'size' => "fa-2x"))
 				."</script>
@@ -3954,7 +3950,7 @@ class mf_webshop
 							<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
 						</div>
 						<div>
-							<h2><a href='<%= product_url %>' itemprop='name'><%= event_title %></a><span>(<%= product_categories %>)</span></h2>
+							<h2><a href='<%= event_url %>' itemprop='name'><%= event_title %></a><span>(<%= product_categories %>)</span></h2>
 							<p>
 								<span class='duration'><i class='far fa-clock'></i> <%= event_duration %></span>
 								<% if(event_location != '')
@@ -3962,14 +3958,14 @@ class mf_webshop
 									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= event_location %></span>
 								<% } %>
 							</p>
-							<p>".$name_product.": <%= product_title %></p>
+							<p><%= name_product %>: <%= product_title %></p>
 						</div>
 						<div class='list_url'>
-							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
+							<a href='<%= event_url %>'>".__("Read More", 'lang_webshop')."</a>
 						</div>
 						<% if(product_map != '')
 						{ %>"
-							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
+							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>'"))
 						."<% } %>
 					</li>
 				</script>
@@ -4024,6 +4020,8 @@ class mf_webshop
 			break;
 
 			case 'products':
+				$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
+
 				$out .= "<script type='text/template' id='template_product_message'>
 					<li class='info_text'>
 						<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
@@ -4191,7 +4189,7 @@ class mf_webshop
 
 			$out['event_response'] = array();
 			$out['event_amount'] = 0;
-			
+
 			$arr_product_ids = $arr_product_translate_ids = array();
 			$query_where = "";
 
@@ -4277,9 +4275,12 @@ class mf_webshop
 					$product_map = $arr_product_translate_ids[$feed_id]['product_map'];
 					$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
 
+					$product_url = get_permalink($product_id);
+
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
 					//$post_url = get_permalink($post_id);
+					$post_url = $product_url.(preg_match("/\?/", $product_url) ? "&" : "?")."event_id=".$post_id;
 
 					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
 					$post_start = $r->post_start;
@@ -4356,10 +4357,12 @@ class mf_webshop
 					$out['event_response'][] = array(
 						'feed_id' => $feed_id,
 						'product_id' => $product_id,
+						'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
 						'product_title' => $product_title,
 						'product_categories' => $product_categories,
 						'product_map' => $product_map,
-						'product_url' => get_permalink($product_id),
+						//'product_url' => $product_url,
+						'event_url' => $post_url,
 						'event_title' => $post_title,
 						'event_start_date_c' => date("c", strtotime($post_start)),
 						'event_end_date_c' =>date("c", strtotime($post_end)) ,
@@ -7152,7 +7155,9 @@ class widget_webshop_events extends WP_Widget
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
-		if($instance['webshop_amount'] > 0)
+		$event_id = check_var('event_id', 'int');
+
+		if($instance['webshop_amount'] > 0 && !($event_id > 0))
 		{
 			$this->get_product_id($post);
 			$date = date("Y-m-d");
@@ -7177,7 +7182,7 @@ class widget_webshop_events extends WP_Widget
 							if(in_array('calendar', $instance['webshop_filters']))
 							{
 								echo "<div class='event_calendar'";
-								
+
 									if($this->product_id > 0)
 									{
 										echo " data-product_id='".$this->product_id."'";
@@ -7207,7 +7212,7 @@ class widget_webshop_events extends WP_Widget
 					}
 
 					echo "<ul id='".$widget_id."' class='widget_list' data-option-type='".$instance['webshop_option_type']."'";
-								
+
 						if($this->product_id > 0)
 						{
 							echo " data-product_id='".$this->product_id."'";

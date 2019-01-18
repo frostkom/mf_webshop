@@ -57,7 +57,6 @@ get_header();
 				}
 
 				echo $template;
-				
 			}
 
 		echo "</article>";
