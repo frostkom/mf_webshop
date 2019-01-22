@@ -4090,7 +4090,7 @@ class mf_webshop
 						/*."<% if(product_has_email == 1 || 1 == 1)
 						{ %>"*/
 							// This can't be removed until '#product_result_search .products' can be checked and work
-							.show_checkbox(array('name' => "products[]", 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
+							.show_checkbox(array('name' => 'products[]', 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
 						//."<% } %>"
 						."<% if(product_url != '' && product_has_read_more == false)
 						{ %>
@@ -4683,16 +4683,16 @@ class mf_webshop
 
 							foreach($data['meta'] as $category_id)
 							{
-								if(is_array($category_id))
-								{
-									do_log("Is Array: ".var_export($category_id, true)." (".var_export($data, true).")");
-								}
-
 								$category_title = get_post_title($category_id);
 
 								$content .= ($i > 0 ? ", " : "").$category_title;
 
 								$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
+
+								if(is_array($category_id))
+								{
+									do_log("Is Array: ".var_export($category_id, true)." (".var_export($data, true).")");
+								}
 
 								$this->product_categories .= "<span>"
 									.$obj_font_icons->get_symbol_tag(array(
@@ -5195,11 +5195,11 @@ class mf_webshop
 				</h2>
 				<div class='map_wrapper'>
 					<div id='webshop_map'></div>"
-					//.input_hidden(array('name' => "webshop_map_coords", 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"))
+					//.input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"))
 				."</div>
 			</div>";
 
-			$out .= input_hidden(array('name' => "webshop_map_coords", 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"));
+			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"));
 		}
 
 		if(count($this->product_meta) > 0)
@@ -7373,6 +7373,8 @@ class widget_webshop_product_meta extends WP_Widget
 		$this->arr_default = array(
 			'webshop_heading' => '',
 			'webshop_meta_type' => '',
+			'webshop_category' => '',
+			'webshop_category_text' => '',
 		);
 
 		$this->obj_webshop = new mf_webshop();
@@ -7400,10 +7402,54 @@ class widget_webshop_product_meta extends WP_Widget
 				{
 					$this->obj_webshop->get_single_info($post);
 
-					$html = $this->obj_webshop->template_shortcodes[$instance['webshop_meta_type']]['html'];
-					$formatting = $this->obj_webshop->template_shortcodes[$instance['webshop_meta_type']]['formatting'];
+					$widget_content = "";
 
-					if($html != '')
+					switch($instance['webshop_meta_type'])
+					{
+						case 'meta':
+						case 'slideshow':
+						case 'quick':
+						case 'property':
+							$html = $this->obj_webshop->template_shortcodes[$instance['webshop_meta_type']]['html'];
+							$formatting = $this->obj_webshop->template_shortcodes[$instance['webshop_meta_type']]['formatting'];
+						break;
+
+						case 'category_info':
+							$arr_categories = get_post_meta($post_id, $this->obj_webshop->meta_prefix.'category', false);
+
+							if($instance['webshop_category'] != '' && in_array($instance['webshop_category'], $arr_categories))
+							{
+								$category_id = $instance['webshop_category'];
+								$category_icon = get_post_meta($category_id, $this->obj_webshop->meta_prefix.'category_icon', true);
+								$category_title = get_post_title($category_id);
+
+								$obj_font_icons = new mf_font_icons();
+								
+								$arr_exclude = array("[category]", "[product]");
+								$arr_include = array($category_title, get_post_title($post_id));
+
+								$widget_content = "<p class='webshop_category'>"
+									.$obj_font_icons->get_symbol_tag(array(
+										'symbol' => $category_icon,
+										'class' => "category_".$category_id,
+									))
+									."<span>".$category_title."</span>";
+
+									if($instance['webshop_category_text'] != '')
+									{
+										$widget_content .= str_replace($arr_exclude, $arr_include, $instance['webshop_category_text']);
+									}
+
+								$widget_content .= "</p>";
+							}
+						break;
+
+						default:
+							do_log(sprintf(__("You should fix a case for %s in %s", 'lang_webshop'), $instance['webshop_meta_type'], __CLASS__));
+						break;
+					}					
+
+					if(isset($html) && $html != '')
 					{
 						switch($instance['webshop_meta_type'])
 						{
@@ -7418,28 +7464,22 @@ class widget_webshop_product_meta extends WP_Widget
 									.str_replace("[html]", $html, $formatting)
 								."</div>";
 							break;
-
-							default:
-								$widget_content = "";
-
-								do_log(sprintf(__("You should fix a case for %s in %s", 'lang_webshop'), $instance['webshop_meta_type'], __CLASS__));
-							break;
 						}
+					}
 
-						if($widget_content != '')
-						{
-							echo $before_widget;
+					if($widget_content != '')
+					{
+						echo $before_widget;
 
-								if($instance['webshop_heading'] != '')
-								{
-									echo $before_title
-										.$instance['webshop_heading']
-									.$after_title;
-								}
+							if($instance['webshop_heading'] != '')
+							{
+								echo $before_title
+									.$instance['webshop_heading']
+								.$after_title;
+							}
 
-								echo $widget_content
-							.$after_widget;
-						}
+							echo $widget_content
+						.$after_widget;
 					}
 				}
 			}
@@ -7454,6 +7494,8 @@ class widget_webshop_product_meta extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_meta_type'] = sanitize_text_field($new_instance['webshop_meta_type']);
+		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
+		$instance['webshop_category_text'] = sanitize_text_field($new_instance['webshop_category_text']);
 
 		return $instance;
 	}
@@ -7462,15 +7504,21 @@ class widget_webshop_product_meta extends WP_Widget
 	{
 		$arr_data = array(
 			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-			//'address'
-			//'share'
-			'slideshow' => __("Slideshow", 'lang_webshop'),
-			//'description'
-			'quick' => __("Quick Info", 'lang_webshop'),
-			'meta' => __("Contact Info", 'lang_webshop'),
-			'property' => __("Properties", 'lang_webshop'),
-			//'social'
-			//'previous_next'
+			//'opt_start_products' => __("Products", 'lang_webshop'),
+				//'address'
+				//'share'
+				'slideshow' => __("Slideshow", 'lang_webshop'),
+				//'description'
+				'quick' => __("Quick Info", 'lang_webshop'),
+				'meta' => __("Contact Info", 'lang_webshop'),
+				'property' => __("Properties", 'lang_webshop'),
+				//'social'
+				//'previous_next'
+				'category_info' => __("Category Info", 'lang_webshop'),
+			//'opt_end_products' => "",
+			//'opt_start_events' => __("Events", 'lang_webshop'),
+				//'' => ,
+			//'opt_end_products' => "",
 		);
 
 		return $arr_data;
@@ -7482,7 +7530,16 @@ class widget_webshop_product_meta extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
-			.show_select(array('data' => $this->get_meta_types_for_select(), 'name' => $this->get_field_name('webshop_meta_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_meta_type']))
-		."</div>";
+			.show_select(array('data' => $this->get_meta_types_for_select(), 'name' => $this->get_field_name('webshop_meta_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_meta_type']));
+
+			if($instance['webshop_meta_type'] == 'category_info')
+			{
+				$name_category = get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop'));
+
+				echo show_select(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
+				.show_textfield(array('name' => $this->get_field_name('webshop_category_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_category_text'], 'placeholder' => sprintf(__("%s offers %s", 'lang_webshop'), "[product]", "[category]")));
+			}
+
+		echo "</div>";
 	}
 }

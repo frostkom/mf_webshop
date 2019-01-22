@@ -676,8 +676,6 @@ echo "@media all
 						text-transform: uppercase;
 					}";
 
-		$obj_calendar = new mf_calendar();
-
 		$result = $obj_calendar->get_calendar_colors();
 
 		foreach($result as $r)
@@ -700,6 +698,22 @@ echo "@media all
 				background: ".$post_color.";
 			}";
 		}
+
+		echo ".webshop_product_meta .webshop_category
+		{
+			background-color: ".$setting_calendar_date_bg.";
+			color: ".$setting_calendar_date_text_color.";
+		}
+		
+			.webshop_product_meta .webshop_category i
+			{
+				margin-right: .4em;
+			}
+			
+			.webshop_product_meta .webshop_category span
+			{
+				margin-right: .3em;
+			}";
 	}
 
 	echo "/* Map */
