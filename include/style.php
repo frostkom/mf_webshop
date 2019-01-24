@@ -699,17 +699,19 @@ echo "@media all
 			}";
 		}
 
-		echo ".webshop_product_meta .webshop_category
+		echo ".aside .webshop_product_meta .webshop_category
 		{
 			background-color: ".$setting_calendar_date_bg.";
 			color: ".$setting_calendar_date_text_color.";
+			padding-right: .5em;
+			padding-left: .5em;
 		}
-		
+
 			.webshop_product_meta .webshop_category i
 			{
 				margin-right: .4em;
 			}
-			
+
 			.webshop_product_meta .webshop_category span
 			{
 				margin-right: .3em;
@@ -1498,33 +1500,6 @@ echo "@media all
 						{
 							margin-left: 1em;
 						}
-
-	#overlay_product
-	{
-		background: #000;
-		background: rgba(0, 0, 0, .5);
-		bottom: 0;
-		left: 0;
-		position: fixed;
-		right: 0;
-		top: 0;
-		z-index: 100000;
-	}
-
-		#overlay_product > div
-		{
-			background: #fff;
-			border-radius: .5em;
-			font-size: 1.5em;
-			left: 50%;
-			padding: 1em;
-			position: absolute;
-			top: 50vh;
-			-webkit-transform: translate(-50%, -50%);
-			transform: translate(-50%, -50%);
-			width: 400px;
-			max-width: 90%;
-		}
 }
 
 @media (max-width: ".($setting_mobile_breakpoint - 1)."px)

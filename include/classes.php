@@ -1518,6 +1518,29 @@ class mf_webshop
 		return "http://googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/";
 	}
 
+	function init_base_admin($arr_views)
+	{
+		// Load style/script to switch between list with products/events and editing them
+
+		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+		$arr_views['webshop'] = array(
+			'menu' => array(
+				'name' => $name_webshop,
+				'item' => array(
+					'id' => 'list',
+					'name' => __("List", 'lang_webshop'),
+				),
+				'item' => array(
+					'id' => 'add_new',
+					'name' => __("Add New", 'lang_webshop'),
+				),
+			),
+		);
+
+		return $arr_views;
+	}
+
 	function wp_head()
 	{
 		global $post;
@@ -1532,7 +1555,6 @@ class mf_webshop
 		mf_enqueue_script('backbone');
 		mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
 		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js", $plugin_version);
-		//mf_enqueue_script('script_webshop_plugins', $plugin_include_url."backbone/bb.plugins.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js", $plugin_version);
 		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 		mf_enqueue_script('script_webshop_views', $plugin_include_url."backbone/bb.views.js", array(
@@ -1554,35 +1576,23 @@ class mf_webshop
 
 			$this->get_option_type_from_post_id($post_id);
 
-			if($post->post_type == $this->post_type_products.$this->option_type && $post->post_excerpt == '')
-			{
-				$description_post_name = $this->get_post_name_for_type('description');
-
-				if($description_post_name != '')
-				{
-					$product_description = get_post_meta($post_id, $this->meta_prefix.$description_post_name, true);
-
-					if($product_description != '')
-					{
-						echo "<meta name='description' content='".esc_attr($product_description)."'>";
-					}
-				}
-			}
-		}
-	}
-
-	function wp_footer()
-	{
-		global $post;
-
-		if(isset($post->ID) && $post->ID > 0)
-		{
-			$post_id = $post->ID;
-
-			$this->get_option_type_from_post_id($post_id);
-
 			if($post->post_type == $this->post_type_products.$this->option_type)
 			{
+				if($post->post_excerpt == '')
+				{
+					$description_post_name = $this->get_post_name_for_type('description');
+
+					if($description_post_name != '')
+					{
+						$product_description = get_post_meta($post_id, $this->meta_prefix.$description_post_name, true);
+
+						if($product_description != '')
+						{
+							echo "<meta name='description' content='".esc_attr($product_description)."'>";
+						}
+					}
+				}
+
 				$overlay_post_name = $this->get_post_name_for_type('overlay');
 
 				if($overlay_post_name != '')
@@ -1591,10 +1601,23 @@ class mf_webshop
 
 					if($post_overlay != '')
 					{
-						echo "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
+						$plugin_include_url = plugin_dir_url(__FILE__);
+						$plugin_version = get_plugin_version(__FILE__);
+
+						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."include/style_overlay.css", $plugin_version);
+
+						$this->footer_output .= "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
 					}
 				}
 			}
+		}
+	}
+
+	function wp_footer()
+	{
+		if(isset($this->footer_output) && $this->footer_output != '')
+		{
+			echo $this->footer_output;
 		}
 	}
 
@@ -1985,6 +2008,40 @@ class mf_webshop
 		return "<div class='form_button alignleft'>
 			<a href='#' id='mf_back_to_search' class='button button-primary hide'><i class='fa fa-chevron-left'></i> ".__("Continue Search", 'lang_webshop')."</a>
 		</div>";
+	}
+
+	function single_template($single_template)
+	{
+		global $post;
+
+		if(substr($post->post_type, 0, strlen($this->post_type_categories)) == $this->post_type_categories)
+		{
+			$single_template = plugin_dir_path(__FILE__)."templates/single-".$this->post_type_categories.".php";
+		}
+
+		else if(substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $this->post_type_products)
+		{
+			$single_template = plugin_dir_path(__FILE__)."templates/single-".$this->post_type_products.".php";
+		}
+
+		return $single_template;
+	}
+
+	function get_page_templates($templates)
+	{
+		$templates_path = str_replace(WP_CONTENT_DIR, "", plugin_dir_path(__FILE__))."templates/";
+
+		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+		$templates[$templates_path.'template_webshop.php'] = $name_webshop;
+		$templates[$templates_path.'template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
+
+		if(get_option('setting_quote_form') > 0)
+		{
+			$templates[$templates_path.'template_webshop_favorites.php'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
+		}
+
+		return $templates;
 	}
 
 	function set_interval_amount($result)
@@ -7424,7 +7481,7 @@ class widget_webshop_product_meta extends WP_Widget
 								$category_title = get_post_title($category_id);
 
 								$obj_font_icons = new mf_font_icons();
-								
+
 								$arr_exclude = array("[category]", "[product]");
 								$arr_include = array($category_title, get_post_title($post_id));
 
@@ -7447,7 +7504,7 @@ class widget_webshop_product_meta extends WP_Widget
 						default:
 							do_log(sprintf(__("You should fix a case for %s in %s", 'lang_webshop'), $instance['webshop_meta_type'], __CLASS__));
 						break;
-					}					
+					}
 
 					if(isset($html) && $html != '')
 					{

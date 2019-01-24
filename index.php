@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.0.4.6
+Version: 2.0.5.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -62,14 +62,14 @@ if(is_admin())
 
 else
 {
+	add_filter('init_base_admin', array($obj_webshop, 'init_base_admin'));
+
 	add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
 	add_action('wp_footer', array($obj_webshop, 'wp_footer'));
 }
 
 add_action('widgets_init', array($obj_webshop, 'widgets_init'));
 
-add_filter('single_template', 'custom_templates_webshop');
-add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
 
 add_action('wp_login', array($obj_webshop, 'uninit'));
 add_action('wp_logout', array($obj_webshop, 'uninit'));
@@ -80,6 +80,10 @@ add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fi
 add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
 
 add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
+
+add_filter('single_template', array($obj_webshop, 'single_template'));
+//add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
+add_filter('get_page_templates', array($obj_webshop, 'get_page_templates'));
 
 load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))."/lang/");
 
@@ -269,25 +273,8 @@ function uninstall_webshop()
 	));
 }
 
-function custom_templates_webshop($single_template)
-{
-	global $post, $obj_webshop;
-
-	if(substr($post->post_type, 0, strlen($obj_webshop->post_type_categories)) == $obj_webshop->post_type_categories)
-	{
-		$single_template = plugin_dir_path(__FILE__)."templates/single-".$obj_webshop->post_type_categories.".php";
-	}
-
-	else if(substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $obj_webshop->post_type_products)
-	{
-		$single_template = plugin_dir_path(__FILE__)."templates/single-".$obj_webshop->post_type_products.".php";
-	}
-
-	return $single_template;
-}
-
 /* Have to be here so that template directories are correct */
-class PageTemplater
+/*class PageTemplater
 {
 	private static $instance;
 	protected $templates;
@@ -410,4 +397,4 @@ class PageTemplater
 
 		return $template;
 	}
-}
+}*/
