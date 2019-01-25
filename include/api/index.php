@@ -24,6 +24,67 @@ $type = check_var('type');
 
 switch($type)
 {
+	case 'admin_webshop_list':
+		if(is_user_logged_in())
+		{
+			$arr_list = array();
+
+			$query_where = "";
+
+			if(1 == 1 || !IS_ADMIN)
+			{
+				$query_where .= " AND post_author = '".get_current_user_id()."'";
+			}
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type)); // INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id // AND ".$wpdb->postmeta.".meta_key = %s AND meta_value = %s //, $obj_webshop->meta_prefix.'category', $data['category']
+
+			foreach($result as $r)
+			{
+				$arr_list[] = array(
+					'post_id' => $r->ID,
+					'post_title' => $r->post_title,
+				);
+			}
+
+			$json_output['admin_webshop_response'] = array(
+				'type' => $type,
+				'list' => $arr_list,
+			);
+		}
+
+		else
+		{
+			$json_output['redirect'] = wp_login_url();
+		}
+	break;
+
+	case 'admin_webshop_edit':
+		if(is_user_logged_in())
+		{
+			$post_id = check_var('post_id', 'int');
+
+			if($post_id > 0)
+			{
+				
+			}
+
+			else
+			{
+				
+			}
+
+			$json_output['admin_webshop_response'] = array(
+				'type' => $type,
+				'post_id' => $post_id,
+			);
+		}
+
+		else
+		{
+			$json_output['redirect'] = wp_login_url();
+		}
+	break;
+
 	case 'calendar':
 		$product_id = check_var('product_id', 'int');
 		$date = check_var('date', 'date', true, date("Y-m-d"));

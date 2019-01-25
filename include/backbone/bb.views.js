@@ -38,12 +38,14 @@ var WebshopView = Backbone.View.extend(
 		{
 			if(typeof this.form_products != 'undefined' && this.form_products != '')
 			{
-				location.hash = this.form_products;
+				location.hash = "webshop/" + this.form_products;
 			}
 
 			else
 			{
 				this.form_products = location.hash.replace('#', '');
+				this.form_products = this.form_products.replace('webshop/', '');
+
 				this.set_products_storage();
 			}
 
@@ -298,6 +300,7 @@ var WebshopView = Backbone.View.extend(
 	get_hash: function()
 	{
 		var hash = location.hash.replace('#', '');
+		hash = hash.replace('webshop/', '');
 
 		jQuery.each(hash.split('&'), function(index, value)
 		{
@@ -315,7 +318,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var form_serialized = jQuery("#product_form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
-		location.hash = form_serialized;
+		location.hash = "webshop/" + form_serialized;
 
 		jQuery.Storage.set({'form_serialized': location.href});
 	},

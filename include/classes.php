@@ -1520,22 +1520,79 @@ class mf_webshop
 
 	function init_base_admin($arr_views)
 	{
-		// Load style/script to switch between list with products/events and editing them
+		$plugin_include_url = plugin_dir_url(__FILE__);
+		$plugin_version = get_plugin_version(__FILE__);
+
+		mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
+		mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
+		mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array(), $plugin_version);
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
+		$templates = "<script type='text/template' id='template_admin_webshop_list'>
+			<table class='widefat striped'>
+				<thead>
+					<tr>
+						<th>".__("Name", 'lang_webshop')."</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% _.each(list, function(product)
+					{ %>
+						<tr id='product_<%= product.post_id %>'>
+							<td>
+								<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>
+									<%= product.post_title %>
+								</a>
+							</td>
+							<td></td>
+						</tr>
+					<% }); %>
+				</tbody>
+			</table>
+		</script>
+
+		<script type='text/template' id='template_admin_webshop_list_message'>
+			<p>".__("You haven't added anything yet", 'lang_webshop')."</p>
+		</script>
+		
+		<script type='text/template' id='template_admin_webshop_edit'>
+			<form method='post' action='#' class='mf_form'>
+				<p>Some fields...</p>
+				<div class='form_button'>
+					<button type='submit' name='btnAdminWebshopEdit' class='button-primary'>
+						<% if(post_id > 0)
+						{ %>"
+							.__("Update", 'lang_webshop')
+						."<% }
+						
+						else
+						{%>"
+							.__("Create", 'lang_webshop')
+						."<% } %>
+					</button>
+					<% if(post_id > 0)
+					{ %>
+						<input type='hidden' name='post_id' value='<%= post_id %>'/>
+					<% } %>
+				</div>
+			</form>
+		</script>";
+
 		$arr_views['webshop'] = array(
-			'menu' => array(
-				'name' => $name_webshop,
-				'item' => array(
+			'name' => $name_webshop,
+			'items' => array(
+				array(
 					'id' => 'list',
 					'name' => __("List", 'lang_webshop'),
 				),
-				'item' => array(
-					'id' => 'add_new',
+				array(
+					'id' => 'edit',
 					'name' => __("Add New", 'lang_webshop'),
 				),
 			),
+			'templates' => $templates,
 		);
 
 		return $arr_views;
@@ -1604,9 +1661,9 @@ class mf_webshop
 						$plugin_include_url = plugin_dir_url(__FILE__);
 						$plugin_version = get_plugin_version(__FILE__);
 
-						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."include/style_overlay.css", $plugin_version);
+						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css", $plugin_version);
 
-						$this->footer_output .= "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
+						$this->footer_output = "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
 					}
 				}
 			}
@@ -2014,12 +2071,14 @@ class mf_webshop
 	{
 		global $post;
 
-		if(substr($post->post_type, 0, strlen($this->post_type_categories)) == $this->post_type_categories)
+		$this->get_option_type_from_post_id($post->ID);
+
+		if(substr($post->post_type, 0, strlen($this->post_type_categories.$this->option_type)) == $this->post_type_categories.$this->option_type)
 		{
 			$single_template = plugin_dir_path(__FILE__)."templates/single-".$this->post_type_categories.".php";
 		}
 
-		else if(substr($post->post_type, 0, strlen($obj_webshop->post_type_products)) == $this->post_type_products)
+		else if(substr($post->post_type, 0, strlen($this->post_type_products.$this->option_type)) == $this->post_type_products.$this->option_type)
 		{
 			$single_template = plugin_dir_path(__FILE__)."templates/single-".$this->post_type_products.".php";
 		}
@@ -5854,6 +5913,7 @@ class mf_webshop
 							break;
 
 							case 'ghost':
+							case 'overlay':
 							case 'phone':
 							case 'social':
 							case 'text':

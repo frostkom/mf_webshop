@@ -1,9 +1,11 @@
 var WebshopApp = Backbone.Router.extend(
 {
-	routes: {
-		"*actions": "the_rest"
+	routes:
+	{
+		"webshop/*actions": "handle"
 	},
-	the_rest: function(action_type)
+
+	handle: function(action_type)
 	{
 		myWebshopView.loadPage(action_type);
 	}
