@@ -1542,9 +1542,12 @@ class mf_webshop
 					{ %>
 						<tr id='product_<%= product.post_id %>'>
 							<td>
-								<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>
-									<%= product.post_title %>
-								</a>
+								<%= product.post_title %>
+								<div class='row-actions'>"
+									."<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
+									.(IS_ADMIN ? " | <a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
+									." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
+								."</div>
 							</td>
 							<td></td>
 						</tr>
@@ -1629,7 +1632,7 @@ class mf_webshop
 										case 'email': %>"
 											.show_textfield(array('type' => 'email', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
 										."<% break;
-											
+
 										case 'ghost': %>
 											<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
 												<input type='checkbox' name='<%= meta_field.id %>' value='1'<% if(meta_field.value == 1){ %> checked<% } %>/>
@@ -6475,10 +6478,12 @@ if(class_exists('RWMB_Field'))
 		{
 			if(is_plugin_active('mf_calendar/index.php'))
 			{
+				$obj_social_feed = new mf_social_feed();
+
 				$arr_data = array();
 				get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
 
-				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
+				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes']))); //"<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
 			}
 
 			else
@@ -6594,10 +6599,12 @@ if(class_exists('RWMB_Field'))
 			{
 				if(is_plugin_active('mf_social_feed/index.php'))
 				{
-					$arr_data = array();
-					get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
+					$obj_social_feed = new mf_social_feed();
 
-					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'xtra' => self::render_attributes($field['attributes'])));
+					$arr_data = array();
+					get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
+
+					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes']))); //"<a href='".admin_url("post-new.php?post_type=".$obj_social_feed->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>"
 				}
 
 				else

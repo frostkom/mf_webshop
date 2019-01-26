@@ -24,6 +24,8 @@ $json_output = array(
 
 $type = check_var('type');
 
+//$arr_fields_excluded = array($obj_webshop->meta_prefix.'searchable');
+
 switch($type)
 {
 	case 'admin_webshop_list':
@@ -45,6 +47,7 @@ switch($type)
 				$arr_list[] = array(
 					'post_id' => $r->ID,
 					'post_title' => $r->post_title,
+					'post_url' => get_permalink($r->ID),
 				);
 			}
 
@@ -109,107 +112,115 @@ switch($type)
 								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								//Add options
-								switch($type)
-								{
-									case 'custom_categories':
-										$post_name_temp = str_replace($obj_webshop->meta_prefix, "", $id);
-										$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name_temp));
-
-										$arr_data = array();
-										get_post_children(array(
-											'add_choose_here' => true,
-											'post_type' => $obj_webshop->post_type_custom_categories,
-											'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$obj_webshop->meta_prefix."document_type'",
-											'where' => "meta_value = '".esc_sql($post_id_temp)."'",
-											//'debug' => true,
-										), $arr_data);
-										
-										$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-									break;
-
-									case 'education':
-										if(is_plugin_active('mf_education/index.php'))
-										{
-											$obj_education = new mf_education();
+								/*if(!in_array($id, $arr_fields_excluded))
+								{*/
+									//Add options
+									switch($type)
+									{
+										case 'custom_categories':
+											$post_name_temp = str_replace($obj_webshop->meta_prefix, "", $id);
+											$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name_temp));
 
 											$arr_data = array();
-											get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
+											get_post_children(array(
+												'add_choose_here' => true,
+												'post_type' => $obj_webshop->post_type_custom_categories,
+												'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$obj_webshop->meta_prefix."document_type'",
+												'where' => "meta_value = '".esc_sql($post_id_temp)."'",
+												//'debug' => true,
+											), $arr_data);
 
 											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+										break;
 
+										case 'education':
+											if(is_plugin_active('mf_education/index.php'))
+											{
+												$obj_education = new mf_education();
+
+												$arr_data = array();
+												get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
+
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+												$multiple = true;
+											}
+										break;
+
+										case 'event':
+											if(is_plugin_active('mf_calendar/index.php'))
+											{
+												$arr_data = array();
+												get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
+
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+											}
+
+											else
+											{
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
+											}
+										break;
+
+										case 'location':
+										case 'select3':
 											$multiple = true;
-										}
-									break;
+										break;
 
-									case 'event':
-										if(is_plugin_active('mf_calendar/index.php'))
-										{
+										case 'page':
 											$arr_data = array();
-											get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
+											get_post_children(array('add_choose_here' => true), $arr_data);
 
 											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+										break;
 
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
-										}
+										case 'social':
+											if(is_plugin_active('mf_social_feed/index.php'))
+											{
+												$arr_data = array();
+												get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
 
-										else
-										{
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
-										}
-									break;
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
 
-									case 'location':
-									case 'select3':
-										$multiple = true;
-									break;
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+											}
 
-									case 'page':
-										$arr_data = array();
-										get_post_children(array('add_choose_here' => true), $arr_data);
-										
-										$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-									break;
+											else
+											{
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Social Feed");
+											}
+										break;
+									}
 
-									case 'social':
-										if(is_plugin_active('mf_social_feed/index.php'))
-										{
-											$arr_data = array();
-											get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
+									switch($type)
+									{
+										case 'custom_categories':
+										case 'education':
+										case 'event':
+										case 'location':
+										case 'select':
+										case 'select3':
+											if($multiple)
+											{
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple;
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " form_select_multiple";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
+											}
+										break;
+									}
 
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+									//Add saved value
+									$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+								/*}
 
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
-										}
-
-										else
-										{
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Social Feed");
-										}
-									break;
-								}
-
-								switch($type)
+								else
 								{
-									case 'custom_categories':
-									case 'education':
-									case 'event':
-									case 'location':
-									case 'select':
-									case 'select3':
-										if($multiple)
-										{
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple;
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " form_select_multiple";
-											$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
-										}
-									break;
-								}
-
-								//Add saved value
-								$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+									unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
+								}*/
 							}
 						}
 
@@ -265,7 +276,7 @@ switch($type)
 
 					if($post_title_new != $post_title_old)
 					{
-						$post_data['post_title'] = $post_title_new;						
+						$post_data['post_title'] = $post_title_new;
 						//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title_new, 'post_title'));
 					}
 
@@ -274,7 +285,7 @@ switch($type)
 
 					if($post_name_new != $post_name_old)
 					{
-						$post_data['post_name'] = $post_name_new;	
+						$post_data['post_name'] = $post_name_new;
 						//do_log(sprintf("Changed from %s to %s for %s in %s", $post_name_old, $post_name_new, 'post_name'));
 					}*/
 
@@ -290,31 +301,29 @@ switch($type)
 								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								switch($type)
-								{
-									case 'education':
-									case 'location':
-									case 'select3':
-										$multiple = true;
-										$multiple = true;
-									break;
-								}
+								/*if(!in_array($id, $arr_fields_excluded))
+								{*/
+									switch($type)
+									{
+										case 'education':
+										case 'location':
+										case 'select3':
+											$multiple = true;
+											$multiple = true;
+										break;
+									}
 
-								$post_value_old = get_post_meta($post_id, $id, ($multiple == true ? false : true));
-								$post_value_new = check_var($id, ($multiple == true ? 'array' : 'char'));
+									$post_value_old = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+									$post_value_new = check_var($id, ($multiple == true ? 'array' : 'char'));
 
-								if($post_value_new != $post_value_old)
-								{
-									$post_data['meta_input'][$id] = $post_value_new;
-									//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id, $r->post_title));
-								}
+									if($post_value_new != $post_value_old)
+									{
+										$post_data['meta_input'][$id] = $post_value_new;
+										//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id, $r->post_title));
+									}
+								//}
 							}
 						}
-
-						/*else
-						{
-							unset($arr_meta_boxes[$box_id]);
-						}*/
 					}
 
 					if(count($post_data) > 2)

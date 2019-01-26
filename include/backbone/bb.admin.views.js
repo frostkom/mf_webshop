@@ -33,12 +33,12 @@ var WebshopAdminView = Backbone.View.extend(
 
 	display_message: function()
 	{
-		this.hide_message();
-
 		var response = this.model.get('message');
 
 		if(response != '')
 		{
+			this.hide_message();
+
 			if(this.model.get('success') == true)
 			{
 				jQuery(".updated.hide").removeClass('hide').children("p").html(response);
@@ -50,6 +50,10 @@ var WebshopAdminView = Backbone.View.extend(
 			}
 
 			scroll_to_top();
+
+			jQuery(".mf_form button[type=submit]").removeClass('disabled').removeAttr('disabled');
+
+			this.model.set({'message': ''});
 		}
 	},
 
@@ -68,6 +72,8 @@ var WebshopAdminView = Backbone.View.extend(
 			dom_action = dom_obj.attr('data-action');
 
 		this.model.submitForm(dom_action, dom_obj.serialize());
+
+		dom_obj.find("button[type=submit]").addClass('disabled').attr('disabled', true);
 
 		return false;
 	},
@@ -105,7 +111,7 @@ var WebshopAdminView = Backbone.View.extend(
 				{
 					do_multiselect();
 				}
-				
+
 				jQuery("#" + type).find(".maps_search_container:not(.maps_initiated)").gmaps();
 			break;
 		}
