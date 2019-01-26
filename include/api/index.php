@@ -18,7 +18,9 @@ if(is_plugin_active('mf_cache/index.php'))
 
 $obj_webshop = new mf_webshop();
 
-$json_output = array();
+$json_output = array(
+	'success' => false,
+);
 
 $type = check_var('type');
 
@@ -46,6 +48,7 @@ switch($type)
 				);
 			}
 
+			$json_output['success'] = true;
 			$json_output['admin_webshop_response'] = array(
 				'type' => $type,
 				'list' => $arr_list,
@@ -63,20 +66,284 @@ switch($type)
 		{
 			$post_id = check_var('post_id', 'int');
 
+			$json_output['admin_webshop_response'] = array(
+				'type' => $type,
+				'post_id' => $post_id,
+				'post_title' => "",
+				'post_name' => "",
+				'meta_boxes' => array(),
+			);
+
 			if($post_id > 0)
 			{
-				
-			}
+				$query_where = "";
 
-			else
-			{
-				
+				if(1 == 1 || !IS_ADMIN)
+				{
+					$query_where .= " AND post_author = '".get_current_user_id()."'";
+				}
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
+
+				foreach($result as $r)
+				{
+					$json_output['admin_webshop_response']['post_title'] = $r->post_title;
+					$json_output['admin_webshop_response']['post_name'] = $r->post_name;
+
+					$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
+
+					foreach($arr_meta_boxes as $box_id => $arr_meta_box)
+					{
+						if(!isset($arr_meta_box['context']))
+						{
+							$arr_meta_boxes[$box_id]['context'] = 'normal';
+						}
+
+						if(in_array($r->post_type, $arr_meta_box['post_types']))
+						{
+							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
+							{
+								$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['description'] = "";
+
+								$id = $arr_meta_box['fields'][$field_id]['id'];
+								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
+								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+
+								//Add options
+								switch($type)
+								{
+									case 'custom_categories':
+										$post_name_temp = str_replace($obj_webshop->meta_prefix, "", $id);
+										$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name_temp));
+
+										$arr_data = array();
+										get_post_children(array(
+											'add_choose_here' => true,
+											'post_type' => $obj_webshop->post_type_custom_categories,
+											'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$obj_webshop->meta_prefix."document_type'",
+											'where' => "meta_value = '".esc_sql($post_id_temp)."'",
+											//'debug' => true,
+										), $arr_data);
+										
+										$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+									break;
+
+									case 'education':
+										if(is_plugin_active('mf_education/index.php'))
+										{
+											$obj_education = new mf_education();
+
+											$arr_data = array();
+											get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
+
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+											$multiple = true;
+										}
+									break;
+
+									case 'event':
+										if(is_plugin_active('mf_calendar/index.php'))
+										{
+											$arr_data = array();
+											get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
+
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+										}
+
+										else
+										{
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
+										}
+									break;
+
+									case 'location':
+									case 'select3':
+										$multiple = true;
+									break;
+
+									case 'page':
+										$arr_data = array();
+										get_post_children(array('add_choose_here' => true), $arr_data);
+										
+										$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+									break;
+
+									case 'social':
+										if(is_plugin_active('mf_social_feed/index.php'))
+										{
+											$arr_data = array();
+											get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
+
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+										}
+
+										else
+										{
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Social Feed");
+										}
+									break;
+								}
+
+								switch($type)
+								{
+									case 'custom_categories':
+									case 'education':
+									case 'event':
+									case 'location':
+									case 'select':
+									case 'select3':
+										if($multiple)
+										{
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple;
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " form_select_multiple";
+											$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
+										}
+									break;
+								}
+
+								//Add saved value
+								$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+							}
+						}
+
+						else
+						{
+							unset($arr_meta_boxes[$box_id]);
+						}
+					}
+
+					$json_output['success'] = true;
+					$json_output['admin_webshop_response']['meta_boxes'] = $arr_meta_boxes;
+				}
 			}
+		}
+
+		else
+		{
+			$json_output['redirect'] = wp_login_url();
+		}
+	break;
+
+	case 'admin_webshop_save':
+		if(is_user_logged_in())
+		{
+			$post_id = check_var('post_id', 'int');
 
 			$json_output['admin_webshop_response'] = array(
 				'type' => $type,
 				'post_id' => $post_id,
+				//'debug' => var_export($_REQUEST, true),
 			);
+
+			if($post_id > 0)
+			{
+				$query_where = "";
+
+				if(1 == 1 || !IS_ADMIN)
+				{
+					$query_where .= " AND post_author = '".get_current_user_id()."'";
+				}
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
+
+				foreach($result as $r)
+				{
+					$post_data = array(
+						'ID' => $post_id,
+						'meta_input' => array(),
+					);
+
+					$post_title_old = $r->post_title;
+					$post_title_new = check_var('post_title');
+
+					if($post_title_new != $post_title_old)
+					{
+						$post_data['post_title'] = $post_title_new;						
+						//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title_new, 'post_title'));
+					}
+
+					/*$post_name_old = $r->post_name;
+					$post_name_new = check_var('post_name');
+
+					if($post_name_new != $post_name_old)
+					{
+						$post_data['post_name'] = $post_name_new;	
+						//do_log(sprintf("Changed from %s to %s for %s in %s", $post_name_old, $post_name_new, 'post_name'));
+					}*/
+
+					$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
+
+					foreach($arr_meta_boxes as $box_id => $arr_meta_box)
+					{
+						if(in_array($r->post_type, $arr_meta_box['post_types']))
+						{
+							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
+							{
+								$id = $arr_meta_box['fields'][$field_id]['id'];
+								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
+								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+
+								switch($type)
+								{
+									case 'education':
+									case 'location':
+									case 'select3':
+										$multiple = true;
+										$multiple = true;
+									break;
+								}
+
+								$post_value_old = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+								$post_value_new = check_var($id, ($multiple == true ? 'array' : 'char'));
+
+								if($post_value_new != $post_value_old)
+								{
+									$post_data['meta_input'][$id] = $post_value_new;
+									//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id, $r->post_title));
+								}
+							}
+						}
+
+						/*else
+						{
+							unset($arr_meta_boxes[$box_id]);
+						}*/
+					}
+
+					if(count($post_data) > 2)
+					{
+						if(wp_update_post($post_data) > 0)
+						{
+							$json_output['success'] = true;
+							$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
+						}
+
+						else
+						{
+							$json_output['message'] = __("I could not update the information for you", 'lang_webshop');
+						}
+					}
+
+					else
+					{
+						$json_output['message'] = __("It does not look like you changed anything, so nothing was saved", 'lang_webshop');
+					}
+
+					//$json_output['admin_webshop_response']['meta_boxes'] = $arr_meta_boxes;
+				}
+			}
+
+			else
+			{
+				//Save initial information
+			}
 		}
 
 		else

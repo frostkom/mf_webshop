@@ -1556,26 +1556,134 @@ class mf_webshop
 		<script type='text/template' id='template_admin_webshop_list_message'>
 			<p>".__("You haven't added anything yet", 'lang_webshop')."</p>
 		</script>
-		
+
 		<script type='text/template' id='template_admin_webshop_edit'>
-			<form method='post' action='#' class='mf_form'>
-				<p>Some fields...</p>
+			<form method='post' action='#' class='mf_form' data-action='admin_webshop_save'>"
+				.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>"))
+				//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
+				."<% _.each(meta_boxes, function(meta_box)
+				{ %>
+					<% if(meta_box.fields.length > 0)
+					{ %>
+						<div id='<%= meta_box.id %>' class='meta_box context_<%= meta_box.context %>'>
+							<h2><%= meta_box.title %></h2>
+							<div>
+								<% _.each(meta_box.fields, function(meta_field)
+								{
+									switch(meta_field.type)
+									{
+										case 'address':
+										case 'local_address': %>"
+											.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+
+										case 'content':
+										case 'overlay': %>"
+											.show_textarea(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+
+										case 'clock': %>"
+											.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "18.00-03.00"))
+										."<% break;
+
+										case 'custom_categories':
+										case 'education':
+										case 'event':
+										case 'location':
+										case 'page':
+										case 'select':
+										case 'select3':
+										case 'social':
+											if(meta_field.error != '')
+											{ %>
+												<p><%= meta_field.error %></p>
+											<% }
+
+											else
+											{ %>
+												<div class='form_select type_<%= meta_field.type %><%= meta_field.class %>'>
+													<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+													<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'<%= meta_field.attributes %>>
+														<% _.each(meta_field.options, function(value, key)
+														{ %>
+															<option value='<%= key %>'<% if(key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(key) !== -1){%> selected<%} %>><%= value %></option>
+														<% }); %>
+													</select>
+													<% if(meta_field.suffix != '')
+													{ %>
+														<span class='description'><%= meta_field.suffix %></span>
+													<% } %>
+													<% if(meta_field.description != '')
+													{ %>
+														<p class='description'><%= meta_field.description %></p>
+													<% } %>
+												</div>
+											<% }
+										break;
+
+										case 'description':
+										case 'text': %>"
+											.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+
+										case 'email': %>"
+											.show_textfield(array('type' => 'email', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+											
+										case 'ghost': %>
+											<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
+												<input type='checkbox' name='<%= meta_field.id %>' value='1'<% if(meta_field.value == 1){ %> checked<% } %>/>
+												<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+											</div>
+										<% break;
+
+										case 'gps': %>"
+											.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
+										."<% break;
+
+										case 'interval': %>"
+											.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "5-25", 'xtra' => " pattern='[\d-]*'"))
+										."<% break;
+
+										case 'phone': %>"
+											.show_textfield(array('type' => 'tel', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => __("001-888-342-324", 'lang_webshop'), 'xtra' => " pattern='[\d\s-]*'"))
+										."<% break;
+
+										case 'price':
+										case 'size':
+										case 'stock': %>"
+											.show_textfield(array('type' => 'number', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+
+										case 'url': %>"
+											.show_textfield(array('type' => 'url', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+										."<% break;
+
+										default: %>
+											<strong><%= meta_field.type %></strong>: <%= meta_field.name %><br>
+										<% break;
+									}
+								}); %>
+							</div>
+						</div>
+					<% }
+				}); %>
 				<div class='form_button'>
 					<button type='submit' name='btnAdminWebshopEdit' class='button-primary'>
 						<% if(post_id > 0)
 						{ %>"
 							.__("Update", 'lang_webshop')
 						."<% }
-						
+
 						else
 						{%>"
 							.__("Create", 'lang_webshop')
 						."<% } %>
 					</button>
 					<% if(post_id > 0)
-					{ %>
-						<input type='hidden' name='post_id' value='<%= post_id %>'/>
-					<% } %>
+					{ %>"
+						.input_hidden(array('name' => 'post_id', 'value' => "<%= post_id %>"))
+					."<% } %>
 				</div>
 			</form>
 		</script>";

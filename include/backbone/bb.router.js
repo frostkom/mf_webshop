@@ -2,7 +2,7 @@ var WebshopApp = Backbone.Router.extend(
 {
 	routes:
 	{
-		"webshop/*actions": "handle"
+		"webshop/:actions": "handle"
 	},
 
 	handle: function(action_type)
