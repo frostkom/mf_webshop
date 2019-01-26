@@ -150,13 +150,15 @@ switch($type)
 										case 'event':
 											if(is_plugin_active('mf_calendar/index.php'))
 											{
+												$obj_calendar = new mf_calendar();
+
 												$arr_data = array();
-												get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
+												get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_calendar->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";
 											}
 
 											else
@@ -180,13 +182,15 @@ switch($type)
 										case 'social':
 											if(is_plugin_active('mf_social_feed/index.php'))
 											{
+												$obj_social_feed = new mf_social_feed();
+
 												$arr_data = array();
-												get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_social_feed'), $arr_data);
+												get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=mf_social_feed")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_social_feed->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";
 											}
 
 											else

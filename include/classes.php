@@ -6478,12 +6478,12 @@ if(class_exists('RWMB_Field'))
 		{
 			if(is_plugin_active('mf_calendar/index.php'))
 			{
-				$obj_social_feed = new mf_social_feed();
+				$obj_calendar = new mf_calendar();
 
 				$arr_data = array();
-				get_post_children(array('add_choose_here' => true, 'post_type' => 'mf_calendar'), $arr_data);
+				get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
 
-				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes']))); //"<a href='".admin_url("post-new.php?post_type=mf_calendar")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
+				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_calendar->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes'])));
 			}
 
 			else
@@ -6604,7 +6604,7 @@ if(class_exists('RWMB_Field'))
 					$arr_data = array();
 					get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
 
-					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes']))); //"<a href='".admin_url("post-new.php?post_type=".$obj_social_feed->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>"
+					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes'])));
 				}
 
 				else
