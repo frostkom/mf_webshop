@@ -86,10 +86,12 @@ switch($type)
 					$query_where .= " AND post_author = '".get_current_user_id()."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
 
 				foreach($result as $r)
 				{
+					$post_author = $r->post_author;
+
 					$json_output['admin_webshop_response']['post_title'] = $r->post_title;
 					$json_output['admin_webshop_response']['post_name'] = $r->post_name;
 
@@ -107,18 +109,19 @@ switch($type)
 							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 							{
 								$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['description'] = "";
+								$arr_children_temp = array();
 
-								$id = $arr_meta_box['fields'][$field_id]['id'];
-								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
-								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+								$id_temp = $arr_meta_box['fields'][$field_id]['id'];
+								$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
+								$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								/*if(!in_array($id, $arr_fields_excluded))
+								/*if(!in_array($id_temp, $arr_fields_excluded))
 								{*/
-									//Add options
-									switch($type)
+									// Add options
+									switch($type_temp)
 									{
 										case 'custom_categories':
-											$post_name_temp = str_replace($obj_webshop->meta_prefix, "", $id);
+											$post_name_temp = str_replace($obj_webshop->meta_prefix, "", $id_temp);
 											$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name_temp));
 
 											$arr_data = array();
@@ -143,14 +146,14 @@ switch($type)
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
 
-												$multiple = true;
+												$multiple_temp = true;
 											}
 										break;
 
 										case 'event':
 											if(is_plugin_active('mf_calendar/index.php'))
 											{
-												$obj_calendar = new mf_calendar();
+												/*$obj_calendar = new mf_calendar();
 
 												$arr_data = array();
 												get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
@@ -158,7 +161,7 @@ switch($type)
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_calendar->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_calendar->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";*/
 											}
 
 											else
@@ -169,7 +172,7 @@ switch($type)
 
 										case 'location':
 										case 'select3':
-											$multiple = true;
+											$multiple_temp = true;
 										break;
 
 										case 'page':
@@ -200,31 +203,82 @@ switch($type)
 										break;
 									}
 
-									switch($type)
+									// Add multiple attributes
+									switch($type_temp)
 									{
 										case 'custom_categories':
 										case 'education':
-										case 'event':
+										//case 'event':
 										case 'location':
 										case 'select':
 										case 'select3':
-											if($multiple)
+											if($multiple_temp)
 											{
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple;
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " form_select_multiple";
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
 											}
 										break;
 									}
 
-									//Add saved value
-									$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = get_post_meta($post_id, $id, ($multiple == true ? false : true));
+									// Get saved value
+									$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+
+									// Get default value if empty
+									if($value_temp == '' || $value_temp == 0)
+									{
+										switch($type_temp)
+										{
+											case 'email':
+												$user_data = get_userdata($post_author);
+
+												$value_temp = $user_data->user_email;
+											break;
+
+											case 'event':
+												$value_temp = $obj_webshop->create_product_event_connection($post_id);
+											break;
+										}
+									}
+
+									// Get child values
+									switch($type_temp)
+									{
+										case 'event':
+											if(is_plugin_active('mf_calendar/index.php'))
+											{
+												$obj_calendar = new mf_calendar();
+
+												$result_children = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, $obj_calendar->meta_prefix.'calendar', $value_temp));
+
+												foreach($result_children as $r_children)
+												{
+													$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
+													$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
+
+													list($event_start_date, $event_start_time) = explode(" ", $event_start, 2);
+													list($event_end_date, $event_end_time) = explode(" ", $event_end, 2);
+
+													$arr_children_temp[$r_children->ID] = array(
+														'name' => $r_children->post_title,
+														'start_date' => $event_start_date,
+														'start_time' => $event_start_time,
+														'end_date' => $event_end_date,
+														'end_time' => $event_end_time,
+													);
+												}
+											}
+										break;
+									}
 								/*}
 
 								else
 								{
 									unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
 								}*/
+
+								$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = $value_temp;
+								$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple_temp;
+								$arr_meta_boxes[$box_id]['fields'][$field_id]['children'] = $arr_children_temp;
 							}
 						}
 
@@ -238,6 +292,13 @@ switch($type)
 					$json_output['admin_webshop_response']['meta_boxes'] = $arr_meta_boxes;
 				}
 			}
+
+			else
+			{
+				$user_data = get_userdata(get_current_user_id());
+
+				$json_output['admin_webshop_response']['post_title'] = $user_data->display_name;
+			}
 		}
 
 		else
@@ -250,6 +311,7 @@ switch($type)
 		if(is_user_logged_in())
 		{
 			$post_id = check_var('post_id', 'int');
+			$post_title = check_var('post_title');
 
 			$json_output['admin_webshop_response'] = array(
 				'type' => $type,
@@ -266,22 +328,23 @@ switch($type)
 					$query_where .= " AND post_author = '".get_current_user_id()."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish'));
 
 				foreach($result as $r)
 				{
+					$updated = false;
+
 					$post_data = array(
 						'ID' => $post_id,
 						'meta_input' => array(),
 					);
 
 					$post_title_old = $r->post_title;
-					$post_title_new = check_var('post_title');
 
-					if($post_title_new != $post_title_old)
+					if($post_title != $post_title_old)
 					{
-						$post_data['post_title'] = $post_title_new;
-						//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title_new, 'post_title'));
+						$post_data['post_title'] = $post_title;
+						//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title, 'post_title'));
 					}
 
 					/*$post_name_old = $r->post_name;
@@ -301,38 +364,71 @@ switch($type)
 						{
 							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 							{
-								$id = $arr_meta_box['fields'][$field_id]['id'];
-								$type = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
-								$multiple = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+								$id_temp = $arr_meta_box['fields'][$field_id]['id'];
+								$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
+								$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								/*if(!in_array($id, $arr_fields_excluded))
+								/*if(!in_array($id_temp, $arr_fields_excluded))
 								{*/
-									switch($type)
+									switch($type_temp)
 									{
 										case 'education':
 										case 'location':
 										case 'select3':
-											$multiple = true;
-											$multiple = true;
+											$multiple_temp = true;
 										break;
 									}
 
-									$post_value_old = get_post_meta($post_id, $id, ($multiple == true ? false : true));
-									$post_value_new = check_var($id, ($multiple == true ? 'array' : 'char'));
-
-									if($post_value_new != $post_value_old)
+									switch($type_temp)
 									{
-										$post_data['meta_input'][$id] = $post_value_new;
-										//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id, $r->post_title));
+										case 'event':
+											$arr_event_id = check_var($id_temp."_id", 'array');
+											$arr_event_name = check_var($id_temp."_name", 'array');
+											$arr_event_start_date = check_var($id_temp."_start_date", 'array');
+											$arr_event_start_time = check_var($id_temp."_start_time", 'array');
+											$arr_event_end_date = check_var($id_temp."_end_date", 'array');
+											$arr_event_end_time = check_var($id_temp."_end_time", 'array');
+
+											$count_temp = count($arr_event_id);
+
+											for($i = 0; $i < $count_temp; $i++)
+											{
+												if($arr_event_id[$i] > 0)
+												{
+													// Update mf_calendar_event
+												}
+
+												else
+												{
+													// Save new mf_calendar_event
+												}
+												
+												/*if($wpdb->rows_affected == 1)
+												{
+													$updated = true;
+												}*/
+											}
+										break;
+
+										default:
+											$post_value_old = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+											$post_value_new = check_var($id_temp, ($multiple_temp == true ? 'array' : 'char'));
+
+											if($post_value_new != $post_value_old)
+											{
+												$post_data['meta_input'][$id_temp] = $post_value_new;
+												//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id_temp, $r->post_title));
+											}
+										break;
 									}
 								//}
 							}
 						}
 					}
 
-					if(count($post_data) > 2)
+					if(count($post_data) > 2 || $updated == true)
 					{
-						if(wp_update_post($post_data) > 0)
+						if(wp_update_post($post_data) > 0 || $updated == true)
 						{
 							$json_output['success'] = true;
 							$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
@@ -355,7 +451,32 @@ switch($type)
 
 			else
 			{
-				//Save initial information
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', $post_title, get_current_user_id()));
+
+				if($wpdb->num_rows == 0)
+				{
+					$post_data = array(
+						'post_title' => $post_title,
+						'post_type' => $obj_webshop->post_type_products.$obj_webshop->option_type,
+						'post_status' => 'publish',
+					);
+
+					if(wp_insert_post($post_data) > 0)
+					{
+						$json_output['success'] = true;
+						$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
+					}
+
+					else
+					{
+						$json_output['message'] = __("I could not save the information for you", 'lang_webshop');
+					}
+				}
+
+				else
+				{
+					$json_output['message'] = __("One with that title already exists", 'lang_webshop');
+				}
 			}
 		}
 

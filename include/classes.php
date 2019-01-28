@@ -69,6 +69,51 @@ class mf_webshop
 		);
 	}
 
+	function create_product_event_connection($post_id = 0)
+	{
+		global $wpdb;
+
+		if($post_id > 0)
+		{
+			$post_title = get_post_title($post_id);
+			$post_author = mf_get_post_content($post_id, 'post_author');
+		}
+
+		else
+		{
+			$user_data = get_userdata(get_current_user_id());
+
+			$post_title = $user_data->display_name;
+			$post_author = get_current_user_id();
+		}
+
+		//$event_post_name = $this->get_post_name_for_type('event');
+		//$event_id = get_post_meta($post_id, $event_post_name, true);
+		$event_id = 0;
+
+		if(is_plugin_active('mf_calendar/index.php'))
+		{
+			$obj_calendar = new mf_calendar();
+
+			if(!($event_id > 0))
+			{
+				$event_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s AND post_author = '%d' AND post_parent = '0'", $obj_calendar->post_type, $post_title, $post_author));
+			}
+
+			if(!($event_id > 0))
+			{
+				$event_id = wp_insert_post(array(
+					'post_title' => $post_title,
+					'post_type' => $obj_calendar->post_type,
+					'post_status' => 'publish',
+					'post_author' => $post_author,
+				));
+			}
+		}
+
+		return $event_id;
+	}
+
 	function is_between($data)
 	{
 		$out = false;
@@ -1562,7 +1607,7 @@ class mf_webshop
 
 		<script type='text/template' id='template_admin_webshop_edit'>
 			<form method='post' action='#' class='mf_form' data-action='admin_webshop_save'>"
-				.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>"))
+				.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'readonly' => (IS_ADMIN ? false : true)))
 				//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
 				."<% _.each(meta_boxes, function(meta_box)
 				{ %>
@@ -1591,7 +1636,6 @@ class mf_webshop
 
 										case 'custom_categories':
 										case 'education':
-										case 'event':
 										case 'location':
 										case 'page':
 										case 'select':
@@ -1632,6 +1676,44 @@ class mf_webshop
 										case 'email': %>"
 											.show_textfield(array('type' => 'email', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
 										."<% break;
+
+										case 'event':
+											if(meta_field.error != '')
+											{ %>
+												<p><%= meta_field.error %></p>
+											<% }
+
+											else
+											{ %>
+												<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
+													<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+													<div>
+														<% _.each(meta_field.children, function(value, key)
+														{ %>
+															<div>"
+																.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'placeholder' => __("Title", 'lang_webshop')))
+																."<div class='flex_flow tight'>"
+																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>")) //, 'text' => __("Start Date", 'lang_webshop')
+																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
+																	."<h3>-</h3>"
+																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>")) //, 'text' => __("End Date", 'lang_webshop')
+																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
+																	.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
+																."</div>
+															</div>
+														<% }); %>
+													</div>
+													<% if(meta_field.suffix != '')
+													{ %>
+														<span class='description'><%= meta_field.suffix %></span>
+													<% } %>
+													<% if(meta_field.description != '')
+													{ %>
+														<p class='description'><%= meta_field.description %></p>
+													<% } %>
+												</div>
+											<% }
+										break;
 
 										case 'ghost': %>
 											<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
@@ -4483,9 +4565,7 @@ class mf_webshop
 					FROM ".$wpdb->postmeta." AS calendar 
 					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = calendar.post_id AND calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'"
 					.$query_join
-				."WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_order.$query_limit, 'mf_calendar_event'));
-
-				//do_log("Test: ".$wpdb->last_query);
+				."WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_order.$query_limit, $obj_calendar->post_type_event));
 
 				$out['event_amount'] = $wpdb->num_rows;
 
@@ -4506,8 +4586,8 @@ class mf_webshop
 
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
-					//$post_url = get_permalink($post_id);
-					$post_url = $product_url.(preg_match("/\?/", $product_url) ? "&" : "?")."event_id=".$post_id;
+					$post_url = get_permalink($post_id);
+					//$post_url = $product_url.(preg_match("/\?/", $product_url) ? "&" : "?")."event_id=".$post_id;
 
 					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
 					$post_start = $r->post_start;
@@ -7370,11 +7450,31 @@ class widget_webshop_events extends WP_Widget
 
 		if(isset($post->ID) && $post->ID > 0 && isset($post->post_type))
 		{
-			$this->obj_webshop->get_option_type_from_post_id($post->ID);
+			$post_id = $post->ID;
+
+			/*if(is_plugin_active('mf_calendar/index.php'))
+			{
+				$obj_calendar = new mf_calendar();
+
+				if($post->post_type == $obj_calendar->post_type_event)
+				{
+					$calendar_id = get_post_meta($post_id, $obj_calendar->meta_prefix.'calendar', true);
+
+					if($calendar_id > 0)
+					{
+						// How can I find where this is used when I don't know the meta_key until I know the product ID?
+						// $this->option_type = ($option_type != '' ? "_".$option_type : '');
+						// $event_post_name = $this->get_post_name_for_type('event');
+						// "SELECT * FROM ".$wpdb->postmeta." WHERE meta_value = '$calendar_id'"
+					}
+				}
+			}*/
+
+			$this->obj_webshop->get_option_type_from_post_id($post_id);
 
 			if($post->post_type == $this->obj_webshop->post_type_products.$this->obj_webshop->option_type)
 			{
-				$this->product_id = $post->ID;
+				$this->product_id = $post_id;
 			}
 		}
 	}
@@ -7387,9 +7487,7 @@ class widget_webshop_events extends WP_Widget
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
-		$event_id = check_var('event_id', 'int');
-
-		if($instance['webshop_amount'] > 0 && !($event_id > 0))
+		if($instance['webshop_amount'] > 0)
 		{
 			$this->get_product_id($post);
 			$date = date("Y-m-d");
@@ -7405,54 +7503,50 @@ class widget_webshop_events extends WP_Widget
 					.$after_title;
 				}
 
-				//echo "<div class='section'>";
+				if(count($instance['webshop_filters']) > 0)
+				{
+					echo "<form action='#' method='post' class='event_filters mf_form'>";
 
-					if(count($instance['webshop_filters']) > 0)
-					{
-						echo "<form action='#' method='post' class='event_filters mf_form'>";
-
-							if(in_array('calendar', $instance['webshop_filters']))
-							{
-								echo "<div class='event_calendar'";
-
-									if($this->product_id > 0)
-									{
-										echo " data-product_id='".$this->product_id."'";
-									}
-
-								echo " data-date='".$date."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'div', 'size' => "fa-3x"))."</div>";
-							}
-
-							if(in_array('category', $instance['webshop_filters']))
-							{
-								$event_filter_category = check_var('event_filter_category', 'char');
-
-								echo show_form_alternatives(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => 'event_filter_category[]', 'value' => $event_filter_category, 'class' => "product_categories category_icon")); //, 'required' => ($post_custom_required == 'yes')
-							}
-
-							if(in_array('location', $instance['webshop_filters']))
-							{
-								// Display location filter
-							}
-
-						echo "</form>";
-					}
-
-					if($instance['webshop_text'] != '')
-					{
-						echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
-					}
-
-					echo "<ul id='".$widget_id."' class='widget_list' data-option-type='".$instance['webshop_option_type']."'";
-
-						if($this->product_id > 0)
+						if(in_array('calendar', $instance['webshop_filters']))
 						{
-							echo " data-product_id='".$this->product_id."'";
+							echo "<div class='event_calendar'";
+
+								if($this->product_id > 0)
+								{
+									echo " data-product_id='".$this->product_id."'";
+								}
+
+							echo " data-date='".$date."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'div', 'size' => "fa-3x"))."</div>";
 						}
 
-					echo " data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>";
+						if(in_array('category', $instance['webshop_filters']))
+						{
+							$event_filter_category = check_var('event_filter_category', 'char');
 
-				//echo "</div>";
+							echo show_form_alternatives(array('data' => $this->obj_webshop->get_categories_for_select(), 'name' => 'event_filter_category[]', 'value' => $event_filter_category, 'class' => "product_categories category_icon")); //, 'required' => ($post_custom_required == 'yes')
+						}
+
+						if(in_array('location', $instance['webshop_filters']))
+						{
+							// Display location filter
+						}
+
+					echo "</form>";
+				}
+
+				if($instance['webshop_text'] != '')
+				{
+					echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+				}
+
+				echo "<ul id='".$widget_id."' class='widget_list' data-option-type='".$instance['webshop_option_type']."'";
+
+					if($this->product_id > 0)
+					{
+						echo " data-product_id='".$this->product_id."'";
+					}
+
+				echo " data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>";
 
 			echo $after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
