@@ -248,15 +248,15 @@ switch($type)
 											{
 												$obj_calendar = new mf_calendar();
 
-												$result_children = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, $obj_calendar->meta_prefix.'calendar', $value_temp));
+												$result_children = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, 'publish', $obj_calendar->meta_prefix.'calendar', $value_temp));
 
 												foreach($result_children as $r_children)
 												{
 													$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
 													$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
 
-													list($event_start_date, $event_start_time) = explode(" ", $event_start, 2);
-													list($event_end_date, $event_end_time) = explode(" ", $event_end, 2);
+													@list($event_start_date, $event_start_time) = explode(" ", $event_start, 2);
+													@list($event_end_date, $event_end_time) = explode(" ", $event_end, 2);
 
 													$arr_children_temp[$r_children->ID] = array(
 														'name' => $r_children->post_title,
@@ -328,11 +328,11 @@ switch($type)
 					$query_where .= " AND post_author = '".get_current_user_id()."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', $post_id));
 
 				foreach($result as $r)
 				{
-					$updated = false;
+					$reload = $updated = false;
 
 					$post_data = array(
 						'ID' => $post_id,
@@ -382,31 +382,102 @@ switch($type)
 									switch($type_temp)
 									{
 										case 'event':
-											$arr_event_id = check_var($id_temp."_id", 'array');
-											$arr_event_name = check_var($id_temp."_name", 'array');
-											$arr_event_start_date = check_var($id_temp."_start_date", 'array');
-											$arr_event_start_time = check_var($id_temp."_start_time", 'array');
-											$arr_event_end_date = check_var($id_temp."_end_date", 'array');
-											$arr_event_end_time = check_var($id_temp."_end_time", 'array');
-
-											$count_temp = count($arr_event_id);
-
-											for($i = 0; $i < $count_temp; $i++)
+											if(is_plugin_active('mf_calendar/index.php'))
 											{
-												if($arr_event_id[$i] > 0)
-												{
-													// Update mf_calendar_event
-												}
+												$obj_calendar = new mf_calendar();
 
-												else
-												{
-													// Save new mf_calendar_event
-												}
+												$calendar_id = get_post_meta($post_id, $id_temp, true);
 
-												/*if($wpdb->rows_affected == 1)
+												$arr_event_id = check_var($id_temp."_id", 'array');
+												$arr_event_name = check_var($id_temp."_name", 'array');
+												$arr_event_start_date = check_var($id_temp."_start_date", 'array');
+												$arr_event_start_time = check_var($id_temp."_start_time", 'array');
+												$arr_event_end_date = check_var($id_temp."_end_date", 'array');
+												$arr_event_end_time = check_var($id_temp."_end_time", 'array');
+
+												$count_temp = count($arr_event_name);
+
+												for($i = 0; $i < $count_temp; $i++)
 												{
-													$updated = true;
-												}*/
+													if($arr_event_id[$i] > 0)
+													{
+														$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND ID = '%d' AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, 'publish', $arr_event_id[$i], $obj_calendar->meta_prefix.'calendar', $calendar_id));
+														$rows = $wpdb->num_rows;
+
+														if($rows == 1)
+														{
+															if($arr_event_name[$i] != '')
+															{
+																$post_data = array(
+																	'ID' => $arr_event_id[$i],
+																	'post_title' => $arr_event_name[$i],
+																	//'post_modified' => date("Y-m-d H:i:s"),
+																	'meta_input' => array(
+																		$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
+																		$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
+																	),
+																);
+
+																if(wp_update_post($post_data) > 0)
+																{
+																	$updated = true;
+																}
+
+																else
+																{
+																	do_log("I could not update (".var_export($post_data, true).")");
+																}
+															}
+
+															else
+															{
+																if(wp_trash_post($arr_event_id[$i]))
+																{
+																	$reload = $updated = true;
+																}
+
+																else
+																{
+																	do_log("I could not remove the post (".$arr_event_id[$i].")");
+																}
+															}
+														}
+
+														/*else
+														{
+															do_log("I could not find just one (".$wpdb->last_query." -> ".$rows.")");
+														}*/
+													}
+
+													else
+													{
+														if($arr_event_name[$i] != '')
+														{
+															$post_data = array(
+																'post_type' => $obj_calendar->post_type_event,
+																'post_status' => 'publish',
+																'post_title' => $arr_event_name[$i],
+																'meta_input' => array(
+																	$obj_calendar->meta_prefix.'calendar' => $calendar_id,
+																	$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
+																	$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
+																),
+															);
+
+															$post_id_temp = wp_insert_post($post_data);
+
+															if($post_id_temp > 0)
+															{
+																$reload = $updated = true;
+															}
+
+															else
+															{
+																do_log("I could not save (".var_export($post_data, true).")");
+															}
+														}
+													}
+												}
 											}
 										break;
 
@@ -432,6 +503,11 @@ switch($type)
 						{
 							$json_output['success'] = true;
 							$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
+
+							if($reload == true)
+							{
+								$json_output['next_request'] = "edit&post_id=".$post_id; // admin/webshop/
+							}
 						}
 
 						else

@@ -1687,21 +1687,39 @@ class mf_webshop
 											{ %>
 												<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
 													<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
-													<div>
-														<% _.each(meta_field.children, function(value, key)
+													<div class='event_children'>
+														<% if(Object.keys(meta_field.children).length > 0)
+														{
+															_.each(meta_field.children, function(value, key)
+															{ %>
+																<div>"
+																	.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop')))
+																	."<div class='flex_flow tight'>"
+																		.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>"))
+																		.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
+																		."<h3>-</h3>"
+																		.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>"))
+																		.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
+																		.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
+																	."</div>
+																</div>
+															<% });
+														}
+														
+														else
 														{ %>
 															<div>"
-																.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'placeholder' => __("Title", 'lang_webshop')))
+																.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop')))
 																."<div class='flex_flow tight'>"
-																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>")) //, 'text' => __("Start Date", 'lang_webshop')
-																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
+																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => ""))
+																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => ""))
 																	."<h3>-</h3>"
-																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>")) //, 'text' => __("End Date", 'lang_webshop')
-																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
-																	.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
+																	.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => ""))
+																	.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => ""))
+																	.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'allow_empty' => true))
 																."</div>
 															</div>
-														<% }); %>
+														<% } %>
 													</div>
 													<% if(meta_field.suffix != '')
 													{ %>
