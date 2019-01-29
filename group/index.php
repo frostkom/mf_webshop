@@ -22,7 +22,7 @@ if($wpdb->num_rows > 0)
 else
 {
 	$post_data = array(
-		'post_type' => 'mf_group',
+		'post_type' => $obj_group->post_type,
 		'post_status' => 'draft',
 		'post_title' => $name_webshop,
 	);

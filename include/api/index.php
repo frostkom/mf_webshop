@@ -402,7 +402,7 @@ switch($type)
 												{
 													// Save new mf_calendar_event
 												}
-												
+
 												/*if($wpdb->rows_affected == 1)
 												{
 													$updated = true;
