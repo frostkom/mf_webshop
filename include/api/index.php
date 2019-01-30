@@ -24,7 +24,7 @@ $json_output = array(
 
 $type = check_var('type');
 
-//$arr_fields_excluded = array($obj_webshop->meta_prefix.'searchable');
+$arr_fields_excluded = array($obj_webshop->meta_prefix.'searchable');
 
 switch($type)
 {
@@ -115,8 +115,10 @@ switch($type)
 								$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 								$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								/*if(!in_array($id_temp, $arr_fields_excluded))
-								{*/
+								$display_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['display'] = !in_array($id_temp, $arr_fields_excluded);
+
+								if($display_temp)
+								{
 									// Add options
 									switch($type_temp)
 									{
@@ -269,12 +271,12 @@ switch($type)
 											}
 										break;
 									}
-								/*}
+								}
 
 								else
 								{
-									unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
-								}*/
+									//unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
+								}
 
 								$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = $value_temp;
 								$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple_temp;
@@ -368,8 +370,8 @@ switch($type)
 								$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 								$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
-								/*if(!in_array($id_temp, $arr_fields_excluded))
-								{*/
+								if(!in_array($id_temp, $arr_fields_excluded))
+								{
 									switch($type_temp)
 									{
 										case 'education':
@@ -492,7 +494,7 @@ switch($type)
 											}
 										break;
 									}
-								//}
+								}
 							}
 						}
 					}

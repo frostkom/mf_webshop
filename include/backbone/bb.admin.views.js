@@ -14,7 +14,8 @@ var WebshopAdminView = Backbone.View.extend(
 	{
 		"submit form": "submit_form",
 		"blur .event_children .form_textfield input": "add_event_field",
-		"change .event_children .form_textfield input": "add_event_field"
+		"change .event_children .form_textfield input": "add_event_field",
+		"click .event_children .event_name .description .fa-trash": "clear_event_field"
 	},
 
 	do_redirect: function()
@@ -134,19 +135,45 @@ var WebshopAdminView = Backbone.View.extend(
 		}
 	},
 
-	add_event_field: function()
+	add_event_field: function(e)
 	{
 		var dom_parent = jQuery(".event_children"),
-			dom_last_child = dom_parent.children("div:last-child");
+			dom_last_child = dom_parent.children("li:not(.hide):last-child");
 
 		if(dom_last_child.find(".form_textfield.event_name input").val() != '')
 		{
 			var clone = dom_last_child.clone();
 
 			clone.find("input").val('').attr('value', '');
+			clone.find(".event_name").children(".description").addClass('hide');
 
 			dom_parent.append(clone);
 		}
+
+		if(typeof e !== 'undefined')
+		{
+			var dom_obj = jQuery(e.currentTarget);
+
+			if(dom_obj.length > 0 && dom_obj.parent(".form_textfield").hasClass('event_name'))
+			{
+				if(dom_obj.val() != '')
+				{
+					dom_obj.siblings(".description").removeClass('hide');
+				}
+
+				else
+				{
+					dom_obj.siblings(".description").addClass('hide');
+				}
+			}
+		}
+	},
+
+	clear_event_field: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget);
+
+		dom_obj.parent(".description").siblings("input").val('').attr('value', '').parent(".event_name").parent("li").addClass('hide');
 	}
 });
 
