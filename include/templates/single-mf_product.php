@@ -6,8 +6,6 @@ get_header();
 	{
 		$obj_webshop = new mf_webshop();
 
-		//include_once("aside.php");
-
 		echo "<article>";
 
 			while(have_posts())

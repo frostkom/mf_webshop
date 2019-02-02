@@ -153,20 +153,7 @@ switch($type)
 										break;
 
 										case 'event':
-											if(is_plugin_active('mf_calendar/index.php'))
-											{
-												/*$obj_calendar = new mf_calendar();
-
-												$arr_data = array();
-												get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
-
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-												$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_calendar->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";*/
-											}
-
-											else
+											if(!is_plugin_active('mf_calendar/index.php'))
 											{
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
 											}
@@ -223,7 +210,26 @@ switch($type)
 									}
 
 									// Get saved value
-									$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+									switch($type_temp)
+									{
+										case 'file_advanced':
+											$value_temp = array();
+
+											$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
+
+											foreach($result_files as $r_file)
+											{
+												list($file_name, $file_url) = get_attachment_data_by_id($r_file->meta_value);
+
+												$value_temp[] = $file_name."|".$file_url."|".$r_file->meta_value;
+												//$value_temp[] = get_post_title($r_file->meta_value)."|".mf_get_post_content($r_file->meta_value, 'guid')."|".$r_file->meta_value;
+											}
+										break;
+
+										default:
+											$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+										break;
+									}
 
 									// Get default value if empty
 									if($value_temp == '' || $value_temp == 0)
@@ -273,10 +279,10 @@ switch($type)
 									}
 								}
 
-								else
+								/*else
 								{
-									//unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
-								}
+									unset($arr_meta_boxes[$box_id]['fields'][$field_id]);
+								}*/
 
 								$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = $value_temp;
 								$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple_temp;
@@ -372,6 +378,7 @@ switch($type)
 
 								if(!in_array($id_temp, $arr_fields_excluded))
 								{
+									// Prepare multiple
 									switch($type_temp)
 									{
 										case 'education':
@@ -381,6 +388,7 @@ switch($type)
 										break;
 									}
 
+									// Prepare or save values
 									switch($type_temp)
 									{
 										case 'event':
@@ -478,6 +486,36 @@ switch($type)
 																do_log("I could not save (".var_export($post_data, true).")");
 															}
 														}
+													}
+												}
+											}
+										break;
+
+										case 'file_advanced':
+											$post_value_new = check_var($id_temp, 'char');
+
+											list($arr_files, $arr_ids) = get_attachment_to_send($post_value_new);
+
+											/* Delete old connections */
+											$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
+
+											if($wpdb->num_rows > 0)
+											{
+												$updated = true;
+											}
+
+											/* Insert new connections */
+											foreach($arr_ids as $file_id)
+											{
+												$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $id_temp, $file_id));
+
+												if($wpdb->num_rows == 0)
+												{
+													$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $id_temp, $file_id));
+
+													if($wpdb->num_rows > 0)
+													{
+														$updated = true;
 													}
 												}
 											}

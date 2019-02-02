@@ -405,65 +405,8 @@ class mf_webshop
 		return $option;
 	}
 
-	function get_product_list_item($post_id = 0, $current_post_id = 0)
-	{
-		global $wpdb;
-
-		$obj_webshop = new mf_webshop();
-
-		$out = "";
-		$is_ancestor = false;
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND post_parent = '%d' ORDER BY menu_order ASC", $obj_webshop->post_type_categories, $post_id));
-
-		if($wpdb->num_rows > 0)
-		{
-			$out .= "<ul".($post_id > 0 ? " class='children'" : "").">";
-
-				foreach($result as $r)
-				{
-					$post_id = $r->ID;
-					$post_title = $r->post_title;
-
-					$post_url = get_permalink($r);
-
-					list($list_output, $is_parent) = $this->get_product_list_item($post_id, $current_post_id);
-
-					$class = "";
-
-					if($post_id == $current_post_id)
-					{
-						$class = "current_page_item";
-
-						$is_ancestor = true;
-					}
-
-					else if($is_parent == true)
-					{
-						$class = "current_page_parent";
-
-						$is_ancestor = true;
-					}
-
-					$out .= "<li".($class != '' ? " class='".$class."'" : "").">
-						<a href='".$post_url."'>
-							<i class='fa fa-caret-right'></i>"
-							.$post_title
-						."</a>"
-						.$list_output
-					."</li>";
-				}
-
-			$out .= "</ul>";
-		}
-
-		return array($out, $is_ancestor);
-	}
-
 	function init()
 	{
-		global $wpdb;
-
 		if(!session_id())
 		{
 			@session_start();
@@ -645,8 +588,6 @@ class mf_webshop
 
 	function settings_webshop()
 	{
-		global $wpdb;
-
 		$options_area_orig = __FUNCTION__;
 
 		$this->get_option_types();
@@ -736,7 +677,6 @@ class mf_webshop
 			{
 				$name_categories = get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop'));
 
-				//$arr_settings['setting_show_categories|'.$option_type] = sprintf(__("Show %s on site", 'lang_webshop'), $name_categories);
 				$arr_settings['setting_webshop_replace_categories_slug|'.$option_type] = sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_categories));
 			}
 
@@ -1109,14 +1049,6 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "w", 'description' => ($option != '' ? get_site_url()."/<strong>".$option."</strong>/abc" : "")));
 	}
 
-	/*function setting_show_categories_callback($args = array())
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key, 'no');
-
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}*/
-
 	function setting_webshop_replace_categories_slug_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1189,12 +1121,21 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Choose", 'lang_webshop')));
 	}
 
+	function get_image_alt_for_select($data = array())
+	{
+		return array(
+			'yes' => __("Yes", 'lang_webshop'),
+			'single' => __("Yes", 'lang_webshop')." (".__("but not on Search", 'lang_webshop').")",
+			'no' => __("No", 'lang_webshop'),
+		);
+	}
+
 	function setting_webshop_display_images_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 'yes');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+		echo show_select(array('data' => $this->get_image_alt_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_webshop_switch_icon_on_callback($args = array())
@@ -1747,7 +1688,7 @@ class mf_webshop
 																				</li>
 																			<% });
 																		}
-																		
+
 																		else
 																		{ %>
 																			<li>"
@@ -1774,6 +1715,13 @@ class mf_webshop
 																</div>
 															<% }
 														break;
+
+														case 'file_advanced': %>"
+															//."<%= meta_field.id %>: <%= meta_field.value %>"
+															//.RWMB_Image_Field
+															//.get_media_library(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'type' => 'image', 'multiple' => true))
+															.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true))
+														."<% break;
 
 														case 'ghost': %>
 															<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
@@ -1946,6 +1894,9 @@ class mf_webshop
 
 	function widgets_init()
 	{
+		//register_widget('widget_webshop_categories');
+		//register_widget('widget_webshop_cart');
+
 		register_widget('widget_webshop_search');
 		register_widget('widget_webshop_map');
 		register_widget('widget_webshop_form');
@@ -1986,8 +1937,6 @@ class mf_webshop
 
 	function is_a_webshop_meta_value($data)
 	{
-		global $wpdb;
-
 		if($data['value'] != '')
 		{
 			if($data['key'] == "products" && count($data['value']) > 0)
@@ -2506,8 +2455,6 @@ class mf_webshop
 	/* Admin */
 	function admin_menu_payment_page()
 	{
-		global $wpdb;
-
 		$form_id = get_option('setting_webshop_payment_form'.$this->option_type);
 
 		$obj_form = new mf_form($form_id);
@@ -2520,8 +2467,6 @@ class mf_webshop
 
 	function confirm_payment($data = array())
 	{
-		global $wpdb;
-
 		if(!isset($data['paid'])){		$data['paid'] = 0;}
 
 		if(!isset($data['user_id']))
@@ -2758,7 +2703,7 @@ class mf_webshop
 				);
 			}
 
-			if(get_option('setting_webshop_display_images'.$this->option_type) == 'yes')
+			if(get_option('setting_webshop_display_images'.$this->option_type) != 'no')
 			{
 				$fields_settings[] = array(
 					'name' => __("Image", 'lang_webshop'),
@@ -3275,7 +3220,7 @@ class mf_webshop
 
 	function restrict_manage_posts()
 	{
-		global $post_type, $wpdb;
+		global $post_type;
 
 		if(substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
 		{
@@ -3994,8 +3939,6 @@ class mf_webshop
 
 	function get_webshop_map()
 	{
-		global $wpdb;
-
 		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$this->option_type, __("Show Map", 'lang_webshop'));
 		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$this->option_type, __("Hide Map", 'lang_webshop'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
@@ -5765,7 +5708,7 @@ class mf_webshop
 			}
 		}
 
-		if(get_option('setting_webshop_display_images', 'yes') == 'yes')
+		if(get_option('setting_webshop_display_images'.$this->option_type) == 'yes')
 		{
 			$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
 		}
@@ -5884,8 +5827,6 @@ class mf_webshop
 
 	function get_product_data($data, &$json_output)
 	{
-		global $wpdb;
-
 		$is_single = false;
 
 		$this->product_init(array('post' => $data['product'], 'single' => $is_single, 'single_image' => $data['single_image']));
@@ -6422,86 +6363,6 @@ class mf_webshop
 
 		return $out;
 	}
-
-	function get_cart()
-	{
-		global $wpdb, $sesWebshopCookie, $intCustomerID, $intCustomerNo, $strOrderName, $emlOrderEmail, $strOrderText, $intDeliveryTypeID, $error_text, $done_text;
-
-		$out = get_notification();
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, productAmount FROM ".$wpdb->posts." INNER JOIN ".$wpdb->prefix."webshop_product2user ON ".$wpdb->posts.".ID = ".$wpdb->prefix."webshop_product2user.productID WHERE post_type = %s AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", $this->post_type_products, get_current_user_id(), $sesWebshopCookie));
-
-		if($wpdb->num_rows > 0)
-		{
-			$out .= "<h4>".__("Cart", 'lang_webshop')."</h4>
-			<ul>";
-
-				foreach($result as $r)
-				{
-					$post_id = $r->ID;
-					$post_title = $r->post_title;
-					$product_amount = $r->productAmount;
-
-					$post_url = get_permalink($post_id);
-
-					$out .= "<li>
-						<a href='".$post_url."'>
-							<span>".$post_title."</span>
-							<em>(".$product_amount.")</em>
-						</a>
-					</li>";
-				}
-
-			$out .= "</ul>
-			<form method='post' action='' id='order_proceed' class='mf_form".(isset($_POST['btnOrderConfirm']) ? " hide" : "")."'>
-				<div class='form_button'>"
-					.show_button(array('name' => 'btnOrderProceed', 'text' => __("Proceed to Checkout", 'lang_webshop'), 'type' => 'button'))
-				."</div>
-			</form>";
-
-			if(get_current_user_id() > 0 && !($intCustomerID > 0))
-			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT customerID, orderName, orderEmail FROM ".$wpdb->prefix."webshop_order WHERE userID = '%d' ORDER BY orderCreated DESC LIMIT 0, 1", get_current_user_id()));
-
-				foreach($result as $r)
-				{
-					$intCustomerID = $r->customerID;
-					$strOrderName = $r->orderName;
-					$emlOrderEmail = $r->orderEmail;
-				}
-			}
-
-			$out .= "<form method='post' action='' id='order_confirm' class='mf_form".(isset($_POST['btnOrderConfirm']) ? "" : " hide")."'>
-				<h4>".__("Checkout", 'lang_webshop')."</h4>";
-
-				$arr_data = get_posts_for_select(array('post_type' => $this->post_type_customers, 'order' => "post_title ASC", 'add_choose_here' => true));
-
-				if(count($arr_data) > 0)
-				{
-					$out .= show_select(array('data' => $arr_data, 'name' => 'intCustomerID', 'text' => __("Customer", 'lang_webshop'), 'value' => $intCustomerID))
-					.show_textfield(array('name' => 'intCustomerNo', 'text' => __("Customer No", 'lang_webshop'), 'value' => $intCustomerNo, 'type' => 'number'));
-				}
-
-				$out .= show_textfield(array('name' => 'strOrderName', 'text' => __("Name", 'lang_webshop'), 'value' => $strOrderName, 'required' => true))
-				.show_textfield(array('name' => 'emlOrderEmail', 'text' => __("E-mail", 'lang_webshop'), 'value' => $emlOrderEmail, 'required' => true))
-				.show_textarea(array('name' => 'strOrderText', 'text' => __("Text", 'lang_webshop'), 'value' => $strOrderText));
-
-				$arr_data = get_posts_for_select(array('post_type' => $this->post_type_delivery_type, 'order' => "post_title ASC"));
-
-				if(count($arr_data) > 0)
-				{
-					$out .= show_select(array('data' => $arr_data, 'name' => 'intDeliveryTypeID', 'text' => __("Delivery Type", 'lang_webshop'), 'value' => $intDeliveryTypeID));
-				}
-
-				$out .= "<div class='form_button'>"
-					.show_button(array('name' => 'btnOrderConfirm', 'text' => __("Confirm Order", 'lang_webshop')))
-				."</div>"
-				.wp_nonce_field('order_confirm', '_wpnonce_order_confirm', true, false)
-			."</form>";
-		}
-
-		return $out;
-	}
 }
 
 class mf_webshop_import extends mf_import
@@ -6557,8 +6418,6 @@ class mf_webshop_import extends mf_import
 
 	function get_external_value(&$strRowField, &$value)
 	{
-		global $wpdb;
-
 		$saved_option = false;
 
 		foreach($this->arr_type as $type)
@@ -6860,8 +6719,6 @@ class widget_webshop_search extends WP_Widget
 
 	function form($instance)
 	{
-		global $wpdb;
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
@@ -6925,8 +6782,6 @@ class widget_webshop_map extends WP_Widget
 
 	function form($instance)
 	{
-		global $wpdb;
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
@@ -7236,8 +7091,6 @@ class widget_webshop_list extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $wpdb;
-
 		extract($args);
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
@@ -7569,7 +7422,7 @@ class widget_webshop_events extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $wpdb, $post;
+		global $post;
 
 		extract($args);
 
@@ -7705,8 +7558,6 @@ class widget_webshop_filter_products extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $wpdb;
-
 		extract($args);
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
@@ -7798,7 +7649,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $wpdb, $post;
+		global $post;
 
 		extract($args);
 
@@ -7955,5 +7806,404 @@ class widget_webshop_product_meta extends WP_Widget
 			}
 
 		echo "</div>";
+	}
+}
+
+class widget_webshop_categories extends WP_Widget
+{
+	function __construct()
+	{
+		$widget_ops = array(
+			'classname' => 'webshop_categories',
+			'description' => __("Display Categories", 'lang_webshop')
+		);
+
+		$this->arr_default = array(
+			'webshop_heading' => '',
+			'webshop_option_type' => '',
+		);
+
+		$this->obj_webshop = new mf_webshop();
+
+		parent::__construct('webshop-categories-widget', __("Webshop", 'lang_webshop')." (".__("Categories", 'lang_webshop').")", $widget_ops);
+	}
+
+	function get_product_list_item($post_id = 0, $category_id = 0)
+	{
+		global $wpdb, $post;
+
+		if($category_id == 0)
+		{
+			if(isset($post->ID) && $post->ID > 0 && isset($post->post_type) && $post->post_type == $this->obj_webshop->post_type_categories.$this->obj_webshop->option_type)
+			{
+				$category_id = $post->ID;
+			}
+
+			else
+			{	
+				$category_id = 0;
+			}
+		}
+
+		$out = "";
+		$is_ancestor = false;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent = '%d' ORDER BY menu_order ASC", $this->obj_webshop->post_type_categories.$this->obj_webshop->option_type, 'publish', $post_id));
+
+		if($wpdb->num_rows > 0)
+		{
+			$out .= "<ul".($post_id > 0 ? " class='children'" : "").">";
+
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+					$post_title = $r->post_title;
+
+					$post_url = get_permalink($r);
+
+					list($list_output, $is_parent) = $this->get_product_list_item($post_id, $category_id);
+
+					$class = "";
+
+					if($post_id == $category_id)
+					{
+						$class = "current_page_item";
+
+						$is_ancestor = true;
+					}
+
+					else if($is_parent == true)
+					{
+						$class = "current_page_parent";
+
+						$is_ancestor = true;
+					}
+
+					$out .= "<li".($class != '' ? " class='".$class."'" : "").">
+						<a href='".$post_url."'>
+							<i class='fa fa-caret-right'></i>"
+							.$post_title
+						."</a>"
+						.$list_output
+					."</li>";
+				}
+
+			$out .= "</ul>";
+		}
+
+		return array($out, $is_ancestor);
+	}
+
+	function widget($args, $instance)
+	{
+		extract($args);
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
+
+		echo $before_widget;
+
+			if($instance['webshop_heading'] != '')
+			{
+				echo $before_title
+					.$instance['webshop_heading']
+				.$after_title;
+			}
+
+			list($list_output, $is_parent) = $this->get_product_list_item();
+
+			echo $list_output
+		.$after_widget;
+	}
+
+	function update($new_instance, $old_instance)
+	{
+		$instance = $old_instance;
+
+		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
+
+		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
+
+		return $instance;
+	}
+
+	function form($instance)
+	{
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		echo "<div class='mf_form'>"
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
+		."</div>";
+	}
+}
+
+class widget_webshop_cart extends WP_Widget
+{
+	function __construct()
+	{
+		$widget_ops = array(
+			'classname' => 'webshop_cart',
+			'description' => __("Display Cart", 'lang_webshop')
+		);
+
+		$this->arr_default = array(
+			'webshop_heading' => '',
+			'webshop_option_type' => '',
+		);
+
+		$this->obj_webshop = new mf_webshop();
+
+		parent::__construct('webshop-cart-widget', __("Webshop", 'lang_webshop')." (".__("Cart", 'lang_webshop').")", $widget_ops);
+	}
+
+	function get_cart()
+	{
+		global $wpdb; //, $sesWebshopCookie, $intCustomerID, $intCustomerNo, $strOrderName, $emlOrderEmail, $strOrderText, $intDeliveryTypeID, $error_text, $done_text
+
+		if(isset($_SESSION['sesWebshopCookie']) && $_SESSION['sesWebshopCookie'] != '')
+		{
+			$sesWebshopCookie = check_var('sesWebshopCookie', 'char', true);
+		}
+
+		else
+		{
+			$_SESSION['sesWebshopCookie'] = $sesWebshopCookie = md5(AUTH_SALT.$_SERVER['REMOTE_ADDR'].date("Y-m-d H:i:s"));
+		}
+
+		$intProductID = check_var('intProductID');
+		$intProductAmount = check_var('intProductAmount', '', true, '1');
+
+		$intCustomerID = check_var('intCustomerID');
+		$intCustomerNo = check_var('intCustomerNo');
+
+		$strOrderName = check_var('strOrderName');
+		$emlOrderEmail = check_var('emlOrderEmail');
+		$strOrderText = check_var('strOrderText');
+		$intDeliveryTypeID = check_var('intDeliveryTypeID');
+
+		if(isset($_POST['btnProductBuy']) && wp_verify_nonce($_POST['_wpnonce_product_buy'], 'product_buy_'.$intProductID))
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT productID FROM ".$wpdb->prefix."webshop_product2user WHERE productID = '%d' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s) LIMIT 0, 1", $intProductID, get_current_user_id(), $sesWebshopCookie));
+
+			if($wpdb->num_rows > 0)
+			{
+				if($intProductAmount > 0)
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."webshop_product2user SET productAmount = '%d' WHERE productID = '%d' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", $intProductAmount, $intProductID, get_current_user_id(), $sesWebshopCookie));
+				}
+
+				else
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."webshop_product2user WHERE productID = '%d' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", $intProductID, get_current_user_id(), $sesWebshopCookie));
+				}
+			}
+
+			else if($intProductAmount > 0)
+			{
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."webshop_product2user SET productID = '%d', userID = '%d', webshopCookie = %s, productAmount = '%d', webshopCreated = NOW()", $intProductID, get_current_user_id(), $sesWebshopCookie, $intProductAmount));
+			}
+
+			//$done_text = __("The cart has been updated", 'lang_webshop');
+		}
+
+		else if(isset($_POST['btnOrderConfirm']) && wp_verify_nonce($_POST['_wpnonce_order_confirm'], 'order_confirm'))
+		{
+			if($strOrderName != '' && $emlOrderEmail != '')
+			{
+				$accepted = false;
+
+				$result	= $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title ASC", $obj_webshop->post_type_customers.$this->obj_webshop->option_type));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$customer_id = $r->ID;
+
+						if($intCustomerID == $customer_id)
+						{
+							$customer_no = get_post_meta($customer_id, $meta_prefix.'customer_no', true);
+
+							if($intCustomerNo == $customer_no)
+							{
+								$accepted = true;
+							}
+						}
+					}
+				}
+
+				else
+				{
+					$accepted = true;
+				}
+
+				if($accepted == true)
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT productID, productAmount FROM ".$wpdb->prefix."webshop_product2user WHERE webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", get_current_user_id(), $sesWebshopCookie));
+
+					if($wpdb->num_rows > 0)
+					{
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."webshop_order SET customerID = '%d', orderName = %s, orderEmail = %s, orderText = %s, deliveryTypeID = '%d', userID = '%d', orderCreated = NOW()", $intCustomerID, $strOrderName, $emlOrderEmail, $strOrderText, $intOrderDeliveryType, get_current_user_id()));
+
+						$intOrderID = $wpdb->insert_id;
+
+						foreach($result as $r)
+						{
+							$intProductID2 = $r->productID;
+							$intProductAmount2 = $r->productAmount;
+
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."webshop_product2user SET orderID = '%d', webshopDone = '1' WHERE productID = '%d' AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", $intOrderID, $intProductID2, get_current_user_id(), $sesWebshopCookie));
+
+							//update_product_amount($intProductID2, $intProductAmount2)
+						}
+
+						$done_text = __("The order has been completed", 'lang_webshop');
+
+						$intCustomerID = $strOrderName = $emlOrderEmail = $strOrderText = $intOrderDeliveryType = "";
+						unset($_POST['btnOrderConfirm']);
+
+						/*if($emlOrderEmail != '')
+						{
+							$strEmail = $emlOrderEmail;
+							$strFromEmail = get_bloginfo('admin_email');
+							$strSubject = __("Order info", 'lang_webshop')." (".date("Y-m-d").")";
+							$strText = "";
+
+							sendEmail();
+						}*/
+					}
+				}
+
+				else
+				{
+					$error_text = __("You have to select the customer and correct customer number", 'lang_webshop');
+				}
+			}
+
+			else
+			{
+				$error_text = __("You have to enter customer, customer number, name and e-mail", 'lang_webshop');
+			}
+		}
+
+		$out .= get_notification();
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, productAmount FROM ".$wpdb->posts." INNER JOIN ".$wpdb->prefix."webshop_product2user ON ".$wpdb->posts.".ID = ".$wpdb->prefix."webshop_product2user.productID WHERE post_type = %s AND webshopDone = '0' AND (userID = '%d' OR webshopCookie = %s)", $this->post_type_products.$this->obj_webshop->option_type, get_current_user_id(), $sesWebshopCookie));
+
+		if($wpdb->num_rows > 0)
+		{
+			$out .= "<ul>";
+
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+					$post_title = $r->post_title;
+					$product_amount = $r->productAmount;
+
+					$post_url = get_permalink($post_id);
+
+					$out .= "<li>
+						<a href='".$post_url."'>
+							<span>".$post_title."</span>
+							<em>(".$product_amount.")</em>
+						</a>
+					</li>";
+				}
+
+			$out .= "</ul>
+			<form method='post' action='' id='order_proceed' class='mf_form".(isset($_POST['btnOrderConfirm']) ? " hide" : "")."'>
+				<div class='form_button'>"
+					.show_button(array('name' => 'btnOrderProceed', 'text' => __("Proceed to Checkout", 'lang_webshop'), 'type' => 'button'))
+				."</div>
+			</form>";
+
+			if(get_current_user_id() > 0 && !($intCustomerID > 0))
+			{
+				$result = $wpdb->get_results($wpdb->prepare("SELECT customerID, orderName, orderEmail FROM ".$wpdb->prefix."webshop_order WHERE userID = '%d' ORDER BY orderCreated DESC LIMIT 0, 1", get_current_user_id()));
+
+				foreach($result as $r)
+				{
+					$intCustomerID = $r->customerID;
+					$strOrderName = $r->orderName;
+					$emlOrderEmail = $r->orderEmail;
+				}
+			}
+
+			$out .= "<form method='post' action='' id='order_confirm' class='mf_form".(isset($_POST['btnOrderConfirm']) ? "" : " hide")."'>
+				<h4>".__("Checkout", 'lang_webshop')."</h4>";
+
+				$arr_data = get_posts_for_select(array('post_type' => $this->post_type_customers.$this->obj_webshop->option_type, 'order' => "post_title ASC", 'add_choose_here' => true));
+
+				if(count($arr_data) > 0)
+				{
+					$out .= show_select(array('data' => $arr_data, 'name' => 'intCustomerID', 'text' => __("Customer", 'lang_webshop'), 'value' => $intCustomerID))
+					.show_textfield(array('name' => 'intCustomerNo', 'text' => __("Customer No", 'lang_webshop'), 'value' => $intCustomerNo, 'type' => 'number'));
+				}
+
+				$out .= show_textfield(array('name' => 'strOrderName', 'text' => __("Name", 'lang_webshop'), 'value' => $strOrderName, 'required' => true))
+				.show_textfield(array('name' => 'emlOrderEmail', 'text' => __("E-mail", 'lang_webshop'), 'value' => $emlOrderEmail, 'required' => true))
+				.show_textarea(array('name' => 'strOrderText', 'text' => __("Text", 'lang_webshop'), 'value' => $strOrderText));
+
+				$arr_data = get_posts_for_select(array('post_type' => $this->post_type_delivery_type.$this->obj_webshop->option_type, 'order' => "post_title ASC"));
+
+				if(count($arr_data) > 0)
+				{
+					$out .= show_select(array('data' => $arr_data, 'name' => 'intDeliveryTypeID', 'text' => __("Delivery Type", 'lang_webshop'), 'value' => $intDeliveryTypeID));
+				}
+
+				$out .= "<div class='form_button'>"
+					.show_button(array('name' => 'btnOrderConfirm', 'text' => __("Confirm Order", 'lang_webshop')))
+				."</div>"
+				.wp_nonce_field('order_confirm', '_wpnonce_order_confirm', true, false)
+			."</form>";
+		}
+
+		return $out;
+	}
+
+	function widget($args, $instance)
+	{
+		extract($args);
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
+
+		echo $before_widget;
+
+			if($instance['webshop_heading'] != '')
+			{
+				echo $before_title
+					.$instance['webshop_heading']
+				.$after_title;
+			}
+
+			echo $this->get_cart()
+		.$after_widget;
+	}
+
+	function update($new_instance, $old_instance)
+	{
+		$instance = $old_instance;
+
+		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
+
+		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
+
+		return $instance;
+	}
+
+	function form($instance)
+	{
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		echo "<div class='mf_form'>"
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
+		."</div>";
 	}
 }

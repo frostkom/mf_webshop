@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.1.0
+Version: 2.1.1.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -180,6 +180,7 @@ function activate_webshop()
 		$arr_options[] = 'setting_webshop_text_color_button'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_color_button_2'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_color_button_negative'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_show_categories'.$obj_webshop->option_type;
 	}
 
 	$obj_webshop->option_type = '';
@@ -242,7 +243,6 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_map_info'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_products_slug'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_categories_slug'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_show_categories'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_gmaps_api'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_inactive_image'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_active_image'.$obj_webshop->option_type;

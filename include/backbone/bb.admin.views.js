@@ -131,6 +131,11 @@ var WebshopAdminView = Backbone.View.extend(
 				jQuery("#" + type).find(".maps_search_container:not(.maps_initiated)").gmaps();
 
 				this.add_event_field();
+
+				if(typeof init_media_button === 'function')
+				{
+					init_media_button();
+				}
 			break;
 		}
 	},

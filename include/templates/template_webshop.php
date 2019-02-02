@@ -7,18 +7,7 @@ get_header();
 
 	if(have_posts())
 	{
-		//include_once("aside.php");
-
 		echo "<article>";
-
-			/*if(is_active_sidebar('top_widget'))
-			{
-				echo "<div id='top_widget'>";
-
-					dynamic_sidebar('top_widget');
-
-				echo "</div>";
-			}*/
 
 			while(have_posts())
 			{
