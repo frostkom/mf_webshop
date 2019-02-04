@@ -123,6 +123,11 @@ var WebshopAdminView = Backbone.View.extend(
 
 				jQuery("#" + type).html(html).removeClass('hide').siblings("div").addClass('hide');
 
+				if(typeof select_option === 'function')
+				{
+					select_option();
+				}
+
 				if(typeof do_multiselect === 'function')
 				{
 					do_multiselect();
@@ -176,9 +181,22 @@ var WebshopAdminView = Backbone.View.extend(
 
 	clear_event_field: function(e)
 	{
-		var dom_obj = jQuery(e.currentTarget);
+		var confirm_text = script_webshop_admin_views.confirm_question;
 
-		dom_obj.parent(".description").siblings("input").val('').attr('value', '').parent(".event_name").parent("li").addClass('hide');
+		if(confirm(confirm_text))
+		{
+			var dom_obj = jQuery(e.currentTarget),
+				dom_parent = dom_obj.parents(".event_name").parents("li");
+
+			dom_parent.addClass('hide');
+			dom_parent.find("input[type!='hidden']").val('').attr('value', '');
+			dom_parent.find("select option:selected").prop('selected', false);
+		}
+
+		else
+		{
+			return false;
+		}
 	}
 });
 

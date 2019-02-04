@@ -552,25 +552,20 @@ echo "@media all
 							transform: scale(1.5);
 						}
 
-					/*.webshop_events .calendar_days .day a
+					.webshop_events .calendar_days .day ul
 					{
-						color: #333;
-					}*/
+						list-style: none;
+					}
 
-						.webshop_events .calendar_days .day ul
+						.webshop_events .calendar_days .day li
 						{
-							list-style: none;
+							background: #999;
+							border-radius: 50%;
+							content: ' ';
+							display: inline-block;
+							height: .5em;
+							width: .5em;
 						}
-
-							.webshop_events .calendar_days .day li
-							{
-								background: #999;
-								border-radius: 50%;
-								content: ' ';
-								display: inline-block;
-								height: .5em;
-								width: .5em;
-							}
 
 					.webshop_events .calendar_days .day:nth-of-type(7n + 7)
 					{
@@ -694,6 +689,29 @@ echo "@media all
 				}
 
 			.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
+			{
+				background: ".$post_color.";
+			}";
+		}
+
+		$result = $obj_webshop->get_category_colors();
+
+		foreach($result as $r)
+		{
+			$post_id = $r->ID;
+			$post_color = $r->meta_value;
+
+			echo ".webshop_events li.event_category_".$post_id."
+			{
+				border-left-color: ".$post_color.";
+			}
+
+				#wrapper .webshop_events li.event_category_".$post_id." h2 a
+				{
+					color: ".$post_color.";
+				}
+
+			.webshop_events .calendar_days .day li.event_category_".$post_id."
 			{
 				background: ".$post_color.";
 			}";
@@ -1150,24 +1168,17 @@ echo "@media all
 										margin-bottom: 5%;
 									}";
 
-								$obj_webshop->get_option_types();
+								$result = $obj_webshop->get_category_colors();
 
-								foreach($obj_webshop->arr_option_types as $option_type)
+								foreach($result as $r)
 								{
-									$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+									$post_id = $r->ID;
+									$post_color = $r->meta_value;
 
-									$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $obj_webshop->post_type_categories.$obj_webshop->option_type, $obj_webshop->meta_prefix.'category_icon_color'));
-
-									foreach($result as $r)
+									echo ".category_icon .category_".$post_id."
 									{
-										$post_id = $r->ID;
-										$post_color = $r->meta_value;
-
-										echo ".category_icon .category_".$post_id."
-										{
-											color: ".$post_color." !important;
-										}";
-									}
+										color: ".$post_color." !important;
+									}";
 								}
 
 							echo ".product_image_container img
@@ -1572,17 +1583,10 @@ echo "@media all
 		text-align: center;
 	}
 
-		/*.webshop_widget ul li
+		.webshop_widget ul li > div
 		{
-			float: left;
-			padding-right: .5%;
-			padding-left: .5%;
-		}*/
-
-			.webshop_widget ul li > div
-			{
-				margin: 0 .4em;
-			}
+			margin: 0 .4em;
+		}
 
 	.product_list .product_image_container
 	{

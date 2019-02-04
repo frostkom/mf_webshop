@@ -74,10 +74,12 @@ add_action('widgets_init', array($obj_webshop, 'widgets_init'));
 add_action('wp_login', array($obj_webshop, 'uninit'));
 add_action('wp_logout', array($obj_webshop, 'uninit'));
 
-add_filter('default_content', array($obj_webshop, 'default_content'), 10, 2);
+add_filter('default_content', array($obj_webshop, 'default_content')); //, 10, 2
 
 add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
 add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
+
+add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields'));
 
 add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
 

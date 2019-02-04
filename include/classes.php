@@ -69,6 +69,26 @@ class mf_webshop
 		);
 	}
 
+	function get_category_colors()
+	{
+		global $wpdb;
+
+		$result = array();
+
+		$this->get_option_types();
+
+		foreach($this->arr_option_types as $option_type)
+		{
+			$option_type = ($option_type != '' ? "_".$option_type : '');
+
+			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $this->post_type_categories.$option_type, $this->meta_prefix.'category_icon_color'));
+
+			$result = array_merge($result, $result_temp);
+		}
+		
+		return $result;
+	}
+
 	function create_product_event_connection($post_id = 0)
 	{
 		global $wpdb;
@@ -1553,7 +1573,7 @@ class mf_webshop
 
 					mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
 					mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
-					mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array(), $plugin_version);
+					mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
 
 					$templates .= "<script type='text/template' id='template_admin_webshop_list'>
 						<table class='widefat striped'>
@@ -1667,17 +1687,30 @@ class mf_webshop
 															<% }
 
 															else
-															{ %>
-																<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
+															{ %>";
+
+																$arr_categories = array();
+																get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'choose_here_text' => __("Choose Category Here", 'lang_webshop')), $arr_categories);
+
+																$templates .= "<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
 																	<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
 																	<ul class='event_children'>
 																		<% if(Object.keys(meta_field.children).length > 0)
 																		{
 																			_.each(meta_field.children, function(value, key)
 																			{ %>
-																				<li>"
-																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																					."<div class='flex_flow tight'>"
+																				<li>
+																					<div class='flex_flow'>"
+																						.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																						.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
+
+																						if(count($arr_categories) > 0)
+																						{
+																							$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false, 'xtra' => " data-value='<%= value.category %>'"));
+																						}
+
+																					$templates .= "</div>
+																					<div class='flex_flow tight'>"
 																						.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>"))
 																						.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
 																						."<h3>-</h3>"
@@ -1691,9 +1724,18 @@ class mf_webshop
 
 																		else
 																		{ %>
-																			<li>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																				."<div class='flex_flow tight'>"
+																			<li>
+																				<div class='flex_flow'>"
+																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
+																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
+
+																					if(count($arr_categories) > 0)
+																					{
+																						$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false));
+																					}
+
+																				$templates .= "</div>
+																				<div class='flex_flow tight'>"
 																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
 																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]'))
 																					."<h3>-</h3>"
@@ -1925,7 +1967,7 @@ class mf_webshop
 		@session_destroy();
 	}
 
-	function default_content($post_content, $post)
+	function default_content($post_content)
 	{
 		if($post_content == "[product_default]")
 		{
@@ -2268,6 +2310,143 @@ class mf_webshop
 		$data['obj_form']->arr_email_content = $arr_mail_content_temp;
 
 		return $data;
+	}
+
+	function get_product_id_from_calendar($post_id)
+	{
+		global $wpdb;
+
+		$product_id = 0;
+		$option_type_out = "";
+
+		$debug = array();
+
+		if(is_plugin_active('mf_calendar/index.php'))
+		{
+			$obj_calendar = new mf_calendar();
+
+			$post_type = get_post_type($post_id);
+
+			if($post_type == $obj_calendar->post_type_event)
+			{
+				$post_parent = get_post_meta($post_id, $obj_calendar->meta_prefix.'calendar', true);
+
+				if($post_parent > 0)
+				{
+					$this->option_type_orig = $this->option_type;
+
+					$this->get_option_types();
+
+					foreach($this->arr_option_types as $option_type)
+					{
+						if(!($product_id > 0))
+						{
+							$this->option_type = ($option_type != '' ? "_".$option_type : '');
+
+							$debug[] = "Option Type: ".$this->option_type;
+
+							$event_post_name = $this->get_post_name_for_type('event');
+
+							$debug[] = "Event Post Name: ".$event_post_name;
+
+							if($event_post_name != '')
+							{
+								$product_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = '%d'", $this->post_type_products, 'publish', $this->meta_prefix.$event_post_name, $post_parent));
+
+								if($product_id > 0)
+								{
+									$option_type_out = $this->option_type;
+									//break;
+
+									$debug[] = "Product: ".$product_id;
+								}
+
+								else
+								{
+									$debug[] = "No Product: ".$wpdb->last_query;
+								}
+							}
+
+							else
+							{
+								$debug[] = "No Events: ".$this->option_type;
+							}
+						}
+
+						else
+						{
+							$debug[] = "Already set: ".$product_id;
+						}
+					}
+
+					$this->option_type = $this->option_type_orig;
+					unset($this->option_type_orig);
+				}
+
+				else
+				{
+					$debug[] = "No Parent: ".$post_id;
+				}
+			}
+
+			else
+			{
+				$debug[] = "Incorrect Post Type: ".$post_type." == ".$obj_calendar->post_type_event;
+			}
+		}
+
+		else
+		{
+			$debug[] = "Not active: MF Calendar";
+		}
+
+		$debug[] = "Returning: ".$product_id;
+
+		//do_log("get_product_id_from_calendar: ".var_export($debug, true));
+
+		return array($product_id, $option_type_out);
+	}
+
+	function before_meta_box_fields($arr_fields)
+	{
+		global $wpdb, $post;
+
+		if(isset($post->ID) && $post->ID > 0)
+		{
+			$post_id = $post->ID;
+		}
+
+		else
+		{
+			$post_id = check_var('post', 'int');
+		}
+
+		if($post_id > 0 && is_plugin_active('mf_calendar/index.php'))
+		{
+			list($product_id, $option_type) = $this->get_product_id_from_calendar($post_id);
+
+			if($product_id > 0)
+			{
+				$arr_categories = array();
+				get_post_children(array('post_type' => $this->post_type_categories.$option_type, 'add_choose_here' => true), $arr_categories);
+
+				$count_temp = count($arr_categories);
+
+				if($count_temp > 0)
+				{
+					$obj_calendar = new mf_calendar();
+
+					$arr_fields[] = array(
+						'name' => get_option_or_default('setting_webshop_replace_categories'.$option_type, __("Categories", 'lang_webshop')),
+						'id' => $obj_calendar->meta_prefix.'category',
+						'type' => 'select',
+						'options' => $arr_categories,
+					);
+				}
+			}
+		}
+
+		return $arr_fields;
 	}
 
 	function shortcode_back_to_search()
@@ -2673,24 +2852,24 @@ class mf_webshop
 
 			// Products
 			####################################
-			$arr_categories = array();
-			get_post_children(array('post_type' => $this->post_type_categories.$this->option_type), $arr_categories);
-
 			$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = array();
-
-			$count_temp = count($arr_categories);
 
 			$arr_yes_no = get_yes_no_for_select();
 
+			$fields_settings[] = array(
+				'name' => __("Searchable", 'lang_webshop'),
+				'id' => $this->meta_prefix.'searchable',
+				'type' => 'select',
+				'options' => $arr_yes_no,
+			);
+
+			$arr_categories = array();
+			get_post_children(array('post_type' => $this->post_type_categories.$this->option_type), $arr_categories);
+
+			$count_temp = count($arr_categories);
+
 			if($count_temp > 0)
 			{
-				$fields_settings[] = array(
-					'name' => __("Searchable", 'lang_webshop'),
-					'id' => $this->meta_prefix.'searchable',
-					'type' => 'select',
-					'options' => $arr_yes_no,
-				);
-
 				$fields_settings[] = array(
 					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
 					'id' => $this->meta_prefix.'category',
@@ -4283,7 +4462,7 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_event_item'>
-					<li itemscope itemtype='//schema.org/Event' class='list_item calendar_feed_<%= feed_id %>'>
+					<li itemscope itemtype='//schema.org/Event' class='list_item <%= list_class %>'>
 						<div class='event_date'>
 							<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
 							<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
@@ -4473,7 +4652,7 @@ class mf_webshop
 								<ul>
 									<% _.each(day.events, function(event)
 									{ %>
-										<li class='calendar_feed_<%= event.feed_id %>'></li>
+										<li class='<%= event.class %>'></li>
 									<% }); %>
 								</ul>
 							</a>
@@ -4610,7 +4789,6 @@ class mf_webshop
 					$product_id = $arr_product_translate_ids[$feed_id]['product_id'];
 					$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
 					$product_map = $arr_product_translate_ids[$feed_id]['product_map'];
-					$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
 
 					$product_url = get_permalink($product_id);
 
@@ -4620,6 +4798,22 @@ class mf_webshop
 					//$post_url = $product_url.(preg_match("/\?/", $product_url) ? "&" : "?")."event_id=".$post_id;
 
 					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
+					$post_category = get_post_meta($post_id, $obj_calendar->meta_prefix.'category', true);
+
+					if($post_category > 0)
+					{
+						$product_categories = get_post_title($post_category);
+
+						$list_class = "event_category_".$post_category;
+					}
+
+					else
+					{
+						$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
+
+						$list_class = "calendar_feed_".$feed_id;
+					}
+
 					$post_start = $r->post_start;
 					$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
 
@@ -4693,6 +4887,7 @@ class mf_webshop
 
 					$out['event_response'][] = array(
 						'feed_id' => $feed_id,
+						'list_class' => $list_class,
 						'product_id' => $product_id,
 						'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
 						'product_title' => $product_title,
@@ -7393,23 +7588,7 @@ class widget_webshop_events extends WP_Widget
 		{
 			$post_id = $post->ID;
 
-			/*if(is_plugin_active('mf_calendar/index.php'))
-			{
-				$obj_calendar = new mf_calendar();
-
-				if($post->post_type == $obj_calendar->post_type_event)
-				{
-					$calendar_id = get_post_meta($post_id, $obj_calendar->meta_prefix.'calendar', true);
-
-					if($calendar_id > 0)
-					{
-						// How can I find where this is used when I don't know the meta_key until I know the product ID?
-						// $this->option_type = ($option_type != '' ? "_".$option_type : '');
-						// $event_post_name = $this->get_post_name_for_type('event');
-						// "SELECT * FROM ".$wpdb->postmeta." WHERE meta_value = '$calendar_id'"
-					}
-				}
-			}*/
+			//list($product_id, $option_type) = $this->obj_webshop->get_product_id_from_calendar($post_id);
 
 			$this->obj_webshop->get_option_type_from_post_id($post_id);
 
@@ -7840,7 +8019,7 @@ class widget_webshop_categories extends WP_Widget
 			}
 
 			else
-			{	
+			{
 				$category_id = 0;
 			}
 		}

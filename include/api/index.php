@@ -86,14 +86,14 @@ switch($type)
 					$query_where .= " AND post_author = '".get_current_user_id()."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, $post_id));
 
 				foreach($result as $r)
 				{
+					$json_output['admin_webshop_response']['post_title'] = $post_title = $r->post_title;
+					$json_output['admin_webshop_response']['post_name'] = $post_name = $r->post_name;
+					$post_type = $r->post_type;
 					$post_author = $r->post_author;
-
-					$json_output['admin_webshop_response']['post_title'] = $r->post_title;
-					$json_output['admin_webshop_response']['post_name'] = $r->post_name;
 
 					$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
 
@@ -104,7 +104,7 @@ switch($type)
 							$arr_meta_boxes[$box_id]['context'] = 'normal';
 						}
 
-						if(in_array($r->post_type, $arr_meta_box['post_types']))
+						if(in_array($post_type, $arr_meta_box['post_types']))
 						{
 							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 							{
@@ -260,6 +260,8 @@ switch($type)
 
 												foreach($result_children as $r_children)
 												{
+													$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
+													$event_category = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'category', true);
 													$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
 													$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
 
@@ -268,6 +270,8 @@ switch($type)
 
 													$arr_children_temp[$r_children->ID] = array(
 														'name' => $r_children->post_title,
+														'location' => $event_location,
+														'category' => $event_category,
 														'start_date' => $event_start_date,
 														'start_time' => $event_start_time,
 														'end_date' => $event_end_date,
@@ -340,6 +344,10 @@ switch($type)
 
 				foreach($result as $r)
 				{
+					$post_title_old = $r->post_title;
+					//$post_name_old = $r->post_name;
+					$post_type = $r->post_type;
+
 					$reload = $updated = false;
 
 					$post_data = array(
@@ -347,16 +355,13 @@ switch($type)
 						'meta_input' => array(),
 					);
 
-					$post_title_old = $r->post_title;
-
 					if($post_title != $post_title_old)
 					{
 						$post_data['post_title'] = $post_title;
 						//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title, 'post_title'));
 					}
 
-					/*$post_name_old = $r->post_name;
-					$post_name_new = check_var('post_name');
+					/*$post_name_new = check_var('post_name');
 
 					if($post_name_new != $post_name_old)
 					{
@@ -368,7 +373,7 @@ switch($type)
 
 					foreach($arr_meta_boxes as $box_id => $arr_meta_box)
 					{
-						if(in_array($r->post_type, $arr_meta_box['post_types']))
+						if(in_array($post_type, $arr_meta_box['post_types']))
 						{
 							foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 							{
@@ -400,6 +405,8 @@ switch($type)
 
 												$arr_event_id = check_var($id_temp."_id", 'array');
 												$arr_event_name = check_var($id_temp."_name", 'array');
+												$arr_event_location = check_var($id_temp."_location", 'array');
+												$arr_event_category = check_var($id_temp."_category", 'array');
 												$arr_event_start_date = check_var($id_temp."_start_date", 'array');
 												$arr_event_start_time = check_var($id_temp."_start_time", 'array');
 												$arr_event_end_date = check_var($id_temp."_end_date", 'array');
@@ -423,6 +430,8 @@ switch($type)
 																	'post_title' => $arr_event_name[$i],
 																	//'post_modified' => date("Y-m-d H:i:s"),
 																	'meta_input' => array(
+																		$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
+																		$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																		$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
 																		$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
 																	),
@@ -528,7 +537,7 @@ switch($type)
 											if($post_value_new != $post_value_old)
 											{
 												$post_data['meta_input'][$id_temp] = $post_value_new;
-												//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id_temp, $r->post_title));
+												//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id_temp, $post_title));
 											}
 										break;
 									}
@@ -649,7 +658,9 @@ switch($type)
 			foreach($result['event_response'] as $event)
 			{
 				$arr_events[] = array(
-					'feed_id' => $event['feed_id'],
+					//'feed_id' => $event['feed_id'],
+					//'class' => "calendar_feed_".$event['feed_id'],
+					'class' => $event['list_class'],
 				);
 			}
 
