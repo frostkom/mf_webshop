@@ -271,7 +271,7 @@ echo "@media all
 		font-size: 1.6em;
 		margin: 0 auto;
 		max-width: 80%;
-	    width: 500px;
+		width: 500px;
 	}
 
 		.webshop_form ul
@@ -762,7 +762,6 @@ echo "@media all
 			{
 				background: #fff;
 				border: 1px solid #ccc;
-				font-size: 1.4em;
 				left: 0;
 				margin: .5em;
 				opacity: 1;

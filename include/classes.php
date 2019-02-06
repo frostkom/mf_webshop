@@ -85,7 +85,7 @@ class mf_webshop
 
 			$result = array_merge($result, $result_temp);
 		}
-		
+
 		return $result;
 	}
 
@@ -1628,8 +1628,7 @@ class mf_webshop
 															.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
 														."<% break;
 
-														case 'content':
-														case 'overlay': %>"
+														case 'content': %>"
 															.show_textarea(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
 														."<% break;
 
@@ -1640,6 +1639,7 @@ class mf_webshop
 														case 'custom_categories':
 														case 'education':
 														case 'location':
+														case 'overlay':
 														case 'page':
 														case 'select':
 														case 'select3':
@@ -1907,14 +1907,14 @@ class mf_webshop
 				{
 					$post_overlay = get_post_meta($post_id, $this->meta_prefix.$overlay_post_name, true);
 
-					if($post_overlay != '')
+					if($post_overlay > 0)
 					{
 						$plugin_include_url = plugin_dir_url(__FILE__);
 						$plugin_version = get_plugin_version(__FILE__);
 
 						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css", $plugin_version);
 
-						$this->footer_output = "<div id='overlay_product'><div>".apply_filters('the_content', $post_overlay)."</div></div>";
+						$this->footer_output = "<div id='overlay_product'><div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div></div>";
 					}
 				}
 			}
@@ -2482,7 +2482,7 @@ class mf_webshop
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
 		$templates[$templates_path.'template_webshop.php'] = $name_webshop;
-		$templates[$templates_path.'template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
+		//$templates[$templates_path.'template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
 
 		if(get_option('setting_quote_form') > 0)
 		{
@@ -3164,7 +3164,7 @@ class mf_webshop
 					'name' => __("Display as Property", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_property',
 					'type' => 'select',
-					'options'  => $arr_yes_no,
+					'options' => $arr_yes_no,
 					'std' => $default_property,
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
@@ -3342,7 +3342,7 @@ class mf_webshop
 						'name' => get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop')),
 						'id' => $this->meta_prefix.'document_type',
 						'type' => 'select',
-						'options'  => $this->get_document_types_for_select(array('include' => 'custom_categories')),
+						'options' => $this->get_document_types_for_select(array('include' => 'custom_categories')),
 					),
 				)
 			);
@@ -3361,7 +3361,7 @@ class mf_webshop
 						'name' => __("Hidden", 'lang_webshop'),
 						'id' => $this->meta_prefix.'location_hidden',
 						'type' => 'select',
-						'options'  => $arr_yes_no,
+						'options' => $arr_yes_no,
 						'std' => 'no',
 					),
 				)
@@ -4378,6 +4378,7 @@ class mf_webshop
 
 							case 'contact_button':
 							case 'read_more_button':
+							case 'overlay':
 								// Do nothing
 							break;
 
@@ -5706,7 +5707,7 @@ class mf_webshop
 								.$obj_font_icons->get_symbol_tag(array('symbol' => $this->arr_product_quick[$i]['symbol']))
 								.$this->arr_product_quick[$i]['title']
 							.":</span>
-							<div>".$this->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, like from 'education'  //apply_filters('the_content', )
+							<div>".$this->arr_product_quick[$i]['meta']."</div>"; //This will mess up returned links, like from 'education' //apply_filters('the_content', )
 						break;
 					}
 
@@ -6438,7 +6439,7 @@ class mf_webshop
 
 		/* v3 */
 		$theta = $lon_1 - $lon_2;
-		$dist = sin(deg2rad($lat_1)) * sin(deg2rad($lat_2)) +  cos(deg2rad($lat_1)) * cos(deg2rad($lat_2)) * cos(deg2rad($theta));
+		$dist = sin(deg2rad($lat_1)) * sin(deg2rad($lat_2)) + cos(deg2rad($lat_1)) * cos(deg2rad($lat_2)) * cos(deg2rad($theta));
 		$dist = acos($dist);
 		$dist = rad2deg($dist);
 		$distance = $dist * 60 * 1.1515 * 1.609344; //kilometers
@@ -6774,7 +6775,9 @@ if(class_exists('RWMB_Field'))
 		}
 	}
 
-	class RWMB_Overlay_Field extends RWMB_Textarea_Field
+	class RWMB_Overlay_Field extends RWMB_Page_Field{}
+
+	/*class RWMB_Overlay_Field extends RWMB_Textarea_Field
 	{
 		static public function html($meta, $field)
 		{
@@ -6783,7 +6786,7 @@ if(class_exists('RWMB_Field'))
 			return sprintf("<textarea %s>%s</textarea>", self::render_attributes($attributes), $meta);
 			//return show_textarea(array('name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-content large-text", 'xtra' => self::render_attributes($field['attributes'])));
 		}
-	}
+	}*/
 
 	class RWMB_Price_Field extends RWMB_Field
 	{
