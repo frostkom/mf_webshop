@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.1.6
+Version: 2.1.1.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -62,14 +62,13 @@ if(is_admin())
 
 else
 {
-	add_filter('init_base_admin', array($obj_webshop, 'init_base_admin'));
-
 	add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
 	add_action('wp_footer', array($obj_webshop, 'wp_footer'));
 }
 
-add_action('widgets_init', array($obj_webshop, 'widgets_init'));
+add_filter('init_base_admin', array($obj_webshop, 'init_base_admin'));
 
+add_action('widgets_init', array($obj_webshop, 'widgets_init'));
 
 add_action('wp_login', array($obj_webshop, 'uninit'));
 add_action('wp_logout', array($obj_webshop, 'uninit'));
@@ -84,7 +83,6 @@ add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields
 add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
 
 add_filter('single_template', array($obj_webshop, 'single_template'));
-//add_action('plugins_loaded', array('PageTemplater', 'get_instance'));
 add_filter('get_page_templates', array($obj_webshop, 'get_page_templates'));
 
 load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))."/lang/");
@@ -183,6 +181,7 @@ function activate_webshop()
 		$arr_options[] = 'setting_webshop_color_button_2'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_color_button_negative'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_show_categories'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_activate_frontend_admin'.$obj_webshop->option_type;
 	}
 
 	$obj_webshop->option_type = '';
@@ -274,129 +273,3 @@ function uninstall_webshop()
 		'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 	));
 }
-
-/* Have to be here so that template directories are correct */
-/*class PageTemplater
-{
-	private static $instance;
-	protected $templates;
-
-	public static function get_instance()
-	{
-		if(null == self::$instance)
-		{
-			self::$instance = new PageTemplater();
-		}
-
-		return self::$instance;
-	}
-
-	// Initializes the plugin by setting filters and administration functions.
-	private function __construct()
-	{
-		global $obj_webshop;
-
-		$this->templates = array();
-
-		// Add a filter to the attributes metabox to inject template into the cache.
-		if(version_compare(floatval(get_bloginfo('version')), '4.7', '<'))
-		{
-			// 4.6 and older
-			add_filter('page_attributes_dropdown_pages_args', array($this, 'register_project_templates'));
-
-		}
-
-		else
-		{
-			// Add a filter to the wp 4.7 version attributes metabox
-			add_filter('theme_page_templates', array($this, 'add_new_template'));
-		}
-
-		// Add a filter to the save post to inject out template into the page cache
-		add_filter('wp_insert_post_data', array($this, 'register_project_templates'));
-
-		// Add a filter to the template include to determine if the page has our template assigned and return it's path
-		add_filter('template_include', array($this, 'view_project_template'));
-
-		$this->templates = array();
-
-		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
-
-		$this->templates['template_webshop.php'] = $name_webshop;
-		$this->templates['template_webshop_search.php'] = $name_webshop." (".__("Search", 'lang_webshop').")";
-
-		if(get_option('setting_quote_form') > 0)
-		{
-			$this->templates['template_webshop_favorites.php'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
-		}
-	}
-
-	// Adds our template to the page dropdown for v4.7+
-	public function add_new_template($posts_templates)
-	{
-		$posts_templates = array_merge($posts_templates, $this->templates);
-
-		return $posts_templates;
-	}
-
-	// Adds our template to the pages cache in order to trick WordPress into thinking the template file exists where it doens't really exist.
-	public function register_project_templates($atts)
-	{
-		// Create the key used for the themes cache
-		$cache_key = "page_templates-".md5(get_theme_root()."/".get_stylesheet());
-
-		// Retrieve the cache list. If it doesn't exist, or it's empty prepare an array
-		$templates = wp_get_theme()->get_page_templates();
-
-		if(empty($templates))
-		{
-			$templates = array();
-		}
-
-		// New cache, therefore remove the old one
-		wp_cache_delete($cache_key , 'themes');
-
-		// Now add our template to the list of templates by merging our templates with the existing templates array from the cache.
-		$templates = array_merge($templates, $this->templates);
-
-		// Add the modified cache to allow WordPress to pick it up for listing available templates
-		wp_cache_add($cache_key, $templates, 'themes', 1800);
-
-		return $atts;
-	}
-
-	// Checks if the template is assigned to the page
-	public function view_project_template($template)
-	{
-		global $post;
-
-		// Return template if post is empty
-		if(!$post)
-		{
-			return $template;
-		}
-
-		$template_temp = get_post_meta($post->ID, '_wp_page_template', true);
-
-		// Return default template if we don't have a custom one defined
-		if(!isset($this->templates[$template_temp]))
-		{
-			return $template;
-		}
-
-		$file = plugin_dir_path(__FILE__)."templates/".$template_temp;
-
-		// Just to be safe, we check if the file exist first
-		if(file_exists($file))
-		{
-			return $file;
-		}
-
-		else
-		{
-			echo $file;
-		}
-
-		return $template;
-	}
-}*/

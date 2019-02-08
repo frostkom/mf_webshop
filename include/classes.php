@@ -592,20 +592,6 @@ class mf_webshop
 		flush_rewrite_rules();
 	}
 
-	function has_template_admin()
-	{
-		global $wpdb;
-
-		$templates_path = "/plugins/mf_base/include/templates/";
-
-		$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = %s LIMIT 0, 1", 'page', '_wp_page_template', $templates_path.'template_admin.php'));
-		$rows = $wpdb->num_rows;
-
-		//do_log("Template: ".$wpdb->last_query);
-
-		return ($rows > 0);
-	}
-
 	function settings_webshop()
 	{
 		$options_area_orig = __FUNCTION__;
@@ -663,8 +649,6 @@ class mf_webshop
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
 
-		$has_template_admin = $this->has_template_admin();
-
 		foreach($this->arr_option_types as $option_type)
 		{
 			$this->option_type = ($option_type != '' ? "_".$option_type : '');
@@ -688,10 +672,7 @@ class mf_webshop
 				'setting_webshop_replace_products_slug|'.$option_type => sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_product)),
 			);
 
-			if($has_template_admin)
-			{
-				$arr_settings['setting_webshop_activate_frontend_admin|'.$option_type] = __("Activate on Front-end Admin", 'lang_webshop');
-			}
+			//$arr_settings['setting_webshop_activate_frontend_admin|'.$option_type] = __("Activate on Front-end Admin", 'lang_webshop');
 
 			if($this->has_categories() > 0)
 			{
@@ -1077,13 +1058,13 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "c", 'description' => ($option != '' ? get_site_url()."/".$option."/abc" : "")));
 	}
 
-	function setting_webshop_activate_frontend_admin_callback($args = array())
+	/*function setting_webshop_activate_frontend_admin_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 'no');
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}
+	}*/
 
 	function setting_webshop_replace_categories_callback($args = array())
 	{
@@ -1562,288 +1543,283 @@ class mf_webshop
 		{
 			$this->option_type = ($option_type != '' ? "_".$option_type : '');
 
-			if(get_option('setting_webshop_activate_frontend_admin'.$this->option_type) == 'yes')
+			$templates = "";
+
+			if($is_template_set == false && !is_admin())
 			{
-				$templates = "";
+				$plugin_include_url = plugin_dir_url(__FILE__);
+				$plugin_version = get_plugin_version(__FILE__);
 
-				if($is_template_set == false)
-				{
-					$plugin_include_url = plugin_dir_url(__FILE__);
-					$plugin_version = get_plugin_version(__FILE__);
+				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
+				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
+				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
 
-					mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
-					mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
-					mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
-
-					$templates .= "<script type='text/template' id='template_admin_webshop_list'>
-						<table class='widefat striped'>
-							<thead>
-								<tr>
-									<th>".__("Name", 'lang_webshop')."</th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								<% _.each(list, function(product)
-								{ %>
-									<tr id='product_<%= product.post_id %>'>
-										<td>
-											<%= product.post_title %>
-											<div class='row-actions'>"
-												."<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
-												.(IS_ADMIN ? " | <a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
-												." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
-											."</div>
-										</td>
-										<td></td>
-									</tr>
-								<% }); %>
-							</tbody>
-						</table>
-					</script>
-
-					<script type='text/template' id='template_admin_webshop_list_message'>
-						<p>".__("You haven't added anything yet", 'lang_webshop')."</p>
-					</script>
-
-					<script type='text/template' id='template_admin_webshop_edit'>
-						<form method='post' action='#' class='mf_form' data-action='admin_webshop_save'>"
-							.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'readonly' => (IS_ADMIN ? false : true)))
-							//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
-							."<% _.each(meta_boxes, function(meta_box)
+				$templates .= "<script type='text/template' id='template_admin_webshop_list'>
+					<table class='widefat striped'>
+						<thead>
+							<tr>
+								<th>".__("Name", 'lang_webshop')."</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<% _.each(list, function(product)
 							{ %>
-								<% if(meta_box.fields.length > 0)
-								{ %>
-									<div id='<%= meta_box.id %>' class='meta_box context_<%= meta_box.context %>'>
-										<h2><%= meta_box.title %></h2>
-										<div>
-											<% _.each(meta_box.fields, function(meta_field)
+								<tr id='product_<%= product.post_id %>'>
+									<td>
+										<%= product.post_title %>
+										<div class='row-actions'>"
+											."<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
+											.(IS_ADMIN ? " | <a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
+											." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
+										."</div>
+									</td>
+									<td></td>
+								</tr>
+							<% }); %>
+						</tbody>
+					</table>
+				</script>
+
+				<script type='text/template' id='template_admin_webshop_list_message'>
+					<p>".__("You haven't added anything yet", 'lang_webshop')."</p>
+				</script>
+
+				<script type='text/template' id='template_admin_webshop_edit'>
+					<form method='post' action='#' class='mf_form' data-action='admin_webshop_save'>"
+						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'readonly' => (IS_ADMIN ? false : true)))
+						//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
+						."<% _.each(meta_boxes, function(meta_box)
+						{ %>
+							<% if(meta_box.fields.length > 0)
+							{ %>
+								<div id='<%= meta_box.id %>' class='meta_box context_<%= meta_box.context %>'>
+									<h2><%= meta_box.title %></h2>
+									<div>
+										<% _.each(meta_box.fields, function(meta_field)
+										{
+											if(meta_field.display)
 											{
-												if(meta_field.display)
+												switch(meta_field.type)
 												{
-													switch(meta_field.type)
-													{
-														case 'address':
-														case 'local_address': %>"
-															.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'address':
+													case 'local_address': %>"
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
 
-														case 'content': %>"
-															.show_textarea(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'content': %>"
+														.show_textarea(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
 
-														case 'clock': %>"
-															.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "18.00-03.00"))
-														."<% break;
+													case 'clock': %>"
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "18.00-03.00"))
+													."<% break;
 
-														case 'custom_categories':
-														case 'education':
-														case 'location':
-														case 'overlay':
-														case 'page':
-														case 'select':
-														case 'select3':
-														case 'social':
-															if(meta_field.error != '')
-															{ %>
-																<p><%= meta_field.error %></p>
-															<% }
+													case 'custom_categories':
+													case 'education':
+													case 'location':
+													case 'overlay':
+													case 'page':
+													case 'select':
+													case 'select3':
+													case 'social':
+														if(meta_field.error != '')
+														{ %>
+															<p><%= meta_field.error %></p>
+														<% }
 
-															else
-															{ %>
-																<div class='form_select type_<%= meta_field.type %><%= meta_field.class %>'>
-																	<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
-																	<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'<%= meta_field.attributes %>>
-																		<% _.each(meta_field.options, function(value, key)
-																		{ %>
-																			<option value='<%= key %>'<% if(key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(key) !== -1){%> selected<%} %>><%= value %></option>
-																		<% }); %>
-																	</select>
-																	<% if(meta_field.suffix != '')
+														else
+														{ %>
+															<div class='form_select type_<%= meta_field.type %><%= meta_field.class %>'>
+																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+																<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'<%= meta_field.attributes %>>
+																	<% _.each(meta_field.options, function(value, key)
 																	{ %>
-																		<span class='description'><%= meta_field.suffix %></span>
-																	<% } %>
-																	<% if(meta_field.description != '')
-																	{ %>
-																		<p class='description'><%= meta_field.description %></p>
-																	<% } %>
-																</div>
-															<% }
-														break;
+																		<option value='<%= key %>'<% if(key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(key) !== -1){%> selected<%} %>><%= value %></option>
+																	<% }); %>
+																</select>
+																<% if(meta_field.suffix != '')
+																{ %>
+																	<span class='description'><%= meta_field.suffix %></span>
+																<% } %>
+																<% if(meta_field.description != '')
+																{ %>
+																	<p class='description'><%= meta_field.description %></p>
+																<% } %>
+															</div>
+														<% }
+													break;
 
-														case 'description':
-														case 'text': %>"
-															.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'description':
+													case 'text': %>"
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
 
-														case 'email': %>"
-															.show_textfield(array('type' => 'email', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'email': %>"
+														.show_textfield(array('type' => 'email', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
 
-														case 'event':
-															if(meta_field.error != '')
-															{ %>
-																<p><%= meta_field.error %></p>
-															<% }
+													case 'event':
+														if(meta_field.error != '')
+														{ %>
+															<p><%= meta_field.error %></p>
+														<% }
 
-															else
-															{ %>";
+														else
+														{ %>";
 
-																$arr_categories = array();
-																get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'choose_here_text' => __("Choose Category Here", 'lang_webshop')), $arr_categories);
+															$arr_categories = array();
+															get_post_children(array('post_type' => $this->post_type_categories.$this->option_type, 'choose_here_text' => __("Choose Category Here", 'lang_webshop')), $arr_categories);
 
-																$templates .= "<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
-																	<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
-																	<ul class='event_children'>
-																		<% if(Object.keys(meta_field.children).length > 0)
-																		{
-																			_.each(meta_field.children, function(value, key)
-																			{ %>
-																				<li>
-																					<div class='flex_flow'>"
-																						.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																						.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
-
-																						if(count($arr_categories) > 0)
-																						{
-																							$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false, 'xtra' => " data-value='<%= value.category %>'"));
-																						}
-
-																					$templates .= "</div>
-																					<div class='flex_flow tight'>"
-																						.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>"))
-																						.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
-																						."<h3>-</h3>"
-																						.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>"))
-																						.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
-																						.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
-																					."</div>
-																				</li>
-																			<% });
-																		}
-
-																		else
+															$templates .= "<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
+																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+																<ul class='event_children'>
+																	<% if(Object.keys(meta_field.children).length > 0)
+																	{
+																		_.each(meta_field.children, function(value, key)
 																		{ %>
 																			<li>
 																				<div class='flex_flow'>"
-																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
+																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
 
 																					if(count($arr_categories) > 0)
 																					{
-																						$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false));
+																						$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false, 'xtra' => " data-value='<%= value.category %>'"));
 																					}
 
 																				$templates .= "</div>
 																				<div class='flex_flow tight'>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]'))
+																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>"))
+																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
 																					."<h3>-</h3>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]'))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'allow_empty' => true))
+																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>"))
+																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
+																					.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
 																				."</div>
 																			</li>
-																		<% } %>
-																	</ul>
-																	<% if(meta_field.suffix != '')
-																	{ %>
-																		<span class='description'><%= meta_field.suffix %></span>
-																	<% } %>
-																	<% if(meta_field.description != '')
-																	{ %>
-																		<p class='description'><%= meta_field.description %></p>
-																	<% } %>
-																</div>
-															<% }
-														break;
+																		<% });
+																	}
 
-														case 'file_advanced': %>"
-															//."<%= meta_field.id %>: <%= meta_field.value %>"
-															//.RWMB_Image_Field
-															//.get_media_library(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'type' => 'image', 'multiple' => true))
-															.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true))
-														."<% break;
+																	else
+																	{ %>
+																		<li>
+																			<div class='flex_flow'>"
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
 
-														case 'ghost': %>
-															<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
-																<input type='checkbox' name='<%= meta_field.id %>' value='1'<% if(meta_field.value == 1){ %> checked<% } %>/>
-																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+																				if(count($arr_categories) > 0)
+																				{
+																					$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false));
+																				}
+
+																			$templates .= "</div>
+																			<div class='flex_flow tight'>"
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]'))
+																				."<h3>-</h3>"
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]"))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]'))
+																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'allow_empty' => true))
+																			."</div>
+																		</li>
+																	<% } %>
+																</ul>
+																<% if(meta_field.suffix != '')
+																{ %>
+																	<span class='description'><%= meta_field.suffix %></span>
+																<% } %>
+																<% if(meta_field.description != '')
+																{ %>
+																	<p class='description'><%= meta_field.description %></p>
+																<% } %>
 															</div>
-														<% break;
+														<% }
+													break;
 
-														case 'gps': %>"
-															.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'file_advanced': %>"
+														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true))
+													."<% break;
 
-														case 'interval': %>"
-															.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "5-25", 'xtra' => " pattern='[\d-]*'"))
-														."<% break;
+													case 'ghost': %>
+														<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
+															<input type='checkbox' name='<%= meta_field.id %>' value='1'<% if(meta_field.value == 1){ %> checked<% } %>/>
+															<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+														</div>
+													<% break;
 
-														case 'phone': %>"
-															.show_textfield(array('type' => 'tel', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => __("001-888-342-324", 'lang_webshop'), 'xtra' => " pattern='[\d\s-]*'"))
-														."<% break;
+													case 'gps': %>"
+														.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
+													."<% break;
 
-														case 'price':
-														case 'size':
-														case 'stock': %>"
-															.show_textfield(array('type' => 'number', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'interval': %>"
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "5-25", 'xtra' => " pattern='[\d-]*'"))
+													."<% break;
 
-														case 'url': %>"
-															.show_textfield(array('type' => 'url', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
-														."<% break;
+													case 'phone': %>"
+														.show_textfield(array('type' => 'tel', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => __("001-888-342-324", 'lang_webshop'), 'xtra' => " pattern='[\d\s-]*'"))
+													."<% break;
 
-														default: %>
-															<strong><%= meta_field.type %></strong>: <%= meta_field.name %><br>
-														<% break;
-													}
+													case 'price':
+													case 'size':
+													case 'stock': %>"
+														.show_textfield(array('type' => 'number', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
+
+													case 'url': %>"
+														.show_textfield(array('type' => 'url', 'name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+													."<% break;
+
+													default: %>
+														<strong><%= meta_field.type %></strong>: <%= meta_field.name %><br>
+													<% break;
 												}
-											}); %>
-										</div>
+											}
+										}); %>
 									</div>
-								<% }
-							}); %>
-							<div class='form_button'>
-								<button type='submit' name='btnAdminWebshopEdit' class='button-primary'>
-									<% if(post_id > 0)
-									{ %>"
-										.__("Update", 'lang_webshop')
-									."<% }
-
-									else
-									{%>"
-										.__("Create", 'lang_webshop')
-									."<% } %>
-								</button>
+								</div>
+							<% }
+						}); %>
+						<div class='form_button'>
+							<button type='submit' name='btnAdminWebshopEdit' class='button-primary'>
 								<% if(post_id > 0)
 								{ %>"
-									.input_hidden(array('name' => 'post_id', 'value' => "<%= post_id %>"))
+									.__("Update", 'lang_webshop')
+								."<% }
+
+								else
+								{%>"
+									.__("Create", 'lang_webshop')
 								."<% } %>
-							</div>
-						</form>
-					</script>";
+							</button>
+							<% if(post_id > 0)
+							{ %>"
+								.input_hidden(array('name' => 'post_id', 'value' => "<%= post_id %>"))
+							."<% } %>
+						</div>
+					</form>
+				</script>";
 
-					$is_template_set = true;
-				}
-
-				$name_webshop = get_option_or_default('setting_webshop_replace_webshop'.$this->option_type, __("Webshop", 'lang_webshop'));
-
-				$arr_views['webshop'.$this->option_type] = array(
-					'name' => $name_webshop,
-					'items' => array(
-						array(
-							'id' => 'list',
-							'name' => __("List", 'lang_webshop'),
-						),
-						array(
-							'id' => 'edit',
-							'name' => __("Add New", 'lang_webshop'),
-						),
-					),
-					'templates' => $templates,
-				);
+				$is_template_set = true;
 			}
+
+			$name_webshop = get_option_or_default('setting_webshop_replace_webshop'.$this->option_type, __("Webshop", 'lang_webshop'));
+
+			$arr_views['webshop'.$this->option_type] = array(
+				'name' => $name_webshop,
+				'icon' => "fas fa-shopping-cart",
+				'items' => array(
+					array(
+						'id' => 'list',
+						'name' => __("List", 'lang_webshop'),
+					),
+					array(
+						'id' => 'edit',
+						'name' => __("Add New", 'lang_webshop'),
+					),
+				),
+				'templates' => $templates,
+			);
 		}
 
 		return $arr_views;
@@ -5055,16 +5031,17 @@ class mf_webshop
 		}
 	}
 
-	function get_template_url($data = array())
+	function get_search_page_url($data = array())
 	{
 		global $wpdb;
 
-		if(!isset($data['template'])){		$data['template'] = 'template_webshop_search.php';}
+		//if(!isset($data['template'])){		$data['template'] = 'template_webshop_search.php';}
 		if(!isset($data['location_id'])){	$data['location_id'] = 0;}
 
 		$out = "";
 
-		$post_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '_wp_page_template' AND meta_value = '".$data['template']."'");
+		//$post_id = $wpdb->get_var("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '_wp_page_template' AND meta_value = '".$data['template']."'");
+		$post_id = apply_filters('get_widget_search', 'webshop-search-widget');
 
 		if($post_id > 0)
 		{
@@ -5378,7 +5355,7 @@ class mf_webshop
 						foreach($arr_locations as $location_id)
 						{
 							$location_title = get_the_title($location_id);
-							$this->search_url = $this->get_template_url(array('location_id' => $location_id));
+							$this->search_url = $this->get_search_page_url(array('location_id' => $location_id));
 
 							if($this->search_url != '')
 							{
@@ -5392,7 +5369,15 @@ class mf_webshop
 
 							if($this->meta_public == 'no')
 							{
-								$this->product_address .= $location_tag;
+								if($this->search_url != '')
+								{
+									$this->product_address .= $location_tag;
+								}
+
+								else
+								{
+									$this->product_address .= "<span>".$location_tag."</span>";
+								}
 							}
 
 							else
@@ -6162,10 +6147,13 @@ class mf_webshop
 									$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
 								}
 
-								/*else //This makes it display duplicate
+								else
 								{
-									$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
-								}*/
+									//This makes it display duplicate
+									//$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
+
+									//$post_meta = "<span class='".$this->meta_type."'>".$post_meta."</span>";
+								}
 
 								if($this->meta_public == 'no')
 								{

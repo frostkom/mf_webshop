@@ -55,6 +55,7 @@ switch($type)
 			$json_output['admin_webshop_response'] = array(
 				'type' => $type,
 				'list' => $arr_list,
+				'timestamp' => date("Y-m-d H:i:s"),
 			);
 		}
 
@@ -75,6 +76,7 @@ switch($type)
 				'post_title' => "",
 				'post_name' => "",
 				'meta_boxes' => array(),
+				'timestamp' => date("Y-m-d H:i:s"),
 			);
 
 			if($post_id > 0)
