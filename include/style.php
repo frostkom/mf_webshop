@@ -1413,6 +1413,11 @@ echo "@media all
 							width: 40%;
 						}
 
+							.product_quick > li > span > span[class^='icon-']
+							{
+								margin-right: .4em;
+							}
+
 						.product_quick > li > div, .product_quick > li > ul
 						{
 							float: left;

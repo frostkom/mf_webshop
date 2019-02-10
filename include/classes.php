@@ -2427,8 +2427,17 @@ class mf_webshop
 
 	function shortcode_back_to_search()
 	{
+		global $post;
+
+		if(isset($post->ID) && $post->ID > 0)
+		{
+			$this->get_option_type_from_post_id($post->ID);
+		}
+
+		$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$this->option_type, __("Continue Search", 'lang_webshop'));
+
 		return "<div class='form_button alignleft'>
-			<a href='#' id='mf_back_to_search' class='button button-primary hide'><i class='fa fa-chevron-left'></i> ".__("Continue Search", 'lang_webshop')."</a>
+			<a href='#' id='mf_back_to_search' class='button button-primary hide'><i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search."</a>
 		</div>";
 	}
 
