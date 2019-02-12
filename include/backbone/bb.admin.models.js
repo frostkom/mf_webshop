@@ -1,9 +1,5 @@
 var WebshopAdminModel = Backbone.Model.extend(
 {
-	/*defaults: {
-		'': 0
-	},*/
-
 	getPage: function(dom_action)
 	{
 		var self = this,
@@ -11,7 +7,7 @@ var WebshopAdminModel = Backbone.Model.extend(
 
 		if(dom_action)
 		{
-			url += '?type=admin_webshop_' + dom_action; /*.replace('#', '')*/
+			url += '?type=admin_webshop_' + dom_action;
 		}
 
 		jQuery().callAPI(

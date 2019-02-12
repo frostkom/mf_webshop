@@ -24,7 +24,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 		if(response != '')
 		{
-			location.href = response + "?redirect_to=" + location.href;
+			location.href = response + (response.match(/\?/) ? "&" : "?") + "redirect_to=" + location.href;
 
 			this.model.set({'redirect': ''});
 		}

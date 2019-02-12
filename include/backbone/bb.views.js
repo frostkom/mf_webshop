@@ -309,7 +309,17 @@ var WebshopView = Backbone.View.extend(
 			/* Filter product[] etc. */
 			if(arr_values[0].indexOf('%5B') === -1)
 			{
-				jQuery('#' + arr_values[0]).val(arr_values[1]);
+				var dom_obj = jQuery("#" + arr_values[0]);
+
+				if(dom_obj.is("[type='checkbox']"))
+				{
+					dom_obj.prop('checked', arr_values[1]);
+				}
+
+				else
+				{
+					dom_obj.val(arr_values[1]);
+				}
 			}
 		});
 	},
@@ -641,30 +651,14 @@ var WebshopView = Backbone.View.extend(
 
 				if(typeof form_url !== 'undefined' && form_url != '' && form_url != '#')
 				{
-					if(typeof process_url == 'function')
-					{
-						process_url(form_url + "?products=" + product_id);
-					}
-
-					else
-					{
-						location.href = form_url + "?products=" + product_id;
-						return false;
-					}
+					location.href = form_url + "?products=" + product_id;
+					return false;
 				}
 
 				else
 				{
-					if(typeof process_url == 'function')
-					{
-						process_url(script_webshop_views.site_url);
-					}
-
-					else
-					{
-						location.href = script_webshop_views.site_url;
-						return false;
-					}
+					location.href = script_webshop_views.site_url;
+					return false;
 				}
 			}
 
@@ -703,16 +697,8 @@ var WebshopView = Backbone.View.extend(
 
 		if(typeof form_serialized !== 'undefined' && form_serialized != '')
 		{
-			if(typeof process_url == 'function')
-			{
-				process_url(form_serialized);
-			}
-
-			else
-			{
-				location.href = form_serialized;
-				return false;
-			}
+			location.href = form_serialized;
+			return false;
 		}
 
 		else
@@ -721,30 +707,14 @@ var WebshopView = Backbone.View.extend(
 
 			if(typeof search_url !== 'undefined' && search_url != '')
 			{
-				if(typeof process_url == 'function')
-				{
-					process_url(search_url);
-				}
-
-				else
-				{
-					location.href = search_url;
-					return false;
-				}
+				location.href = search_url;
+				return false;
 			}
 
 			else
 			{
-				if(typeof process_url == 'function')
-				{
-					process_url(script_webshop_views.site_url);
-				}
-
-				else
-				{
-					location.href = script_webshop_views.site_url;
-					return false;
-				}
+				location.href = script_webshop_views.site_url;
+				return false;
 			}
 		}
 	},

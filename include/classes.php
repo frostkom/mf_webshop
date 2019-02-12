@@ -672,7 +672,7 @@ class mf_webshop
 				'setting_webshop_replace_products_slug|'.$option_type => sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_product)),
 			);
 
-			//$arr_settings['setting_webshop_activate_frontend_admin|'.$option_type] = __("Activate on Front-end Admin", 'lang_webshop');
+			//$arr_settings['setting_webshop_activate_frontend_admin|'.$option_type] = __("Activate on Front-End Admin", 'lang_webshop');
 
 			if($this->has_categories() > 0)
 			{
@@ -1469,18 +1469,19 @@ class mf_webshop
 
 		global $pagenow;
 
+		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
 		if($pagenow == 'options-general.php' && check_var('page') == 'settings_mf_base')
 		{
-			mf_enqueue_script('script_storage', plugins_url()."/mf_base/include/jquery.Storage.js", $plugin_version);
+			mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
 			mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => __("Local Storage was successfully cleared on this device", 'lang_webshop')), $plugin_version);
 		}
 
 		if($pagenow == 'admin.php' && check_var('page') == 'mf_webshop/stats/index.php')
 		{
-			mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", $plugin_version);
+			mf_enqueue_script('jquery-flot', $plugin_base_include_url."jquery.flot.min.0.7.js", $plugin_version);
 		}
 	}
 
