@@ -24,7 +24,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 		if(response != '')
 		{
-			location.href = response + (response.match(/\?/) ? "&" : "?") + "redirect_to=" + location.href;
+			location.href = response; /* + (response.match(/\?/) ? "&" : "?") + "redirect_to=" + location.href*/
 
 			this.model.set({'redirect': ''});
 		}
@@ -73,13 +73,28 @@ var WebshopAdminView = Backbone.View.extend(
 		}
 	},
 
-	loadPage: function(tab_active)
+	display_container: function(dom_container)
+	{
+		dom_container.removeClass('hide').siblings("div").addClass('hide');
+	},
+
+	loadPage: function(action)
 	{
 		this.hide_message();
 
-		jQuery(".admin_container .loading").removeClass('hide').siblings("div").addClass('hide');
+		var dom_container = jQuery("#" + action.replace(/\//g, '_'));
 
-		this.model.getPage(tab_active);
+		if(dom_container.length > 0)
+		{
+			this.display_container(dom_container);
+		}
+
+		else
+		{
+			jQuery(".admin_container .loading").removeClass('hide').siblings("div").addClass('hide');
+		}
+
+		this.model.getPage(action);
 	},
 
 	submit_form: function(e)
@@ -105,9 +120,12 @@ var WebshopAdminView = Backbone.View.extend(
 			case 'admin_webshop_list':
 				var amount = response.list.length;
 
+				var dom_template = jQuery("#template_" + type),
+					dom_container = jQuery("#" + type);
+
 				if(amount > 0)
 				{
-					html = _.template(jQuery("#template_" + type).html())(response);
+					html = _.template(dom_template.html())(response);
 				}
 
 				else
@@ -115,13 +133,20 @@ var WebshopAdminView = Backbone.View.extend(
 					html = _.template(jQuery("#template_" + type + "_message").html())('');
 				}
 
-				jQuery("#" + type).html(html).removeClass('hide').siblings("div").addClass('hide');
+				dom_container.children("div").html(html);
+
+				this.display_container(dom_container);
 			break;
 
 			case 'admin_webshop_edit':
-				html = _.template(jQuery("#template_" + type).html())(response);
+				var dom_template = jQuery("#template_" + type),
+					dom_container = jQuery("#" + type);
 
-				jQuery("#" + type).html(html).removeClass('hide').siblings("div").addClass('hide');
+				html = _.template(dom_template.html())(response);
+
+				dom_container.children("div").html(html);
+
+				this.display_container(dom_container);
 
 				if(typeof select_option === 'function')
 				{
@@ -133,7 +158,7 @@ var WebshopAdminView = Backbone.View.extend(
 					do_multiselect();
 				}
 
-				jQuery("#" + type).find(".maps_search_container:not(.maps_initiated)").gmaps();
+				dom_container.find(".maps_search_container:not(.maps_initiated)").gmaps();
 
 				this.add_event_field();
 

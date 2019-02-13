@@ -7,7 +7,7 @@ var WebshopAdminModel = Backbone.Model.extend(
 
 		if(dom_action)
 		{
-			url += '?type=admin_webshop_' + dom_action;
+			url += '?type=' + dom_action;
 		}
 
 		jQuery().callAPI(

@@ -1570,7 +1570,7 @@ class mf_webshop
 									<td>
 										<%= product.post_title %>
 										<div class='row-actions'>"
-											."<a href='#admin/webshop/edit&post_id=<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
+											."<a href='#admin/webshop/edit/<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
 											.(IS_ADMIN ? " | <a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
 											." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
 										."</div>
@@ -1587,7 +1587,7 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_admin_webshop_edit'>
-					<form method='post' action='#' class='mf_form' data-action='admin_webshop_save'>"
+					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>"
 						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'readonly' => (IS_ADMIN ? false : true)))
 						//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
 						."<% _.each(meta_boxes, function(meta_box)
