@@ -100,13 +100,17 @@ var WebshopAdminView = Backbone.View.extend(
 	submit_form: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
-			dom_action = dom_obj.attr('data-action');
+			dom_action = dom_obj.attr('data-action'),
+			api_url = dom_obj.attr('data-api-url') || '';
 
-		this.model.submitForm(dom_action, dom_obj.serialize());
+		if(api_url == '')
+		{
+			this.model.submitForm(dom_action, dom_obj.serialize());
 
-		dom_obj.find("button[type='submit']").addClass('disabled').attr('disabled', true);
+			/*dom_obj.find("button[type='submit']").addClass('disabled').attr('disabled', true);*/
 
-		return false;
+			return false;
+		}
 	},
 
 	view_response: function()
