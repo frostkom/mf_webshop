@@ -47,7 +47,7 @@ switch($type_switch)
 						$query_where .= " AND post_author = '".get_current_user_id()."'";
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type)); // INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id // AND ".$wpdb->postmeta.".meta_key = %s AND meta_value = %s //, $obj_webshop->meta_prefix.'category', $data['category']
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish'));
 
 					foreach($result as $r)
 					{
@@ -62,12 +62,10 @@ switch($type_switch)
 					$json_output['admin_webshop_response'] = array(
 						'type' => str_replace("/", "_", $type),
 						'list' => $arr_list,
-						//'timestamp' => date("Y-m-d H:i:s"),
 					);
 				break;
 
 				case 'webshop/edit':
-					//$post_id = check_var('post_id', 'int');
 					$post_id = isset($arr_type[3]) ? $arr_type[3] : 0;
 
 					$json_output['admin_webshop_response'] = array(
@@ -258,7 +256,7 @@ switch($type_switch)
 													{
 														$obj_calendar = new mf_calendar();
 
-														$result_children = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, 'publish', $obj_calendar->meta_prefix.'calendar', $value_temp));
+														$result_children = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, 'publish', $obj_calendar->meta_prefix.'calendar', $value_temp));
 
 														foreach($result_children as $r_children)
 														{
@@ -272,6 +270,7 @@ switch($type_switch)
 
 															$arr_children_temp[$r_children->ID] = array(
 																'name' => $r_children->post_title,
+																'text' => $r_children->post_content,
 																'location' => $event_location,
 																'category' => $event_category,
 																'start_date' => $event_start_date,
@@ -405,6 +404,7 @@ switch($type_switch)
 														$arr_event_start_time = check_var($id_temp."_start_time", 'array');
 														$arr_event_end_date = check_var($id_temp."_end_date", 'array');
 														$arr_event_end_time = check_var($id_temp."_end_time", 'array');
+														$arr_event_text = check_var($id_temp."_text");
 
 														$count_temp = count($arr_event_name);
 
@@ -422,6 +422,7 @@ switch($type_switch)
 																		$post_data_event = array(
 																			'ID' => $arr_event_id[$i],
 																			'post_title' => $arr_event_name[$i],
+																			'post_content' => $arr_event_text[$i],
 																			//'post_modified' => date("Y-m-d H:i:s"),
 																			'meta_input' => array(
 																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
@@ -470,6 +471,7 @@ switch($type_switch)
 																		'post_type' => $obj_calendar->post_type_event,
 																		'post_status' => 'publish',
 																		'post_title' => $arr_event_name[$i],
+																		'post_content' => $arr_event_text[$i],
 																		'meta_input' => array(
 																			$obj_calendar->meta_prefix.'calendar' => $calendar_id,
 																			$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
@@ -545,8 +547,8 @@ switch($type_switch)
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{
 									$json_output['success'] = true;
-									$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
-									$json_output['debug'] = "Updated: ".$wpdb->last_query;
+									$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
+									//$json_output['debug'] = "Updated: ".$wpdb->last_query;
 
 									if($reload == true)
 									{
@@ -586,9 +588,9 @@ switch($type_switch)
 							if($post_id > 0)
 							{
 								$json_output['success'] = true;
-								$json_output['message'] = __("I have saved the information for you", 'lang_webshop');
+								$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
 								$json_output['next_request'] = "admin/webshop/edit/".$post_id;
-								$json_output['debug'] = "Created: ".$wpdb->last_query;
+								//$json_output['debug'] = "Created: ".$wpdb->last_query;
 							}
 
 							else
@@ -659,8 +661,6 @@ switch($type_switch)
 			foreach($result['event_response'] as $event)
 			{
 				$arr_events[] = array(
-					//'feed_id' => $event['feed_id'],
-					//'class' => "calendar_feed_".$event['feed_id'],
 					'class' => $event['list_class'],
 				);
 			}

@@ -386,7 +386,7 @@ echo "@media all
 				margin-bottom: 0;
 			}
 
-				#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a
+				#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a, #wrapper .webshop_filter_products li p a, #wrapper .webshop_events li p a
 				{
 					display: inline;
 				}
