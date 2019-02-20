@@ -226,6 +226,15 @@ switch($type_switch)
 													}
 												break;
 
+												case 'custom_categories':
+												case 'education':
+												//case 'event':
+												case 'location':
+												case 'select':
+												case 'select3':
+													$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true))[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
+												break;
+
 												default:
 													$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
 												break;
@@ -261,6 +270,7 @@ switch($type_switch)
 														foreach($result_children as $r_children)
 														{
 															$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
+															$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);
 															$event_category = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'category', true);
 															$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
 															$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
@@ -272,6 +282,7 @@ switch($type_switch)
 																'name' => $r_children->post_title,
 																'text' => $r_children->post_content,
 																'location' => $event_location,
+																'coordinates' => $event_coordinates,
 																'category' => $event_category,
 																'start_date' => $event_start_date,
 																'start_time' => $event_start_time,
@@ -399,6 +410,7 @@ switch($type_switch)
 														$arr_event_id = check_var($id_temp."_id", 'array');
 														$arr_event_name = check_var($id_temp."_name", 'array');
 														$arr_event_location = check_var($id_temp."_location", 'array');
+														$arr_event_coordinates = check_var($id_temp."_coordinates", 'array');
 														$arr_event_category = check_var($id_temp."_category", 'array');
 														$arr_event_start_date = check_var($id_temp."_start_date", 'array');
 														$arr_event_start_time = check_var($id_temp."_start_time", 'array');
@@ -426,6 +438,7 @@ switch($type_switch)
 																			//'post_modified' => date("Y-m-d H:i:s"),
 																			'meta_input' => array(
 																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
+																				$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
 																				$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																				$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
 																				$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
@@ -435,6 +448,9 @@ switch($type_switch)
 																		if(wp_update_post($post_data_event) > 0)
 																		{
 																			$updated = true;
+
+																			//do_action('rwmb_after_save_post', $arr_event_id[$i]);
+																			$obj_calendar->rwmb_after_save_post($arr_event_id[$i]);
 																		}
 
 																		else
@@ -474,6 +490,9 @@ switch($type_switch)
 																		'post_content' => $arr_event_text[$i],
 																		'meta_input' => array(
 																			$obj_calendar->meta_prefix.'calendar' => $calendar_id,
+																			$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
+																			$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
+																			$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																			$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
 																			$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
 																		),
@@ -484,6 +503,9 @@ switch($type_switch)
 																	if($post_id_temp > 0)
 																	{
 																		$reload = $updated = true;
+
+																		//do_action('rwmb_after_save_post', $post_id_temp);
+																		$obj_calendar->rwmb_after_save_post($post_id_temp);
 																	}
 
 																	else
@@ -566,8 +588,6 @@ switch($type_switch)
 							{
 								$json_output['message'] = __("It does not look like you changed anything, so nothing was saved", 'lang_webshop');
 							}
-
-							//$json_output['admin_webshop_response']['meta_boxes'] = $arr_meta_boxes;
 						}
 					}
 

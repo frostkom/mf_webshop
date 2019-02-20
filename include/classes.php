@@ -1716,7 +1716,8 @@ class mf_webshop
 																			<li>
 																				<div class='flex_flow'>"
 																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
+																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'xtra_class' => "event_location", 'placeholder' => __("Add the Location Here", 'lang_webshop')))
+																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= value.coordinates %>", 'xtra' => "class='event_coordinates'"));
 
 																					if(count($arr_categories) > 0)
 																					{
@@ -1742,7 +1743,8 @@ class mf_webshop
 																		<li>
 																			<div class='flex_flow'>"
 																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'placeholder' => __("Add the Location Here", 'lang_webshop')));
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "event_location", 'placeholder' => __("Add the Location Here", 'lang_webshop')))
+																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= value.coordinates %>", 'xtra' => "class='event_coordinates'"));
 
 																				if(count($arr_categories) > 0)
 																				{
@@ -5754,9 +5756,8 @@ class mf_webshop
 					<span>".$setting_webshop_replace_hide_map."</span>
 				</h2>
 				<div class='map_wrapper'>
-					<div id='webshop_map'></div>"
-					//.input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"))
-				."</div>
+					<div id='webshop_map'></div>
+				</div>
 			</div>";
 
 			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"));
@@ -7992,6 +7993,13 @@ class widget_webshop_product_meta extends WP_Widget
 							if($event_location != '')
 							{
 								$widget_content .= "<strong>".__("Location", 'lang_webshop').":</strong> <span>".$event_location."</span><br>";
+
+								$event_coordinates = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'coordinates', true);
+
+								if($event_coordinates != '')
+								{
+									$widget_content .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $event_coordinates, 'xtra' => "id='webshop_map_coords'"));
+								}
 							}
 							
 							if($product_id > 0)
