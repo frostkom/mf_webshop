@@ -877,8 +877,10 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		var widget_id = dom_obj.attr('id'),
-			option_type = dom_obj.attr('data-option-type') || '',
+			option_type = dom_obj.attr('data-option_type') || '',
 			product_id = dom_obj.attr('data-product_id') || 0,
+			event_id = dom_obj.attr('data-event_id') || 0,
+			event_type = dom_obj.attr('data-event_type') || '',
 			date = dom_obj.attr('data-date'),
 			category = dom_obj.attr('data-category') || '',
 			limit = dom_obj.attr('data-limit'),
@@ -894,6 +896,16 @@ var WebshopView = Backbone.View.extend(
 		if(product_id > 0)
 		{
 			get_vars += "&product_id=" + product_id;
+		}
+
+		if(event_id > 0)
+		{
+			get_vars += "&event_id=" + event_id;
+		}
+
+		if(event_type != '')
+		{
+			get_vars += "&event_type=" + event_type;
 		}
 
 		if(category != '')
@@ -963,7 +975,7 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		var widget_id = dom_obj.attr('id'),
-			option_type = dom_obj.attr('data-option-type') || '',
+			option_type = dom_obj.attr('data-option_type') || '',
 			category = dom_obj.attr('data-category'),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');

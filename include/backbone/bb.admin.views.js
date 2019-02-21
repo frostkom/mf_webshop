@@ -182,7 +182,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			var clone = dom_last_child.clone();
 
-			clone.find("input").val('').attr('value', '');
+			clone.find("input, textarea").val('').attr('value', '');
 			clone.find(".event_name").children(".description").addClass('hide');
 
 			dom_parent.append(clone);

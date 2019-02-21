@@ -79,6 +79,8 @@ switch($type_switch)
 
 					if($post_id > 0)
 					{
+						$obj_webshop->get_option_type_from_post_id($post_id);
+
 						$query_where = "";
 
 						if(1 == 1 || !IS_ADMIN)
@@ -222,7 +224,6 @@ switch($type_switch)
 														list($file_name, $file_url) = get_attachment_data_by_id($r_file->meta_value);
 
 														$value_temp[] = $file_name."|".$file_url."|".$r_file->meta_value;
-														//$value_temp[] = get_post_title($r_file->meta_value)."|".mf_get_post_content($r_file->meta_value, 'guid')."|".$r_file->meta_value;
 													}
 												break;
 
@@ -232,7 +233,12 @@ switch($type_switch)
 												case 'location':
 												case 'select':
 												case 'select3':
-													$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true))[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
+													$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+
+													if(isset($value_temp[0]))
+													{
+														$value_temp = $value_temp[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
+													}
 												break;
 
 												default:
@@ -252,7 +258,7 @@ switch($type_switch)
 													break;
 
 													case 'event':
-														$value_temp = $obj_webshop->create_product_event_connection($post_id);
+														$obj_webshop->create_product_event_connection($post_id); //$value_temp = 
 													break;
 												}
 											}
@@ -709,15 +715,16 @@ switch($type_switch)
 
 	case 'events':
 		$id = check_var('id', 'char');
-		$option_type = check_var('option_type', 'char');
+		$option_type = check_var('option_type');
 		$start_date = check_var('start_date', 'date', true, date("Y-m-d H:i:s"));
-		$category = check_var('category', 'char');
-		$option_type = check_var('option_type', 'char');
 		$product_id = check_var('product_id', 'int');
+		$event_id = check_var('event_id', 'int');
+		$event_type = check_var('event_type');
+		$category = check_var('category');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
-		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'product_id' => $product_id, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
+		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'product_id' => $product_id, 'event_id' => $event_id, 'event_type' => $event_type, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
 	break;
 
 	case 'filter_products':
