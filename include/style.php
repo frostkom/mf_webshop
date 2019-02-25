@@ -686,7 +686,7 @@ echo "@media all
 						color: #0a5eff;
 					}";*/
 
-		echo ".webshop_events .event_filters .product_categories
+		echo ".webshop_events .event_filters .event_calendar + .product_categories
 		{
 			margin-top: 1em;
 		}
