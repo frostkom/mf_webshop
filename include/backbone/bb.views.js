@@ -99,7 +99,7 @@ var WebshopView = Backbone.View.extend(
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
 		/*"click .product_search .show_choose_all": "choose_all",*/
-		"click #product_form aside h2, #product_form .aside h2, .single-mf_product h2.is_map_toggler, .widget.webshop_map h2": "toggle_aside",
+		"click .widget.webshop_map h2": "toggle_aside", /*#product_form aside h2, #product_form .aside h2, .single-mf_product h2.is_map_toggler, */
 
 		/* Result List */
 		"change #webshop_search input": "search_products_change",

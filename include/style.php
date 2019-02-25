@@ -36,91 +36,109 @@ switch($setting_map_visibility)
 {
 	default:
 	case 'everywhere':
-		$desktop_aside = "block";
-		$desktop_search_h2 = $desktop_product_h2 = "none";
-		$desktop_search_div = $desktop_product_div = "block !important";
+		$desktop_search_h2 = "none";
+		$desktop_search_div = "block !important";
+
+		$desktop_product_h2 = "none";
+		$desktop_product_div = "block !important";
 	break;
 
 	case 'search':
-		$desktop_aside = "block";
 		$desktop_search_h2 = "none";
-		$desktop_product_h2 = "block";
-		$desktop_product_show = "none";
-		$desktop_product_hide = "block";
 		$desktop_search_div = "block !important";
+
+		$desktop_product_h2 = "block";
 		$desktop_product_div = "none";
 	break;
 
 	case 'single':
-		$desktop_aside = "none";
 		$desktop_search_h2 = "block";
-		$desktop_search_show = "none";
-		$desktop_search_hide = "block";
-		$desktop_product_h2 = "none";
 		$desktop_search_div = "none";
+
+		$desktop_product_h2 = "none";
 		$desktop_product_div = "block !important";
 	break;
 
 	case 'nowhere':
-		$desktop_aside = "none";
-		$desktop_search_h2 = $desktop_product_h2 = "block";
-		$desktop_search_show = $desktop_product_show = "block";
-		$desktop_search_hide = $desktop_product_hide = "none";
-		$desktop_search_div = $desktop_product_div = "none";
+		$desktop_search_h2 = "block";
+		$desktop_search_div = "none";
+
+		$desktop_product_h2 = "block";
+		$desktop_product_div = "none";
 	break;
 }
 
-$map_visibility_desktop = "#product_form > .aside, .widget.webshop_map{	display: ".$desktop_aside.";}
-#product_form .is_map_toggler, .widget.webshop_map .is_map_toggler{		display: ".$desktop_search_h2.";}
-.single-mf_product .is_map_toggler{										display: ".$desktop_product_h2.";}
-#product_form .map_wrapper, .widget.webshop_map .map_wrapper{			display: ".$desktop_search_div.";}
-.single-mf_product .map_wrapper{										display: ".$desktop_product_div.";}";
+$map_visibility_desktop = "";
+$map_visibility_desktop .= ".page-template-default .is_map_toggler{			display: ".$desktop_search_h2.";}";
+$map_visibility_desktop .= "body.single .is_map_toggler{					display: ".$desktop_product_h2.";}";
+$map_visibility_desktop .= ".page-template-default .map_wrapper{			display: ".$desktop_search_div.";}";
+$map_visibility_desktop .= "body.single .map_wrapper{						display: ".$desktop_product_div.";}";
 
-if(isset($desktop_search_show))
+if($desktop_search_div == "none")
 {
-	$map_visibility_desktop .= "#product_form .is_map_toggler span:first-of-type, .widget.webshop_map .is_map_toggler span:first-of-type
+	$map_visibility_desktop .= ".page-template-default .is_map_toggler span:first-of-type
 	{
-		display: ".$desktop_search_show.";
+		display: block;
+	}
+
+	.page-template-default .is_map_toggler span:last-of-type
+	{
+		display: none;
 	}";
 }
 
-if(isset($desktop_search_hide))
+else
 {
-	$map_visibility_desktop .= "#product_form .is_map_toggler span:last-of-type, .widget.webshop_map .is_map_toggler span:last-of-type
+	$map_visibility_desktop .= ".page-template-default .is_map_toggler span:first-of-type
 	{
-		display: ".$desktop_search_hide.";
+		display: none;
+	}
+
+	.page-template-default .is_map_toggler span:last-of-type
+	{
+		display: block;
 	}";
 }
 
-if(isset($desktop_product_show))
+if($desktop_product_div == "none")
 {
-	$map_visibility_desktop .= ".single-mf_product .is_map_toggler span:first-of-type
+	$map_visibility_desktop .= "body.single .is_map_toggler span:first-of-type
 	{
-		display: ".$desktop_product_show.";
+		display: block;
+	}
+
+	body.single .is_map_toggler span:last-of-type
+	{
+		display: none;
 	}";
 }
 
-if(isset($desktop_product_hide))
+else
 {
-	$map_visibility_desktop .= ".single-mf_product .is_map_toggler span:last-of-type
+	$map_visibility_desktop .= "body.single .is_map_toggler span:first-of-type
 	{
-		display: ".$desktop_product_hide.";
+		display: none;
+	}
+
+	body.single .is_map_toggler span:last-of-type
+	{
+		display: block;
 	}";
 }
 
 switch($setting_map_visibility_mobile)
 {
+	default:
 	case "everywhere":
-		$mobile_search_h2 = $mobile_product_h2 = "block";
-		$mobile_search_show = $mobile_product_show = "block";
-		$mobile_search_hide = $mobile_product_hide = "none";
-		$mobile_search_div = $mobile_product_div = "none";
+		$mobile_search_h2 = "block";
+		$mobile_search_div = "none";
+
+		$mobile_product_h2 = "block";
+		$mobile_product_div = "none";
 	break;
 
 	case "search":
 		$mobile_search_h2 = "block";
-		$mobile_search_show = "block";
-		$mobile_search_hide = "none";
 		$mobile_search_div = "none";
 
 		$mobile_product_h2 = "none";
@@ -132,26 +150,79 @@ switch($setting_map_visibility_mobile)
 		$mobile_search_div = "none";
 
 		$mobile_product_h2 = "block";
-		$mobile_product_show = "block";
-		$mobile_product_hide = "none";
 		$mobile_product_div = "none";
 	break;
 
-	default:
 	case "nowhere":
-		$mobile_search_h2 = $mobile_product_h2 = "none";
-		$mobile_search_div = $mobile_product_div = "none";
+		$mobile_search_h2 = "none";
+		$mobile_search_div = "none";
+
+		$mobile_product_h2 = "none";
+		$mobile_product_div = "none";
 	break;
 }
 
-$map_visibility_mobile = "#product_form .is_map_toggler, .widget.webshop_map .is_map_toggler{	display: ".$mobile_search_h2.";}
-.single-mf_product .is_map_toggler{																display: ".$mobile_product_h2.";}
-#product_form .map_wrapper, .widget.webshop_map .map_wrapper{									display: ".$mobile_search_div.";}
-.single-mf_product .map_wrapper{																display: ".$mobile_product_div.";}";
+$map_visibility_mobile = "";
+$map_visibility_mobile .= ".page-template-default .is_map_toggler{	display: ".$mobile_search_h2.";}";
+$map_visibility_mobile .= "body.single .is_map_toggler{				display: ".$mobile_product_h2.";}";
+$map_visibility_mobile .= ".page-template-default .map_wrapper{		display: ".$mobile_search_div.";}";
+$map_visibility_mobile .= "body.single .map_wrapper{				display: ".$mobile_product_div.";}";
 
-if(isset($mobile_search_show))
+if($mobile_search_div == "none")
 {
-	$map_visibility_mobile .= "#product_form .is_map_toggler span:first-of-type, .widget.webshop_map .is_map_toggler span:first-of-type
+	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:first-of-type
+	{
+		display: block;
+	}
+
+	.page-template-default .is_map_toggler span:last-of-type
+	{
+		display: none;
+	}";
+}
+
+else
+{
+	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:first-of-type
+	{
+		display: none;
+	}
+
+	.page-template-default .is_map_toggler span:last-of-type
+	{
+		display: block;
+	}";
+}
+
+if($mobile_product_div == "none")
+{
+	$map_visibility_mobile .= "body.single .is_map_toggler span:first-of-type
+	{
+		display: block;
+	}
+
+	body.single .is_map_toggler span:last-of-type
+	{
+		display: none;
+	}";
+}
+
+else
+{
+	$map_visibility_mobile .= "body.single .is_map_toggler span:first-of-type
+	{
+		display: none;
+	}
+
+	body.single .is_map_toggler span:last-of-type
+	{
+		display: block;
+	}";
+}
+
+/*if(isset($mobile_search_show))
+{
+	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:first-of-type
 	{
 		display: ".$mobile_search_show.";
 	}";
@@ -159,7 +230,7 @@ if(isset($mobile_search_show))
 
 if(isset($mobile_search_hide))
 {
-	$map_visibility_mobile .= "#product_form .is_map_toggler span:last-of-type, .widget.webshop_map .is_map_toggler span:last-of-type
+	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:last-of-type
 	{
 		display: ".$mobile_search_hide.";
 	}";
@@ -167,7 +238,7 @@ if(isset($mobile_search_hide))
 
 if(isset($mobile_product_show))
 {
-	$map_visibility_mobile .= ".single-mf_product .is_map_toggler span:first-of-type
+	$map_visibility_mobile .= "body.single .is_map_toggler span:first-of-type
 	{
 		display: ".$mobile_product_show.";
 	}";
@@ -175,11 +246,11 @@ if(isset($mobile_product_show))
 
 if(isset($mobile_product_hide))
 {
-	$map_visibility_mobile .= ".single-mf_product .is_map_toggler span:last-of-type
+	$map_visibility_mobile .= "body.single .is_map_toggler span:last-of-type
 	{
 		display: ".$mobile_product_hide.";
 	}";
-}
+}*/
 
 echo "@media all
 {
@@ -654,6 +725,7 @@ echo "@media all
 						#wrapper .webshop_events li .event_date > div:first-of-type span
 						{
 							float: left;
+							text-align: center;
 							width: 60%;
 						}
 
@@ -850,17 +922,8 @@ echo "@media all
 
 			#product_form .aside h2, .single-mf_product h2.is_map_toggler, .widget.webshop_map h2
 			{
-				cursor: pointer;
-				font-size: 1.3em;
-				margin: .5em 0 .7em;
-				padding: .5em;
 				text-align: center;
 			}
-
-				#product_form .aside h2:hover, .single-mf_product h2.is_map_toggler:hover, .widget.webshop_map h2:hover
-				{
-					box-shadow: inset 0 0 10em rgba(0, 0, 0, .2);
-				}
 
 			#product_form .search_result_info
 			{
@@ -1237,6 +1300,11 @@ echo "@media all
 				color: #333;
 			}
 
+			.product_meta li a
+			{
+				display: inline;
+			}
+
 			li.type_image
 			{
 				float: left;
@@ -1424,6 +1492,23 @@ echo "@media all
 							width: 58%;
 						}
 
+							.product_quick > li > div .image
+							{
+								float: left;
+								position: relative;
+								width: 15%;
+							}
+
+							.product_quick > li > div .image + span
+							{
+								float: right;
+								line-height: 2.1;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								width: 82%;
+								white-space: nowrap;
+							}
+
 							.product_quick p
 							{
 								margin-bottom: 0;
@@ -1434,6 +1519,11 @@ echo "@media all
 								clear: none;
 								list-style: none;
 							}
+
+								.product_quick > li ul li
+								{
+									clear: both;
+								}
 
 								.product_quick > li > ul i
 								{

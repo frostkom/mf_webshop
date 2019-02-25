@@ -327,6 +327,7 @@ class mf_webshop
 				'location' => __("Location", 'lang_webshop'),
 				'address' => __("Address", 'lang_webshop'),
 				'local_address' => __("Local Address", 'lang_webshop'),
+				'coordinates' => __("Coordinates", 'lang_webshop'),
 				'gps' => __("Map", 'lang_webshop'),
 				//'map' => __("Map", 'lang_webshop'),
 			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
@@ -345,14 +346,23 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function get_map_visibility_for_select()
+	function get_map_visibility_for_select($data = array())
 	{
-		return array(
+		if(!isset($data['allow_disable'])){		$data['allow_disable'] = false;}
+
+		$arr_data = array(
 			'everywhere' => __("Everywhere", 'lang_webshop'),
 			'search' => __("Only in search view", 'lang_webshop'),
 			'single' => __("Only on single page", 'lang_webshop'),
 			'nowhere' => __("Nowhere", 'lang_webshop'),
 		);
+
+		/*if($data['allow_disable'] == true)
+		{
+			$arr_data['disable'] = __("Disable", 'lang_webshop');
+		}*/
+
+		return $arr_data;
 	}
 
 	function get_symbols_for_select()
@@ -1654,15 +1664,19 @@ class mf_webshop
 												{
 													case 'address':
 													case 'local_address': %>"
-														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+													."<% break;
+
+													case 'clock': %>"
+														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "18.00-03.00"))
 													."<% break;
 
 													case 'content': %>"
 														.show_textarea(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>"))
 													."<% break;
 
-													case 'clock': %>"
-														.show_textfield(array('name' => "<%= meta_field.id %>", 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'placeholder' => "18.00-03.00"))
+													case 'coordinates': %>"
+														.input_hidden(array('name' => "<%= meta_field.id %>", 'value' => "<%= meta_field.value %>", 'xtra' => "class='maps_coordinates'"))
 													."<% break;
 
 													case 'custom_categories':
@@ -1724,11 +1738,11 @@ class mf_webshop
 																	{
 																		_.each(meta_field.children, function(value, key)
 																		{ %>
-																			<li>
-																				<div class='flex_flow'>"
-																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'xtra_class' => "event_location", 'placeholder' => __("Add the Location Here", 'lang_webshop')))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= value.coordinates %>", 'xtra' => "class='event_coordinates'"))
+																			<li>"
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																				."<div class='flex_flow'>"
+																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
 																					.show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false, 'xtra' => " data-value='<%= value.category %>'"))
 																				."</div>
 																				<div class='flex_flow tight'>"
@@ -1746,18 +1760,13 @@ class mf_webshop
 
 																	else
 																	{ %>
-																		<li>
-																			<div class='flex_flow'>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "event_location", 'placeholder' => __("Add the Location Here", 'lang_webshop')))
-																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'allow_empty' => true, 'xtra' => "class='event_coordinates'"));
-
-																				if(count($arr_categories) > 0)
-																				{
-																					$templates .= show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false));
-																				}
-
-																			$templates .= "</div>
+																		<li>"
+																			.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
+																			."<div class='flex_flow'>"	
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'allow_empty' => true, 'xtra' => "class='maps_coordinates'"))
+																				.show_select(array('data' => $arr_categories, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false))
+																			."</div>
 																			<div class='flex_flow tight'>"
 																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
 																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]'))
@@ -1783,7 +1792,7 @@ class mf_webshop
 													break;
 
 													case 'file_advanced': %>"
-														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true))
+														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true)) //'max_file_uploads' => ""
 													."<% break;
 
 													case 'ghost': %>
@@ -2884,6 +2893,39 @@ class mf_webshop
 		$this->option_type = '';
 	}
 
+	function update_rwmb_post_meta($post_id, $meta_key, $meta_value)
+	{
+		global $wpdb;
+
+		$updated = false;
+
+		/* Delete old connections */
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $meta_value)."')", $post_id, $meta_key));
+
+		if($wpdb->num_rows > 0)
+		{
+			$updated = true;
+		}
+
+		/* Insert new connections */
+		foreach($meta_value as $value)
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $meta_key, $value));
+
+			if($wpdb->num_rows == 0)
+			{
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $meta_key, $value));
+
+				if($wpdb->num_rows > 0)
+				{
+					$updated = true;
+				}
+			}
+		}
+
+		return $updated;
+	}
+
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $wpdb;
@@ -2946,6 +2988,8 @@ class mf_webshop
 					'name' => __("Image", 'lang_webshop'),
 					'id' => $this->meta_prefix.'product_image',
 					'type' => 'file_advanced',
+					//'max_file_uploads' => 1,
+					'mime_type' => 'image',
 				);
 			}
 
@@ -3402,6 +3446,13 @@ class mf_webshop
 						'type' => 'select',
 						'options' => $this->get_document_types_for_select(array('include' => 'custom_categories')),
 					),
+					array(
+						'name' => __("Image", 'lang_webshop'),
+						'id' => $this->meta_prefix.'image',
+						'type' => 'file_advanced',
+						'max_file_uploads' => 1,
+						'mime_type' => 'image',
+					),
 				)
 			);
 			####################################
@@ -3608,6 +3659,7 @@ class mf_webshop
 				unset($cols['date']);
 
 				$cols['document_type'] = get_option_or_default('setting_webshop_replace_doc_types'.$this->option_type, __("Filters", 'lang_webshop'));
+				$cols['image'] = __("Image", 'lang_webshop');
 
 				break;
 			}
@@ -3817,6 +3869,15 @@ class mf_webshop
 							echo get_post_title($post_meta);
 						}
 					break;
+
+					case 'image':
+						$post_meta = get_post_meta_file_src(array('post_id' => $id, 'meta_key' => $this->meta_prefix.$col, 'image_size' => 'thumbnail', 'single' => true));
+
+						if($post_meta != '')
+						{
+							echo "<img src='".$post_meta."'>";
+						}
+					break;
 				}
 
 				break;
@@ -4011,6 +4072,51 @@ class mf_webshop
 					if(!in_array($post_id, $arr_product_categories))
 					{
 						add_post_meta($product_id, $meta_key, $post_id);
+					}
+				}
+			}
+		}
+	}
+
+	function rwmb_after_save_post($post_id)
+	{
+		$this->get_option_type_from_post_id($post_id);
+
+		if(get_post_type($post_id) == $this->post_type_products.$this->option_type)
+		{
+			$coordinates_post_name = $this->get_post_name_for_type('coordinates');
+
+			if($coordinates_post_name != '')
+			{
+				$post_coordinates = get_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, true);
+
+				if($post_coordinates == '')
+				{
+					$address_post_name = $this->get_post_name_for_type('local_address');
+
+					if($address_post_name == '')
+					{
+						$address_post_name = $this->get_post_name_for_type('address');
+					}
+
+					if($address_post_name != '')
+					{
+						$post_location = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
+
+						if($post_location != '')
+						{
+							$post_coordinates = get_coordinates_from_location($post_location);
+
+							if($post_coordinates != '')
+							{
+								update_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, $post_coordinates);
+
+								/*list($latitude, $longitude) = $this->split_coordinates($post_coordinates);
+
+								update_post_meta($post_id, $this->meta_prefix.'latitude', $latitude);
+								update_post_meta($post_id, $this->meta_prefix.'longitude', $longitude);*/
+							}
+						}
 					}
 				}
 			}
@@ -4433,6 +4539,7 @@ class mf_webshop
 								$out .= "<h3".$custom_class.">".$post_title."</h3>";
 							break;
 
+							case 'coordinates':
 							case 'gps':
 								$out .= show_textfield(array('type' => 'range', 'name' => $post_name, 'text' => __("Distance", 'lang_webshop'), 'value' => check_var($post_name, 'char'), 'xtra' => "min='0' max='500'"));
 							break;
@@ -4814,30 +4921,30 @@ class mf_webshop
 
 			foreach($result as $r)
 			{
-				$arr_categories = get_post_meta($r->ID, $this->meta_prefix.'category', false);
+				/*$arr_categories = get_post_meta($r->ID, $this->meta_prefix.'category', false);
 
 				if($data['category'] == '' || in_array($data['category'], $arr_categories))
-				{
-					$product_coordinates = $product_categories = "";
+				{*/
+					$product_coordinates = ""; //$product_categories = 
 
 					if($gps_post_name != '')
 					{
 						$product_coordinates = get_post_meta($r->ID, $this->meta_prefix.$gps_post_name, true);
 					}
 
-					foreach($arr_categories as $key => $value)
+					/*foreach($arr_categories as $key => $value)
 					{
 						$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
-					}
+					}*/
 
 					$arr_product_ids[] = $r->meta_value;
 					$arr_product_translate_ids[$r->meta_value] = array(
 						'product_id' => $r->ID,
 						'product_title' => $r->post_title,
 						'product_coordinates' => $product_coordinates,
-						'product_categories' => $product_categories,
+						//'product_categories' => $product_categories,
 					);
-				}
+				//}
 			}
 
 			if(count($arr_product_ids) > 0)
@@ -4890,10 +4997,10 @@ class mf_webshop
 						$query_having = " HAVING distance <= '30'";
 					}
 
-					else
+					/*else
 					{
 						do_log("There were no coordinates (".var_export($data, true).")");
-					}
+					}*/
 				}
 
 				if($data['limit'] > 0)
@@ -4921,88 +5028,89 @@ class mf_webshop
 					$product_title = $arr_product_translate_ids[$feed_id]['product_title'];
 					$product_coordinates = $arr_product_translate_ids[$feed_id]['product_coordinates'];
 
-					$product_url = get_permalink($product_id);
-
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
-					$post_url = get_permalink($post_id);
 
-					if($data['event_type'] == 'distance')
-					{
-						do_log("Distance: ".$post_title.", ".$r->distance);
-					}
-
-					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
-					$post_coordinates = get_post_meta($post_id, $obj_calendar->meta_prefix.'coordinates', true);
 					$post_category = get_post_meta($post_id, $obj_calendar->meta_prefix.'category', true);
 
-					if($post_category > 0)
+					if($data['category'] == '' || $data['category'] == $post_category)
 					{
-						$product_categories = get_post_title($post_category);
-
-						$list_class = "event_category_".$post_category;
-					}
-
-					else
-					{
-						$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
-
-						$list_class = "calendar_feed_".$feed_id;
-					}
-
-					$post_start = $r->post_start;
-					$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
-
-					$post_start_date = date("Y-m-d", strtotime($post_start));
-					$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
-					$post_start_day = date("j", strtotime($post_start));
-					$post_start_time = date("H:i", strtotime($post_start));
-
-					$post_end_date = date("Y-m-d", strtotime($post_end));
-					$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
-					$post_end_day = date("j", strtotime($post_end));
-					$post_end_time = date("H:i", strtotime($post_end));
-
-					if($post_start_date == date("Y-m-d"))
-					{
-						$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
-						$post_start_row_2 = __("Today", 'lang_webshop');
-					}
-
-					else
-					{
-						$post_start_row_1 = "<span>".$post_start_day."</span>";
-
-						if($post_end_date != $post_start_date)
+						if($post_category > 0)
 						{
-							$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
+							$product_categories = get_post_title($post_category);
+
+							$list_class = "event_category_".$post_category;
 						}
 
-						$post_start_row_2 = $post_start_month_name;
+						else
+						{
+							//$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
+
+							$list_class = "calendar_feed_".$feed_id;
+						}
+
+						/*if($data['event_type'] == 'distance')
+						{
+							do_log("Distance: ".$post_title.", ".$r->distance);
+						}*/
+
+						$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
+						$post_coordinates = get_post_meta($post_id, $obj_calendar->meta_prefix.'coordinates', true);
+
+						$post_start = $r->post_start;
+						$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
+
+						$post_start_date = date("Y-m-d", strtotime($post_start));
+						$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
+						$post_start_day = date("j", strtotime($post_start));
+						$post_start_time = date("H:i", strtotime($post_start));
+
+						$post_end_date = date("Y-m-d", strtotime($post_end));
+						$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
+						$post_end_day = date("j", strtotime($post_end));
+						$post_end_time = date("H:i", strtotime($post_end));
+
+						if($post_start_date == date("Y-m-d"))
+						{
+							$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
+							$post_start_row_2 = __("Today", 'lang_webshop');
+						}
+
+						else
+						{
+							$post_start_row_1 = "<span>".$post_start_day."</span>";
+
+							if($post_end_date != $post_start_date)
+							{
+								$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
+							}
+
+							$post_start_row_2 = $post_start_month_name;
+						}
+
+						$out['event_response'][] = array(
+							'feed_id' => $feed_id,
+							'list_class' => $list_class,
+							'product_id' => $product_id,
+							'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
+							'product_url' => get_permalink($product_id),
+							'product_title' => $product_title,
+							'product_categories' => $product_categories,
+							'product_map' => $product_coordinates,
+							'event_id' => $post_id,
+							'event_url' => get_permalink($post_id),
+							'event_title' => $post_title,
+							'event_start_date_c' => date("c", strtotime($post_start)),
+							'event_end_date_c' =>date("c", strtotime($post_end)) ,
+							'event_start_row_1' => $post_start_row_1,
+							'event_start_row_2' => $post_start_row_2,
+							'event_duration' => $obj_calendar->format_date(array('post_start' => $post_start, 'post_end' => $post_end)),
+							'event_location' => $post_location,
+							'event_coordinates' => $post_coordinates,
+						);
+
+						$i++;
 					}
-
-					$out['event_response'][] = array(
-						'feed_id' => $feed_id,
-						'list_class' => $list_class,
-						'product_id' => $product_id,
-						'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
-						'product_url' => $product_url,
-						'product_title' => $product_title,
-						'product_categories' => $product_categories,
-						'product_map' => $product_coordinates,
-						'event_id' => $post_id,
-						'event_url' => $post_url,
-						'event_title' => $post_title,
-						'event_start_date_c' => date("c", strtotime($post_start)),
-						'event_end_date_c' =>date("c", strtotime($post_end)) ,
-						'event_start_row_1' => $post_start_row_1,
-						'event_start_row_2' => $post_start_row_2,
-						'event_duration' => $obj_calendar->format_date(array('post_start' => $post_start, 'post_end' => $post_end)),
-						'event_location' => $post_location,
-						'event_coordinates' => $post_coordinates,
-					);
-
-					$i++;
 				}
 			}
 
@@ -5300,7 +5408,9 @@ class mf_webshop
 			switch($data['type'])
 			{
 				case 'email':
-					$data['meta'] = "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>";
+					$data['meta'] = apply_filters('the_content', "<a href='mailto:".$data['meta']."'>".$data['meta']."</a>");
+
+					$data['meta'] = str_replace(array("<p>", "</p>"), "", $data['meta']);
 				break;
 
 				case 'phone':
@@ -5565,8 +5675,27 @@ class mf_webshop
 							$post_meta = "";
 						break;
 
+						case 'coordinates':
+							$this->product_coordinates = $post_meta;
+
+							$post_meta = "";
+						break;
+
 						case 'custom_categories':
-							$post_meta = get_post_title($post_meta);
+							if($post_meta > 0)
+							{
+								$post_title = get_post_title($post_meta);
+								$post_image = get_post_meta_file_src(array('post_id' => $post_meta, 'meta_key' => $this->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
+
+								$post_meta = "";
+
+								if($post_image != '')
+								{
+									$post_meta = "<div class='image'><img src='".$post_image."'></div>";
+								}
+
+								$post_meta .= "<span>".$post_title."</span>";
+							}
 						break;
 
 						case 'email':
@@ -5854,6 +5983,11 @@ class mf_webshop
 			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"));
 		}
 
+		if($this->product_coordinates != '')
+		{
+			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coords' data-name='".$this->product_title."' data-url=''"));
+		}
+
 		if(count($this->product_meta) > 0)
 		{
 			$this->template_shortcodes['meta']['html'] = "";
@@ -6031,7 +6165,7 @@ class mf_webshop
 		$this->product_has_email = false;
 		$this->number_amount = $this->price_amount = $this->size_amount = 0;
 
-		$this->product_address = $this->product_categories = $this->product_map = $this->product_social = $this->search_url = "";
+		$this->product_address = $this->product_categories = $this->product_map = $this->product_coordinates = $this->product_social = $this->search_url = "";
 
 		if($data['single'] == true)
 		{
@@ -6326,6 +6460,12 @@ class mf_webshop
 
 									break;
 								}
+							break;
+
+							case 'coordinates':
+								$this->product_coordinates .= $post_meta;
+
+								$post_meta = "";
 							break;
 
 							case 'email':
@@ -6767,7 +6907,7 @@ if(class_exists('RWMB_Field'))
 	{
 		static public function html($meta, $field)
 		{
-			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-address'>";
+			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-address maps_location'>";
 		}
 	}
 
@@ -6778,6 +6918,14 @@ if(class_exists('RWMB_Field'))
 			//Do nothing here since this is shown in the UI for mf_products if there are any mf_categories
 		}
 	}*/
+
+	class RWMB_Coordinates_Field extends RWMB_Text_Field
+	{
+		static public function html($meta, $field)
+		{
+			return input_hidden(array('name' => $field['field_name'], 'value' => $meta, 'xtra' => "class='maps_coordinates'"));
+		}
+	}
 
 	class RWMB_Custom_Categories_Field extends RWMB_Text_Field
 	{
@@ -6863,7 +7011,7 @@ if(class_exists('RWMB_Field'))
 	{
 		static public function html($meta, $field)
 		{
-			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-local_address'>";
+			return "<input type='text' name='".$field['field_name']."' id='".$field['id']."' value='".$meta."' class='rwmb-text rwmb-local_address maps_location'>";
 		}
 	}
 

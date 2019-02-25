@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-21 07:22+0100\n"
+"POT-Creation-Date: 2019-02-22 16:17+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,114 +15,807 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
+#: ../group/index.php:8
+#: ../include/classes.php:430
+#: ../include/classes.php:889
+#: ../include/classes.php:909
+#: ../include/classes.php:922
+#: ../include/classes.php:964
+#: ../include/classes.php:1019
+#: ../include/classes.php:1029
+#: ../include/classes.php:1039
+#: ../include/classes.php:1049
+#: ../include/classes.php:1060
+#: ../include/classes.php:1560
+msgid "Webshop"
+msgstr ""
+
+#: ../group/index.php:72
+msgid "The address was not able to be created"
+msgstr ""
+
+#: ../group/index.php:84
+msgid "You have not set a field for e-mails"
+msgstr ""
+
+#: ../group/index.php:90
+msgid "Could not find an existing group or create a new one"
+msgstr ""
+
+#: ../group/index.php:94
+msgid "Loading"
+msgstr ""
+
+#: ../import/index.php:6
 msgid "Import"
 msgstr "Importere"
 
+#: ../include/classes.php:68
 msgid "Show all"
 msgstr "Vis alle"
 
+#: ../include/classes.php:237
+#: ../include/classes.php:365
+#: ../stats/index.php:21
 msgid "Choose Here"
 msgstr "Velg Her"
 
+#: ../include/classes.php:261
+msgid "A-Z"
+msgstr ""
+
+#: ../include/classes.php:266
+#, fuzzy
+msgid "Latest"
+msgstr "Siste svar"
+
+#: ../include/classes.php:273
+msgid "Popularity"
+msgstr ""
+
+#: ../include/classes.php:279
+msgid "Random"
+msgstr ""
+
+#: ../include/classes.php:286
+#: ../include/classes.php:323
+msgid "Size"
+msgstr ""
+
+#: ../include/classes.php:296
 msgid "Information"
 msgstr "Informasjon"
 
+#: ../include/classes.php:297
 msgid "Description"
 msgstr "Beskrivelse"
 
+#: ../include/classes.php:298
+msgid "Heading"
+msgstr ""
+
+#: ../include/classes.php:299
 msgid "Content"
 msgstr "Innhold"
 
+#: ../include/classes.php:300
+msgid "Label"
+msgstr ""
+
+#: ../include/classes.php:301
+msgid "Input"
+msgstr ""
+
+#: ../include/classes.php:302
 msgid "Text"
 msgstr "Tekst"
 
+#: ../include/classes.php:303
+#, fuzzy
+msgid "Textarea"
+msgstr "Tekst"
+
+#: ../include/classes.php:304
 msgid "Date"
 msgstr "Dato"
 
+#: ../include/classes.php:305
 msgid "E-mail"
 msgstr "E-post"
 
+#: ../include/classes.php:306
+msgid "Phone Number"
+msgstr ""
+
+#: ../include/classes.php:307
+msgid "URL"
+msgstr ""
+
+#: ../include/classes.php:308
 msgid "Clock"
 msgstr "Klokke"
 
+#: ../include/classes.php:309
+msgid "Checkbox"
+msgstr ""
+
+#: ../include/classes.php:310
+msgid "Special Input"
+msgstr ""
+
+#: ../include/classes.php:311
+msgid "Color Picker"
+msgstr ""
+
+#: ../include/classes.php:312
 msgid "Event"
 msgstr "Hendelse"
 
+#: ../include/classes.php:313
 msgid "Page"
 msgstr "Side"
 
+#: ../include/classes.php:314
 msgid "File"
 msgstr "Fil"
 
+#: ../include/classes.php:315
+#: ../include/classes.php:316
+#: ../include/classes.php:485
+#: ../include/classes.php:723
+#: ../include/classes.php:1118
+msgid "Categories"
+msgstr ""
+
+#: ../include/classes.php:317
+#: ../include/classes.php:537
+msgid "Custom Categories"
+msgstr ""
+
+#: ../include/classes.php:318
+msgid "Social Feed"
+msgstr ""
+
+#: ../include/classes.php:319
+msgid "Overlay"
+msgstr ""
+
+#: ../include/classes.php:320
+msgid "Numbers"
+msgstr ""
+
+#: ../include/classes.php:321
+#: ../include/classes.php:322
+#: ../include/classes.php:323
+#: ../include/classes.php:324
+msgid "Number"
+msgstr ""
+
+#: ../include/classes.php:322
+msgid "Price"
+msgstr ""
+
+#: ../include/classes.php:324
+#, fuzzy
+msgid "Stock"
+msgstr "Klokke"
+
+#: ../include/classes.php:325
+msgid "Interval"
+msgstr ""
+
+#: ../include/classes.php:326
+#: ../include/classes.php:327
+#: ../include/classes.php:577
+#: ../stats/index.php:134
+#, fuzzy
+msgid "Location"
+msgstr "Informasjon"
+
+#: ../include/classes.php:328
 msgid "Address"
 msgstr "Adresse"
 
+#: ../include/classes.php:329
+#, fuzzy
+msgid "Local Address"
+msgstr "Adresse"
+
+#: ../include/classes.php:330
+#: ../include/classes.php:964
+#: ../include/classes.php:1031
+msgid "Map"
+msgstr ""
+
+#: ../include/classes.php:332
+#, fuzzy
+msgid "Formatting"
+msgstr "Informasjon"
+
+#: ../include/classes.php:333
+msgid "Divider"
+msgstr ""
+
+#: ../include/classes.php:334
+msgid "Contact Button"
+msgstr ""
+
+#: ../include/classes.php:335
+#, fuzzy
+msgid "Read More Button"
+msgstr "Les Mer"
+
+#: ../include/classes.php:336
+msgid "Start of Container"
+msgstr ""
+
+#: ../include/classes.php:337
+msgid "End of Container"
+msgstr ""
+
+#: ../include/classes.php:338
 msgid "Settings"
 msgstr "Innstillinger"
 
+#: ../include/classes.php:339
+#, fuzzy
+msgid "Hide Information"
+msgstr "Informasjon"
+
+#: ../include/classes.php:340
+msgid "Global Code"
+msgstr ""
+
+#: ../include/classes.php:351
+msgid "Everywhere"
+msgstr ""
+
+#: ../include/classes.php:352
+msgid "Only in search view"
+msgstr ""
+
+#: ../include/classes.php:353
+msgid "Only on single page"
+msgstr ""
+
+#: ../include/classes.php:354
+msgid "Nowhere"
+msgstr ""
+
+#: ../include/classes.php:462
+#, php-format
+msgid "An option for %s exists in the DB"
+msgstr ""
+
+#: ../include/classes.php:508
+#: ../include/classes.php:1078
+#: ../include/classes.php:1247
+#: ../stats/index.php:31
+msgid "Products"
+msgstr ""
+
+#: ../include/classes.php:557
+#: ../include/classes.php:1126
+#, fuzzy
+msgid "Filters"
+msgstr "Fil"
+
+#: ../include/classes.php:597
+msgid "Customers"
+msgstr ""
+
+#: ../include/classes.php:616
+msgid "Delivery Type"
+msgstr ""
+
+#: ../include/classes.php:652
+msgid "Types"
+msgstr ""
+
+#: ../include/classes.php:657
+#, php-format
+msgid "Title for '%s'"
+msgstr ""
+
+#: ../include/classes.php:657
+msgid "default"
+msgstr ""
+
+#: ../include/classes.php:660
+msgid "Local Storage"
+msgstr ""
+
+#: ../include/classes.php:672
+#, fuzzy
+msgid "Display Sort"
+msgstr "Vis Filter"
+
+#: ../include/classes.php:673
+msgid "Sort Default"
+msgstr ""
+
+#: ../include/classes.php:674
 msgid "Display Filter"
 msgstr "Vis Filter"
 
+#: ../include/classes.php:687
+#: ../include/classes.php:688
+msgid "Map visibility"
+msgstr ""
+
+#: ../include/classes.php:688
+#, fuzzy
+msgid "Mobile"
+msgstr "Fil"
+
+#: ../include/classes.php:689
+msgid "Info color"
+msgstr ""
+
+#: ../include/classes.php:690
+msgid "Info text color"
+msgstr ""
+
+#: ../include/classes.php:702
+#: ../include/classes.php:1050
+#: ../include/classes.php:1070
+msgid "Product"
+msgstr ""
+
+#: ../include/classes.php:711
+#: ../include/classes.php:712
+#: ../include/classes.php:713
+#: ../include/classes.php:714
+#: ../include/classes.php:715
+#: ../include/classes.php:745
+#: ../include/classes.php:746
+#: ../include/classes.php:757
+#: ../include/classes.php:765
+#: ../include/classes.php:768
+#: ../include/classes.php:769
+#: ../include/classes.php:791
+#: ../include/classes.php:792
+#: ../include/classes.php:825
+#: ../include/classes.php:826
+#: ../include/classes.php:827
+#: ../include/classes.php:828
+#: ../include/classes.php:835
+#: ../include/classes.php:874
+#: ../include/classes.php:875
+msgid "Replace Text"
+msgstr ""
+
+#: ../include/classes.php:716
+#: ../include/classes.php:725
+#, php-format
+msgid "Replace %s slug with"
+msgstr ""
+
+#: ../include/classes.php:730
+msgid "Payment Form"
+msgstr ""
+
+#: ../include/classes.php:744
+msgid "Min results to show number"
+msgstr ""
+
+#: ../include/classes.php:748
+#, fuzzy
+msgid "Display Images"
+msgstr "Vis Filter"
+
+#: ../include/classes.php:752
+#: ../include/classes.php:831
+msgid "Form for quote request"
+msgstr ""
+
+#: ../include/classes.php:756
+msgid "Max results to send quote"
+msgstr ""
+
+#: ../include/classes.php:758
+#: ../include/classes.php:759
+msgid "Switch Icon"
+msgstr ""
+
+#: ../include/classes.php:758
+msgid "On"
+msgstr ""
+
+#: ../include/classes.php:759
+msgid "Off"
+msgstr ""
+
+#: ../include/classes.php:761
+msgid "Require user to make some kind of search"
+msgstr ""
+
+#: ../include/classes.php:775
+msgid "Default range minimum"
+msgstr ""
+
+#: ../include/classes.php:776
+msgid "Custom range choices"
+msgstr ""
+
+#: ../include/classes.php:793
+msgid "Email Subject"
+msgstr ""
+
+#: ../include/classes.php:794
+#, fuzzy
+msgid "Email Content"
+msgstr "Innhold"
+
+#: ../include/classes.php:808
+msgid "Template for Presentation"
+msgstr ""
+
+#: ../include/classes.php:813
+#, fuzzy
+msgid "Display Breadcrumbs"
+msgstr "Vis Filter"
+
+#: ../include/classes.php:820
+msgid "Allow Multiple Categories"
+msgstr ""
+
+#: ../include/classes.php:831
+#, fuzzy
+msgid "single"
+msgstr "Fil"
+
+#: ../include/classes.php:837
+msgid "Force Individual Contact"
+msgstr ""
+
+#: ../include/classes.php:856
+msgid "API key"
+msgstr ""
+
+#: ../include/classes.php:859
+msgid "Symbol inactive image"
+msgstr ""
+
+#: ../include/classes.php:860
+msgid "Symbol active image"
+msgstr ""
+
+#: ../include/classes.php:864
+msgid "Ghost symbol inactive image"
+msgstr ""
+
+#: ../include/classes.php:865
+msgid "Ghost symbol active image"
+msgstr ""
+
+#: ../include/classes.php:870
+msgid "Symbol inactive color"
+msgstr ""
+
+#: ../include/classes.php:871
+msgid "Symbol active color"
+msgstr ""
+
+#: ../include/classes.php:876
+#, fuzzy
+msgid "Map Information"
+msgstr "Informasjon"
+
+#: ../include/classes.php:914
+msgid "Clear"
+msgstr ""
+
+#: ../include/classes.php:922
+#: ../include/classes.php:1062
+#: ../orders/index.php:99
 msgid "Search"
 msgstr "Søk"
 
+#: ../include/classes.php:952
+#: ../include/classes.php:953
+#: ../include/classes.php:1172
+#: ../include/classes.php:1173
 msgid "Yes"
 msgstr "Ja"
 
+#: ../include/classes.php:953
+msgid "Hidden behind a button"
+msgstr ""
+
+#: ../include/classes.php:954
+#: ../include/classes.php:1174
 msgid "No"
 msgstr "Nei"
 
+#: ../include/classes.php:1041
+msgid "Favorites"
+msgstr ""
+
+#: ../include/classes.php:1086
+msgid "Enter title here"
+msgstr ""
+
+#: ../include/classes.php:1134
+#, php-format
 msgid "Filter amongst %s products"
 msgstr "Filter blant %s produkter"
 
+#: ../include/classes.php:1134
+#: ../include/classes.php:1142
+#: ../include/classes.php:1150
+msgid "Disable by adding any single character"
+msgstr ""
+
+#: ../include/classes.php:1142
+#, php-format
 msgid "Your search matches %s products"
 msgstr "Ditt søk samsvarer med %s produkter"
 
+#: ../include/classes.php:1150
+#, php-format
+msgid "Here are your %s saved products"
+msgstr ""
+
+#: ../include/classes.php:1158
+msgid "Send request for quote"
+msgstr ""
+
+#: ../include/classes.php:1166
 msgid "Choose"
 msgstr "Velg"
 
+#: ../include/classes.php:1173
+msgid "but not on Search"
+msgstr ""
+
+#: ../include/classes.php:1215
+#, fuzzy
+msgid "Add to Search"
+msgstr "Søk"
+
+#: ../include/classes.php:1223
+msgid "Remove from Search"
+msgstr ""
+
+#: ../include/classes.php:1231
+msgid "Return to Search"
+msgstr ""
+
+#: ../include/classes.php:1239
+#, fuzzy
+msgid "Search for Another"
+msgstr "Søk etter"
+
+#: ../include/classes.php:1249
+msgid "Send request for quote to"
+msgstr ""
+
+#: ../include/classes.php:1257
+#: ../include/classes.php:1506
+msgid "You have to choose at least one product to proceed"
+msgstr ""
+
+#: ../include/classes.php:1265
+msgid "Email Your Products"
+msgstr ""
+
+#: ../include/classes.php:1273
+msgid "In order to send a quote you have to be specific what you want by filtering"
+msgstr ""
+
+#: ../include/classes.php:1279
+msgid "I would like to share these products that I like"
+msgstr ""
+
+#: ../include/classes.php:1287
+#, php-format
+msgid "Here are my favorites (%s)"
+msgstr ""
+
+#: ../include/classes.php:1301
+msgid "Get yours here"
+msgstr ""
+
+#: ../include/classes.php:1311
+#, fuzzy
+msgid "Show Map"
+msgstr "Vis alle"
+
+#: ../include/classes.php:1319
+msgid "Hide Map"
+msgstr ""
+
+#: ../include/classes.php:1339
+msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
+msgstr ""
+
+#: ../include/classes.php:1363
+#, php-format
+msgid "%d will hide the link in the form"
+msgstr ""
+
+#: ../include/classes.php:1468
+msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
+msgstr ""
+
+#: ../include/classes.php:1502
+#: ../include/templates/single-mf_category.php:68
 msgid "Read More"
 msgstr "Les Mer"
 
-msgid "Add New"
-msgstr "Legg til ny"
+#: ../include/classes.php:1523
+msgid "Local Storage was successfully cleared on this device"
+msgstr ""
 
-msgid "All"
-msgstr "Alle"
+#: ../include/classes.php:1564
+msgid "When searching we store information in the so called 'localStorage' in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
+msgstr ""
 
-msgid "Delete"
-msgstr "Slett"
+#: ../include/classes.php:1602
+msgid "Are you sure?"
+msgstr ""
 
+#: ../include/classes.php:1608
+msgid "Name"
+msgstr ""
+
+#: ../include/classes.php:1619
+msgid "Edit"
+msgstr ""
+
+#: ../include/classes.php:1620
+msgid "Edit in Admin"
+msgstr ""
+
+#: ../include/classes.php:1621
+msgid "View"
+msgstr ""
+
+#: ../include/classes.php:1632
+msgid "You haven't added anything yet"
+msgstr ""
+
+#: ../include/classes.php:1636
+#, fuzzy
+msgid "Choose Category Here"
+msgstr "Velg Her"
+
+#: ../include/classes.php:1640
+#, fuzzy
+msgid "Title"
+msgstr "Fil"
+
+#: ../include/api/index.php:160
+#: ../include/api/index.php:192
+#, php-format
+msgid "You have to install the plugin %s first"
+msgstr ""
+
+#: ../include/api/index.php:578
+#: ../include/api/index.php:617
+#, php-format
 msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Jeg har lagret informasjonen for deg. %sSe siden her%s"
+msgstr "Informationen sparad. %sSe inlägg%s"
 
+#: ../include/api/index.php:589
 msgid "I could not update the information for you"
 msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
 
+#: ../include/api/index.php:595
 msgid "It does not look like you changed anything, so nothing was saved"
 msgstr "Det ser ikke ut som om du har endret noe, så ingenting ble lagret"
 
+#: ../include/api/index.php:624
 msgid "I could not save the information for you"
 msgstr "Jeg kunne ikke lagre informasjonen for deg"
 
+#: ../include/api/index.php:630
+msgid "One with that title already exists"
+msgstr ""
+
+#: ../orders/index.php:98
 msgid "Search for"
 msgstr "Søk etter"
 
+#: ../orders/index.php:145
+msgid "The amount in stock and in the order is wrong"
+msgstr ""
+
+#: ../orders/index.php:168
+msgid "The order was deleted"
+msgstr ""
+
+#: ../orders/index.php:196
+msgid "Shipping info"
+msgstr ""
+
+#: ../orders/index.php:197
+#, php-format
+msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
+msgstr ""
+
+#: ../orders/index.php:204
+msgid "Orders"
+msgstr ""
+
+#: ../orders/index.php:219
+#: ../orders/index.php:248
+msgid "Invoice sent"
+msgstr ""
+
+#: ../orders/index.php:220
+#: ../orders/index.php:264
+#, fuzzy
+msgid "Delivered"
+msgstr "Slett"
+
+#: ../orders/index.php:221
+msgid "Ordered by"
+msgstr ""
+
+#: ../orders/index.php:222
 msgid "Created"
 msgstr "Opprettet"
 
+#: ../orders/index.php:289
+msgid "Delete"
+msgstr "Slett"
+
+#: ../stats/index.php:29
+msgid "All"
+msgstr "Alle"
+
+#: ../stats/index.php:34
+msgid "Statistics"
+msgstr ""
+
+#: ../stats/index.php:54
 msgid "unknown"
 msgstr "ukjent"
 
+#: ../stats/index.php:65
+#, fuzzy
+msgid "Monthly"
+msgstr "Måneder"
+
+#: ../stats/index.php:103
 msgid "Months"
 msgstr "Måneder"
 
+#: ../stats/index.php:111
+#, fuzzy
+msgid "Years"
+msgstr "Ja"
+
+#: ../stats/index.php:123
+#, fuzzy
+msgid "Filter"
+msgstr "Fil"
+
+#: ../stats/index.php:125
+msgid "Limit"
+msgstr ""
+
+#: ../stats/index.php:127
 msgid "From"
 msgstr "Fra"
 
+#: ../stats/index.php:128
+msgid "To"
+msgstr ""
+
+#: ../stats/index.php:157
+msgid "Overall"
+msgstr ""
+
+#: ../stats/index.php:159
 msgid "First answer"
 msgstr "Første svar"
 
+#: ../stats/index.php:160
 msgid "Latest answer"
 msgstr "Siste svar"
 
+#~ msgid "Add New"
+#~ msgstr "Legg til ny"

@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.2.9
+Version: 2.1.2.11
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -51,6 +51,7 @@ if(is_admin())
 	add_action('rwmb_meta_boxes', array($obj_webshop, 'rwmb_meta_boxes'));
 	add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 	add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
+	add_action('rwmb_after_save_post', array($obj_webshop, 'rwmb_after_save_post'));
 
 	add_action('manage_users_columns', array($obj_webshop, 'manage_users_columns'));
 	add_action('manage_users_custom_column', array($obj_webshop, 'manage_users_custom_column'), 10, 3);

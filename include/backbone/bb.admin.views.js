@@ -16,7 +16,7 @@ var WebshopAdminView = Backbone.View.extend(
 		"blur .event_children .form_textfield input": "add_event_field",
 		"change .event_children .form_textfield input": "add_event_field",
 		"click .event_children .event_name .description .fa-trash": "clear_event_field",
-		"keyup .event_children .event_location input": "clear_coordinates",
+		"keyup .maps_location input": "clear_coordinates",
 	},
 
 	do_redirect: function()
@@ -107,6 +107,8 @@ var WebshopAdminView = Backbone.View.extend(
 		if(api_url == '')
 		{
 			this.model.submitForm(dom_action, dom_obj.serialize());
+
+			dom_obj.find("button[type='submit']").addClass('disabled').attr('disabled', true);
 
 			return false;
 		}
@@ -229,7 +231,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 	clear_coordinates: function(e)
 	{
-		jQuery(e.currentTarget).parent(".form_textfield").siblings(".event_coordinates").val('');
+		jQuery(e.currentTarget).parent(".form_textfield").siblings(".maps_coordinates").val('');
 	}
 });
 

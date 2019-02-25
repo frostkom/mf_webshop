@@ -161,6 +161,11 @@ switch($type_switch)
 													}
 												break;
 
+												case 'file_advanced':
+													//$arr_meta_boxes[$box_id]['fields'][$field_id]['max_file_uploads'] = 
+													//$arr_meta_boxes[$box_id]['fields'][$field_id]['mime_type'] = 
+												break;
+
 												case 'location':
 												case 'select3':
 													$multiple_temp = true;
@@ -227,6 +232,12 @@ switch($type_switch)
 													}
 												break;
 
+												/*case 'categories':
+													$value_temp = get_post_meta($post_id, $id_temp, false);
+
+													do_log("Cat: ".var_export($value_temp, true));
+												break;*/
+
 												case 'custom_categories':
 												case 'education':
 												//case 'event':
@@ -235,7 +246,7 @@ switch($type_switch)
 												case 'select3':
 													$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
 
-													if(isset($value_temp[0]))
+													if(isset($value_temp[0]) && is_array($value_temp[0]))
 													{
 														$value_temp = $value_temp[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
 													}
@@ -529,6 +540,12 @@ switch($type_switch)
 
 													list($arr_files, $arr_ids) = get_attachment_to_send($post_value_new);
 
+													// Use this instead?
+													/*if($obj_webshop->update_rwmb_post_meta($post_id, $id_temp, $arr_ids))
+													{
+														$updated = true;
+													}*/
+													#################################
 													/* Delete old connections */
 													$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
 
@@ -552,6 +569,21 @@ switch($type_switch)
 															}
 														}
 													}
+													#################################
+												break;
+
+												//case 'custom_categories':
+												//case 'education':
+												//case 'event':
+												//case 'location':
+												//case 'select':
+												case 'select3':
+													$post_value_new = check_var($id_temp, ($multiple_temp == true ? 'array' : 'char'));
+
+													if($obj_webshop->update_rwmb_post_meta($post_id, $id_temp, $post_value_new))
+													{
+														$updated = true;
+													}
 												break;
 
 												default:
@@ -574,6 +606,9 @@ switch($type_switch)
 							{
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{
+									//do_action('rwmb_after_save_post', $post_id);
+									$obj_webshop->rwmb_after_save_post($post_id);
+
 									$json_output['success'] = true;
 									$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
 									//$json_output['debug'] = "Updated: ".$wpdb->last_query;
@@ -613,6 +648,9 @@ switch($type_switch)
 
 							if($post_id > 0)
 							{
+								//do_action('rwmb_after_save_post', $post_id);
+								$obj_webshop->rwmb_after_save_post($post_id);
+
 								$json_output['success'] = true;
 								$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
 								$json_output['next_request'] = "admin/webshop/edit/".$post_id;
