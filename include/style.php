@@ -220,38 +220,6 @@ else
 	}";
 }
 
-/*if(isset($mobile_search_show))
-{
-	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:first-of-type
-	{
-		display: ".$mobile_search_show.";
-	}";
-}
-
-if(isset($mobile_search_hide))
-{
-	$map_visibility_mobile .= ".page-template-default .is_map_toggler span:last-of-type
-	{
-		display: ".$mobile_search_hide.";
-	}";
-}
-
-if(isset($mobile_product_show))
-{
-	$map_visibility_mobile .= "body.single .is_map_toggler span:first-of-type
-	{
-		display: ".$mobile_product_show.";
-	}";
-}
-
-if(isset($mobile_product_hide))
-{
-	$map_visibility_mobile .= "body.single .is_map_toggler span:last-of-type
-	{
-		display: ".$mobile_product_hide.";
-	}";
-}*/
-
 echo "@media all
 {
 	.info_text p, p.info_text, .info_text h3
@@ -300,6 +268,19 @@ echo "@media all
 		color: inherit;
 		text-decoration: none;
 	}
+
+		body.single #wrapper h1 .image
+		{
+			float: left;
+			margin-right: .4em;
+			width: 2em;
+		}
+
+		body.single #wrapper h1 span
+		{
+			display: block;
+			font-size: .5em;
+		}
 
 		section > img
 		{
@@ -511,12 +492,7 @@ echo "@media all
 							opacity: 1;
 							-webkit-transform: translateY(0%, -50%);
 							transform: translate(0%, -50%);
-						}
-
-	.webshop_widget .widget_load_more
-	{
-		text-align: center;
-	}";
+						}";
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
@@ -529,7 +505,12 @@ echo "@media all
 
 		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");
 
-		echo ".widget.webshop_events .event_filters
+		echo ".webshop_widget .widget_load_more
+		{
+			text-align: center;
+		}
+
+		.widget.webshop_events .event_filters
 		{
 			margin-bottom: 0;
 			padding-bottom: 0;
@@ -805,7 +786,65 @@ echo "@media all
 			.webshop_product_meta .webshop_category span
 			{
 				margin-right: .3em;
-			}";
+			}
+
+		.widget.webshop_product_meta .type_actions
+		{
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-box-flex-wrap: wrap;
+			-webkit-flex-wrap: wrap;
+			-ms-flex-wrap: wrap;
+			flex-wrap: wrap;
+			list-style: none;
+		}
+
+			.widget.webshop_product_meta .type_actions li
+			{
+				background: #eee;
+				border-radius: .5em;
+				display: block;
+				-webkit-box-flex: 0 0 10em;
+				-webkit-flex: 0 0 10em;
+				-ms-flex: 0 0 10em;
+				flex: 0 0 10em;
+				margin: 0 1em 1em 0;
+				position: relative;
+				text-align: center;
+			}
+
+				.widget.webshop_product_meta .type_actions li:last-of-type
+				{
+					margin-right: 0;
+				}
+
+					.widget.webshop_product_meta .type_actions li a
+					{
+						border-bottom: 0;
+						display: block;
+						padding: 1em 0;
+					}
+
+						.widget.webshop_product_meta .type_actions li a:hover
+						{
+							text-shadow: 0 0 1em rgba(0, 0, 0, .3);
+						}
+
+							.widget.webshop_product_meta .type_actions li i
+							{
+								color: rgba(0, 0, 0, .3);
+								display: block;
+								font-size: 3em;
+							}
+
+								.widget.webshop_product_meta .type_actions li i + span
+								{
+									color: rgba(0, 0, 0, .3);
+									display: inline-block;
+									margin-top: .5em;
+								}";
 	}
 
 	echo "/* Map */

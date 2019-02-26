@@ -25,12 +25,12 @@ jQuery(function($)
 			connect_obj.val(out);
 		}
 	});
-	
+
 	$(".rwmb-coordinates-wrapper").each(function()
 	{
 		$(this).addClass('hide');
 	});
-	
+
 	$(".maps_location").on('keyup', function(e)
 	{
 		$(e.currentTarget).parents(".rwmb-field").siblings(".rwmb-coordinates-wrapper").find(".maps_coordinates").val('');
