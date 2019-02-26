@@ -834,14 +834,14 @@ echo "@media all
 
 							.widget.webshop_product_meta .type_actions li i
 							{
-								color: rgba(0, 0, 0, .3);
+								color: rgba(0, 0, 0, .6);
 								display: block;
 								font-size: 3em;
 							}
 
 								.widget.webshop_product_meta .type_actions li i + span
 								{
-									color: rgba(0, 0, 0, .3);
+									color: rgba(0, 0, 0, .6);
 									display: inline-block;
 									margin-top: .5em;
 								}";

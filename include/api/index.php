@@ -161,11 +161,6 @@ switch($type_switch)
 													}
 												break;
 
-												case 'file_advanced':
-													//$arr_meta_boxes[$box_id]['fields'][$field_id]['max_file_uploads'] = 
-													//$arr_meta_boxes[$box_id]['fields'][$field_id]['mime_type'] = 
-												break;
-
 												case 'location':
 												case 'select3':
 													$multiple_temp = true;

@@ -802,6 +802,11 @@ class mf_webshop
 
 			$arr_settings['setting_webshop_display_images|'.$option_type] = __("Display Images", 'lang_webshop');
 
+			if(get_option('setting_webshop_display_images'.$this->option_type) != 'no')
+			{
+				$arr_settings['setting_webshop_max_file_uploads|'.$option_type] = __("Amount of Images", 'lang_webshop');
+			}
+
 			if(is_plugin_active("mf_form/index.php"))
 			{
 				$arr_settings['setting_quote_form|'.$option_type] = __("Form for quote request", 'lang_webshop');
@@ -1236,6 +1241,14 @@ class mf_webshop
 		$option = get_option($setting_key, 'yes');
 
 		echo show_select(array('data' => $this->get_image_alt_for_select(), 'name' => $setting_key, 'value' => $option));
+	}
+
+	function setting_webshop_max_file_uploads_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='10'"));
 	}
 
 	function setting_webshop_switch_icon_on_callback($args = array())
@@ -1836,7 +1849,7 @@ class mf_webshop
 													break;
 
 													case 'file_advanced': %>"
-														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true)) //'max_file_uploads' => ""
+														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true, 'max_file_uploads' => "<%= meta_field.max_file_uploads %>")) // 'mime_type' => "<%= meta_field.mime_type %>"
 													."<% break;
 
 													case 'ghost': %>
@@ -3034,11 +3047,13 @@ class mf_webshop
 
 			if(get_option('setting_webshop_display_images'.$this->option_type) != 'no')
 			{
+				$setting_webshop_max_file_uploads = get_option_or_default('setting_webshop_max_file_uploads'.$this->option_type, 0);
+
 				$fields_settings[] = array(
 					'name' => __("Image", 'lang_webshop'),
 					'id' => $this->meta_prefix.'product_image',
 					'type' => 'file_advanced',
-					//'max_file_uploads' => 1,
+					'max_file_uploads' => $setting_webshop_max_file_uploads,
 					'mime_type' => 'image',
 				);
 			}

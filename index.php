@@ -255,6 +255,8 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_symbol_active'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_filter_products'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_replace_search_result_info'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_display_images'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_max_file_uploads'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_favorites_info'.$obj_webshop->option_type;
 
 		$arr_option_types[] = $obj_webshop->post_type_categories.$obj_webshop->option_type;
