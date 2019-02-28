@@ -3271,8 +3271,6 @@ class mf_webshop
 
 				$result = $this->get_post_type_info(array('type' => 'file_advanced'));
 
-				do_log("Test: ".var_export($result, true));
-
 				if(isset($result->post_title))
 				{
 					$product_image_title = $result->post_title;
