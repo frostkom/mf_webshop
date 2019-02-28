@@ -496,355 +496,382 @@ echo "@media all
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
-		$setting_calendar_date_bg = get_option_or_default('setting_calendar_date_bg', '#019cdb');
-
 		$obj_calendar = new mf_calendar();
+
+		$setting_calendar_date_bg = get_option_or_default('setting_calendar_date_bg', '#019cdb');
 
 		$rgb = $obj_calendar->HTMLToRGB($setting_calendar_date_bg);
 		$hsl = $obj_calendar->RGBToHSL($rgb);
 
 		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");
 
-		echo ".webshop_widget .widget_load_more
+		if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0)
 		{
-			text-align: center;
-		}
-
-		.widget.webshop_events .event_filters
-		{
-			margin-bottom: 0;
-			padding-bottom: 0;
-		}
-
-		.webshop_events .calendar_container
-		{
-			background-color: #fff;
-			border: .1em solid #eee;
-			border-bottom: 0;
-		}
-
-			.webshop_events .calendar_header
+			echo ".webshop_widget .widget_load_more
 			{
-				border-bottom: .1em solid #eee;
 				text-align: center;
-				padding: 1em 0;
 			}
 
-				.webshop_events .calendar_header button
-				{
-					background: none !important;
-					border: 0;
-					color: inherit !important;
-					cursor: pointer;
-					font-size: 1em;
-					padding: 0 .5em;
-				}
-
-			.webshop_events .calendar_days
+			.widget.webshop_events .event_filters
 			{
-				display: grid;
-				grid-template-columns: repeat(7, 1fr);
-				grid-template-rows: 3.2em;
-				grid-auto-rows: minmax(4.5em, auto);
+				margin-bottom: 0;
+				padding-bottom: 0;
 			}
 
-				.webshop_events .calendar_days .day_name
+			.webshop_events .calendar_container
+			{
+				background-color: #fff;
+				border: .1em solid #eee;
+				border-bottom: 0;
+			}
+
+				.webshop_events .calendar_header
 				{
 					border-bottom: .1em solid #eee;
-					font-weight: bold;
-					font-size: .8em;
-					line-height: 4;
-					text-transform: uppercase;
 					text-align: center;
+					padding: 1em 0;
 				}
 
-				.webshop_events .calendar_days .day
+					.webshop_events .calendar_header button
+					{
+						background: none !important;
+						border: 0;
+						color: inherit !important;
+						cursor: pointer;
+						font-size: 1em;
+						padding: 0 .5em;
+					}
+
+				.webshop_events .calendar_days
 				{
-					background-color: #fff;
-					border-bottom: .1em solid #eee;
-					border-right: .1em solid #eee;
-					color: #999;
-					font-size: 1em;
-					overflow: hidden;
-					text-align: center;
-					transition: all 1s ease;
+					display: grid;
+					grid-template-columns: repeat(7, 1fr);
+					grid-template-rows: 3.2em;
+					grid-auto-rows: minmax(4.5em, auto);
 				}
 
-					.webshop_events .calendar_days .day:hover
+					.webshop_events .calendar_days .day_name
 					{
-						background-color: #eee;
+						border-bottom: .1em solid #eee;
+						font-weight: bold;
+						font-size: .8em;
+						line-height: 4;
+						text-transform: uppercase;
+						text-align: center;
 					}
 
-					.webshop_events .calendar_days .day.today
+					.webshop_events .calendar_days .day
 					{
-						background-color: ".$setting_calendar_date_bg.";
-					}
-
-						.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
-						{
-							color: ".$setting_calendar_date_text_color.";
-						}
-
-					.webshop_events .calendar_days .day.disabled
-					{
-						background-image: url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f6f6f6' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0H10L0 10M20 20V10L10 20'/%3E%3C/g%3E%3C/svg%3E\");
-						cursor: not-allowed;
-					}
-
-					.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
-					{
-						display: block;
-						padding-top: .8em;
+						background-color: #fff;
+						border-bottom: .1em solid #eee;
+						border-right: .1em solid #eee;
+						color: #999;
+						font-size: 1em;
+						overflow: hidden;
+						text-align: center;
 						transition: all 1s ease;
 					}
 
-						.webshop_events .calendar_days .day:hover a, .webshop_events .calendar_days .day:hover span
+						.webshop_events .calendar_days .day:hover
 						{
-							-webkit-transform: scale(1.5);
-							transform: scale(1.5);
+							background-color: #eee;
 						}
 
-					.webshop_events .calendar_days .day ul
-					{
-						list-style: none;
-					}
-
-						.webshop_events .calendar_days .day li
+						.webshop_events .calendar_days .day.today
 						{
-							background: #999;
-							border-radius: 50%;
-							content: ' ';
-							display: inline-block;
-							height: .5em;
-							width: .5em;
+							background-color: ".$setting_calendar_date_bg.";
 						}
 
-					.webshop_events .calendar_days .day:nth-of-type(7n + 7)
-					{
-						border-right: 0;
-					}
-
-					.webshop_events .calendar_days .day:nth-of-type(n + 1):nth-of-type(-n + 7){			grid-row: 2;}
-					.webshop_events .calendar_days .day:nth-of-type(n + 8):nth-of-type(-n + 14){		grid-row: 3;}
-					.webshop_events .calendar_days .day:nth-of-type(n + 15):nth-of-type(-n + 21){		grid-row: 4;}
-					.webshop_events .calendar_days .day:nth-of-type(n + 22):nth-of-type(-n + 28){		grid-row: 5;}
-					.webshop_events .calendar_days .day:nth-of-type(n + 29):nth-of-type(-n + 35){		grid-row: 6;}
-
-					.webshop_events .calendar_days .day:nth-of-type(7n + 1){							grid-column: 1/1;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 2){							grid-column: 2/2;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 3){							grid-column: 3/3;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 4){							grid-column: 4/4;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 5){							grid-column: 5/5;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 6){							grid-column: 6/6;}
-					.webshop_events .calendar_days .day:nth-of-type(7n + 7){							grid-column: 7/7;}";
-
-				/*echo ".webshop_events .calendar_days .task
-				{
-					border-left: .3em solid;
-					font-size: .8em;
-					margin: .5em;
-					padding: .5em .8em;
-				}
-
-					.webshop_events .calendar_days .task.warning
-					{
-						background: #fef0db;
-						border-left-color: #fdb44d;
-						color: #fc9b10;
-					}
-
-					.webshop_events .calendar_days .task.danger
-					{
-						background: #f9d1d9;
-						border-left-color: #fa607e;
-						color: #f8254e;
-					}
-
-					.webshop_events .calendar_days .task.info
-					{
-						background: #e2ecfd;
-						border-left-color: #4786ff;
-						color: #0a5eff;
-					}";*/
-
-		echo ".webshop_events .event_filters .event_calendar + .product_categories
-		{
-			margin-top: 1em;
-		}
-
-		.webshop_events .list_item
-		{
-			background: #f2f2f2;
-			border-left: .3em solid #e2e2e2;
-		}
-
-			.webshop_events .list_item:hover
-			{
-				background: #e9e9e9;
-				border-left-width: .6em;
-			}
-
-				#wrapper .webshop_events li .event_date
-				{
-					-webkit-box-flex: 0 0 4em;
-					-webkit-flex: 0 0 4em;
-					-ms-flex: 0 0 4em;
-					flex: 0 0 4em;
-				}
-
-					#wrapper .webshop_events li .event_date > div:first-of-type
-					{
-						font-size: 2em;
-					}
-
-						#wrapper .webshop_events li .event_date sup
-						{
-							font-size: .5em;
-							white-space: nowrap;
-						}
-
-						#wrapper .webshop_events li .event_date > div:first-of-type span
-						{
-							float: left;
-							text-align: center;
-							width: 60%;
-						}
-
-							#wrapper .webshop_events li .event_date > div:first-of-type span + span
+							.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
 							{
-								font-size: .35em;
-								padding-top: .5em;
-								padding-left: 5%;
-								width: 35%;
+								color: ".$setting_calendar_date_text_color.";
 							}
 
-					#wrapper .webshop_events li .event_date > div:last-of-type
-					{
-						clear: both;
-						text-transform: uppercase;
-					}";
-
-		$result = $obj_calendar->get_calendar_colors();
-
-		foreach($result as $r)
-		{
-			$post_id = $r->ID;
-			$post_color = $r->meta_value;
-
-			echo ".webshop_events li.calendar_feed_".$post_id."
-			{
-				border-left-color: ".$post_color.";
-			}
-
-				#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
-				{
-					color: ".$post_color.";
-				}
-
-			.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
-			{
-				background: ".$post_color.";
-			}";
-		}
-
-		$result = $obj_webshop->get_category_colors();
-
-		foreach($result as $r)
-		{
-			$post_id = $r->ID;
-			$post_color = $r->meta_value;
-
-			echo ".webshop_events li.event_category_".$post_id."
-			{
-				border-left-color: ".$post_color.";
-			}
-
-				#wrapper .webshop_events li.event_category_".$post_id." h2 a
-				{
-					color: ".$post_color.";
-				}
-
-			.webshop_events .calendar_days .day li.event_category_".$post_id."
-			{
-				background: ".$post_color.";
-			}";
-		}
-
-		echo ".aside .webshop_product_meta .webshop_category
-		{
-			background-color: ".$setting_calendar_date_bg.";
-			color: ".$setting_calendar_date_text_color.";
-			padding-right: .5em;
-			padding-left: .5em;
-		}
-
-			.webshop_product_meta .webshop_category i
-			{
-				margin-right: .4em;
-			}
-
-			.webshop_product_meta .webshop_category span
-			{
-				margin-right: .3em;
-			}
-
-		.widget.webshop_product_meta .type_actions
-		{
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: -webkit-flex;
-			display: flex;
-			-webkit-box-flex-wrap: wrap;
-			-webkit-flex-wrap: wrap;
-			-ms-flex-wrap: wrap;
-			flex-wrap: wrap;
-			list-style: none;
-		}
-
-			.widget.webshop_product_meta .type_actions li
-			{
-				background: #eee;
-				border-radius: .5em;
-				display: block;
-				-webkit-box-flex: 0 0 10em;
-				-webkit-flex: 0 0 10em;
-				-ms-flex: 0 0 10em;
-				flex: 0 0 10em;
-				margin: 0 1em 1em 0;
-				position: relative;
-				text-align: center;
-			}
-
-				.widget.webshop_product_meta .type_actions li:last-of-type
-				{
-					margin-right: 0;
-				}
-
-					.widget.webshop_product_meta .type_actions li a
-					{
-						border-bottom: 0;
-						display: block;
-						padding: 1em 0;
-					}
-
-						.widget.webshop_product_meta .type_actions li a:hover
+						.webshop_events .calendar_days .day.disabled
 						{
-							text-shadow: 0 0 1em rgba(0, 0, 0, .3);
+							background-image: url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f6f6f6' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0H10L0 10M20 20V10L10 20'/%3E%3C/g%3E%3C/svg%3E\");
+							cursor: not-allowed;
 						}
 
-							.widget.webshop_product_meta .type_actions li i
+						.webshop_events .calendar_days .day a, .webshop_events .calendar_days .day span
+						{
+							display: block;
+							padding-top: .8em;
+							transition: all 1s ease;
+						}
+
+							.webshop_events .calendar_days .day:hover a, .webshop_events .calendar_days .day:hover span
 							{
-								color: rgba(0, 0, 0, .6);
-								display: block;
-								font-size: 3em;
+								-webkit-transform: scale(1.5);
+								transform: scale(1.5);
 							}
 
-								.widget.webshop_product_meta .type_actions li i + span
+						.webshop_events .calendar_days .day ul
+						{
+							list-style: none;
+						}
+
+							.webshop_events .calendar_days .day li
+							{
+								background: #999;
+								border-radius: 50%;
+								content: ' ';
+								display: inline-block;
+								height: .5em;
+								width: .5em;
+							}
+
+						.webshop_events .calendar_days .day:nth-of-type(7n + 7)
+						{
+							border-right: 0;
+						}
+
+						.webshop_events .calendar_days .day:nth-of-type(n + 1):nth-of-type(-n + 7){			grid-row: 2;}
+						.webshop_events .calendar_days .day:nth-of-type(n + 8):nth-of-type(-n + 14){		grid-row: 3;}
+						.webshop_events .calendar_days .day:nth-of-type(n + 15):nth-of-type(-n + 21){		grid-row: 4;}
+						.webshop_events .calendar_days .day:nth-of-type(n + 22):nth-of-type(-n + 28){		grid-row: 5;}
+						.webshop_events .calendar_days .day:nth-of-type(n + 29):nth-of-type(-n + 35){		grid-row: 6;}
+
+						.webshop_events .calendar_days .day:nth-of-type(7n + 1){							grid-column: 1/1;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 2){							grid-column: 2/2;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 3){							grid-column: 3/3;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 4){							grid-column: 4/4;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 5){							grid-column: 5/5;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 6){							grid-column: 6/6;}
+						.webshop_events .calendar_days .day:nth-of-type(7n + 7){							grid-column: 7/7;}";
+
+					/*echo ".webshop_events .calendar_days .task
+					{
+						border-left: .3em solid;
+						font-size: .8em;
+						margin: .5em;
+						padding: .5em .8em;
+					}
+
+						.webshop_events .calendar_days .task.warning
+						{
+							background: #fef0db;
+							border-left-color: #fdb44d;
+							color: #fc9b10;
+						}
+
+						.webshop_events .calendar_days .task.danger
+						{
+							background: #f9d1d9;
+							border-left-color: #fa607e;
+							color: #f8254e;
+						}
+
+						.webshop_events .calendar_days .task.info
+						{
+							background: #e2ecfd;
+							border-left-color: #4786ff;
+							color: #0a5eff;
+						}";*/
+
+			echo ".webshop_events .event_filters .event_calendar + .product_categories
+			{
+				margin-top: 1em;
+			}
+
+			.webshop_events .list_item
+			{
+				background: #f2f2f2;
+				border-left: .3em solid #e2e2e2;
+			}
+
+				.webshop_events .list_item:hover
+				{
+					background: #e9e9e9;
+					border-left-width: .6em;
+				}
+
+					#wrapper .webshop_events li .event_date
+					{
+						-webkit-box-flex: 0 0 4em;
+						-webkit-flex: 0 0 4em;
+						-ms-flex: 0 0 4em;
+						flex: 0 0 4em;
+					}
+
+						#wrapper .webshop_events li .event_date > div:first-of-type
+						{
+							font-size: 2em;
+						}
+
+							#wrapper .webshop_events li .event_date sup
+							{
+								font-size: .5em;
+								white-space: nowrap;
+							}
+
+							#wrapper .webshop_events li .event_date > div:first-of-type span
+							{
+								float: left;
+								text-align: center;
+								width: 60%;
+							}
+
+								#wrapper .webshop_events li .event_date > div:first-of-type span + span
+								{
+									font-size: .35em;
+									padding-top: .5em;
+									padding-left: 5%;
+									width: 35%;
+								}
+
+						#wrapper .webshop_events li .event_date > div:last-of-type
+						{
+							clear: both;
+							text-transform: uppercase;
+						}";
+
+			$result = $obj_calendar->get_calendar_colors();
+
+			foreach($result as $r)
+			{
+				$post_id = $r->ID;
+				$post_color = $r->meta_value;
+
+				echo ".webshop_events li.calendar_feed_".$post_id."
+				{
+					border-left-color: ".$post_color.";
+				}
+
+					#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
+					{
+						color: ".$post_color.";
+					}
+
+				.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
+				{
+					background: ".$post_color.";
+				}";
+			}
+
+			$result = $obj_webshop->get_category_colors();
+
+			foreach($result as $r)
+			{
+				$post_id = $r->ID;
+				$post_color = $r->meta_value;
+
+				echo ".webshop_events li.event_category_".$post_id."
+				{
+					border-left-color: ".$post_color.";
+				}
+
+					#wrapper .webshop_events li.event_category_".$post_id." h2 a
+					{
+						color: ".$post_color.";
+					}
+
+				.webshop_events .calendar_days .day li.event_category_".$post_id."
+				{
+					background: ".$post_color.";
+				}";
+			}
+		}
+
+		if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-product_meta-widget') > 0)
+		{
+			echo ".aside .webshop_product_meta .webshop_category
+			{
+				background-color: ".$setting_calendar_date_bg.";
+				color: ".$setting_calendar_date_text_color.";
+				padding-right: .5em;
+				padding-left: .5em;
+			}
+
+				.webshop_product_meta .webshop_category i
+				{
+					margin-right: .4em;
+				}
+
+				.webshop_product_meta .webshop_category span
+				{
+					margin-right: .3em;
+				}
+
+			.widget.webshop_product_meta .type_event_info
+			{
+				
+			}
+			
+				.widget.webshop_product_meta .type_event_info li
+				{
+					border-top: .1em solid #ccc;
+					padding: 1em 0;
+				}
+
+					.widget.webshop_product_meta .type_event_info li:last-of-type
+					{
+						border-bottom: .1em solid #ccc;
+					}
+
+					.widget.webshop_product_meta .type_event_info li i
+					{
+						margin-right: .5em;
+					}
+
+			.widget.webshop_product_meta .type_actions
+			{
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-flex-wrap: wrap;
+				-webkit-flex-wrap: wrap;
+				-ms-flex-wrap: wrap;
+				flex-wrap: wrap;
+				list-style: none;
+			}
+
+				.widget.webshop_product_meta .type_actions li
+				{
+					background: #eee;
+					border-radius: .5em;
+					display: block;
+					-webkit-box-flex: 0 0 10em;
+					-webkit-flex: 0 0 10em;
+					-ms-flex: 0 0 10em;
+					flex: 0 0 10em;
+					margin: 0 1em 1em 0;
+					position: relative;
+					text-align: center;
+				}
+
+					.widget.webshop_product_meta .type_actions li:last-of-type
+					{
+						margin-right: 0;
+					}
+
+						.widget.webshop_product_meta .type_actions li a
+						{
+							border-bottom: 0;
+							display: block;
+							padding: 1em 0;
+						}
+
+							.widget.webshop_product_meta .type_actions li a:hover
+							{
+								text-shadow: 0 0 1em rgba(0, 0, 0, .3);
+							}
+
+								.widget.webshop_product_meta .type_actions li i
 								{
 									color: rgba(0, 0, 0, .6);
-									display: inline-block;
-									margin-top: .5em;
-								}";
+									display: block;
+									font-size: 3em;
+								}
+
+									.widget.webshop_product_meta .type_actions li i + span
+									{
+										color: rgba(0, 0, 0, .6);
+										display: inline-block;
+										margin-top: .5em;
+									}";
+		}
 	}
 
 	echo "/* Map */
@@ -903,8 +930,8 @@ echo "@media all
 					opacity: 1;
 				}
 
-	/* Search */
-	.page-template-template_webshop_search #mf-content > div
+	/* Search */";
+	/*.page-template-template_webshop_search #mf-content > div
 	{
 		padding: 0;
 	}
@@ -919,9 +946,9 @@ echo "@media all
 		position: sticky;
 		top: 0;
 		z-index: 9;
-	}
+	}*/
 
-	#main > #product_form
+	echo "#main > #product_form
 	{
 		display: -webkit-box;
 		display: -ms-flexbox;

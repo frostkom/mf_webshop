@@ -227,12 +227,6 @@ switch($type_switch)
 													}
 												break;
 
-												/*case 'categories':
-													$value_temp = get_post_meta($post_id, $id_temp, false);
-
-													do_log("Cat: ".var_export($value_temp, true));
-												break;*/
-
 												case 'custom_categories':
 												case 'education':
 												//case 'event':
@@ -264,7 +258,7 @@ switch($type_switch)
 													break;
 
 													case 'event':
-														$obj_webshop->create_product_event_connection($post_id); //$value_temp = 
+														$obj_webshop->create_product_event_connection($post_id);
 													break;
 												}
 											}
@@ -273,7 +267,7 @@ switch($type_switch)
 											switch($type_temp)
 											{
 												case 'event':
-													if(is_plugin_active('mf_calendar/index.php'))
+													if(is_plugin_active("mf_calendar/index.php"))
 													{
 														$obj_calendar = new mf_calendar();
 
@@ -283,7 +277,6 @@ switch($type_switch)
 														{
 															$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
 															$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);
-															$event_category = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'category', true);
 															$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
 															$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
 
@@ -295,12 +288,41 @@ switch($type_switch)
 																'text' => $r_children->post_content,
 																'location' => $event_location,
 																'coordinates' => $event_coordinates,
-																'category' => $event_category,
 																'start_date' => $event_start_date,
 																'start_time' => $event_start_time,
 																'end_date' => $event_end_date,
 																'end_time' => $event_end_time,
 															);
+
+															$arr_event_fields = array();
+
+															list($product_id, $option_type) = $obj_webshop->get_product_id_from_calendar($r_children->ID);
+
+															if($product_id > 0)
+															{
+																$arr_event_fields = $obj_webshop->get_events_meta_boxes($option_type, $arr_event_fields);
+
+																foreach($arr_event_fields as $key => $arr_field)
+																{
+																	switch($arr_field['type'])
+																	{
+																		case 'checkbox':
+																			$arr_event_fields[$key]['type'] = 'select';
+																			$arr_event_fields[$key]['options'] = get_yes_no_for_select(array('return_integer' => true));
+																		break;
+
+																		case 'select':
+																			unset($arr_event_fields[$key]['std']);
+																			unset($arr_event_fields[$key]['attributes']);
+																			unset($arr_event_fields[$key]['multiple']);
+																		break;
+																	}
+
+																	$arr_event_fields[$key]['value'] = get_post_meta($r_children->ID, $arr_field['id'], true);
+																}
+															}
+
+															$arr_children_temp[$r_children->ID]['fields'] = $arr_event_fields;
 														}
 													}
 												break;
@@ -423,7 +445,6 @@ switch($type_switch)
 														$arr_event_name = check_var($id_temp."_name", 'array');
 														$arr_event_location = check_var($id_temp."_location", 'array');
 														$arr_event_coordinates = check_var($id_temp."_coordinates", 'array');
-														$arr_event_category = check_var($id_temp."_category", 'array');
 														$arr_event_start_date = check_var($id_temp."_start_date", 'array');
 														$arr_event_start_time = check_var($id_temp."_start_time", 'array');
 														$arr_event_end_date = check_var($id_temp."_end_date", 'array');
@@ -451,7 +472,6 @@ switch($type_switch)
 																			'meta_input' => array(
 																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
 																				$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																				$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																				$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
 																				$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
 																			),
@@ -460,6 +480,8 @@ switch($type_switch)
 																		if(wp_update_post($post_data_event) > 0)
 																		{
 																			$updated = true;
+
+																			$obj_webshop->set_events_meta_boxes($arr_event_id[$i], $i);
 
 																			//do_action('rwmb_after_save_post', $arr_event_id[$i]);
 																			$obj_calendar->rwmb_after_save_post($arr_event_id[$i]);
@@ -504,7 +526,7 @@ switch($type_switch)
 																			$obj_calendar->meta_prefix.'calendar' => $calendar_id,
 																			$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
 																			$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																			$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
+																			//$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																			$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
 																			$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
 																		),
@@ -515,6 +537,8 @@ switch($type_switch)
 																	if($post_id_temp > 0)
 																	{
 																		$reload = $updated = true;
+
+																		$obj_webshop->set_events_meta_boxes($post_id_temp, $i);
 
 																		//do_action('rwmb_after_save_post', $post_id_temp);
 																		$obj_calendar->rwmb_after_save_post($post_id_temp);

@@ -383,6 +383,14 @@ class mf_webshop
 		return $arr_data;
 	}
 
+	function get_include_on_for_select()
+	{
+		return array(
+			'products' => get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop')),
+			'events' => __("Events", 'lang_webshop'),
+		);
+	}
+
 	function get_categories_result($data = array())
 	{
 		global $wpdb;
@@ -483,6 +491,40 @@ class mf_webshop
 			$option_type_temp = ($option_type != '' ? "_".$option_type : '');
 
 			$arr_data[$option_type] = get_option_or_default('setting_webshop_replace_webshop'.$option_type_temp, __("Webshop", 'lang_webshop'));
+		}
+
+		return $arr_data;
+	}
+
+	function get_image_alt_for_select($data = array())
+	{
+		return array(
+			'yes' => __("Yes", 'lang_webshop'),
+			'single' => __("Yes", 'lang_webshop')." (".__("but not on Search", 'lang_webshop').")",
+			'no' => __("No", 'lang_webshop'),
+		);
+	}
+
+	function get_doc_types_for_select($data = array())
+	{
+		if(!isset($data['add_choose_here'])){		$data['add_choose_here'] = true;}
+
+		$arr_data = array();
+
+		if($data['add_choose_here'])
+		{
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_webshop')." --";
+		}
+
+		$arr_data['searchable'] = __("Searchable", 'lang_webshop');
+		$arr_data['public'] = __("Results", 'lang_webshop');
+		$arr_data['public_single'] = get_option_or_default('setting_webshop_replace_title_contact_info'.$this->option_type, __("Contact Info", 'lang_webshop'));
+		$arr_data['quick'] = get_option_or_default('setting_webshop_replace_title_quic_info'.$this->option_type, __("Quick Info", 'lang_webshop'));
+		$arr_data['property'] = get_option_or_default('setting_webshop_replace_title_properties'.$this->option_type, __("Properties", 'lang_webshop'));
+
+		if(is_plugin_active("mf_calendar/index.php"))
+		{
+			$arr_data['events'] = __("Events", 'lang_webshop');
 		}
 
 		return $arr_data;
@@ -709,7 +751,7 @@ class mf_webshop
 
 		foreach($this->arr_option_types as $option_type)
 		{
-			$arr_settings['setting_webshop_replace_webshop|'.$option_type] = sprintf(__("Title for '%s'", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
+			$arr_settings['setting_webshop_replace_webshop|'.$option_type] = sprintf(__("Title for %s", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
 		}
 
 		$arr_settings['setting_webshop_local_storage'] = __("Local Storage", 'lang_webshop');
@@ -896,6 +938,12 @@ class mf_webshop
 
 					$arr_settings['setting_webshop_force_individual_contact|'.$option_type] = __("Force Individual Contact", 'lang_webshop');
 				}
+
+				$arr_settings['setting_webshop_replace_title_information|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_title_settings|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_title_contact_info|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_title_quick_info|'.$option_type] = __("Replace Text", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_title_properties|'.$option_type] = __("Replace Text", 'lang_webshop');
 			}
 
 			show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
@@ -1218,21 +1266,52 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote", 'lang_webshop')));
 	}
 
+	function setting_webshop_replace_title_information_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Information", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_title_settings_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Settings", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_title_contact_info_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Contact Info", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_title_quick_info_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Quick Info", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_title_properties_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Properties", 'lang_webshop')));
+	}
+
 	function setting_webshop_replace_choose_product_callback($args = array())
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Choose", 'lang_webshop')));
-	}
-
-	function get_image_alt_for_select($data = array())
-	{
-		return array(
-			'yes' => __("Yes", 'lang_webshop'),
-			'single' => __("Yes", 'lang_webshop')." (".__("but not on Search", 'lang_webshop').")",
-			'no' => __("No", 'lang_webshop'),
-		);
 	}
 
 	function setting_webshop_display_images_callback($args = array())
@@ -1629,7 +1708,7 @@ class mf_webshop
 
 		$content .= "<h3>".$name_webshop."</h3>
 		<p>"
-			.__("When searching we store information in the so called 'localStorage' in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients.", 'lang_webshop')
+			.sprintf(__("When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients.", 'lang_webshop'), 'localStorage')
 		."</p>";
 
 		return $content;
@@ -1669,8 +1748,6 @@ class mf_webshop
 				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
 
-				$arr_categories_events = $this->get_categories_for_select(array('include_on' => 'events'));
-
 				$templates .= "<script type='text/template' id='template_admin_webshop_list'>
 					<table class='widefat striped'>
 						<thead>
@@ -1705,7 +1782,7 @@ class mf_webshop
 				<script type='text/template' id='template_admin_webshop_edit'>
 					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>"
 						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>")) //, 'readonly' => (IS_ADMIN ? false : true)
-						//.show_textfield(array('name' => 'post_name', 'text' => __("Permalink", 'lang_webshop'), 'value' => "<%= post_name %>"))
+						//.show_textfield(array('name' => 'post_name', 'text' => __("URL", 'lang_webshop'), 'value' => "<%= post_name %>"))
 						."<% _.each(meta_boxes, function(meta_box)
 						{ %>
 							<% if(meta_box.fields.length > 0)
@@ -1754,9 +1831,9 @@ class mf_webshop
 															<div class='form_select type_<%= meta_field.type %><%= meta_field.class %>'>
 																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
 																<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'<%= meta_field.attributes %>>
-																	<% _.each(meta_field.options, function(value, key)
+																	<% _.each(meta_field.options, function(meta_option_value, meta_option_key)
 																	{ %>
-																		<option value='<%= key %>'<% if(key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(key) !== -1){%> selected<%} %>><%= value %></option>
+																		<option value='<%= meta_option_key %>'<% if(meta_option_key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(meta_option_key) !== -1){%> selected<%} %>><%= meta_option_value %></option>
 																	<% }); %>
 																</select>
 																<% if(meta_field.suffix != '')
@@ -1793,36 +1870,66 @@ class mf_webshop
 																<ul class='event_children'>
 																	<% if(Object.keys(meta_field.children).length > 0)
 																	{
-																		_.each(meta_field.children, function(value, key)
+																		_.each(meta_field.children, function(meta_child_value, meta_child_key)
 																		{ %>
-																			<li>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																				."<div class='flex_flow'>"
-																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
-																					.show_select(array('data' => $arr_categories_events, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false, 'xtra' => " data-value='<%= value.category %>'"))
+																			<li>
+																				<div class='flex_flow'>"
+																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= meta_child_value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
+																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																				."</div>
-																				<div class='flex_flow tight'>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= value.start_date %>"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= value.start_time %>"))
+																				<% if(Object.keys(meta_child_value.fields).length > 0)
+																				{
+																					_.each(meta_child_value.fields, function(field_value)
+																					{
+																						switch(field_value.type)
+																						{
+																							case 'container_start': %>
+																								<div<% if(field_value.class != ''){%> class='<%= field_value.class %>'<%} %>>
+																							<% break;
+
+																							case 'container_end': %>
+																								</div>
+																							<% break;
+
+																							case 'select': %>
+																								<div class='form_select type_<%= field_value.type %>'>"
+																									."<label for='<%= field_value.id %>'><%= field_value.name %></label>"
+																									."<select id='<%= field_value.id %>' name='<%= field_value.id %>[]'>
+																										<% _.each(field_value.options, function(meta_option_value, meta_option_key)
+																										{ %>
+																											<option value='<%= meta_option_key %>'<% if(meta_option_key == field_value.value){%> selected<%} %>><%= meta_option_value %></option>
+																										<% }); %>
+																									</select>
+																								</div>
+																							<% break;
+
+																							default: %>
+																								<strong><%= field_value.type %></strong>: <%= field_value.name %><br>
+																							<% break;
+																						}
+																					});
+																				} %>"
+																				."<div class='flex_flow tight'>"
+																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>"))
+																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>"))
 																					."<h3>-</h3>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= value.end_date %>"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= value.end_time %>"))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= key %>"))
+																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
+																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
+																					.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
 																				."</div>"
-																				.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'value' => "<%= value.text %>", 'placeholder' => __("Add important information here", 'lang_webshop')))
+																				.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'value' => "<%= meta_child_value.text %>", 'placeholder' => __("Add important information here", 'lang_webshop')))
 																			."</li>
 																		<% });
 																	}
 
 																	else
 																	{ %>
-																		<li>"
-																			.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																			."<div class='flex_flow'>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+																		<li>
+																			<div class='flex_flow'>"
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
 																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'allow_empty' => true, 'xtra' => "class='maps_coordinates'"))
-																				.show_select(array('data' => $arr_categories_events, 'name' => "<%= meta_field.id %>_category[]", 'multiple' => false))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																			."</div>
 																			<div class='flex_flow tight'>"
 																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
@@ -1848,9 +1955,17 @@ class mf_webshop
 														<% }
 													break;
 
-													case 'file_advanced': %>"
-														.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true, 'max_file_uploads' => "<%= meta_field.max_file_uploads %>")) // 'mime_type' => "<%= meta_field.mime_type %>"
-													."<% break;
+													case 'file_advanced': %>
+														<% if(typeof meta_field.desc !== 'undefined' && meta_field.desc != '')
+														{ %>"
+															.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true, 'max_file_uploads' => "<%= meta_field.max_file_uploads %>", 'description' => "<%= meta_field.desc %>")) // 'mime_type' => "<%= meta_field.mime_type %>"
+														."<% }
+
+														else
+														{ %>"
+															.get_media_button(array('name' => "<%= meta_field.id %>", 'label' => "<%= meta_field.name %>", 'text' => __("Add", 'lang_webshop'), 'value' => "<%= meta_field.value %>", 'multiple' => true, 'max_file_uploads' => "<%= meta_field.max_file_uploads %>")) // 'mime_type' => "<%= meta_field.mime_type %>"
+														."<% } %>
+													<% break;
 
 													case 'ghost': %>
 														<div class='form_checkbox type_<%= meta_field.type %><%= meta_field.class %>'>
@@ -2520,6 +2635,132 @@ class mf_webshop
 		return array($product_id, $option_type_out);
 	}
 
+	function filter_fields_array($post_id, &$fields_array, $type)
+	{
+		switch($fields_array['type'])
+		{
+			case 'categories':
+				$arr_categories = $this->get_categories_for_select(array('include_on' => $type));
+
+				switch($type)
+				{
+					case 'events':
+						$fields_array['type'] = 'select';
+						$fields_array['multiple'] = false;
+					break;
+
+					case 'products':
+						if(get_option('setting_webshop_allow_multiple_categories'.$this->option_type, 'yes') == 'yes')
+						{
+							$fields_array['type'] = 'select';
+							$fields_array['multiple'] = true;
+							$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_categories)));
+						}
+
+						else
+						{
+							$fields_array['type'] = 'select';
+							$fields_array['multiple'] = false;
+						}
+					break;
+				}
+
+				$fields_array['options'] = $arr_categories;
+			break;
+
+			case 'content':
+				$post_document_max_length = get_post_meta($post_id, $this->meta_prefix.'document_max_length', true);
+
+				if($post_document_max_length > 0)
+				{
+					$arr_attributes['maxlength'] = $post_document_max_length;
+				}
+			break;
+
+			case 'location':
+				$arr_locations = array();
+				get_post_children(array('post_type' => $this->post_type_location.$this->option_type, 'post_status' => ''), $arr_locations);
+
+				$fields_array['options'] = $arr_locations;
+				$fields_array['multiple'] = true;
+				$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_locations)));
+			break;
+
+			case 'select':
+				if(!isset($fields_array['options']) || !is_array($fields_array['options']))
+				{
+					do_log("Options are needed: ".var_export($fields_array, true));
+				}
+			break;
+		}
+
+		return $fields_array;
+	}
+
+	function set_events_meta_boxes($post_id, $i)
+	{
+		list($product_id, $option_type) = $this->get_product_id_from_calendar($post_id);
+
+		if($product_id > 0)
+		{
+			$arr_fields = $this->get_events_meta_boxes($option_type, array());
+
+			foreach($arr_fields as $key => $arr_field)
+			{
+				$value_temp = check_var($arr_field['id'], 'array');
+
+				update_post_meta($post_id, $arr_field['id'], $value_temp[$i]);
+			}
+		}
+	}
+
+	function get_events_meta_boxes($option_type, $arr_fields)
+	{
+		$this->option_type = $option_type;
+
+		$obj_calendar = new mf_calendar();
+
+		$arr_doc_types_ignore = array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button'); //, 'categories', 'container_start', 'container_end'
+
+		$result = $this->get_document_types(array('select' => "ID, post_title, post_name", 'order' => "menu_order ASC")); //, post_parent
+
+		foreach($result as $r)
+		{
+			$post_id = $r->ID;
+			$post_title = $r->post_title;
+			$post_name = $r->post_name;
+
+			$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
+
+			if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
+			{
+				$post_document_events = get_post_meta($post_id, $this->meta_prefix.'document_events', true);
+
+				if($post_document_events == 'yes')
+				{
+					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
+					$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
+
+					$fields_array = array(
+						'post_id' => $post_id,
+						'name' => $post_title,
+						'id' => $obj_calendar->meta_prefix.$post_name,
+						'type' => $post_custom_type,
+						'class' => $post_custom_class,
+						'std' => $post_document_default,
+						'attributes' => array(),
+					);
+
+					$this->filter_fields_array($post_id, $fields_array, 'events');
+
+					$arr_fields[] = $fields_array;
+				}
+			}
+		}
+
+		return $arr_fields;
+	}
+
 	function before_meta_box_fields($arr_fields)
 	{
 		global $wpdb, $post;
@@ -2534,26 +2775,13 @@ class mf_webshop
 			$post_id = check_var('post', 'int');
 		}
 
-		if($post_id > 0 && is_plugin_active('mf_calendar/index.php'))
+		if($post_id > 0 && is_plugin_active("mf_calendar/index.php"))
 		{
 			list($product_id, $option_type) = $this->get_product_id_from_calendar($post_id);
 
 			if($product_id > 0)
 			{
-				$arr_categories = $this->get_categories_for_select(array('include_on' => 'products'));
-				$count_temp = count($arr_categories);
-
-				if($count_temp > 0)
-				{
-					$obj_calendar = new mf_calendar();
-
-					$arr_fields[] = array(
-						'name' => get_option_or_default('setting_webshop_replace_categories'.$option_type, __("Categories", 'lang_webshop')),
-						'id' => $obj_calendar->meta_prefix.'category',
-						'type' => 'select',
-						'options' => $arr_categories,
-					);
-				}
+				$arr_fields = $this->get_events_meta_boxes($option_type, $arr_fields);
 			}
 		}
 
@@ -2981,14 +3209,6 @@ class mf_webshop
 		return $updated;
 	}
 
-	function get_include_on_for_select()
-	{
-		return array(
-			'products' => get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop')),
-			'events' => __("Events", 'lang_webshop'),
-		);
-	}
-
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $wpdb;
@@ -3000,18 +3220,6 @@ class mf_webshop
 		foreach($this->arr_option_types as $option_type)
 		{
 			$this->option_type = ($option_type != '' ? "_".$option_type : '');
-
-			//Default values for type
-			################
-			$last_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
-
-			$default_type = get_post_meta($last_id, $this->meta_prefix.'document_type', true);
-			$default_searchable = get_post_meta($last_id, $this->meta_prefix.'document_searchable', true);
-			$default_public = get_post_meta($last_id, $this->meta_prefix.'document_public', true);
-			$default_public_single = get_post_meta($last_id, $this->meta_prefix.'document_public_single', true);
-			$default_quick = get_post_meta($last_id, $this->meta_prefix.'document_quick', true);
-			$default_property = get_post_meta($last_id, $this->meta_prefix.'document_property', true);
-			################
 
 			// Products
 			####################################
@@ -3033,8 +3241,20 @@ class mf_webshop
 
 			if($count_temp > 0)
 			{
+				$result = $this->get_post_type_info(array('type' => 'categories'));
+
+				if(isset($result->post_title))
+				{
+					$name_categories = $result->post_title;
+				}
+
+				else
+				{
+					$name_categories = get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop'));
+				}
+
 				$fields_settings[] = array(
-					'name' => get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop')),
+					'name' => $name_categories,
 					'id' => $this->meta_prefix.'category',
 					'type' => 'select3',
 					'options' => $arr_categories,
@@ -3047,14 +3267,33 @@ class mf_webshop
 
 			if(get_option('setting_webshop_display_images'.$this->option_type) != 'no')
 			{
+				$product_image_description = "";
+
+				$result = $this->get_post_type_info(array('type' => 'file_advanced'));
+
+				do_log("Test: ".var_export($result, true));
+
+				if(isset($result->post_title))
+				{
+					$product_image_title = $result->post_title;
+					
+					$product_image_description = get_post_meta($result->ID, $this->meta_prefix.'document_alt_text', true);
+				}
+
+				else
+				{
+					$product_image_title = __("Image", 'lang_webshop');
+				}
+
 				$setting_webshop_max_file_uploads = get_option_or_default('setting_webshop_max_file_uploads'.$this->option_type, 0);
 
 				$fields_settings[] = array(
-					'name' => __("Image", 'lang_webshop'),
+					'name' => $product_image_title,
 					'id' => $this->meta_prefix.'product_image',
 					'type' => 'file_advanced',
 					'max_file_uploads' => $setting_webshop_max_file_uploads,
 					'mime_type' => 'image',
+					'desc' => $product_image_description,
 				);
 			}
 
@@ -3087,6 +3326,12 @@ class mf_webshop
 					$post_document_public_single = get_post_meta($post_id, $this->meta_prefix.'document_public_single', true);
 					$post_document_quick = get_post_meta($post_id, $this->meta_prefix.'document_quick', true);
 					$post_document_property = get_post_meta($post_id, $this->meta_prefix.'document_property', true);
+
+					if(is_plugin_active("mf_calendar/index.php"))
+					{
+						$post_document_events = get_post_meta($post_id, $this->meta_prefix.'document_events', true);
+					}
+
 					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
 					$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
 
@@ -3097,7 +3342,15 @@ class mf_webshop
 						$arr_attributes['condition_value'] = $post_document_display_on_categories;
 					}
 
-					switch($post_custom_type)
+					$fields_array = array(
+						'name' => $post_title,
+						'id' => $this->meta_prefix.$post_name,
+						'type' => $post_custom_type,
+						'std' => $post_document_default,
+						'attributes' => $arr_attributes,
+					);
+
+					/*switch($post_custom_type)
 					{
 						case 'content':
 							$post_document_max_length = get_post_meta($post_id, $this->meta_prefix.'document_max_length', true);
@@ -3107,25 +3360,18 @@ class mf_webshop
 								$arr_attributes['maxlength'] = $post_document_max_length;
 							}
 						break;
-					}
 
-					$fields_array = array(
-						'name' => $post_title,
-						'id' => $this->meta_prefix.$post_name,
-						'type' => $post_custom_type,
-						'std' => $post_document_default,
-						'attributes' => $arr_attributes,
-					);
+						case 'location':
+							$arr_locations = array();
+							get_post_children(array('post_type' => $this->post_type_location.$this->option_type, 'post_status' => ''), $arr_locations);
 
-					if($post_custom_type == 'location')
-					{
-						$arr_locations = array();
-						get_post_children(array('post_type' => $this->post_type_location.$this->option_type, 'post_status' => ''), $arr_locations);
+							$fields_array['options'] = $arr_locations;
+							$fields_array['multiple'] = true;
+							$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_locations)));
+						break;
+					}*/
 
-						$fields_array['options'] = $arr_locations;
-						$fields_array['multiple'] = true;
-						$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_locations)));
-					}
+					$this->filter_fields_array($post_id, $fields_array, 'products');
 
 					if($post_document_public_single == 'yes')
 					{
@@ -3152,6 +3398,11 @@ class mf_webshop
 						$fields_public[] = $fields_array;
 					}
 
+					else if(is_plugin_active("mf_calendar/index.php") && $post_document_events == 'yes')
+					{
+						// Do nothing. It should be displayed when editing an events instead
+					}
+
 					else
 					{
 						$fields_info[] = $fields_array;
@@ -3163,23 +3414,11 @@ class mf_webshop
 			{
 				$meta_boxes[] = array(
 					'id' => $this->meta_prefix.'information',
-					'title' => __("Information", 'lang_webshop'),
+					'title' => get_option_or_default('setting_webshop_replace_title_information'.$this->option_type, __("Information", 'lang_webshop')),
 					'post_types' => array($this->post_type_products.$this->option_type),
 					//'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_info
-				);
-			}
-
-			if(count($fields_properties) > 0)
-			{
-				$meta_boxes[] = array(
-					'id' => $this->meta_prefix.'properties',
-					'title' => __("Properties", 'lang_webshop'),
-					'post_types' => array($this->post_type_products.$this->option_type),
-					//'context' => 'side',
-					'priority' => 'low',
-					'fields' => $fields_properties
+					'fields' => $fields_info,
 				);
 			}
 
@@ -3187,11 +3426,11 @@ class mf_webshop
 			{
 				$meta_boxes[] = array(
 					'id' => $this->meta_prefix.'settings',
-					'title' => __("Settings", 'lang_webshop'),
+					'title' => get_option_or_default('setting_webshop_replace_title_settings'.$this->option_type, __("Settings", 'lang_webshop')),
 					'post_types' => array($this->post_type_products.$this->option_type),
 					'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_settings
+					'fields' => $fields_settings,
 				);
 			}
 
@@ -3203,7 +3442,7 @@ class mf_webshop
 					'post_types' => array($this->post_type_products.$this->option_type),
 					'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_searchable
+					'fields' => $fields_searchable,
 				);
 			}
 
@@ -3215,7 +3454,7 @@ class mf_webshop
 					'post_types' => array($this->post_type_products.$this->option_type),
 					'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_public
+					'fields' => $fields_public,
 				);
 			}
 
@@ -3223,11 +3462,11 @@ class mf_webshop
 			{
 				$meta_boxes[] = array(
 					'id' => $this->meta_prefix.'single',
-					'title' => __("Contact Info", 'lang_webshop'),
+					'title' => get_option_or_default('setting_webshop_replace_title_contact_info'.$this->option_type, __("Contact Info", 'lang_webshop')),
 					'post_types' => array($this->post_type_products.$this->option_type),
 					'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_single
+					'fields' => $fields_single,
 				);
 			}
 
@@ -3235,17 +3474,45 @@ class mf_webshop
 			{
 				$meta_boxes[] = array(
 					'id' => $this->meta_prefix.'quick',
-					'title' => __("Quick Info", 'lang_webshop'),
+					'title' => get_option_or_default('setting_webshop_replace_title_quick_info'.$this->option_type, __("Quick Info", 'lang_webshop')),
 					'post_types' => array($this->post_type_products.$this->option_type),
 					//'context' => 'side',
 					'priority' => 'low',
-					'fields' => $fields_quick
+					'fields' => $fields_quick,
+				);
+			}
+
+			if(count($fields_properties) > 0)
+			{
+				$meta_boxes[] = array(
+					'id' => $this->meta_prefix.'properties',
+					'title' => get_option_or_default('setting_webshop_replace_title_properties'.$this->option_type, __("Properties", 'lang_webshop')),
+					'post_types' => array($this->post_type_products.$this->option_type),
+					//'context' => 'side',
+					'priority' => 'low',
+					'fields' => $fields_properties,
 				);
 			}
 			####################################
 
 			// Document Types
 			####################################
+			$last_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
+
+			$default_type = get_post_meta_or_default($last_id, $this->meta_prefix.'document_type', true, 'no');
+			$default_searchable = get_post_meta_or_default($last_id, $this->meta_prefix.'document_searchable', true, 'no');
+			$default_public = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public', true, 'no');
+			$default_public_single = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public_single', true, 'no');
+			$default_quick = get_post_meta_or_default($last_id, $this->meta_prefix.'document_quick', true, 'no');
+			$default_property = get_post_meta_or_default($last_id, $this->meta_prefix.'document_property', true, 'no');
+
+			if(is_plugin_active("mf_calendar/index.php"))
+			{
+				$default_events = get_post_meta_or_default($last_id, $this->meta_prefix.'document_events', true, 'no');
+			}
+
+			$condition_value_placement = '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"';
+
 			$arr_fields = array(
 				array(
 					'name' => __("Type", 'lang_webshop'),
@@ -3268,7 +3535,7 @@ class mf_webshop
 					'type' => 'divider',
 				),
 				array(
-					'name' => __("Make Searchable", 'lang_webshop'),
+					'name' => __("Searchable", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_searchable',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3280,7 +3547,7 @@ class mf_webshop
 					),
 				),
 				array(
-					'name' => " - ".__("Make Required", 'lang_webshop'),
+					'name' => " - ".__("Required", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_searchable_required',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3292,7 +3559,7 @@ class mf_webshop
 					),
 				),
 				array(
-					'name' => __("Display in Results", 'lang_webshop'),
+					'name' => __("Results", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_public',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3304,7 +3571,7 @@ class mf_webshop
 					),
 				),
 				array(
-					'name' => __("Display as Contact Info", 'lang_webshop'),
+					'name' => get_option_or_default('setting_webshop_replace_title_contact_info'.$this->option_type, __("Contact Info", 'lang_webshop')),
 					'id' => $this->meta_prefix.'document_public_single',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3312,11 +3579,11 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+						'condition_value' => $condition_value_placement,
 					),
 				),
 				array(
-					'name' => __("Display as Quick Info", 'lang_webshop'),
+					'name' => get_option_or_default('setting_webshop_replace_title_quick_info'.$this->option_type, __("Quick Info", 'lang_webshop')),
 					'id' => $this->meta_prefix.'document_quick',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3324,11 +3591,11 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+						'condition_value' => $condition_value_placement,
 					),
 				),
 				array(
-					'name' => __("Display as Property", 'lang_webshop'),
+					'name' => get_option_or_default('setting_webshop_replace_title_properties'.$this->option_type, __("Properties", 'lang_webshop')),
 					'id' => $this->meta_prefix.'document_property',
 					'type' => 'select',
 					'options' => $arr_yes_no,
@@ -3336,10 +3603,26 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+						'condition_value' => $condition_value_placement,
 					),
 				),
 			);
+
+			if(is_plugin_active("mf_calendar/index.php"))
+			{
+				$arr_fields[] = array(
+					'name' => __("Events", 'lang_webshop'),
+					'id' => $this->meta_prefix.'document_events',
+					'type' => 'select',
+					'options' => $arr_yes_no,
+					'std' => $default_events,
+					'attributes' => array(
+						'condition_type' => 'hide_this_if',
+						'condition_selector' => $this->meta_prefix.'document_type',
+						'condition_value' => $condition_value_placement,
+					),
+				);
+			}
 
 			$arr_categories = $this->get_categories_for_select(array('include_on' => 'products', 'add_choose_here' => false));
 			$count_temp = count($arr_categories);
@@ -3464,8 +3747,8 @@ class mf_webshop
 			####################################
 			$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
 
-			//$last_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s ORDER BY post_date DESC LIMIT 0, 1", $this->post_type_categories.$this->option_type));
-			//$default_value = get_post_meta($last_id, $this->meta_prefix.'connect_new_products', true);
+			$last_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s ORDER BY post_date DESC LIMIT 0, 1", $this->post_type_categories.$this->option_type));
+			$default_value = get_post_meta_or_default($last_id, $this->meta_prefix.'connect_new_products', true, 'no');
 
 			$arr_fields = array(
 				array(
@@ -3484,7 +3767,7 @@ class mf_webshop
 					'id' => $this->meta_prefix.'connect_new_products',
 					'type' => 'select',
 					'options' => $arr_yes_no,
-					//'std' => $default_value,
+					'std' => $default_value,
 				),
 			);
 
@@ -3625,16 +3908,7 @@ class mf_webshop
 			//$strFilterPlacement = get_or_set_table_filter(array('key' => 'strFilterPlacement', 'save' => true));
 			$strFilterPlacement = check_var('strFilterPlacement');
 
-			$arr_data = array(
-				'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-				'searchable' => __("Make Searchable", 'lang_webshop'),
-				'public' => __("Display in Results", 'lang_webshop'),
-				'public_single' => __("Display as Contact Info", 'lang_webshop'),
-				'quick' => __("Display as Quick Info", 'lang_webshop'),
-				'property' => __("Display as Property", 'lang_webshop'),
-			);
-
-			echo show_select(array('data' => $arr_data, 'name' => 'strFilterPlacement', 'value' => $strFilterPlacement));
+			echo show_select(array('data' => $this->get_doc_types_for_select(), 'name' => 'strFilterPlacement', 'value' => $strFilterPlacement));
 		}
 	}
 
@@ -3756,11 +4030,7 @@ class mf_webshop
 					unset($cols['date']);
 
 					$cols['type'] = __("Type", 'lang_webshop');
-					$cols['searchable'] = __("Make Searchable", 'lang_webshop');
-					$cols['public'] = __("Display in Results", 'lang_webshop');
-					$cols['public_single'] = __("Display as Contact Info", 'lang_webshop');
-					$cols['quick'] = __("Display as Quick Info", 'lang_webshop');
-					$cols['property'] = __("Display as Property", 'lang_webshop');
+					$cols['settings'] = __("Settings", 'lang_webshop');
 
 					if($this->has_categories(array('include_on' => 'products')) > 1)
 					{
@@ -3995,26 +4265,59 @@ class mf_webshop
 							}
 						break;
 
-						case 'searchable':
-							$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
+						case 'settings':
+							$arr_doc_types = $this->get_doc_types_for_select(array('add_choose_here' => false));
 
-							echo "<i class='".($post_meta == 'yes' ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
-
-							$post_meta = get_post_meta($id, $this->meta_prefix.'document_searchable_required', true);
-
-							if($post_meta == 'yes')
+							foreach($arr_doc_types as $key => $value)
 							{
-								echo " <i class='fa fa-asterisk fa-lg red' title='".__("Required", 'lang_webshop')."'></i>";
+								switch($key)
+								{
+									case 'searchable':
+										$post_icon = "fas fa-search";
+									break;
+
+									case 'public':
+										$post_icon = "fas fa-list-alt";
+									break;
+
+									case 'public_single':
+										$post_icon = "far fa-envelope";
+									break;
+
+									case 'quick':
+										$post_icon = "fas fa-eye";
+									break;
+
+									case 'property':
+										$post_icon = "fas fa-cog";
+									break;
+
+									case 'events':
+										$post_icon = "far fa-calendar-alt";
+									break;
+								}
+
+								$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$key, true);
+
+								//echo " <i class='".$post_icon." fa-lg ".($post_meta == 'yes' ? "green" : "red")."' title='".$value."'></i>";
+
+								echo "<span class='fa-stack fa-2x' title='".$value."'>
+									<i class='".$post_icon." grey fa-stack-1x'></i>
+									<i class='fa ".($post_meta == 'yes' ? "fa-check green" : "fa-ban red")." fa-stack-1x'></i>
+								</span>";
+
+								if($key == 'searchable')
+								{
+									$post_meta = get_post_meta($id, $this->meta_prefix.'document_searchable_required', true);
+
+									//echo " <i class='fa fa-asterisk fa-lg ".($post_meta == 'yes' ? "red" : "grey")."' title='".__("Required", 'lang_webshop')."'></i>";
+
+									echo "<span class='fa-stack fa-2x' title='".__("Required", 'lang_webshop')."'>
+										<i class='fa fa-asterisk grey fa-stack-1x'></i>
+										<i class='fa ".($post_meta == 'yes' ? "fa-check green" : "fa-ban red")." fa-stack-1x'></i>
+									</span>";
+								}
 							}
-						break;
-
-						case 'public':
-						case 'public_single':
-						case 'quick':
-						case 'property':
-							$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
-
-							echo "<i class='".($post_meta == 'yes' ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
 						break;
 
 						case 'display_on_categories':
@@ -4500,7 +4803,7 @@ class mf_webshop
 							break;
 
 							case 'categories_v2':
-								$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(array('include_on' => 'events', 'display_icons' => true, 'add_choose_here' => false)), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
+								$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(array('include_on' => 'events', 'display_icons' => true, 'add_choose_here' => false)), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes')));
 							break;
 
 							case 'custom_categories':
@@ -4659,7 +4962,7 @@ class mf_webshop
 							break;
 
 							default:
-								do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $post_custom_type)." (search)");
+								do_log(sprintf(__("The type %s does not have a case", 'lang_webshop'), $post_custom_type)." (search)");
 							break;
 						}
 					}
@@ -5356,7 +5659,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		//if(!isset($data['template'])){		$data['template'] = 'template_webshop_search.php';}
+		//if(!isset($data['template'])){	$data['template'] = 'template_webshop_search.php';}
 		if(!isset($data['location_id'])){	$data['location_id'] = 0;}
 
 		$out = "";
@@ -5531,7 +5834,6 @@ class mf_webshop
 							{
 								if(is_array($category_id) && isset($category_id[0]))
 								{
-									//do_log("Is Array: ".var_export($category_id, true)." (".var_export($data, true).")");
 									$category_id = $category_id[0];
 								}
 
@@ -5898,7 +6200,7 @@ class mf_webshop
 
 							else
 							{
-								do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (single)");
+								do_log(sprintf(__("The type %s does not have a case", 'lang_webshop'), $this->meta_type)." (single)");
 							}
 						break;
 					}
@@ -6723,7 +7025,7 @@ class mf_webshop
 
 								else
 								{
-									do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
+									do_log(sprintf(__("The type %s does not have a case", 'lang_webshop'), $this->meta_type)." (list)");
 								}
 							break;
 						}
@@ -7523,7 +7825,7 @@ class widget_webshop_form extends WP_Widget
 				break;
 
 				default:
-					do_log(sprintf(__("The type '%s' does not have a case", 'lang_webshop'), $post_custom_type)." (widget)");
+					do_log(sprintf(__("The type %s does not have a case", 'lang_webshop'), $post_custom_type)." (widget)");
 				break;
 			}
 		}
@@ -8226,6 +8528,8 @@ class widget_webshop_product_meta extends WP_Widget
 			'webshop_meta_type' => '',
 			'webshop_category' => '',
 			'webshop_category_text' => '',
+			'webshop_option_type' => '',
+			'webshop_event_doc_types' => '',
 		);
 
 		$this->obj_webshop = new mf_webshop();
@@ -8237,19 +8541,20 @@ class widget_webshop_product_meta extends WP_Widget
 	{
 		$arr_data = array(
 			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-			//'opt_start_products' => __("Products", 'lang_webshop'),
+			//'opt_start_products' => get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop')),
 				//'address'
 				//'share'
 				'slideshow' => __("Slideshow", 'lang_webshop'),
 				//'description'
-				'quick' => __("Quick Info", 'lang_webshop'),
-				'meta' => __("Contact Info", 'lang_webshop'),
-				'property' => __("Properties", 'lang_webshop'),
+				'meta' => get_option_or_default('setting_webshop_replace_title_contact_info'.$this->option_type, __("Contact Info", 'lang_webshop')),
+				'quick' => get_option_or_default('setting_webshop_replace_title_quick_info'.$this->option_type, __("Quick Info", 'lang_webshop')),
+				'property' => get_option_or_default('setting_webshop_replace_title_properties'.$this->option_type, __("Properties", 'lang_webshop')),
 				//'social'
 				//'previous_next'
 				'category_info' => __("Category Info", 'lang_webshop'),
 			//'opt_end_products' => "",
 			//'opt_start_events' => __("Events", 'lang_webshop'),
+				'event_info' => __("Event Info", 'lang_webshop'),
 				'actions' => __("Actions", 'lang_webshop'),
 			//'opt_end_products' => "",
 		);
@@ -8378,6 +8683,8 @@ class widget_webshop_product_meta extends WP_Widget
 					switch($instance['webshop_meta_type'])
 					{
 						case 'meta':
+							$out_temp = "";
+
 							$event_category = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'category', true);
 							$event_date = $obj_calendar->format_date(array('post_id' => $this->obj_webshop->event_id));
 							$event_location = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'location', true);
@@ -8385,23 +8692,23 @@ class widget_webshop_product_meta extends WP_Widget
 
 							if($event_category > 0)
 							{
-								$widget_content .= "<strong>".__("Category", 'lang_webshop').":</strong> <span>".get_post_title($event_category)."</span><br>";
+								$out_temp .= "<strong>".__("Category", 'lang_webshop').":</strong> <span>".get_post_title($event_category)."</span><br>";
 							}
 
 							if($event_date != '')
 							{
-								$widget_content .= "<strong>".__("Date & Time", 'lang_webshop').":</strong> <span>".$event_date."</span><br>";
+								$out_temp .= "<strong>".__("Date & Time", 'lang_webshop').":</strong> <span>".$event_date."</span><br>";
 							}
 
 							if($event_location != '')
 							{
-								$widget_content .= "<strong>".__("Location", 'lang_webshop').":</strong> <span>".$event_location."</span><br>";
+								$out_temp .= "<strong>".__("Location", 'lang_webshop').":</strong> <span>".$event_location."</span><br>";
 
 								$event_coordinates = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'coordinates', true);
 
 								if($event_coordinates != '')
 								{
-									$widget_content .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coords' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."'"));
+									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coords' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."'"));
 								}
 							}
 
@@ -8410,7 +8717,7 @@ class widget_webshop_product_meta extends WP_Widget
 								$product_title = get_post_title($product_id);
 								$product_url = get_permalink($product_id);
 
-								$widget_content .= "<strong>".get_option_or_default('setting_webshop_replace_product'.$option_type, __("Product", 'lang_webshop')).":</strong> <a href='".$product_url."'>".$product_title."</a><br>";
+								$out_temp .= "<strong>".get_option_or_default('setting_webshop_replace_product'.$option_type, __("Product", 'lang_webshop')).":</strong> <a href='".$product_url."'>".$product_title."</a><br>";
 
 								$gps_post_name = $this->obj_webshop->get_post_name_for_type('gps');
 
@@ -8420,14 +8727,50 @@ class widget_webshop_product_meta extends WP_Widget
 
 									if($product_coordinates != '')
 									{
-										$widget_content .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coords' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."'"));
+										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coords' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."'"));
 									}
 								}
 							}
 
-							if($widget_content != '')
+							if($out_temp != '')
 							{
-								$widget_content = "<p>".$widget_content."</p>";
+								$widget_content = "<p>".$out_temp."</p>";
+							}
+						break;
+
+						case 'event_info':
+							$obj_font_icons = new mf_font_icons();
+
+							$out_temp = "";
+
+							$arr_event_fields = $this->obj_webshop->get_events_meta_boxes($instance['webshop_option_type'], array());
+
+							foreach($arr_event_fields as $key => $arr_field)
+							{
+								if(in_array($arr_field['post_id'], $instance['webshop_event_doc_types']))
+								{
+									$post_meta = get_post_meta($this->obj_webshop->event_id, $arr_field['id'], true);
+
+									if($post_meta > 0)
+									{
+										$out_temp .= "<li>";
+
+											$column_icon = get_post_meta($arr_field['post_id'], $this->obj_webshop->meta_prefix.'document_symbol', true);
+
+											if($column_icon != '')
+											{
+												$out_temp .= $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $arr_field['name'], 'nbsp' => true));
+											}
+
+											$out_temp .= "<span>".$arr_field['name']."</span>
+										</li>";
+									}
+								}
+							}
+
+							if($out_temp != '')
+							{
+								$widget_content = "<ul class='type_".$instance['webshop_meta_type']."'>".$out_temp."</ul>";
 							}
 						break;
 
@@ -8508,6 +8851,8 @@ class widget_webshop_product_meta extends WP_Widget
 		$instance['webshop_meta_type'] = sanitize_text_field($new_instance['webshop_meta_type']);
 		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 		$instance['webshop_category_text'] = sanitize_text_field($new_instance['webshop_category_text']);
+		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
+		$instance['webshop_event_doc_types'] = is_array($new_instance['webshop_event_doc_types']) ? $new_instance['webshop_event_doc_types'] : array();
 
 		return $instance;
 	}
@@ -8520,12 +8865,29 @@ class widget_webshop_product_meta extends WP_Widget
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
 			.show_select(array('data' => $this->get_meta_types_for_select(), 'name' => $this->get_field_name('webshop_meta_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_meta_type']));
 
-			if($instance['webshop_meta_type'] == 'category_info')
+			switch($instance['webshop_meta_type'])
 			{
-				$name_category = get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop'));
+				case 'category_info':
+					$name_category = get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop'));
 
-				echo show_select(array('data' => $this->obj_webshop->get_categories_for_select(array('include_on' => 'products')), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
-				.show_textfield(array('name' => $this->get_field_name('webshop_category_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_category_text'], 'placeholder' => sprintf(__("%s offers %s", 'lang_webshop'), "[product]", "[category]")));
+					echo show_select(array('data' => $this->obj_webshop->get_categories_for_select(array('include_on' => 'products')), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
+					.show_textfield(array('name' => $this->get_field_name('webshop_category_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_category_text'], 'placeholder' => sprintf(__("%s offers %s", 'lang_webshop'), "[product]", "[category]")));
+				break;
+
+				case 'event_info':
+					echo show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']));
+
+					$arr_data = array();
+
+					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes($instance['webshop_option_type'], array());
+
+					foreach($arr_event_fields as $key => $arr_field)
+					{
+						$arr_data[$arr_field['post_id']] = $arr_field['name'];
+					}
+					
+					echo show_select(array('data' => $arr_data, 'name' => $this->get_field_name('webshop_event_doc_types')."[]", 'text' => __("Filters", 'lang_webshop'), 'value' => $instance['webshop_event_doc_types']));
+				break;
 			}
 
 		echo "</div>";

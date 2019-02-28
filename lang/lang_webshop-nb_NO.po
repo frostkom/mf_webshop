@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-22 16:17+0100\n"
+"POT-Creation-Date: 2019-02-28 15:04+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,807 +15,768 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../group/index.php:8
-#: ../include/classes.php:430
-#: ../include/classes.php:889
-#: ../include/classes.php:909
-#: ../include/classes.php:922
-#: ../include/classes.php:964
-#: ../include/classes.php:1019
-#: ../include/classes.php:1029
-#: ../include/classes.php:1039
-#: ../include/classes.php:1049
-#: ../include/classes.php:1060
-#: ../include/classes.php:1560
 msgid "Webshop"
-msgstr ""
+msgstr "Nettbutikk"
 
-#: ../group/index.php:72
 msgid "The address was not able to be created"
-msgstr ""
+msgstr "Adressen kunne ikke bli laget"
 
-#: ../group/index.php:84
 msgid "You have not set a field for e-mails"
-msgstr ""
+msgstr "Du har ikke laget et tekstfelt for e-poster"
 
-#: ../group/index.php:90
 msgid "Could not find an existing group or create a new one"
-msgstr ""
+msgstr "Kunne ikke finne eksisterende gruppe eller lage en ny"
 
-#: ../group/index.php:94
 msgid "Loading"
-msgstr ""
+msgstr "Laster inn"
 
-#: ../import/index.php:6
 msgid "Import"
 msgstr "Importere"
 
-#: ../include/classes.php:68
 msgid "Show all"
 msgstr "Vis alle"
 
-#: ../include/classes.php:237
-#: ../include/classes.php:365
-#: ../stats/index.php:21
 msgid "Choose Here"
 msgstr "Velg Her"
 
-#: ../include/classes.php:261
 msgid "A-Z"
-msgstr ""
+msgstr "A-Å"
 
-#: ../include/classes.php:266
-#, fuzzy
 msgid "Latest"
-msgstr "Siste svar"
+msgstr "Nyeste"
 
-#: ../include/classes.php:273
 msgid "Popularity"
-msgstr ""
+msgstr "Populæritet"
 
-#: ../include/classes.php:279
 msgid "Random"
-msgstr ""
+msgstr "Tilfeldig"
 
-#: ../include/classes.php:286
-#: ../include/classes.php:323
 msgid "Size"
-msgstr ""
+msgstr "Størrelse"
 
-#: ../include/classes.php:296
 msgid "Information"
 msgstr "Informasjon"
 
-#: ../include/classes.php:297
 msgid "Description"
 msgstr "Beskrivelse"
 
-#: ../include/classes.php:298
 msgid "Heading"
-msgstr ""
+msgstr "Overskrift"
 
-#: ../include/classes.php:299
 msgid "Content"
 msgstr "Innhold"
 
-#: ../include/classes.php:300
 msgid "Label"
-msgstr ""
+msgstr "Merkelapp"
 
-#: ../include/classes.php:301
 msgid "Input"
-msgstr ""
+msgstr "Informasjon"
 
-#: ../include/classes.php:302
 msgid "Text"
 msgstr "Tekst"
 
-#: ../include/classes.php:303
-#, fuzzy
 msgid "Textarea"
-msgstr "Tekst"
+msgstr "Tekstområde"
 
-#: ../include/classes.php:304
 msgid "Date"
 msgstr "Dato"
 
-#: ../include/classes.php:305
 msgid "E-mail"
 msgstr "E-post"
 
-#: ../include/classes.php:306
 msgid "Phone Number"
-msgstr ""
+msgstr "Telefonnummer"
 
-#: ../include/classes.php:307
 msgid "URL"
-msgstr ""
+msgstr "Nettadresse"
 
-#: ../include/classes.php:308
 msgid "Clock"
 msgstr "Klokke"
 
-#: ../include/classes.php:309
 msgid "Checkbox"
-msgstr ""
+msgstr "Avsjekkingsboks"
 
-#: ../include/classes.php:310
 msgid "Special Input"
-msgstr ""
+msgstr "Tilleggsinformasjon"
 
-#: ../include/classes.php:311
 msgid "Color Picker"
-msgstr ""
+msgstr "Fargevelger"
 
-#: ../include/classes.php:312
 msgid "Event"
 msgstr "Hendelse"
 
-#: ../include/classes.php:313
 msgid "Page"
 msgstr "Side"
 
-#: ../include/classes.php:314
 msgid "File"
 msgstr "Fil"
 
-#: ../include/classes.php:315
-#: ../include/classes.php:316
-#: ../include/classes.php:485
-#: ../include/classes.php:723
-#: ../include/classes.php:1118
 msgid "Categories"
-msgstr ""
+msgstr "Kategorier"
 
-#: ../include/classes.php:317
-#: ../include/classes.php:537
 msgid "Custom Categories"
-msgstr ""
+msgstr "Selvvalgte Kategorier"
 
-#: ../include/classes.php:318
 msgid "Social Feed"
-msgstr ""
+msgstr "Kommentarfelt"
 
-#: ../include/classes.php:319
 msgid "Overlay"
-msgstr ""
+msgstr "Fargefilter"
 
-#: ../include/classes.php:320
 msgid "Numbers"
-msgstr ""
+msgstr "Nummer"
 
-#: ../include/classes.php:321
-#: ../include/classes.php:322
-#: ../include/classes.php:323
-#: ../include/classes.php:324
 msgid "Number"
-msgstr ""
+msgstr "Nummer"
 
-#: ../include/classes.php:322
 msgid "Price"
-msgstr ""
+msgstr "Pris"
 
-#: ../include/classes.php:324
-#, fuzzy
 msgid "Stock"
-msgstr "Klokke"
+msgstr "Lager"
 
-#: ../include/classes.php:325
 msgid "Interval"
-msgstr ""
+msgstr "Intervall"
 
-#: ../include/classes.php:326
-#: ../include/classes.php:327
-#: ../include/classes.php:577
-#: ../stats/index.php:134
-#, fuzzy
 msgid "Location"
-msgstr "Informasjon"
+msgstr "Lokalitet"
 
-#: ../include/classes.php:328
 msgid "Address"
 msgstr "Adresse"
 
-#: ../include/classes.php:329
-#, fuzzy
 msgid "Local Address"
-msgstr "Adresse"
+msgstr "Lokal adresse"
 
-#: ../include/classes.php:330
-#: ../include/classes.php:964
-#: ../include/classes.php:1031
+msgid "Coordinates"
+msgstr "Koordinater"
+
 msgid "Map"
-msgstr ""
+msgstr "Kart"
 
-#: ../include/classes.php:332
-#, fuzzy
 msgid "Formatting"
-msgstr "Informasjon"
+msgstr "Formatering"
 
-#: ../include/classes.php:333
 msgid "Divider"
-msgstr ""
+msgstr "Dele opp"
 
-#: ../include/classes.php:334
 msgid "Contact Button"
-msgstr ""
+msgstr "Kontakt knapp"
 
-#: ../include/classes.php:335
-#, fuzzy
 msgid "Read More Button"
-msgstr "Les Mer"
+msgstr "Les mer knapp"
 
-#: ../include/classes.php:336
 msgid "Start of Container"
-msgstr ""
+msgstr "Starten på boksen"
 
-#: ../include/classes.php:337
 msgid "End of Container"
-msgstr ""
+msgstr "Slutten på boksen"
 
-#: ../include/classes.php:338
 msgid "Settings"
 msgstr "Innstillinger"
 
-#: ../include/classes.php:339
-#, fuzzy
 msgid "Hide Information"
-msgstr "Informasjon"
+msgstr "Skjul informasjon"
 
-#: ../include/classes.php:340
-msgid "Global Code"
-msgstr ""
-
-#: ../include/classes.php:351
 msgid "Everywhere"
-msgstr ""
+msgstr "Overalt"
 
-#: ../include/classes.php:352
 msgid "Only in search view"
-msgstr ""
+msgstr "Bare i søkemodus"
 
-#: ../include/classes.php:353
 msgid "Only on single page"
-msgstr ""
+msgstr "Bare på enkeltside"
 
-#: ../include/classes.php:354
 msgid "Nowhere"
-msgstr ""
+msgstr "Ingen steder"
 
-#: ../include/classes.php:462
-#, php-format
-msgid "An option for %s exists in the DB"
-msgstr ""
+msgid "Disable"
+msgstr "Deaktiver"
 
-#: ../include/classes.php:508
-#: ../include/classes.php:1078
-#: ../include/classes.php:1247
-#: ../stats/index.php:31
 msgid "Products"
-msgstr ""
+msgstr "Produkter"
 
-#: ../include/classes.php:557
-#: ../include/classes.php:1126
-#, fuzzy
+msgid "Events"
+msgstr "Eventer"
+
+msgid "Choose Category Here"
+msgstr "Velg kategori her"
+
+msgid "An option for %s exists in the DB"
+msgstr "Et alternativ for %s eksisterer i DB"
+
 msgid "Filters"
-msgstr "Fil"
+msgstr "Filter"
 
-#: ../include/classes.php:597
 msgid "Customers"
-msgstr ""
+msgstr "Kunder"
 
-#: ../include/classes.php:616
 msgid "Delivery Type"
-msgstr ""
+msgstr "Leveringsmåte"
 
-#: ../include/classes.php:652
 msgid "Types"
-msgstr ""
+msgstr "Sorter"
 
-#: ../include/classes.php:657
-#, php-format
-msgid "Title for '%s'"
-msgstr ""
-
-#: ../include/classes.php:657
 msgid "default"
-msgstr ""
+msgstr "standard"
 
-#: ../include/classes.php:660
 msgid "Local Storage"
-msgstr ""
+msgstr "Lokalt lager"
 
-#: ../include/classes.php:672
-#, fuzzy
 msgid "Display Sort"
-msgstr "Vis Filter"
+msgstr "Visningsanordning"
 
-#: ../include/classes.php:673
 msgid "Sort Default"
-msgstr ""
+msgstr "Visningsstandard"
 
-#: ../include/classes.php:674
 msgid "Display Filter"
 msgstr "Vis Filter"
 
-#: ../include/classes.php:687
-#: ../include/classes.php:688
 msgid "Map visibility"
-msgstr ""
+msgstr "Kart synlighet"
 
-#: ../include/classes.php:688
-#, fuzzy
 msgid "Mobile"
-msgstr "Fil"
+msgstr "Mobilnummer"
 
-#: ../include/classes.php:689
 msgid "Info color"
-msgstr ""
+msgstr "Info farge"
 
-#: ../include/classes.php:690
 msgid "Info text color"
-msgstr ""
+msgstr "Info tekstfarge"
 
-#: ../include/classes.php:702
-#: ../include/classes.php:1050
-#: ../include/classes.php:1070
 msgid "Product"
-msgstr ""
+msgstr "Produkt"
 
-#: ../include/classes.php:711
-#: ../include/classes.php:712
-#: ../include/classes.php:713
-#: ../include/classes.php:714
-#: ../include/classes.php:715
-#: ../include/classes.php:745
-#: ../include/classes.php:746
-#: ../include/classes.php:757
-#: ../include/classes.php:765
-#: ../include/classes.php:768
-#: ../include/classes.php:769
-#: ../include/classes.php:791
-#: ../include/classes.php:792
-#: ../include/classes.php:825
-#: ../include/classes.php:826
-#: ../include/classes.php:827
-#: ../include/classes.php:828
-#: ../include/classes.php:835
-#: ../include/classes.php:874
-#: ../include/classes.php:875
 msgid "Replace Text"
-msgstr ""
+msgstr "Erstatt tekst"
 
-#: ../include/classes.php:716
-#: ../include/classes.php:725
-#, php-format
 msgid "Replace %s slug with"
-msgstr ""
+msgstr "Erstatt %s med"
 
-#: ../include/classes.php:730
+msgid "Activate on Front-End Admin"
+msgstr "Aktiver en Front-End Admin"
+
 msgid "Payment Form"
-msgstr ""
+msgstr "Betalingsform"
 
-#: ../include/classes.php:744
-msgid "Min results to show number"
-msgstr ""
-
-#: ../include/classes.php:748
-#, fuzzy
 msgid "Display Images"
-msgstr "Vis Filter"
+msgstr "Bilder til visningssiden"
 
-#: ../include/classes.php:752
-#: ../include/classes.php:831
+msgid "Amount of Images"
+msgstr "Antall bilder"
+
 msgid "Form for quote request"
-msgstr ""
+msgstr "Skjem for forespørsler"
 
-#: ../include/classes.php:756
-msgid "Max results to send quote"
-msgstr ""
-
-#: ../include/classes.php:758
-#: ../include/classes.php:759
 msgid "Switch Icon"
-msgstr ""
+msgstr "Bytt ikon"
 
-#: ../include/classes.php:758
 msgid "On"
-msgstr ""
+msgstr "På"
 
-#: ../include/classes.php:759
 msgid "Off"
-msgstr ""
+msgstr "Av"
 
-#: ../include/classes.php:761
 msgid "Require user to make some kind of search"
-msgstr ""
+msgstr "Bruker er nødvendig for å gjøre søk"
 
-#: ../include/classes.php:775
 msgid "Default range minimum"
-msgstr ""
+msgstr "Standard rekkevidde minimum"
 
-#: ../include/classes.php:776
-msgid "Custom range choices"
-msgstr ""
-
-#: ../include/classes.php:793
 msgid "Email Subject"
-msgstr ""
+msgstr "E-post emne"
 
-#: ../include/classes.php:794
-#, fuzzy
 msgid "Email Content"
-msgstr "Innhold"
+msgstr "E-post innhold"
 
-#: ../include/classes.php:808
 msgid "Template for Presentation"
-msgstr ""
+msgstr "Template for presentasjon"
 
-#: ../include/classes.php:813
-#, fuzzy
-msgid "Display Breadcrumbs"
-msgstr "Vis Filter"
-
-#: ../include/classes.php:820
 msgid "Allow Multiple Categories"
-msgstr ""
+msgstr "Tillat flere kategorier"
 
-#: ../include/classes.php:831
-#, fuzzy
-msgid "single"
-msgstr "Fil"
-
-#: ../include/classes.php:837
-msgid "Force Individual Contact"
-msgstr ""
-
-#: ../include/classes.php:856
 msgid "API key"
-msgstr ""
+msgstr "API-Nøkkel"
 
-#: ../include/classes.php:859
-msgid "Symbol inactive image"
-msgstr ""
-
-#: ../include/classes.php:860
-msgid "Symbol active image"
-msgstr ""
-
-#: ../include/classes.php:864
-msgid "Ghost symbol inactive image"
-msgstr ""
-
-#: ../include/classes.php:865
-msgid "Ghost symbol active image"
-msgstr ""
-
-#: ../include/classes.php:870
-msgid "Symbol inactive color"
-msgstr ""
-
-#: ../include/classes.php:871
-msgid "Symbol active color"
-msgstr ""
-
-#: ../include/classes.php:876
-#, fuzzy
 msgid "Map Information"
-msgstr "Informasjon"
+msgstr "Kartinformasjon"
 
-#: ../include/classes.php:914
 msgid "Clear"
-msgstr ""
+msgstr "Visk ut"
 
-#: ../include/classes.php:922
-#: ../include/classes.php:1062
-#: ../orders/index.php:99
 msgid "Search"
 msgstr "Søk"
 
-#: ../include/classes.php:952
-#: ../include/classes.php:953
-#: ../include/classes.php:1172
-#: ../include/classes.php:1173
 msgid "Yes"
 msgstr "Ja"
 
-#: ../include/classes.php:953
 msgid "Hidden behind a button"
-msgstr ""
+msgstr "Skjult bak en knapp"
 
-#: ../include/classes.php:954
-#: ../include/classes.php:1174
 msgid "No"
 msgstr "Nei"
 
-#: ../include/classes.php:1041
 msgid "Favorites"
-msgstr ""
+msgstr "Favoritter"
 
-#: ../include/classes.php:1086
 msgid "Enter title here"
-msgstr ""
+msgstr "Skriv inn tittel her"
 
-#: ../include/classes.php:1134
-#, php-format
 msgid "Filter amongst %s products"
 msgstr "Filter blant %s produkter"
 
-#: ../include/classes.php:1134
-#: ../include/classes.php:1142
-#: ../include/classes.php:1150
 msgid "Disable by adding any single character"
-msgstr ""
+msgstr "Deaktiver ved å legge til hvilken som helst enkeltbokstav"
 
-#: ../include/classes.php:1142
-#, php-format
 msgid "Your search matches %s products"
 msgstr "Ditt søk samsvarer med %s produkter"
 
-#: ../include/classes.php:1150
-#, php-format
 msgid "Here are your %s saved products"
-msgstr ""
+msgstr "Her er dine %s lagrede produkter"
 
-#: ../include/classes.php:1158
 msgid "Send request for quote"
-msgstr ""
+msgstr "Send forespørsel"
 
-#: ../include/classes.php:1166
 msgid "Choose"
 msgstr "Velg"
 
-#: ../include/classes.php:1173
 msgid "but not on Search"
-msgstr ""
+msgstr "men ikke i Search"
 
-#: ../include/classes.php:1215
-#, fuzzy
 msgid "Add to Search"
-msgstr "Søk"
+msgstr "Legg til i Søk"
 
-#: ../include/classes.php:1223
 msgid "Remove from Search"
-msgstr ""
+msgstr "Ta bort fra Søk"
 
-#: ../include/classes.php:1231
 msgid "Return to Search"
-msgstr ""
+msgstr "Tilbake til Søk"
 
-#: ../include/classes.php:1239
-#, fuzzy
 msgid "Search for Another"
-msgstr "Søk etter"
+msgstr "Nytt søk"
 
-#: ../include/classes.php:1249
 msgid "Send request for quote to"
-msgstr ""
+msgstr "Send forespørsel til"
 
-#: ../include/classes.php:1257
-#: ../include/classes.php:1506
 msgid "You have to choose at least one product to proceed"
-msgstr ""
+msgstr "Du må velge minst et produkt for å fortsette"
 
-#: ../include/classes.php:1265
 msgid "Email Your Products"
-msgstr ""
+msgstr "Send e-post med dine produkter"
 
-#: ../include/classes.php:1273
 msgid "In order to send a quote you have to be specific what you want by filtering"
-msgstr ""
+msgstr "For å kunne sende en forespørsel må du være spesifikk på hva du ønsker deg ved å filtrere"
 
-#: ../include/classes.php:1279
 msgid "I would like to share these products that I like"
-msgstr ""
+msgstr "I har lyst til å dele disse produktene som jeg liker"
 
-#: ../include/classes.php:1287
-#, php-format
 msgid "Here are my favorites (%s)"
-msgstr ""
+msgstr "Her er mine favoritter (%s)"
 
-#: ../include/classes.php:1301
 msgid "Get yours here"
-msgstr ""
+msgstr "Kjøp dine her"
 
-#: ../include/classes.php:1311
-#, fuzzy
 msgid "Show Map"
-msgstr "Vis alle"
+msgstr "Vis kart"
 
-#: ../include/classes.php:1319
 msgid "Hide Map"
-msgstr ""
+msgstr "Skjul kart"
 
-#: ../include/classes.php:1339
-msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
-msgstr ""
-
-#: ../include/classes.php:1363
-#, php-format
 msgid "%d will hide the link in the form"
-msgstr ""
+msgstr "%d vil skjule linken i skjemaet"
 
-#: ../include/classes.php:1468
 msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
-msgstr ""
+msgstr "Dette vil tillate besøkende å sende individuelle forespørsler hele tiden, eller er det bare for førstegangsbesøkende som kommer direkte til siden som får dette valget"
 
-#: ../include/classes.php:1502
-#: ../include/templates/single-mf_category.php:68
 msgid "Read More"
 msgstr "Les Mer"
 
-#: ../include/classes.php:1523
-msgid "Local Storage was successfully cleared on this device"
-msgstr ""
-
-#: ../include/classes.php:1564
-msgid "When searching we store information in the so called 'localStorage' in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
-msgstr ""
-
-#: ../include/classes.php:1602
 msgid "Are you sure?"
-msgstr ""
+msgstr "Er du sikker?"
 
-#: ../include/classes.php:1608
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
-#: ../include/classes.php:1619
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
-#: ../include/classes.php:1620
 msgid "Edit in Admin"
-msgstr ""
+msgstr "Rediger i Admin"
 
-#: ../include/classes.php:1621
 msgid "View"
-msgstr ""
+msgstr "Vis"
 
-#: ../include/classes.php:1632
-msgid "You haven't added anything yet"
-msgstr ""
-
-#: ../include/classes.php:1636
-#, fuzzy
-msgid "Choose Category Here"
-msgstr "Velg Her"
-
-#: ../include/classes.php:1640
-#, fuzzy
 msgid "Title"
-msgstr "Fil"
+msgstr "Tittel"
 
-#: ../include/api/index.php:160
-#: ../include/api/index.php:192
-#, php-format
-msgid "You have to install the plugin %s first"
-msgstr ""
+msgid "Street 123, City"
+msgstr "Gate 123, Sted"
 
-#: ../include/api/index.php:578
-#: ../include/api/index.php:617
-#, php-format
-msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Informationen sparad. %sSe inlägg%s"
+msgid "Add important information here"
+msgstr "Här skriver du saker att tänka på , t ex att det är på baksidan av huset, eller att det är många trappor att gå eller att ta med varma kläder etc."
 
-#: ../include/api/index.php:589
-msgid "I could not update the information for you"
-msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
+msgid "Add"
+msgstr "Legg til"
 
-#: ../include/api/index.php:595
-msgid "It does not look like you changed anything, so nothing was saved"
-msgstr "Det ser ikke ut som om du har endret noe, så ingenting ble lagret"
+msgid "001-888-342-324"
+msgstr "12345678"
 
-#: ../include/api/index.php:624
-msgid "I could not save the information for you"
-msgstr "Jeg kunne ikke lagre informasjonen for deg"
+msgid "Update"
+msgstr "Oppdater"
 
-#: ../include/api/index.php:630
-msgid "One with that title already exists"
-msgstr ""
+msgid "Create"
+msgstr "Lag"
 
-#: ../orders/index.php:98
-msgid "Search for"
-msgstr "Søk etter"
+msgid "List"
+msgstr "Legge til i liste"
 
-#: ../orders/index.php:145
-msgid "The amount in stock and in the order is wrong"
-msgstr ""
+msgid "Add New"
+msgstr "Legg til ny"
 
-#: ../orders/index.php:168
-msgid "The order was deleted"
-msgstr ""
+msgid "Continue Search"
+msgstr "Fortsett søk"
 
-#: ../orders/index.php:196
-msgid "Shipping info"
-msgstr ""
+msgid "Something was missing when a user paid for access to %s (%s)"
+msgstr "Noe manglet da en bruker betalte for tilgang til %s (%s)"
 
-#: ../orders/index.php:197
-#, php-format
-msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
-msgstr ""
+msgid "Unread Orders"
+msgstr "Uleste ordre"
 
-#: ../orders/index.php:204
 msgid "Orders"
-msgstr ""
+msgstr "Ordre"
 
-#: ../orders/index.php:219
-#: ../orders/index.php:248
-msgid "Invoice sent"
-msgstr ""
+msgid "Statistics"
+msgstr "Statestikk"
 
-#: ../orders/index.php:220
-#: ../orders/index.php:264
-#, fuzzy
-msgid "Delivered"
-msgstr "Slett"
+msgid "Send e-mail to all"
+msgstr "Send e-post til alle"
 
-#: ../orders/index.php:221
-msgid "Ordered by"
-msgstr ""
+msgid "Pay to Access %s"
+msgstr "Betal for å få tilgang til %s"
 
-#: ../orders/index.php:222
-msgid "Created"
-msgstr "Opprettet"
+msgid "Searchable"
+msgstr "Søkbar"
 
-#: ../orders/index.php:289
-msgid "Delete"
-msgstr "Slett"
+msgid "Image"
+msgstr "Bilde"
 
-#: ../stats/index.php:29
+msgid "Results"
+msgstr "Resultater"
+
+msgid "Contact Info"
+msgstr "Kontakt informasjon"
+
+msgid "Quick Info"
+msgstr "Kort info"
+
+msgid "Properties"
+msgstr "Egenskaper"
+
+msgid "Max Length"
+msgstr "Maks lengde"
+
+msgid "Required"
+msgstr "Påkrevd"
+
+msgid "Display on Categories"
+msgstr "Vis i Kategorier"
+
+msgid "Alternate text"
+msgstr "Alternere tekst"
+
+msgid "Custom class"
+msgstr "Toll kategori"
+
+msgid "Default value"
+msgstr "Standard verdi"
+
+msgid "Order number"
+msgstr "Ordrenummer"
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Color"
+msgstr "Farge"
+
+msgid "Connect to new %s"
+msgstr "Koble til ny %s"
+
+msgid "Include on"
+msgstr "Inkluder på"
+
+msgid "Hidden"
+msgstr "Skjult"
+
+msgid "Customer No"
+msgstr "Kundenummer"
+
 msgid "All"
 msgstr "Alle"
 
-#: ../stats/index.php:34
-msgid "Statistics"
-msgstr ""
+msgid "Paid for %s until"
+msgstr "Betalt for %s til"
 
-#: ../stats/index.php:54
+msgid "Choose all"
+msgstr "Velg alle"
+
+msgid "Print List"
+msgstr "Skriv ut liste"
+
+msgid "Sort By"
+msgstr "Sorter etter"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Distance"
+msgstr "Avstand"
+
+msgid "I could not find any events"
+msgstr "Jeg kunne ikke finne noen eventer"
+
+msgid "Display More Events (%s)"
+msgstr "Visa fler aktiviteter (%s)"
+
+msgid "I could not find any %s"
+msgstr "Jeg kunne ikke finne noen %s"
+
+msgid "Display More %s (%s)"
+msgstr "Vi flere %s (%s)"
+
+msgid "I could not find anything that corresponded to your choices"
+msgstr "Jeg kunne ikke finne noe som samsvarer med dine valg"
+
+msgid "Today"
+msgstr "Idag"
+
+msgid "There was no post_name_for_type for event"
+msgstr "Det var ingen post-name-for-type til event"
+
+msgid "Update Cart"
+msgstr "Oppdater handlekurven"
+
+msgid "Add to Cart"
+msgstr "Legg til i handlekurven"
+
+msgid "Delete"
+msgstr "Slett"
+
+msgid "You have to install the plugin %s first"
+msgstr "Du må installere plugin %s først"
+
+msgid "Display Search"
+msgstr "Vis Søk"
+
+msgid "Display Map"
+msgstr "Vis Kart"
+
+msgid "Display start page form"
+msgstr "Vis startside skjema"
+
+msgid "Form"
+msgstr "Skjema"
+
+msgid "Go to after submit"
+msgstr "Gå til etter innsending"
+
+msgid "Default %s"
+msgstr "Standard %s"
+
+msgid "Button text"
+msgstr "Knapp tekst"
+
+msgid "Display start page list"
+msgstr "Vis startside liste"
+
+msgid "Go to on click"
+msgstr "Gå til ved klikk"
+
+msgid "Locations"
+msgstr "Lokaliteter"
+
+msgid "Display start page favorites"
+msgstr "Vis startside favoritter"
+
+msgid "Display Category"
+msgstr "Vis Kategori"
+
+msgid "Display Info"
+msgstr "Vi info"
+
+msgid "Display Border"
+msgstr "Vis ramme"
+
+msgid "Display Recent"
+msgstr "Vis nyeste"
+
+msgid "Recent"
+msgstr "Nyeste"
+
+msgid "Amount"
+msgstr "Beløp"
+
+msgid "Display Events"
+msgstr "Vi Events"
+
+msgid "Calendar"
+msgstr "Kalender"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "Closest"
+msgstr "Nærmest"
+
+msgid "Display Filters"
+msgstr "Vis Filter"
+
+msgid "There are %s events"
+msgstr "Det er %s eventer"
+
+msgid "Display Filtered Products"
+msgstr "Vis filtrerte produkter"
+
+msgid "Filtered Products"
+msgstr "Filtrerte produkter"
+
+msgid "Display Product Meta"
+msgstr "Vis Produkt Meta"
+
+msgid "Product Meta"
+msgstr "Produkt Meta"
+
+msgid "Category Info"
+msgstr "Kategori Info"
+
+msgid "Actions"
+msgstr "Handlinger"
+
+msgid "Contact %s"
+msgstr "Kontakt %s"
+
+msgid "Mark as Favorite"
+msgstr "Merk som Favoritt"
+
+msgid "I can recommend this event"
+msgstr "Jeg kan anbefale denne eventen"
+
+msgid "Hi! I think that you might like this event. Go to %s to view it."
+msgstr "Hei! Jeg tenker at du vil like denne eventen. Gå til %s for å se."
+
+msgid "Tell a Friend"
+msgstr "Foetal en venn"
+
+msgid "Print the Information"
+msgstr "Skriv ut informasjonen"
+
+msgid "%s offers %s"
+msgstr "%s tilbud %s"
+
+msgid "Display Categories"
+msgstr "Vis Kategorier"
+
+msgid "Display Cart"
+msgstr "Vis Handlekurv"
+
+msgid "Cart"
+msgstr "Handlekurv"
+
+msgid "The cart has been updated"
+msgstr "Handlekurven har blitt oppdatert"
+
+msgid "The order has been completed"
+msgstr "Din ordre er fullført"
+
+msgid "Order info"
+msgstr "Ordreinfo"
+
+msgid "You have to select the customer and correct customer number"
+msgstr "Du må velge kunden og korrekt kundenummer"
+
+msgid "You have to enter customer, customer number, name and e-mail"
+msgstr "Du må taste inn kunde, kundenummer, navn og e-postadresse"
+
+msgid "Proceed to Checkout"
+msgstr "Fortsett til betaling"
+
+msgid "Checkout"
+msgstr "Utsjekk"
+
+msgid "Customer"
+msgstr "Kunde"
+
+msgid "Confirm Order"
+msgstr "Bekreft ordre"
+
+msgid "I have saved the information for you. %sView the page here%s"
+msgstr "Informationen sparad. %sSe inlägg%s"
+
+msgid "I could not update the information for you"
+msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
+
+msgid "It does not look like you changed anything, so nothing was saved"
+msgstr "Det ser ikke ut som om du har endret noe, så ingenting ble lagret"
+
+msgid "I could not save the information for you"
+msgstr "Jeg kunne ikke lagre informasjonen for deg"
+
+msgid "One with that title already exists"
+msgstr "Det eksisterer allerede en med den tittelen"
+
+msgid "Search for"
+msgstr "Søk etter"
+
+msgid "The amount in stock and in the order is wrong"
+msgstr "Antallet på lager og i ordren er feil"
+
+msgid "The order was deleted"
+msgstr "Ordren ble slettet"
+
+msgid "Shipping info"
+msgstr "Leveringsinfo"
+
+msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
+msgstr "Din ordre fra %s er nå klar for å hentes. Takk for din ordre og velkommen tilbake!"
+
+msgid "Invoice sent"
+msgstr "Faktura sendt"
+
+msgid "Delivered"
+msgstr "Levert"
+
+msgid "Ordered by"
+msgstr "Bestilt av"
+
+msgid "Created"
+msgstr "Opprettet"
+
 msgid "unknown"
 msgstr "ukjent"
 
-#: ../stats/index.php:65
-#, fuzzy
 msgid "Monthly"
-msgstr "Måneder"
+msgstr "Månedlig"
 
-#: ../stats/index.php:103
 msgid "Months"
 msgstr "Måneder"
 
-#: ../stats/index.php:111
-#, fuzzy
 msgid "Years"
-msgstr "Ja"
+msgstr "År"
 
-#: ../stats/index.php:123
-#, fuzzy
-msgid "Filter"
-msgstr "Fil"
-
-#: ../stats/index.php:125
 msgid "Limit"
-msgstr ""
+msgstr "Begrensning"
 
-#: ../stats/index.php:127
 msgid "From"
 msgstr "Fra"
 
-#: ../stats/index.php:128
 msgid "To"
-msgstr ""
+msgstr "Til"
 
-#: ../stats/index.php:157
 msgid "Overall"
-msgstr ""
+msgstr "Summert"
 
-#: ../stats/index.php:159
 msgid "First answer"
 msgstr "Første svar"
 
-#: ../stats/index.php:160
 msgid "Latest answer"
 msgstr "Siste svar"
 
-#~ msgid "Add New"
-#~ msgstr "Legg til ny"

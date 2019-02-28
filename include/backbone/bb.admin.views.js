@@ -56,7 +56,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 			scroll_to_top();
 
-			jQuery(".mf_form button[type='submit']").removeClass('disabled').removeAttr('disabled');
+			jQuery(".mf_form button[type='submit']").removeClass('loading').removeAttr('disabled');
 
 			this.model.set({'message': ''});
 		}
@@ -108,7 +108,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			this.model.submitForm(dom_action, dom_obj.serialize());
 
-			dom_obj.find("button[type='submit']").addClass('disabled').attr('disabled', true);
+			dom_obj.find("button[type='submit']").addClass('loading').attr('disabled', true);
 
 			return false;
 		}
@@ -184,7 +184,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			var clone = dom_last_child.clone();
 
-			clone.find("input, textarea").val('').attr('value', '');
+			clone.find("input, textarea, select").val('').attr('value', '');
 			clone.find(".event_name").children(".description").addClass('hide');
 
 			dom_parent.append(clone);
