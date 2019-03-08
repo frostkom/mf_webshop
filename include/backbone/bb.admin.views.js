@@ -12,6 +12,10 @@ var WebshopAdminView = Backbone.View.extend(
 
 	events:
 	{
+		"blur .event_children .start_date": "check_start_date",
+		"change .event_children .start_date": "check_start_date",
+		"blur .event_children .start_time": "check_start_time",
+		"change .event_children .start_time": "check_start_time",
 		"submit form": "submit_form",
 		"blur .event_children .form_textfield input": "add_event_field",
 		"change .event_children .form_textfield input": "add_event_field",
@@ -98,6 +102,58 @@ var WebshopAdminView = Backbone.View.extend(
 		this.model.getPage(action);
 	},
 
+	check_start_date: function(e)
+	{
+		if(e.currentTarget)
+		{
+			var dom_obj = jQuery(e.currentTarget);
+		}
+
+		else
+		{
+			var dom_obj = e;
+		}
+
+		var date_start_val = dom_obj.children("input[type='date']").val(),
+			dom_sibling = dom_obj.siblings(".form_textfield").children("input[type='date']");
+
+		if(date_start_val != '')
+		{
+			dom_sibling.attr({'min': date_start_val});
+		}
+
+		else
+		{
+			dom_sibling.removeAttr('min');
+		}
+	},
+
+	check_start_time: function(e)
+	{
+		if(e.currentTarget)
+		{
+			var dom_obj = jQuery(e.currentTarget);
+		}
+
+		else
+		{
+			var dom_obj = e;
+		}
+
+		var date_start_val = dom_obj.children("input[type='time']").val(),
+			dom_sibling = dom_obj.siblings(".form_textfield").children("input[type='time']");
+
+		if(date_start_val != '')
+		{
+			dom_sibling.attr({'min': date_start_val});
+		}
+
+		else
+		{
+			dom_sibling.removeAttr('min');
+		}
+	},
+
 	submit_form: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
@@ -123,9 +179,8 @@ var WebshopAdminView = Backbone.View.extend(
 		switch(type)
 		{
 			case 'admin_webshop_list':
-				var amount = response.list.length;
-
-				var dom_template = jQuery("#template_" + type),
+				var amount = response.list.length,
+					dom_template = jQuery("#template_" + type),
 					dom_container = jQuery("#" + type);
 
 				if(amount > 0)
@@ -144,7 +199,8 @@ var WebshopAdminView = Backbone.View.extend(
 			break;
 
 			case 'admin_webshop_edit':
-				var dom_template = jQuery("#template_" + type),
+				var self = this,
+					dom_template = jQuery("#template_" + type),
 					dom_container = jQuery("#" + type);
 
 				html = _.template(dom_template.html())(response);
@@ -161,6 +217,16 @@ var WebshopAdminView = Backbone.View.extend(
 				});
 
 				myAdminView.display_container(dom_container);
+
+				jQuery(".event_children .start_date").each(function()
+				{
+					self.check_start_date(jQuery(this));
+				});
+
+				jQuery(".event_children .start_time").each(function()
+				{
+					self.check_start_time(jQuery(this));
+				});
 
 				if(typeof select_option === 'function')
 				{

@@ -1913,8 +1913,8 @@ class mf_webshop
 																					});
 																				} %>"
 																				."<div class='flex_flow tight'>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>"))
+																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
+																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
 																					."<h3>-</h3>"
 																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
 																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
@@ -1934,8 +1934,8 @@ class mf_webshop
 																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																			."</div>
 																			<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]"))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]'))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'xtra_class' => "start_date"))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'xtra_class' => "start_time"))
 																				."<h3>-</h3>"
 																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]"))
 																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]'))
@@ -2773,10 +2773,10 @@ class mf_webshop
 					update_post_meta($post_id, $arr_field['id'], $value_temp[$i]);
 				}
 
-				else
+				/*else
 				{
 					do_log("set_events_meta_boxes: ".$i." not in ".var_export($value_temp, true));
-				}
+				}*/
 			}
 		}
 	}
