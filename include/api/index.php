@@ -110,7 +110,8 @@ switch($type_switch)
 								{
 									foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 									{
-										$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['description'] = "";
+										$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = //$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = array();
+										//$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['description'] = "";
 										$arr_children_temp = array();
 
 										$id_temp = $arr_meta_box['fields'][$field_id]['id'];
@@ -205,8 +206,13 @@ switch($type_switch)
 												case 'select3':
 													if($multiple_temp)
 													{
-														$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " form_select_multiple";
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
 														$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
+
+														/*if(isset($arr_meta_box['fields'][$field_id]['required']) && $arr_meta_box['fields'][$field_id]['required'] == 'yes')
+														{
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] .= " required";
+														}*/
 													}
 												break;
 											}

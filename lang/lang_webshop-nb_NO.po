@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-28 15:04+0100\n"
+"POT-Creation-Date: 2019-03-07 07:42+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -29,9 +29,6 @@ msgstr "Kunne ikke finne eksisterende gruppe eller lage en ny"
 
 msgid "Loading"
 msgstr "Laster inn"
-
-msgid "Import"
-msgstr "Importere"
 
 msgid "Show all"
 msgstr "Vis alle"
@@ -201,8 +198,29 @@ msgstr "Eventer"
 msgid "Choose Category Here"
 msgstr "Velg kategori her"
 
-msgid "An option for %s exists in the DB"
-msgstr "Et alternativ for %s eksisterer i DB"
+msgid "Yes"
+msgstr "Ja"
+
+msgid "but not on Search"
+msgstr "men ikke i Search"
+
+msgid "No"
+msgstr "Nei"
+
+msgid "Searchable"
+msgstr "Søkbar"
+
+msgid "Results"
+msgstr "Resultater"
+
+msgid "Contact Info"
+msgstr "Kontakt informasjon"
+
+msgid "Quick Info"
+msgstr "Kort info"
+
+msgid "Properties"
+msgstr "Egenskaper"
 
 msgid "Filters"
 msgstr "Filter"
@@ -306,14 +324,8 @@ msgstr "Visk ut"
 msgid "Search"
 msgstr "Søk"
 
-msgid "Yes"
-msgstr "Ja"
-
 msgid "Hidden behind a button"
 msgstr "Skjult bak en knapp"
-
-msgid "No"
-msgstr "Nei"
 
 msgid "Favorites"
 msgstr "Favoritter"
@@ -338,9 +350,6 @@ msgstr "Send forespørsel"
 
 msgid "Choose"
 msgstr "Velg"
-
-msgid "but not on Search"
-msgstr "men ikke i Search"
 
 msgid "Add to Search"
 msgstr "Legg til i Søk"
@@ -412,13 +421,10 @@ msgid "Street 123, City"
 msgstr "Gate 123, Sted"
 
 msgid "Add important information here"
-msgstr "Här skriver du saker att tänka på , t ex att det är på baksidan av huset, eller att det är många trappor att gå eller att ta med varma kläder etc."
+msgstr "Her skriver du ting som er viktig å tenke på. For eksempel: utendørs aktivitet - ta med varme klær, bestill en flybillett i god tid osv."
 
 msgid "Add"
 msgstr "Legg til"
-
-msgid "001-888-342-324"
-msgstr "12345678"
 
 msgid "Update"
 msgstr "Oppdater"
@@ -432,17 +438,20 @@ msgstr "Legge til i liste"
 msgid "Add New"
 msgstr "Legg til ny"
 
+msgid "001-888-342-324"
+msgstr "12345678"
+
 msgid "Continue Search"
 msgstr "Fortsett søk"
-
-msgid "Something was missing when a user paid for access to %s (%s)"
-msgstr "Noe manglet da en bruker betalte for tilgang til %s (%s)"
 
 msgid "Unread Orders"
 msgstr "Uleste ordre"
 
 msgid "Orders"
 msgstr "Ordre"
+
+msgid "Import"
+msgstr "Importere"
 
 msgid "Statistics"
 msgstr "Statestikk"
@@ -453,23 +462,8 @@ msgstr "Send e-post til alle"
 msgid "Pay to Access %s"
 msgstr "Betal for å få tilgang til %s"
 
-msgid "Searchable"
-msgstr "Søkbar"
-
 msgid "Image"
 msgstr "Bilde"
-
-msgid "Results"
-msgstr "Resultater"
-
-msgid "Contact Info"
-msgstr "Kontakt informasjon"
-
-msgid "Quick Info"
-msgstr "Kort info"
-
-msgid "Properties"
-msgstr "Egenskaper"
 
 msgid "Max Length"
 msgstr "Maks lengde"

@@ -4,10 +4,10 @@ var WebshopAdminView = Backbone.View.extend(
 
 	initialize: function()
 	{
-		this.model.on("change:redirect", this.do_redirect, this);
-		this.model.on('change:message', this.display_message, this);
+		this.model.on("change:redirect", myAdminView.do_redirect, this);
+		this.model.on('change:message', myAdminView.display_message, this);
 		this.model.on("change:next_request", this.next_request, this);
-		this.model.on("change:admin_webshop_response", this.view_response, this);
+		this.model.on("change:admin_webshop_response", this.admin_webshop_response, this);
 	},
 
 	events:
@@ -19,13 +19,13 @@ var WebshopAdminView = Backbone.View.extend(
 		"keyup .maps_location input": "clear_coordinates",
 	},
 
-	do_redirect: function()
+	/*do_redirect: function()
 	{
 		var response = this.model.get('redirect');
 
 		if(response != '')
 		{
-			location.href = response; /* + (response.match(/\?/) ? "&" : "?") + "redirect_to=" + location.href*/
+			location.href = response;
 
 			this.model.set({'redirect': ''});
 		}
@@ -33,7 +33,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 	hide_message: function()
 	{
-		jQuery(".error:not(.hide), .updated:not(.hide)").addClass('hide');
+		jQuery(".error:not(.hide), .updated:not(.hide), .aside.left, .aside.right").addClass('hide');
 	},
 
 	display_message: function()
@@ -42,7 +42,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 		if(response != '')
 		{
-			this.hide_message();
+			myAdminView.hide_message();
 
 			if(this.model.get('success') == true)
 			{
@@ -62,6 +62,11 @@ var WebshopAdminView = Backbone.View.extend(
 		}
 	},
 
+	display_container: function(dom_container)
+	{
+		dom_container.removeClass('hide').siblings("div").addClass('hide');
+	},*/
+
 	next_request: function()
 	{
 		var response = this.model.get("next_request");
@@ -74,20 +79,15 @@ var WebshopAdminView = Backbone.View.extend(
 		}
 	},
 
-	display_container: function(dom_container)
-	{
-		dom_container.removeClass('hide').siblings("div").addClass('hide');
-	},
-
 	loadPage: function(action)
 	{
-		this.hide_message();
+		myAdminView.hide_message();
 
 		var dom_container = jQuery("#" + action.replace(/\//g, '_'));
 
 		if(dom_container.length > 0)
 		{
-			this.display_container(dom_container);
+			myAdminView.display_container(dom_container);
 		}
 
 		else
@@ -114,7 +114,7 @@ var WebshopAdminView = Backbone.View.extend(
 		}
 	},
 
-	view_response: function()
+	admin_webshop_response: function()
 	{
 		var response = this.model.get('admin_webshop_response'),
 			type = response.type,
@@ -140,7 +140,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 				dom_container.children("div").html(html);
 
-				this.display_container(dom_container);
+				myAdminView.display_container(dom_container);
 			break;
 
 			case 'admin_webshop_edit':
@@ -151,11 +151,25 @@ var WebshopAdminView = Backbone.View.extend(
 
 				dom_container.children("div").html(html);
 
-				this.display_container(dom_container);
+				/* Hack as long as show_textfield() etc. is used */
+				dom_container.find(".description").each(function()
+				{
+					if(jQuery(this).is(':empty'))
+					{
+						jQuery(this).remove();
+					}
+				});
+
+				myAdminView.display_container(dom_container);
 
 				if(typeof select_option === 'function')
 				{
 					select_option();
+				}
+
+				if(typeof render_required === 'function')
+				{
+					render_required();
 				}
 
 				if(typeof do_multiselect === 'function')
