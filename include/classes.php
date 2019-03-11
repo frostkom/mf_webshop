@@ -1841,8 +1841,9 @@ class mf_webshop
 																<% if(typeof meta_field.suffix !== 'undefined' && meta_field.suffix != '')
 																{ %>
 																	<span class='description'><%= meta_field.suffix %></span>
-																<% } %>
-																<% if(meta_field.desc != '')
+																<% }
+
+																if(meta_field.desc != '')
 																{ %>
 																	<p class='description'><%= meta_field.desc %></p>
 																<% } %>
@@ -1870,86 +1871,64 @@ class mf_webshop
 															<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
 																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
 																<ul class='event_children'>
-																	<% if(Object.keys(meta_field.children).length > 0)
-																	{
-																		_.each(meta_field.children, function(meta_child_value, meta_child_key)
-																		{ %>
-																			<li>
-																				<div class='flex_flow'>"
-																					.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= meta_child_value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
-																					.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
-																				."</div>
-																				<% if(Object.keys(meta_child_value.fields).length > 0)
-																				{
-																					_.each(meta_child_value.fields, function(field_value)
-																					{
-																						switch(field_value.type)
-																						{
-																							case 'container_start': %>
-																								<div<% if(field_value.class != ''){%> class='<%= field_value.class %>'<%} %>>
-																							<% break;
-
-																							case 'container_end': %>
-																								</div>
-																							<% break;
-
-																							case 'select': %>
-																								<div class='form_select type_<%= field_value.type %>'>"
-																									."<label for='<%= field_value.id %>'><%= field_value.name %></label>"
-																									."<select id='<%= field_value.id %>' name='<%= field_value.id %>[]'>
-																										<% _.each(field_value.options, function(meta_option_value, meta_option_key)
-																										{ %>
-																											<option value='<%= meta_option_key %>'<% if(meta_option_key == field_value.value){%> selected<%} %>><%= meta_option_value %></option>
-																										<% }); %>
-																									</select>
-																								</div>
-																							<% break;
-
-																							default: %>
-																								<strong><%= field_value.type %></strong>: <%= field_value.name %><br>
-																							<% break;
-																						}
-																					});
-																				} %>"
-																				."<div class='flex_flow tight'>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
-																					."<h3>-</h3>"
-																					.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
-																					.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
-																					.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
-																				."</div>"
-																				.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
-																			."</li>
-																		<% });
-																	}
-
-																	else
+																	<% _.each(meta_field.children, function(meta_child_value, meta_child_key)
 																	{ %>
 																		<li>
 																			<div class='flex_flow'>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red hide'></i>"))
-																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'allow_empty' => true, 'xtra' => "class='maps_coordinates'"))
-																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= meta_child_value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																			."</div>
+																			<% if(Object.keys(meta_child_value.fields).length > 0)
+																			{
+																				_.each(meta_child_value.fields, function(field_value)
+																				{
+																					switch(field_value.type)
+																					{
+																						case 'container_start': %>
+																							<div<% if(field_value.class != ''){ %> class='<%= field_value.class %>'<% } %>>
+																						<% break;
+
+																						case 'container_end': %>
+																							</div>
+																						<% break;
+
+																						case 'select': %>
+																							<div class='form_select type_<%= field_value.type %>'>"
+																								."<label for='<%= field_value.id %>'><%= field_value.name %></label>"
+																								."<select id='<%= field_value.id %>' name='<%= field_value.id %>[]'>
+																									<% _.each(field_value.options, function(meta_option_value, meta_option_key)
+																									{ %>
+																										<option value='<%= meta_option_key %>'<% if(meta_option_key == field_value.value){%> selected<%} %>><%= meta_option_value %></option>
+																									<% }); %>
+																								</select>
+																							</div>
+																						<% break;
+
+																						default: %>
+																							<strong><%= field_value.type %></strong>: <%= field_value.name %><br>
+																						<% break;
+																					}
+																				});
+																			} %>
 																			<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'xtra_class' => "start_date"))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'xtra_class' => "start_time"))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
 																				."<h3>-</h3>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]"))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]'))
-																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'allow_empty' => true))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
+																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
 																			."</div>"
-																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
+																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
 																		."</li>
-																	<% } %>
+																	<% }); %>
 																</ul>
 																<% if(typeof meta_field.suffix !== 'undefined' && meta_field.suffix != '')
 																{ %>
 																	<span class='description'><%= meta_field.suffix %></span>
-																<% } %>
-																<% if(meta_field.desc != '')
+																<% }
+
+																if(meta_field.desc != '')
 																{ %>
 																	<p class='description'><%= meta_field.desc %></p>
 																<% } %>
