@@ -500,10 +500,13 @@ echo "@media all
 
 		$setting_calendar_date_bg = get_option_or_default('setting_calendar_date_bg', '#019cdb');
 
-		$rgb = $obj_calendar->HTMLToRGB($setting_calendar_date_bg);
+		/*$rgb = $obj_calendar->HTMLToRGB($setting_calendar_date_bg);
 		$hsl = $obj_calendar->RGBToHSL($rgb);
 
-		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");
+		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");*/
+
+		$obj_base = new mf_base();
+		$setting_calendar_date_text_color = $obj_base->get_text_color_from_background($setting_calendar_date_bg);
 
 		if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0)
 		{
@@ -1474,12 +1477,12 @@ echo "@media all
 					text-decoration: none;
 				}
 
-		.single-mf_product #mf-content .mf_share
+		/*.single-mf_product #mf-content .mf_share
 		{
 			clear: right;
 			float: right;
 			margin-bottom: .9em;
-		}
+		}*/
 
 		.single-mf_product .product_container .product_slideshow
 		{
