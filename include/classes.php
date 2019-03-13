@@ -1748,8 +1748,6 @@ class mf_webshop
 				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
 
-				$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
-
 				$templates .= "<script type='text/template' id='template_admin_webshop_list'>
 					<table class='widefat striped'>
 						<thead>
@@ -1783,7 +1781,7 @@ class mf_webshop
 
 				<script type='text/template' id='template_admin_webshop_edit'>
 					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>"
-						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'required' => true, 'description' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), $name_product))) //, 'readonly' => (IS_ADMIN ? false : true)
+						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'required' => true, 'description' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), "<%= name_product %>")))
 						//.show_textfield(array('name' => 'post_name', 'text' => __("URL", 'lang_webshop'), 'value' => "<%= post_name %>"))
 						."<% _.each(meta_boxes, function(meta_box)
 						{ %>
@@ -1998,6 +1996,11 @@ class mf_webshop
 							<% if(post_id > 0)
 							{ %>"
 								.input_hidden(array('name' => 'post_id', 'value' => "<%= post_id %>"))
+							."<% }
+
+							if(option_type != '' && option_type != '_')
+							{ %>"
+								.input_hidden(array('name' => 'option_type', 'value' => "<%= option_type %>"))
 							."<% } %>
 						</div>
 					</form>
@@ -6983,6 +6986,7 @@ class mf_webshop
 
 							case 'coordinates':
 								$this->product_coordinates .= $post_meta;
+								$this->product_map = $post_meta;
 
 								$post_meta = "";
 							break;

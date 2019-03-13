@@ -35,7 +35,15 @@ switch($type_switch)
 	case 'admin':
 		if(is_user_logged_in())
 		{
-			switch($arr_type[1]."/".$arr_type[2])
+			if(isset($arr_type[3]) && in_array($arr_type[3], array('list', 'edit', 'save')))
+			{
+				$obj_webshop->option_type = "_".$arr_type[2];
+				$arr_type[2] = $arr_type[3];
+			}
+
+			$type_temp = $arr_type[1]."/".$arr_type[2];
+
+			switch($type_temp)
 			{
 				case 'webshop/list':
 					$arr_list = array();
@@ -47,7 +55,7 @@ switch($type_switch)
 						$query_where .= " AND post_author = '".get_current_user_id()."'";
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish'));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s)".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', 'draft'));
 
 					foreach($result as $r)
 					{
@@ -60,7 +68,7 @@ switch($type_switch)
 
 					$json_output['success'] = true;
 					$json_output['admin_webshop_response'] = array(
-						'type' => str_replace("/", "_", $type),
+						'type' => $arr_type[0]."_".str_replace("/", "_", $type_temp),
 						'list' => $arr_list,
 					);
 				break;
@@ -69,7 +77,7 @@ switch($type_switch)
 					$post_id = isset($arr_type[3]) ? $arr_type[3] : 0;
 
 					$json_output['admin_webshop_response'] = array(
-						'type' => $arr_type[0]."_".$arr_type[1]."_".$arr_type[2],
+						'type' => $arr_type[0]."_".str_replace("/", "_", $type_temp),
 						'post_id' => $post_id,
 						'post_title' => "",
 						'post_name' => "",
@@ -88,7 +96,7 @@ switch($type_switch)
 							$query_where .= " AND post_author = '".get_current_user_id()."'";
 						}
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, $post_id));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', 'draft', $post_id));
 
 						foreach($result as $r)
 						{
@@ -115,6 +123,7 @@ switch($type_switch)
 										$arr_children_temp = array();
 
 										$id_temp = $arr_meta_box['fields'][$field_id]['id'];
+										$value_temp = "";
 										$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 										$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
 
@@ -410,6 +419,9 @@ switch($type_switch)
 
 						$json_output['admin_webshop_response']['post_title'] = $user_data->display_name;
 					}
+
+					$json_output['admin_webshop_response']['option_type'] = $obj_webshop->option_type;
+					$json_output['admin_webshop_response']['name_product'] = get_option_or_default('setting_webshop_replace_product'.$obj_webshop->option_type, __("Product", 'lang_webshop'));
 				break;
 
 				case 'webshop/save':
@@ -424,6 +436,8 @@ switch($type_switch)
 
 					if($post_id > 0)
 					{
+						$obj_webshop->get_option_type_from_post_id($post_id);
+
 						$query_where = "";
 
 						if(1 == 1 || !IS_ADMIN)
@@ -431,7 +445,7 @@ switch($type_switch)
 							$query_where .= " AND post_author = '".get_current_user_id()."'";
 						}
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', $post_id));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', 'draft', $post_id));
 
 						foreach($result as $r)
 						{
@@ -706,6 +720,8 @@ switch($type_switch)
 
 					else
 					{
+						$obj_webshop->option_type = check_var('option_type');
+
 						$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', $post_title, get_current_user_id()));
 
 						if($wpdb->num_rows == 0)
