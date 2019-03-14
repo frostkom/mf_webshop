@@ -749,12 +749,20 @@ class mf_webshop
 			'setting_webshop_option_types' => __("Types", 'lang_webshop'),
 		);
 
+		$obj_base = new mf_base();
+		$template_admin_id = $obj_base->has_page_template();
+
 		foreach($this->arr_option_types as $option_type)
 		{
+			if($template_admin_id > 0)
+			{
+				$arr_settings['setting_webshop_icon|'.$option_type] = sprintf(__("Icon for %s", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
+			}
+
 			$arr_settings['setting_webshop_replace_webshop|'.$option_type] = sprintf(__("Title for %s", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
 		}
 
-		$arr_settings['setting_webshop_local_storage'] = __("Local Storage", 'lang_webshop');
+		$arr_settings['setting_webshop_local_storage'] = "Local Storage";
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
@@ -1007,6 +1015,23 @@ class mf_webshop
 			$option = $this->check_if_previous_post_types_is_saved($option);
 
 			echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => 'cars,planes,boats,bikes'));
+		}
+
+		function setting_webshop_icon_callback($args = array())
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$suffix = "";
+
+			/*if($option != '')
+			{
+				$obj_font_icons = new mf_font_icons();
+
+				$suffix = $obj_font_icons->get_symbol_tag(array('symbol' => $option));
+			}*/
+
+			echo show_select(array('data' => $this->get_symbols_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $suffix));
 		}
 
 		function setting_webshop_replace_webshop_callback($args = array())
@@ -1753,7 +1778,7 @@ class mf_webshop
 						<thead>
 							<tr>
 								<th>".__("Name", 'lang_webshop')."</th>
-								<th></th>
+								<th>".__("Updated", 'lang_webshop')."</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1768,7 +1793,7 @@ class mf_webshop
 											." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
 										."</div>
 									</td>
-									<td></td>
+									<td><%= product.post_modified %></td>
 								</tr>
 							<% }); %>
 						</tbody>
@@ -2047,9 +2072,11 @@ class mf_webshop
 				}
 			}
 
+			$setting_webshop_icon = get_option_or_default('setting_webshop_icon'.$this->option_type, "fas fa-shopping-cart");
+
 			$arr_views['webshop'.$this->option_type] = array(
 				'name' => $name_webshop,
-				'icon' => "fas fa-shopping-cart",
+				'icon' => $setting_webshop_icon,
 				'items' => $arr_items,
 				'templates' => $templates,
 			);
@@ -2744,7 +2771,7 @@ class mf_webshop
 
 		if($product_id > 0)
 		{
-			$arr_fields = $this->get_events_meta_boxes($option_type, array());
+			$arr_fields = $this->get_events_meta_boxes(array('option_type' => $option_type), array());
 
 			foreach($arr_fields as $key => $arr_field)
 			{
@@ -2763,13 +2790,16 @@ class mf_webshop
 		}
 	}
 
-	function get_events_meta_boxes($option_type, $arr_fields)
+	function get_events_meta_boxes($data, $arr_fields)
 	{
-		$this->option_type = $option_type;
+		if(!isset($data['ignore'])){		$data['ignore'] = array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button');} //, 'categories', 'container_start', 'container_end'
+
+		if(isset($data['option_type']))
+		{
+			$this->option_type = $data['option_type'];
+		}
 
 		$obj_calendar = new mf_calendar();
-
-		$arr_doc_types_ignore = array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button'); //, 'categories', 'container_start', 'container_end'
 
 		$result = $this->get_document_types(array('select' => "ID, post_title, post_name", 'order' => "menu_order ASC")); //, post_parent
 
@@ -2781,7 +2811,7 @@ class mf_webshop
 
 			$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
-			if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
+			if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $data['ignore']))
 			{
 				$post_document_events = get_post_meta($post_id, $this->meta_prefix.'document_events', true);
 
@@ -2830,7 +2860,7 @@ class mf_webshop
 
 			if($product_id > 0)
 			{
-				$arr_fields = $this->get_events_meta_boxes($option_type, $arr_fields);
+				$arr_fields = $this->get_events_meta_boxes(array('option_type' => $option_type, 'ignore' => array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button', 'container_start', 'container_end')), $arr_fields);
 			}
 		}
 
@@ -3306,17 +3336,26 @@ class mf_webshop
 					$meta_title = get_option_or_default('setting_webshop_replace_categories'.$this->option_type, __("Categories", 'lang_webshop'));
 				}
 
-				$fields_settings[] = array(
+				$data_temp = array(
 					'name' => $meta_title,
 					'id' => $this->meta_prefix.'category',
-					'type' => 'select3',
+					'type' => 'select',
 					'options' => $arr_categories,
-					'multiple' => ($setting_webshop_allow_multiple_categories == 'yes'),
+					'multiple' => false,
 					'desc' => $meta_description,
-					'attributes' => array(
-						'size' => get_select_size(array('count' => $count_temp)),
-					),
+					'attributes' => array(),
 				);
+
+				if($setting_webshop_allow_multiple_categories == 'yes')
+				{
+					$data_temp['type'] = 'select3';
+					$data_temp['multiple'] = true;
+					$data_temp['attributes'] = array(
+						'size' => get_select_size(array('count' => $count_temp)),
+					);
+				}
+
+				$fields_settings[] = $data_temp;
 			}
 
 			if(get_option('setting_webshop_display_images'.$this->option_type) != 'no')
@@ -8849,7 +8888,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 							$out_temp = "";
 
-							$arr_event_fields = $this->obj_webshop->get_events_meta_boxes($instance['webshop_option_type'], array());
+							$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']), array());
 
 							foreach($arr_event_fields as $key => $arr_field)
 							{
@@ -8985,7 +9024,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 					$arr_data = array();
 
-					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes($instance['webshop_option_type'], array());
+					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']), array());
 
 					foreach($arr_event_fields as $key => $arr_field)
 					{

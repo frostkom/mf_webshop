@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.3.13
+Version: 2.1.3.14
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -226,6 +226,7 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_webshop_force_individual_contact'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_payment_form'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_webshop'.$obj_webshop->option_type;
+		$arr_options[] = 'setting_webshop_icon'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_product'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_products'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_enter_title_here'.$obj_webshop->option_type;

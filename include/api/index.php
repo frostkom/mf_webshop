@@ -55,14 +55,15 @@ switch($type_switch)
 						$query_where .= " AND post_author = '".get_current_user_id()."'";
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s)".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', 'draft'));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_status, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s)".$query_where, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish', 'draft'));
 
 					foreach($result as $r)
 					{
 						$arr_list[] = array(
 							'post_id' => $r->ID,
-							'post_title' => $r->post_title,
+							'post_title' => $r->post_title.($r->post_status == 'draft' ? " (".__("Draft").")" : ""),
 							'post_url' => get_permalink($r->ID),
+							'post_modified' => format_date($r->post_modified),
 						);
 					}
 
@@ -317,7 +318,7 @@ switch($type_switch)
 
 																if($product_id > 0)
 																{*/
-																	$arr_event_fields = $obj_webshop->get_events_meta_boxes($obj_webshop->option_type, $arr_event_fields);
+																	$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), $arr_event_fields);
 
 																	foreach($arr_event_fields as $key => $arr_field)
 																	{
@@ -362,7 +363,7 @@ switch($type_switch)
 
 															if($product_id > 0)
 															{*/
-																$arr_event_fields = $obj_webshop->get_events_meta_boxes($obj_webshop->option_type, $arr_event_fields);
+																$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), $arr_event_fields);
 
 																foreach($arr_event_fields as $key => $arr_field)
 																{
