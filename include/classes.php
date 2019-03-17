@@ -2165,6 +2165,30 @@ class mf_webshop
 		}
 	}
 
+	function get_theme_core_info_button_link($url)
+	{
+		global $post;
+
+		$this->get_type_id($post);
+
+		if($this->product_id > 0)
+		{
+			$email_post_name = $this->get_post_name_for_type('email');
+
+			if($email_post_name != '')
+			{
+				$post_email = get_post_meta($this->product_id, $this->meta_prefix.$email_post_name, true);
+
+				if($post_email != '')
+				{
+					$url = "mailto:".$post_email;
+				}
+			}
+		}
+
+		return $url;
+	}
+
 	function get_option_type_from_post_id($post_id)
 	{
 		$this->option_type = str_replace($this->post_type_products, "", get_post_type($post_id));
@@ -6570,7 +6594,7 @@ class mf_webshop
 			$this->template_shortcodes['meta']['html'] .= "<li>".$this->product_form_buy."</li>";
 		}
 
-		if($this->product_has_email == true)
+		if($this->product_has_email)
 		{
 			$setting_quote_form = get_option('setting_quote_form'.$this->option_type);
 			$setting_quote_form_single = get_option('setting_quote_form_single'.$this->option_type);
@@ -8701,6 +8725,7 @@ class widget_webshop_product_meta extends WP_Widget
 			//'opt_start_events' => __("Events", 'lang_webshop'),
 				'event_info' => __("Event Info", 'lang_webshop'),
 				'actions' => __("Actions", 'lang_webshop'),
+				'breadcrumbs' => __("Breadcrumbs", 'lang_webshop'),
 			//'opt_end_products' => "",
 		);
 
@@ -8788,6 +8813,21 @@ class widget_webshop_product_meta extends WP_Widget
 
 								$widget_content .= "</p>";
 							}
+						break;
+
+						case 'breadcrumbs':
+							$parent_id = apply_filters('get_widget_search', 'webshop-filter-products-widget');
+
+							$widget_content = "<p class='webshop_breadcrumbs'>";
+
+								if($parent_id > 0)
+								{
+									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_post_title($parent_id)."</a></span>";
+								}
+
+								$widget_content .= "<span>".get_post_title($this->obj_webshop->product_id)."</span>";
+						
+							$widget_content .= "</p>";
 						break;
 
 						default:
@@ -8960,6 +9000,26 @@ class widget_webshop_product_meta extends WP_Widget
 								</li>";
 
 							$widget_content .= "</ul>";
+						break;
+
+						case 'breadcrumbs':
+							$parent_id = apply_filters('get_widget_search', 'webshop-filter-products-widget');
+
+							$widget_content = "<p class='webshop_breadcrumbs'>";
+
+								if($parent_id > 0)
+								{
+									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_post_title($parent_id)."</a></span>";
+								}
+
+								if($product_id > 0)
+								{
+									$widget_content .= "<span><a href='".get_permalink($product_id)."'>".get_post_title($product_id)."</a></span>";
+								}
+
+								$widget_content .= "<span>".get_post_title($this->obj_webshop->event_id)."</span>";
+						
+							$widget_content .= "</p>";
 						break;
 
 						default:

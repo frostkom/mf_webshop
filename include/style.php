@@ -1434,16 +1434,11 @@ echo "@media all
 						}
 
 	/* Product */
-	.product_breadcrumbs
+	.product_breadcrumbs span + span:before, .webshop_breadcrumbs span + span:before
 	{
-		font-size: 1.4em;
+		content: '/';
+		padding: 0 .5em;
 	}
-
-		.product_breadcrumbs span + span:before
-		{
-			content: '>';
-			padding: 0 .5em;
-		}
 
 	.single-mf_product section
 	{
