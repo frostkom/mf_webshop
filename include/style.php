@@ -297,6 +297,12 @@ echo "@media all
 	{
 		padding: 0;
 	}
+	
+		.is_webshop_search_page #mf-content > div h1
+		{
+			padding-left: .4em;
+			padding-right: .4em;
+		}
 
 		.is_webshop_search_page .widget.webshop_search #product_form
 		{

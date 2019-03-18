@@ -2165,7 +2165,35 @@ class mf_webshop
 		}
 	}
 
-	function get_theme_core_info_button_link($url)
+	function get_theme_core_info_title($string)
+	{
+		global $post;
+
+		$this->get_type_id($post);
+
+		if($this->product_id > 0)
+		{
+			$string = str_replace("[product_title]", get_post_title($this->product_id), $string);
+		}
+
+		return $string;
+	}
+
+	function get_theme_core_info_text($string)
+	{
+		global $post;
+
+		$this->get_type_id($post);
+
+		if($this->product_id > 0)
+		{
+			$string = str_replace("[product_title]", get_post_title($this->product_id), $string);
+		}
+
+		return $string;
+	}
+
+	function get_theme_core_info_button_link($string)
 	{
 		global $post;
 
@@ -2181,12 +2209,12 @@ class mf_webshop
 
 				if($post_email != '')
 				{
-					$url = "mailto:".$post_email;
+					$string = "mailto:".$post_email;
 				}
 			}
 		}
 
-		return $url;
+		return $string;
 	}
 
 	function get_option_type_from_post_id($post_id)
@@ -8826,7 +8854,7 @@ class widget_webshop_product_meta extends WP_Widget
 								}
 
 								$widget_content .= "<span>".get_post_title($this->obj_webshop->product_id)."</span>";
-						
+
 							$widget_content .= "</p>";
 						break;
 
@@ -9018,7 +9046,7 @@ class widget_webshop_product_meta extends WP_Widget
 								}
 
 								$widget_content .= "<span>".get_post_title($this->obj_webshop->event_id)."</span>";
-						
+
 							$widget_content .= "</p>";
 						break;
 

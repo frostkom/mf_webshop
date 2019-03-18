@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-07 07:42+0100\n"
+"POT-Creation-Date: 2019-03-18 19:58+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -237,9 +237,6 @@ msgstr "Sorter"
 msgid "default"
 msgstr "standard"
 
-msgid "Local Storage"
-msgstr "Lokalt lager"
-
 msgid "Display Sort"
 msgstr "Visningsanordning"
 
@@ -417,6 +414,9 @@ msgstr "Vis"
 msgid "Title"
 msgstr "Tittel"
 
+msgid "Your name or the name of the %s"
+msgstr "Ditt navn eller navnet på %s"
+
 msgid "Street 123, City"
 msgstr "Gate 123, Sted"
 
@@ -526,16 +526,16 @@ msgid "Distance"
 msgstr "Avstand"
 
 msgid "I could not find any events"
-msgstr "Jeg kunne ikke finne noen eventer"
+msgstr "Ingen registrerte aktiviteter"
 
 msgid "Display More Events (%s)"
-msgstr "Visa fler aktiviteter (%s)"
+msgstr "Vis flere aktiviteter (%s)"
 
 msgid "I could not find any %s"
-msgstr "Jeg kunne ikke finne noen %s"
+msgstr "Ingen registrerte %s"
 
 msgid "Display More %s (%s)"
-msgstr "Vi flere %s (%s)"
+msgstr "Vis flere %s (%s)"
 
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jeg kunne ikke finne noe som samsvarer med dine valg"
@@ -645,6 +645,9 @@ msgstr "Kategori Info"
 msgid "Actions"
 msgstr "Handlinger"
 
+msgid "Date and Time"
+msgstr "Dato og tid"
+
 msgid "Contact %s"
 msgstr "Kontakt %s"
 
@@ -652,13 +655,13 @@ msgid "Mark as Favorite"
 msgstr "Merk som Favoritt"
 
 msgid "I can recommend this event"
-msgstr "Jeg kan anbefale denne eventen"
+msgstr "Jeg kan anbefale denne aktiviteten"
 
 msgid "Hi! I think that you might like this event. Go to %s to view it."
-msgstr "Hei! Jeg tenker at du vil like denne eventen. Gå til %s for å se."
+msgstr "Hei! Jeg tenker at du vil like denne aktiviteten. Gå til %s for å se."
 
 msgid "Tell a Friend"
-msgstr "Foetal en venn"
+msgstr "Fortell en venn"
 
 msgid "Print the Information"
 msgstr "Skriv ut informasjonen"
@@ -703,7 +706,7 @@ msgid "Confirm Order"
 msgstr "Bekreft ordre"
 
 msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Informationen sparad. %sSe inlägg%s"
+msgstr "Informasjon lagret - %sse siden din%s"
 
 msgid "I could not update the information for you"
 msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
