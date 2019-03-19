@@ -1769,6 +1769,7 @@ class mf_webshop
 				$plugin_include_url = plugin_dir_url(__FILE__);
 				$plugin_version = get_plugin_version(__FILE__);
 
+				mf_enqueue_style('style_webshop_admin', $plugin_include_url."style_admin.css", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
@@ -1806,7 +1807,7 @@ class mf_webshop
 
 				<script type='text/template' id='template_admin_webshop_edit'>
 					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>"
-						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'required' => true, 'description' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), "<%= name_product %>")))
+						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'maxlength' => 50, 'required' => true, 'description' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), "<%= name_product %>")))
 						//.show_textfield(array('name' => 'post_name', 'text' => __("URL", 'lang_webshop'), 'value' => "<%= post_name %>"))
 						."<% _.each(meta_boxes, function(meta_box)
 						{ %>
@@ -1897,10 +1898,11 @@ class mf_webshop
 																	<% _.each(meta_field.children, function(meta_child_value, meta_child_key)
 																	{ %>
 																		<li>
+																			<h3>".__("Add New", 'lang_webshop')."</h3>
 																			<div class='flex_flow'>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'maxlength' => 50, 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
 																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= meta_child_value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
-																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'placeholder' => __("Street 123, City", 'lang_webshop')))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'maxlength' => 50, 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																			."</div>
 																			<% if(Object.keys(meta_child_value.fields).length > 0)
 																			{
@@ -1942,7 +1944,7 @@ class mf_webshop
 																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
 																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
 																			."</div>"
-																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
+																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'text' => sprintf(__("Information about %s", 'lang_webshop'), "<%= meta_field.name %>"), 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
 																		."</li>
 																	<% }); %>
 																</ul>

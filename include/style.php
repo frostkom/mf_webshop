@@ -297,7 +297,7 @@ echo "@media all
 	{
 		padding: 0;
 	}
-	
+
 		.is_webshop_search_page #mf-content article h1
 		{
 			padding-left: .4em;
