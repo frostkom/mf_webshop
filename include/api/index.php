@@ -458,6 +458,7 @@ switch($type_switch)
 
 							$post_data = array(
 								'ID' => $post_id,
+								'post_modified' => date("Y-m-d H:i:s"),
 								'meta_input' => array(),
 							);
 
@@ -465,6 +466,8 @@ switch($type_switch)
 							{
 								$post_data['post_title'] = $post_title;
 								//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title, 'post_title'));
+
+								$updated = true;
 							}
 
 							/*$post_name_new = check_var('post_name');
@@ -473,6 +476,8 @@ switch($type_switch)
 							{
 								$post_data['post_name'] = $post_name_new;
 								//do_log(sprintf("Changed from %s to %s for %s in %s", $post_name_old, $post_name_new, 'post_name'));
+
+								$updated = true;
 							}*/
 
 							$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
@@ -689,7 +694,7 @@ switch($type_switch)
 								}
 							}
 
-							if(count($post_data) > 2 || $updated == true)
+							if($updated == true) //count($post_data) > 2 || 
 							{
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{

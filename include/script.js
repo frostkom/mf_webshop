@@ -32,9 +32,19 @@ function add_map_location(data)
 		var pos = get_position_from_string(coords_temp),
 			id = data.dom_obj.attr('data-id'),
 			name = data.dom_obj.attr('data-name'),
-			url = data.dom_obj.attr('data-url');
+			url = data.dom_obj.attr('data-url') || '',
+			link_text = data.dom_obj.attr('data-link_text') || '';
 
-		add_marker({'pos': pos, 'icon': data.icon, 'id': id, 'name': name, 'text': "<a href='" + url + "'>" + script_webshop.read_more + "</a>"});
+		/*console.log(id , name , url);*/
+
+		add_marker(
+		{
+			'pos': pos,
+			'icon': data.icon,
+			'id': id,
+			'name': name,
+			'text': (url != '' ? "<a href='" + url + "'>" + link_text + "</a>" : "")
+		});
 	}
 }
 

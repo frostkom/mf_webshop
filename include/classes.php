@@ -750,7 +750,7 @@ class mf_webshop
 		);
 
 		$obj_base = new mf_base();
-		$template_admin_id = $obj_base->has_page_template();
+		$template_admin_id = $obj_base->has_page_template(array('template' => "/plugins/mf_front_end_admin/include/templates/template_admin.php"));
 
 		foreach($this->arr_option_types as $option_type)
 		{
@@ -1671,7 +1671,7 @@ class mf_webshop
 		wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, array(), $plugin_version);
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
 			'plugins_url' => $plugin_base_url,
-			'read_more' => __("Read More", 'lang_webshop'),
+			//'read_more' => __("Read More", 'lang_webshop'),
 			'symbol_active_image' => $symbol_active_image,
 			'symbol_active' => trim($symbol_active, "#"),
 			'mobile_breakpoint' => $setting_mobile_breakpoint,
@@ -1900,7 +1900,7 @@ class mf_webshop
 																		<li>
 																			<h3>".__("Add New", 'lang_webshop')."</h3>
 																			<div class='flex_flow'>"
-																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'maxlength' => 50, 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red'></i>"))
+																				.show_textfield(array('name' => "<%= meta_field.id %>_name[]", 'value' => "<%= meta_child_value.name %>", 'xtra_class' => "event_name", 'maxlength' => 50, 'placeholder' => __("Title", 'lang_webshop'), 'suffix' => "<i class='fa fa-trash fa-lg red' title='".__("Delete", 'lang_webshop')." <%= meta_field.name %>'></i>"))
 																				.input_hidden(array('name' => "<%= meta_field.id %>_coordinates[]", 'value' => "<%= meta_child_value.coordinates %>", 'xtra' => "class='maps_coordinates'"))
 																				.show_textfield(array('name' => "<%= meta_field.id %>_location[]", 'value' => "<%= meta_child_value.location %>", 'xtra_class' => "maps_location", 'maxlength' => 50, 'placeholder' => __("Street 123, City", 'lang_webshop')))
 																			."</div>
@@ -5256,7 +5256,7 @@ class mf_webshop
 
 								if(event_coordinates != '')
 								{ %>"
-									.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coords' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>'"))
+									.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coords' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 								."<% } %>
 							</p>
 							<p><%= name_product %>: <a href='<%= product_url %>'><%= product_title %></a></p>
@@ -5266,7 +5266,7 @@ class mf_webshop
 						</div>
 						<% if(product_map != '')
 						{ %>"
-							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>'"))
+							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 						."<% } %>
 					</li>
 				</script>
@@ -5294,16 +5294,18 @@ class mf_webshop
 				<script type='text/template' id='template_filter_products_item'>
 					<li class='list_item'>
 						<div>
-							<h2><a href='<%= product_url %>'><%= product_title %></a>
-								<% if(product_location != '')
+							<h2><a href='<%= product_url %>'><%= product_title %></a>";
+
+								/*$out .= "<% if(product_location != '')
 								{ %>
 									<span>(<%= product_location %>)</span>
-								<% } %>
-							</h2>
+								<% } %>";*/
+
+							$out .= "</h2>
 							<p>
-								<% if(product_location != '' && product_address != '')
+								<% if(product_address != '')
 								{ %>
-									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %>, <%= product_location %></span>
+									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
 								<% } %>
 							</p>
 						</div>
@@ -5400,7 +5402,7 @@ class mf_webshop
 
 						if(product_map != '')
 						{ %>"
-							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>'"))
+							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 						."<% } %>
 					</li>
 				</script>";
@@ -5749,7 +5751,7 @@ class mf_webshop
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = %s AND meta_value = %s".$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = %s AND meta_value = %s ORDER BY post_modified DESC".$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
@@ -6596,12 +6598,12 @@ class mf_webshop
 				</div>
 			</div>";
 
-			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."' data-url=''"));
+			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."'")); // data-url=''
 		}
 
 		if($this->product_coordinates != '')
 		{
-			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coords' data-name='".$this->product_title."' data-url=''"));
+			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coords' data-name='".$this->product_title."'")); // data-url=''
 		}
 
 		if(count($this->product_meta) > 0)
@@ -8923,7 +8925,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 								if($event_coordinates != '')
 								{
-									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coords' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."'"));
+									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coords' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."' data-link_text='".__("Read More", 'lang_webshop')."'"));
 								}
 							}
 
@@ -8942,7 +8944,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 									if($product_coordinates != '')
 									{
-										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coords' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."'"));
+										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coords' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'"));
 									}
 								}
 							}
