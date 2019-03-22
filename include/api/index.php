@@ -293,32 +293,18 @@ switch($type_switch)
 														{
 															foreach($result_children as $r_children)
 															{
-																$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
-																$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);
 																$event_start = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'start', true);
 																$event_end = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'end', true);
 
 																@list($event_start_date, $event_start_time) = explode(" ", $event_start, 2);
 																@list($event_end_date, $event_end_time) = explode(" ", $event_end, 2);
 
-																$arr_children_temp[$r_children->ID] = array(
-																	'name' => $r_children->post_title,
-																	'text' => $r_children->post_content,
-																	'location' => $event_location,
-																	'coordinates' => $event_coordinates,
-																	'start_date' => $event_start_date,
-																	'start_time' => $event_start_time,
-																	'end_date' => $event_end_date,
-																	'end_time' => $event_end_time,
-																);
+																if($event_end_date >= date("Y-m-d"))
+																{
+																	$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
+																	$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);
 
-																$arr_event_fields = array();
-
-																/*list($product_id, $option_type) = $obj_webshop->get_product_id_from_calendar($r_children->ID);
-
-																if($product_id > 0)
-																{*/
-																	$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), $arr_event_fields);
+																	$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), array());
 
 																	foreach($arr_event_fields as $key => $arr_field)
 																	{
@@ -338,9 +324,19 @@ switch($type_switch)
 
 																		$arr_event_fields[$key]['value'] = get_post_meta($r_children->ID, $arr_field['id'], true);
 																	}
-																//}
 
-																$arr_children_temp[$r_children->ID]['fields'] = $arr_event_fields;
+																	$arr_children_temp[$r_children->ID] = array(
+																		'name' => $r_children->post_title,
+																		'text' => $r_children->post_content,
+																		'location' => $event_location,
+																		'coordinates' => $event_coordinates,
+																		'start_date' => $event_start_date,
+																		'start_time' => $event_start_time,
+																		'end_date' => $event_end_date,
+																		'end_time' => $event_end_time,
+																		'fields' => $arr_event_fields,
+																	);
+																}
 															}
 														}
 

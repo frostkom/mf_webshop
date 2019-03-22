@@ -1937,7 +1937,7 @@ class mf_webshop
 																				});
 																			} %>
 																			<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date")) //, 'xtra' => "min='".date("Y-m-d")."'"
 																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
 																				."<h3>-</h3>"
 																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
@@ -5469,7 +5469,21 @@ class mf_webshop
 		if(!isset($data['event_id'])){		$data['event_id'] = 0;}
 		if(!isset($data['event_type'])){	$data['event_type'] = '';}
 		if(!isset($data['start_date'])){	$data['start_date'] = "";}
-		if(!isset($data['exact_date'])){	$data['exact_date'] = "";}
+		
+		if(!isset($data['exact_date']))
+		{
+			if($data['event_type'] == 'today')
+			{
+				$data['start_date'] = "";
+				$data['exact_date'] = date("Y-m-d");
+			}
+
+			else
+			{
+				$data['exact_date'] = "";
+			}
+		}
+
 		if(!isset($data['category'])){		$data['category'] = "";}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
@@ -5512,7 +5526,7 @@ class mf_webshop
 				}*/
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = %s AND meta_value > '0'".$query_where, $this->post_type_products.$this->option_type, $this->meta_prefix.$events_post_name));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND ".$wpdb->postmeta.".meta_key = %s AND meta_value > '0'".$query_where, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.$events_post_name));
 
 			foreach($result as $r)
 			{
@@ -5611,6 +5625,11 @@ class mf_webshop
 
 				$out['event_amount'] = $wpdb->num_rows;
 
+				if($data['event_type'] == 'today')
+				{
+					do_log("get_events - ".$data['event_type']." - ".$data['exact_date'].": ".$wpdb->last_query);
+				}
+
 				foreach($result as $r)
 				{
 					if(isset($data['amount']) && $i >= $data['amount'])
@@ -5643,11 +5662,6 @@ class mf_webshop
 
 							$list_class = "calendar_feed_".$feed_id;
 						}
-
-						/*if($data['event_type'] == 'distance')
-						{
-							do_log("Distance: ".$post_title.", ".$r->distance);
-						}*/
 
 						$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
 						$post_coordinates = get_post_meta($post_id, $obj_calendar->meta_prefix.'coordinates', true);
@@ -8589,6 +8603,7 @@ class widget_webshop_events extends WP_Widget
 		return array(
 			'' => __("All", 'lang_webshop'),
 			'distance' => __("Closest", 'lang_webshop'),
+			'today' => __("Today", 'lang_webshop'),
 		);
 	}
 

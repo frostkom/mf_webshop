@@ -12,10 +12,10 @@ var WebshopAdminView = Backbone.View.extend(
 
 	events:
 	{
-		"blur .event_children .start_date": "check_start_date",
-		"change .event_children .start_date": "check_start_date",
-		"blur .event_children .start_time": "check_start_time",
-		"change .event_children .start_time": "check_start_time",
+		"blur .event_children .start_date": "set_limit_end_date",
+		"change .event_children .start_date": "set_limit_end_date",
+		"blur .event_children .start_time": "set_limit_end_time",
+		"change .event_children .start_time": "set_limit_end_time",
 		"submit form": "submit_form",
 		"blur .event_children .form_textfield input": "add_event_field",
 		"change .event_children .form_textfield input": "add_event_field",
@@ -102,45 +102,58 @@ var WebshopAdminView = Backbone.View.extend(
 		this.model.getPage(action);
 	},
 
-	check_start_date: function(e)
+	set_limit_start_date: function(e)
 	{
-		if(e.currentTarget)
-		{
-			var dom_obj = jQuery(e.currentTarget);
-		}
+		var dom_obj = (e.currentTarget ? jQuery(e.currentTarget) : e),
+			date = new Date();
 
-		else
-		{
-			var dom_obj = e;
-		}
+		date.setDate(date.getDate() - 9);
 
-		var date_start_val = dom_obj.children("input[type='date']").val(),
+		var date_year = date.getFullYear(),
+			date_month = (date.getMonth() + 1),
+			date_day = date.getDate(),
+			date_start_min = date_year + "-" + (date_month < 10 ? "0" : "") + date_month + "-" + (date_day < 10 ? "0" : "") + date_day;
+
+		dom_obj.children("input[type='date']").attr(
+		{
+			'min': date_start_min
+		});
+	},
+
+	set_limit_end_date: function(e)
+	{
+		var dom_obj = (e.currentTarget ? jQuery(e.currentTarget) : e),
+			date_start_val = dom_obj.children("input[type='date']").val(),
 			dom_sibling = dom_obj.siblings(".form_textfield").children("input[type='date']");
 
 		if(date_start_val != '')
 		{
-			dom_sibling.attr({'min': date_start_val});
+			var date = new Date(date_start_val);
+
+			date.setDate(date.getDate() + 9);
+
+			var date_year = date.getFullYear(),
+				date_month = (date.getMonth() + 1),
+				date_day = date.getDate(),
+				date_start_max = date_year + "-" + (date_month < 10 ? "0" : "") + date_month + "-" + (date_day < 10 ? "0" : "") + date_day;
+
+			dom_sibling.attr(
+			{
+				'min': date_start_val,
+				'max': date_start_max
+			});
 		}
 
 		else
 		{
-			dom_sibling.removeAttr('min');
+			dom_sibling.removeAttr('min').removeAttr('max');
 		}
 	},
 
-	check_start_time: function(e)
+	set_limit_end_time: function(e)
 	{
-		if(e.currentTarget)
-		{
-			var dom_obj = jQuery(e.currentTarget);
-		}
-
-		else
-		{
-			var dom_obj = e;
-		}
-
-		var date_start_val = dom_obj.children("input[type='time']").val(),
+		var dom_obj = (e.currentTarget ? jQuery(e.currentTarget) : e),
+			date_start_val = dom_obj.children("input[type='time']").val(),
 			dom_sibling = dom_obj.siblings(".form_textfield").children("input[type='time']");
 
 		if(date_start_val != '')
@@ -220,12 +233,13 @@ var WebshopAdminView = Backbone.View.extend(
 
 				jQuery(".event_children .start_date").each(function()
 				{
-					self.check_start_date(jQuery(this));
+					self.set_limit_start_date(jQuery(this));
+					self.set_limit_end_date(jQuery(this));
 				});
 
 				jQuery(".event_children .start_time").each(function()
 				{
-					self.check_start_time(jQuery(this));
+					self.set_limit_end_time(jQuery(this));
 				});
 
 				if(typeof select_option === 'function')
@@ -298,9 +312,13 @@ var WebshopAdminView = Backbone.View.extend(
 			var dom_obj = jQuery(e.currentTarget),
 				dom_parent = dom_obj.parents(".event_name").parents("li");
 
-			dom_parent.addClass('hide');
 			dom_parent.find("input[type!='hidden']").val('').attr('value', '');
 			dom_parent.find("select option:selected").prop('selected', false);
+
+			if(dom_parent.is(':last-child') == false)
+			{
+				dom_parent.addClass('hide');
+			}
 		}
 
 		else
