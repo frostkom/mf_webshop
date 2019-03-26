@@ -1893,7 +1893,13 @@ class mf_webshop
 														else
 														{ %>
 															<div class='form_children type_<%= meta_field.type %><%= meta_field.class %>'>
-																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
+																<label for='<%= meta_field.id %>'>
+																	<%= meta_field.name %>
+																	<% if(meta_field.alt_text != '')
+																	{ %>
+																		<div class='description'><%= meta_field.alt_text %></div>
+																	<% } %>
+																</label>
 																<ul class='event_children'>
 																	<% _.each(meta_field.children, function(meta_child_value, meta_child_key)
 																	{ %>
@@ -1935,9 +1941,9 @@ class mf_webshop
 																						<% break;
 																					}
 																				});
-																			} %>
-																			<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date")) //, 'xtra' => "min='".date("Y-m-d")."'"
+																			} %>"
+																			."<div class='flex_flow tight'>"
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
 																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
 																				."<h3>-</h3>"
 																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
@@ -2871,18 +2877,22 @@ class mf_webshop
 
 				if($post_document_events == 'yes')
 				{
+					//$post_document_alt_text = get_post_meta($post_id, $this->meta_prefix.'document_alt_text', true);
 					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
 					$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
 
 					$fields_array = array(
 						'post_id' => $post_id,
 						'name' => $post_title,
+						//'alt_text' => $post_document_alt_text,
 						'id' => $obj_calendar->meta_prefix.$post_name,
 						'type' => $post_custom_type,
 						'class' => $post_custom_class,
 						'std' => $post_document_default,
 						'attributes' => array(),
 					);
+
+					//do_log("get_events_meta_boxes: ".var_export($fields_array, true));
 
 					$this->filter_fields_array($post_id, $fields_array, 'events');
 
@@ -3484,6 +3494,7 @@ class mf_webshop
 						$post_document_events = get_post_meta($post_id, $this->meta_prefix.'document_events', true);
 					}
 
+					$post_document_alt_text = get_post_meta($post_id, $this->meta_prefix.'document_alt_text', true);
 					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
 					$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
 
@@ -3497,6 +3508,7 @@ class mf_webshop
 					$fields_array = array(
 						'post_id' => $post_id,
 						'name' => $post_title,
+						'alt_text' => $post_document_alt_text,
 						'id' => $this->meta_prefix.$post_name,
 						'type' => $post_custom_type,
 						'std' => $post_document_default,
@@ -5469,7 +5481,7 @@ class mf_webshop
 		if(!isset($data['event_id'])){		$data['event_id'] = 0;}
 		if(!isset($data['event_type'])){	$data['event_type'] = '';}
 		if(!isset($data['start_date'])){	$data['start_date'] = "";}
-		
+
 		if(!isset($data['exact_date']))
 		{
 			if($data['event_type'] == 'today')
@@ -5624,11 +5636,6 @@ class mf_webshop
 				."WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_having.$query_order.$query_limit, $obj_calendar->post_type_event));
 
 				$out['event_amount'] = $wpdb->num_rows;
-
-				if($data['event_type'] == 'today')
-				{
-					do_log("get_events - ".$data['event_type']." - ".$data['exact_date'].": ".$wpdb->last_query);
-				}
 
 				foreach($result as $r)
 				{

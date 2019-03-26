@@ -299,7 +299,7 @@ switch($type_switch)
 																@list($event_start_date, $event_start_time) = explode(" ", $event_start, 2);
 																@list($event_end_date, $event_end_time) = explode(" ", $event_end, 2);
 
-																if($event_end_date >= date("Y-m-d"))
+																if($event_end_date >= date("Y-m-d") || ($event_end_date < DEFAULT_DATE && $event_start_date >= date("Y-m-d") || $event_start_date < DEFAULT_DATE))
 																{
 																	$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
 																	$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);

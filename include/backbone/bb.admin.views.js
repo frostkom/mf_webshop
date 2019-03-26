@@ -1,6 +1,6 @@
 var WebshopAdminView = Backbone.View.extend(
 {
-	el: jQuery("body"),
+	el: jQuery(".admin_container"),
 
 	initialize: function()
 	{
@@ -22,54 +22,6 @@ var WebshopAdminView = Backbone.View.extend(
 		"click .event_children .event_name .description .fa-trash": "clear_event_field",
 		"keyup .maps_location input": "clear_coordinates",
 	},
-
-	/*do_redirect: function()
-	{
-		var response = this.model.get('redirect');
-
-		if(response != '')
-		{
-			location.href = response;
-
-			this.model.set({'redirect': ''});
-		}
-	},
-
-	hide_message: function()
-	{
-		jQuery(".error:not(.hide), .updated:not(.hide), .aside.left, .aside.right").addClass('hide');
-	},
-
-	display_message: function()
-	{
-		var response = this.model.get('message');
-
-		if(response != '')
-		{
-			myAdminView.hide_message();
-
-			if(this.model.get('success') == true)
-			{
-				jQuery(".updated.hide").removeClass('hide').children("p").html(response);
-			}
-
-			else
-			{
-				jQuery(".error.hide").removeClass('hide').children("p").html(response);
-			}
-
-			scroll_to_top();
-
-			jQuery(".mf_form button[type='submit']").removeClass('loading').removeAttr('disabled');
-
-			this.model.set({'message': ''});
-		}
-	},
-
-	display_container: function(dom_container)
-	{
-		dom_container.removeClass('hide').siblings("div").addClass('hide');
-	},*/
 
 	next_request: function()
 	{

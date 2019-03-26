@@ -448,7 +448,7 @@ echo "@media all
 			{
 				font-weight: normal;
 				margin-bottom: 0;
-				white-space: nowrap;
+				/*white-space: nowrap;*/ /* This makes no sense on mobile since a lot of titles get cut off */
 			}
 
 				#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a, #wrapper .webshop_filter_products li p a, #wrapper .webshop_events li p a
