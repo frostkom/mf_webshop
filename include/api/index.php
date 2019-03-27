@@ -450,7 +450,7 @@ switch($type_switch)
 							//$post_name_old = $r->post_name;
 							$post_type = $r->post_type;
 
-							$reload = $updated = false;
+							$error = $reload = $updated = false;
 
 							$post_data = array(
 								'ID' => $post_id,
@@ -524,6 +524,14 @@ switch($type_switch)
 
 														for($i = 0; $i < $count_temp; $i++)
 														{
+															$arr_event_start_date[$i] = check_var($arr_event_start_date[$i], 'date', false);
+															$arr_event_start_time[$i] = check_var($arr_event_start_time[$i], 'time', false);
+															$arr_event_end_date[$i] = check_var($arr_event_end_date[$i], 'date', false, $arr_event_start_date[$i]);
+															$arr_event_end_time[$i] = check_var($arr_event_end_time[$i], 'time', false, $arr_event_start_time[$i]);
+															
+															$event_start = $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : '');
+															$event_end = $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : '');
+
 															if($arr_event_id[$i] > 0)
 															{
 																$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND ID = '%d' AND meta_key = %s AND meta_value = '%d'", $obj_calendar->post_type_event, 'publish', $arr_event_id[$i], $obj_calendar->meta_prefix.'calendar', $calendar_id));
@@ -533,32 +541,47 @@ switch($type_switch)
 																{
 																	if($arr_event_name[$i] != '')
 																	{
-																		$post_data_event = array(
-																			'ID' => $arr_event_id[$i],
-																			'post_title' => $arr_event_name[$i],
-																			'post_content' => $arr_event_text[$i],
-																			//'post_modified' => date("Y-m-d H:i:s"),
-																			'meta_input' => array(
-																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
-																				$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																				$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
-																				$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
-																			),
-																		);
-
-																		if(wp_update_post($post_data_event) > 0)
+																		if($event_start > $event_end)
 																		{
-																			$updated = true;
+																			$error = true;
+																			$json_output['message'] = __("The end date must be later than the start date", 'lang_webshop')." (".$event_start." -> ".$event_end.")";
+																		}
 
-																			$obj_webshop->set_events_meta_boxes($arr_event_id[$i], $i);
-
-																			//do_action('rwmb_after_save_post', $arr_event_id[$i]);
-																			$obj_calendar->rwmb_after_save_post($arr_event_id[$i]);
+																		else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".$obj_webshop->event_max_length." day")))
+																		{
+																			$error = true;
+																			$json_output['message'] = sprintf(__("The end date must be within %d days from the start date", 'lang_webshop'), $obj_webshop->event_max_length)." (".$event_start." -> ".$event_end.")";
 																		}
 
 																		else
 																		{
-																			do_log("I could not update (".var_export($post_data_event, true).")");
+																			$post_data_event = array(
+																				'ID' => $arr_event_id[$i],
+																				'post_title' => $arr_event_name[$i],
+																				'post_content' => $arr_event_text[$i],
+																				//'post_modified' => date("Y-m-d H:i:s"),
+																				'meta_input' => array(
+																					$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
+																					$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
+																					$obj_calendar->meta_prefix.'start' => $event_start,
+																					$obj_calendar->meta_prefix.'end' => $event_end,
+																				),
+																			);
+
+																			if(wp_update_post($post_data_event) > 0)
+																			{
+																				$updated = true;
+
+																				$obj_webshop->set_events_meta_boxes($arr_event_id[$i], $i);
+
+																				//do_action('rwmb_after_save_post', $arr_event_id[$i]);
+																				$obj_calendar->rwmb_after_save_post($arr_event_id[$i]);
+																			}
+
+																			else
+																			{
+																				do_log("I could not update (".var_export($post_data_event, true).")");
+																			}
 																		}
 																	}
 
@@ -575,47 +598,57 @@ switch($type_switch)
 																		}
 																	}
 																}
-
-																/*else
-																{
-																	do_log("I could not find just one (".$wpdb->last_query." -> ".$rows.")");
-																}*/
 															}
 
 															else
 															{
 																if($arr_event_name[$i] != '')
 																{
-																	$post_data_event = array(
-																		'post_type' => $obj_calendar->post_type_event,
-																		'post_status' => 'publish',
-																		'post_title' => $arr_event_name[$i],
-																		'post_content' => $arr_event_text[$i],
-																		'meta_input' => array(
-																			$obj_calendar->meta_prefix.'calendar' => $calendar_id,
-																			$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
-																			$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																			//$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
-																			$obj_calendar->meta_prefix.'start' => $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : ''),
-																			$obj_calendar->meta_prefix.'end' => $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : ''),
-																		),
-																	);
-
-																	$post_id_temp = wp_insert_post($post_data_event);
-
-																	if($post_id_temp > 0)
+																	if($event_start > $event_end)
 																	{
-																		$reload = $updated = true;
+																		$error = true;
+																		$json_output['message'] = __("The end date must be later than the start date", 'lang_webshop')." (".$event_start." -> ".$event_end.")";
+																	}
 
-																		$obj_webshop->set_events_meta_boxes($post_id_temp, $i);
-
-																		//do_action('rwmb_after_save_post', $post_id_temp);
-																		$obj_calendar->rwmb_after_save_post($post_id_temp);
+																	else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".$obj_webshop->event_max_length." day")))
+																	{
+																		$error = true;
+																		$json_output['message'] = sprintf(__("The end date must be within %d days from the start date", 'lang_webshop'), $obj_webshop->event_max_length)." (".$event_start." -> ".$event_end.")";
 																	}
 
 																	else
 																	{
-																		do_log("I could not save (".var_export($post_data_event, true).")");
+																		$post_data_event = array(
+																			'post_type' => $obj_calendar->post_type_event,
+																			'post_status' => 'publish',
+																			'post_title' => $arr_event_name[$i],
+																			'post_content' => $arr_event_text[$i],
+																			'meta_input' => array(
+																				$obj_calendar->meta_prefix.'calendar' => $calendar_id,
+																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
+																				$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
+																				//$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
+																				$obj_calendar->meta_prefix.'start' => $event_start,
+																				$obj_calendar->meta_prefix.'end' => $event_end,
+																			),
+																		);
+
+																		$post_id_temp = wp_insert_post($post_data_event);
+
+																		if($post_id_temp > 0)
+																		{
+																			$reload = $updated = true;
+
+																			$obj_webshop->set_events_meta_boxes($post_id_temp, $i);
+
+																			//do_action('rwmb_after_save_post', $post_id_temp);
+																			$obj_calendar->rwmb_after_save_post($post_id_temp);
+																		}
+
+																		else
+																		{
+																			do_log("I could not save (".var_export($post_data_event, true).")");
+																		}
 																	}
 																}
 															}
@@ -690,7 +723,12 @@ switch($type_switch)
 								}
 							}
 
-							if($updated == true) //count($post_data) > 2 || 
+							if($error == true)
+							{
+								// Do nothing. $json_output['message'] should be set so the user knows what's gone wrong
+							}
+
+							else if($updated == true)
 							{
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{
@@ -699,7 +737,6 @@ switch($type_switch)
 
 									$json_output['success'] = true;
 									$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
-									//$json_output['debug'] = "Updated: ".$wpdb->last_query;
 
 									if($reload == true)
 									{

@@ -63,10 +63,12 @@ class mf_webshop
 
 		$this->option_type = '';
 
+		$this->event_max_length = 9;
+
 		// Needs to be here because Poedit does not pick up this from below
-		$arr_localize = array(
+		/*$arr_localize = array(
 			__("Show all", 'lang_webshop'),
-		);
+		);*/
 	}
 
 	function get_type_id($post)
@@ -1772,7 +1774,10 @@ class mf_webshop
 				mf_enqueue_style('style_webshop_admin', $plugin_include_url."style_admin.css", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
-				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array('confirm_question' => __("Are you sure?", 'lang_webshop')), $plugin_version);
+				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array(
+					'event_max_length' => $this->event_max_length,
+					'confirm_question' => __("Are you sure?", 'lang_webshop'),
+				), $plugin_version);
 
 				$templates .= "<script type='text/template' id='template_admin_webshop_list'>
 					<table class='widefat striped'>
@@ -1943,11 +1948,11 @@ class mf_webshop
 																				});
 																			} %>"
 																			."<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date"))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time"))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date", 'placeholder' => date("Y-m-d")))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time", 'placeholder' => date("H:00")))
 																				."<h3>-</h3>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>"))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>"))
+																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'value' => "<%= meta_child_value.end_date %>", 'placeholder' => date("Y-m-d")))
+																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'value' => "<%= meta_child_value.end_time %>", 'placeholder' => date("H:00")))
 																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
 																			."</div>"
 																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'text' => sprintf(__("Information about %s", 'lang_webshop'), "<%= meta_field.name %>"), 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))

@@ -59,7 +59,7 @@ var WebshopAdminView = Backbone.View.extend(
 		var dom_obj = (e.currentTarget ? jQuery(e.currentTarget) : e),
 			date = new Date();
 
-		date.setDate(date.getDate() - 9);
+		date.setDate(date.getDate() - script_webshop_admin_views.event_max_length);
 
 		var date_year = date.getFullYear(),
 			date_month = (date.getMonth() + 1),
@@ -82,7 +82,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			var date = new Date(date_start_val);
 
-			date.setDate(date.getDate() + 9);
+			date.setDate(date.getDate() + script_webshop_admin_views.event_max_length);
 
 			var date_year = date.getFullYear(),
 				date_month = (date.getMonth() + 1),
