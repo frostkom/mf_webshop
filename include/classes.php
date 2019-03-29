@@ -1935,7 +1935,15 @@ class mf_webshop
 																								."<select id='<%= field_value.id %>' name='<%= field_value.id %>[]'>
 																									<% _.each(field_value.options, function(meta_option_value, meta_option_key)
 																									{ %>
-																										<option value='<%= meta_option_key %>'<% if(meta_option_key == field_value.value){%> selected<%} %>><%= meta_option_value %></option>
+																										<% if(typeof meta_option_value.key !== 'undefined')
+																										{ %>
+																											<option value='<%= meta_option_value.key %>'<% if(meta_option_value.key == field_value.value){%> selected<%} %>><%= meta_option_value.value %></option>
+																										<% }
+
+																										else
+																										{ %>
+																											<option value='<%= meta_option_key %>'<% if(meta_option_key == field_value.value){%> selected<%} %>><%= meta_option_value %></option>
+																										<% } %>
 																									<% }); %>
 																								</select>
 																							</div>
@@ -2836,7 +2844,7 @@ class mf_webshop
 
 		if($product_id > 0)
 		{
-			$arr_fields = $this->get_events_meta_boxes(array('option_type' => $option_type), array());
+			$arr_fields = $this->get_events_meta_boxes(array('option_type' => $option_type));
 
 			foreach($arr_fields as $key => $arr_field)
 			{
@@ -2855,7 +2863,7 @@ class mf_webshop
 		}
 	}
 
-	function get_events_meta_boxes($data, $arr_fields)
+	function get_events_meta_boxes($data = array(), $arr_fields = array())
 	{
 		if(!isset($data['ignore'])){		$data['ignore'] = array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button');} //, 'categories', 'container_start', 'container_end'
 
@@ -2882,22 +2890,18 @@ class mf_webshop
 
 				if($post_document_events == 'yes')
 				{
-					//$post_document_alt_text = get_post_meta($post_id, $this->meta_prefix.'document_alt_text', true);
 					$post_document_default = get_post_meta($post_id, $this->meta_prefix.'document_default', true);
 					$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
 
 					$fields_array = array(
 						'post_id' => $post_id,
 						'name' => $post_title,
-						//'alt_text' => $post_document_alt_text,
 						'id' => $obj_calendar->meta_prefix.$post_name,
 						'type' => $post_custom_type,
 						'class' => $post_custom_class,
 						'std' => $post_document_default,
 						'attributes' => array(),
 					);
-
-					//do_log("get_events_meta_boxes: ".var_export($fields_array, true));
 
 					$this->filter_fields_array($post_id, $fields_array, 'events');
 
@@ -2907,6 +2911,52 @@ class mf_webshop
 		}
 
 		return $arr_fields;
+	}
+
+	function get_event_fields($data = array())
+	{
+		if(!isset($data['post_id'])){		$data['post_id'] = 0;}
+
+		$arr_event_fields = $this->get_events_meta_boxes();
+
+		foreach($arr_event_fields as $key => $arr_field)
+		{
+			switch($arr_field['type'])
+			{
+				case 'checkbox':
+					$arr_event_fields[$key]['type'] = 'select';
+					$arr_event_fields[$key]['options'] = get_yes_no_for_select(array('return_integer' => true));
+				break;
+
+				case 'select':
+					unset($arr_event_fields[$key]['std']);
+					unset($arr_event_fields[$key]['attributes']);
+					unset($arr_event_fields[$key]['multiple']);
+
+					// Just to make sure that the order is preserved for JSON
+					$arr_data_temp = array();
+
+					foreach($arr_event_fields[$key]['options'] as $option_key => $option_value)
+					{
+						$arr_data_temp[] = array('key' => $option_key, 'value' => $option_value);
+					}
+
+					$arr_event_fields[$key]['options'] = $arr_data_temp;
+				break;
+			}
+
+			if($data['post_id'] > 0)
+			{
+				$arr_event_fields[$key]['value'] = get_post_meta($data['post_id'], $arr_field['id'], true);
+			}
+
+			else
+			{
+				$arr_event_fields[$key]['value'] = '';
+			}
+		}
+
+		return $arr_event_fields;
 	}
 
 	function before_meta_box_fields($arr_fields)
@@ -8987,7 +9037,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 							$out_temp = "";
 
-							$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']), array());
+							$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']));
 
 							foreach($arr_event_fields as $key => $arr_field)
 							{
@@ -9143,7 +9193,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 					$arr_data = array();
 
-					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']), array());
+					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']));
 
 					foreach($arr_event_fields as $key => $arr_field)
 					{

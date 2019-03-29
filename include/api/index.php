@@ -304,27 +304,6 @@ switch($type_switch)
 																	$event_location = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'location', true);
 																	$event_coordinates = get_post_meta($r_children->ID, $obj_calendar->meta_prefix.'coordinates', true);
 
-																	$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), array());
-
-																	foreach($arr_event_fields as $key => $arr_field)
-																	{
-																		switch($arr_field['type'])
-																		{
-																			case 'checkbox':
-																				$arr_event_fields[$key]['type'] = 'select';
-																				$arr_event_fields[$key]['options'] = get_yes_no_for_select(array('return_integer' => true));
-																			break;
-
-																			case 'select':
-																				unset($arr_event_fields[$key]['std']);
-																				unset($arr_event_fields[$key]['attributes']);
-																				unset($arr_event_fields[$key]['multiple']);
-																			break;
-																		}
-
-																		$arr_event_fields[$key]['value'] = get_post_meta($r_children->ID, $arr_field['id'], true);
-																	}
-
 																	$arr_children_temp[$r_children->ID] = array(
 																		'name' => $r_children->post_title,
 																		'text' => $r_children->post_content,
@@ -334,7 +313,7 @@ switch($type_switch)
 																		'start_time' => $event_start_time,
 																		'end_date' => $event_end_date,
 																		'end_time' => $event_end_time,
-																		'fields' => $arr_event_fields,
+																		'fields' => $obj_webshop->get_event_fields(array('post_id' => $r_children->ID)),
 																	);
 																}
 															}
@@ -351,37 +330,8 @@ switch($type_switch)
 																'start_time' => '',
 																'end_date' => '',
 																'end_time' => '',
+																'fields' => $obj_webshop->get_event_fields(),
 															);
-
-															$arr_event_fields = array();
-
-															/*list($product_id, $option_type) = $obj_webshop->get_product_id_from_calendar($r_children->ID);
-
-															if($product_id > 0)
-															{*/
-																$arr_event_fields = $obj_webshop->get_events_meta_boxes(array(), $arr_event_fields);
-
-																foreach($arr_event_fields as $key => $arr_field)
-																{
-																	switch($arr_field['type'])
-																	{
-																		case 'checkbox':
-																			$arr_event_fields[$key]['type'] = 'select';
-																			$arr_event_fields[$key]['options'] = get_yes_no_for_select(array('return_integer' => true));
-																		break;
-
-																		case 'select':
-																			unset($arr_event_fields[$key]['std']);
-																			unset($arr_event_fields[$key]['attributes']);
-																			unset($arr_event_fields[$key]['multiple']);
-																		break;
-																	}
-
-																	$arr_event_fields[$key]['value'] = ''; //get_post_meta($r_children->ID, $arr_field['id'], true)
-																}
-															//}
-
-															$arr_children_temp[0]['fields'] = $arr_event_fields;
 														}
 													}
 												break;
@@ -528,7 +478,7 @@ switch($type_switch)
 															$arr_event_start_time[$i] = check_var($arr_event_start_time[$i], 'time', false);
 															$arr_event_end_date[$i] = check_var($arr_event_end_date[$i], 'date', false, $arr_event_start_date[$i]);
 															$arr_event_end_time[$i] = check_var($arr_event_end_time[$i], 'time', false, $arr_event_start_time[$i]);
-															
+
 															$event_start = $arr_event_start_date[$i].($arr_event_start_time[$i] != '' ? " ".$arr_event_start_time[$i] : '');
 															$event_end = $arr_event_end_date[$i].($arr_event_end_time[$i] != '' ? " ".$arr_event_end_time[$i] : '');
 
