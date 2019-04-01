@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-19 21:01+0100\n"
+"POT-Creation-Date: 2019-03-31 21:07+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -420,8 +420,20 @@ msgstr "Ditt navn eller navnet på %s"
 msgid "Add New"
 msgstr "Legg til ny"
 
+msgid "Delete"
+msgstr "Slett"
+
 msgid "Street 123, City"
 msgstr "Gate 123, Sted"
+
+msgid "Start Date"
+msgstr "Startdato"
+
+msgid "Time"
+msgstr "Tid"
+
+msgid "End Date"
+msgstr "Slutdato"
 
 msgid "Information about %s"
 msgstr "Spesifikk informasjon om %s"
@@ -440,6 +452,9 @@ msgstr "Lag"
 
 msgid "List"
 msgstr "Legge til i liste"
+
+msgid "your-name"
+msgstr "dit-navn"
 
 msgid "001-888-342-324"
 msgstr "12345678"
@@ -554,9 +569,6 @@ msgstr "Oppdater handlekurven"
 
 msgid "Add to Cart"
 msgstr "Legg til i handlekurven"
-
-msgid "Delete"
-msgstr "Slett"
 
 msgid "You have to install the plugin %s first"
 msgstr "Du må installere plugin %s først"
