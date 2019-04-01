@@ -319,7 +319,7 @@ switch($type_switch)
 															}
 														}
 
-														else
+														if(count($arr_children_temp) == 0)
 														{
 															$arr_children_temp[0] = array(
 																'name' => '',
