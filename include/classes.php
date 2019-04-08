@@ -4,7 +4,7 @@ class mf_webshop
 {
 	function __construct()
 	{
-		$this->meta_prefix = "mf_ws_";
+		$this->meta_prefix = 'mf_ws_';
 
 		$this->range_min = $this->range_max = "";
 		$this->interval_amount = $this->interval_count = 0;
@@ -2028,7 +2028,7 @@ class mf_webshop
 							<% }
 						}); %>
 						<div class='form_button'>
-							<button type='submit' name='btnAdminWebshopEdit' class='button-primary'>
+							<button type='submit' class='button-primary'>
 								<% if(post_id > 0)
 								{ %>"
 									.__("Update", 'lang_webshop')
@@ -2934,6 +2934,7 @@ class mf_webshop
 					unset($arr_event_fields[$key]['multiple']);
 
 					// Just to make sure that the order is preserved for JSON
+					######################
 					$arr_data_temp = array();
 
 					foreach($arr_event_fields[$key]['options'] as $option_key => $option_value)
@@ -2942,6 +2943,7 @@ class mf_webshop
 					}
 
 					$arr_event_fields[$key]['options'] = $arr_data_temp;
+					######################
 				break;
 			}
 
@@ -4039,6 +4041,15 @@ class mf_webshop
 						'size' => get_select_size(array('count' => count($arr_include_on))),
 					),
 				);
+
+				/*$arr_fields[] = array(
+					'name' => __("Event Max Length", 'lang_webshop'),
+					'id' => $this->meta_prefix.'event_max_length',
+					'type' => 'number',
+					'attributes' => array(
+						'min' => 0,
+					),
+				);*/
 			}
 
 			$meta_boxes[] = array(
