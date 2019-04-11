@@ -1929,6 +1929,17 @@ class mf_webshop
 																							</div>
 																						<% break;
 
+																						case 'date': %>
+																							<div class='flex_flow tight'>"
+																								.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'text' => __("Start Date", 'lang_webshop'), 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date", 'placeholder' => date("Y-m-d")))
+																								.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'text' => __("Time", 'lang_webshop'), 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time", 'placeholder' => date("H:00")))
+																								//."<h3>-</h3>"
+																								.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'text' => __("End Date", 'lang_webshop'), 'value' => "<%= meta_child_value.end_date %>", 'placeholder' => date("Y-m-d")))
+																								.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'text' => __("Time", 'lang_webshop'), 'value' => "<%= meta_child_value.end_time %>", 'placeholder' => date("H:00")))
+																								.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
+																							."</div>
+																						<% break;
+
 																						case 'select': %>
 																							<div class='form_select type_<%= field_value.type %>'>"
 																								."<label for='<%= field_value.id %>'><%= field_value.name %></label>"
@@ -1955,14 +1966,6 @@ class mf_webshop
 																					}
 																				});
 																			} %>"
-																			."<div class='flex_flow tight'>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_start_date[]", 'text' => __("Start Date", 'lang_webshop'), 'value' => "<%= meta_child_value.start_date %>", 'xtra_class' => "start_date", 'placeholder' => date("Y-m-d")))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_start_time[]', 'text' => __("Time", 'lang_webshop'), 'value' => "<%= meta_child_value.start_time %>", 'xtra_class' => "start_time", 'placeholder' => date("H:00")))
-																				//."<h3>-</h3>"
-																				.show_textfield(array('type' => 'date', 'name' => "<%= meta_field.id %>_end_date[]", 'text' => __("End Date", 'lang_webshop'), 'value' => "<%= meta_child_value.end_date %>", 'placeholder' => date("Y-m-d")))
-																				.show_textfield(array('type' => 'time', 'name' => '<%= meta_field.id %>_end_time[]', 'text' => __("Time", 'lang_webshop'), 'value' => "<%= meta_child_value.end_time %>", 'placeholder' => date("H:00")))
-																				.input_hidden(array('name' => "<%= meta_field.id %>_id[]", 'value' => "<%= meta_child_key %>"))
-																			."</div>"
 																			.show_textarea(array('name' => "<%= meta_field.id %>_text[]", 'text' => sprintf(__("Information about %s", 'lang_webshop'), "<%= meta_field.name %>"), 'value' => "<%= meta_child_value.text %>", 'xtra' => " maxlength='250'", 'placeholder' => __("Add important information here", 'lang_webshop')))
 																		."</li>
 																	<% }); %>
