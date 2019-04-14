@@ -90,6 +90,8 @@ switch($type_switch)
 					{
 						$obj_webshop->get_option_type_from_post_id($post_id);
 
+						$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
+
 						$query_where = "";
 
 						if(1 == 1 || !IS_ADMIN)
@@ -105,8 +107,6 @@ switch($type_switch)
 							$json_output['admin_webshop_response']['post_name'] = $post_name = $r->post_name;
 							$post_type = $r->post_type;
 							$post_author = $r->post_author;
-
-							$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
 
 							foreach($arr_meta_boxes as $box_id => $arr_meta_box)
 							{
@@ -365,6 +365,44 @@ switch($type_switch)
 					$json_output['admin_webshop_response']['name_product'] = get_option_or_default('setting_webshop_replace_product'.$obj_webshop->option_type, __("Product", 'lang_webshop'));
 				break;
 
+				/*case 'webshop/event_max_length':
+					$post_id = check_var('post_id', 'int');
+
+					if($post_id > 0)
+					{
+						$obj_webshop->get_option_type_from_post_id($post_id);
+					}
+
+					else
+					{
+						$obj_webshop->option_type = check_var('option_type');
+					}
+
+					$obj_calendar = new mf_calendar();
+					//$arr_category_id = check_var($obj_calendar->meta_prefix.'category', 'array');
+					//$category_id = (isset($arr_category_id[0]) ? $arr_category_id[0] : 0);
+
+					$category_id = check_var('category_id', 'int');
+
+					if($category_id > 0)
+					{
+						$event_max_length = get_post_meta($category_id, $obj_calendar->meta_prefix.'event_max_length', true);
+					}
+
+					else
+					{
+						$event_max_length = 0;
+					}
+					
+					$json_output['admin_webshop_response'] = array(
+						'type' => $type,
+						'post_id' => $post_id,
+						'category_id' => $category_id,
+						'event_max_length' => (!is_array($event_max_length) && $event_max_length > 0 ? $event_max_length : 0),
+						//'debug' => $post_id.", ".$obj_webshop->option_type.", ".$obj_calendar->meta_prefix.'category'.", ".var_export($category_id, true).", ".var_export($event_max_length, true),
+					);
+				break;*/
+
 				case 'webshop/save':
 					$post_id = check_var('post_id', 'int');
 					$post_title = check_var('post_title');
@@ -378,6 +416,8 @@ switch($type_switch)
 					if($post_id > 0)
 					{
 						$obj_webshop->get_option_type_from_post_id($post_id);
+
+						$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
 
 						$query_where = "";
 
@@ -419,8 +459,6 @@ switch($type_switch)
 
 								$updated = true;
 							}*/
-
-							$arr_meta_boxes = $obj_webshop->rwmb_meta_boxes(array());
 
 							foreach($arr_meta_boxes as $box_id => $arr_meta_box)
 							{
@@ -491,7 +529,7 @@ switch($type_switch)
 																			$json_output['message'] = __("The end date must be later than the start date", 'lang_webshop')." (".$event_start." -> ".$event_end.")";
 																		}
 
-																		else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".$obj_webshop->event_max_length." day")))
+																		else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".($obj_webshop->event_max_length - 1)." day")))
 																		{
 																			$error = true;
 																			$json_output['message'] = sprintf(__("The end date must be within %d days from the start date", 'lang_webshop'), $obj_webshop->event_max_length)." (".$event_start." -> ".$event_end.")";
@@ -518,7 +556,7 @@ switch($type_switch)
 
 																				$obj_webshop->set_events_meta_boxes($arr_event_id[$i], $i);
 
-																				//do_action('rwmb_after_save_post', $arr_event_id[$i]);
+																				//do_action('rwmb_after_save_post', $arr_event_id[$i]); // Hook must be moved from within is_admin() in index.php
 																				$obj_calendar->rwmb_after_save_post($arr_event_id[$i]);
 																			}
 
@@ -554,7 +592,7 @@ switch($type_switch)
 																		$json_output['message'] = __("The end date must be later than the start date", 'lang_webshop')." (".$event_start." -> ".$event_end.")";
 																	}
 
-																	else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".$obj_webshop->event_max_length." day")))
+																	else if($event_end > date("Y-m-d H:i", strtotime($event_start." +".($obj_webshop->event_max_length - 1)." day")))
 																	{
 																		$error = true;
 																		$json_output['message'] = sprintf(__("The end date must be within %d days from the start date", 'lang_webshop'), $obj_webshop->event_max_length)." (".$event_start." -> ".$event_end.")";
@@ -585,7 +623,7 @@ switch($type_switch)
 
 																			$obj_webshop->set_events_meta_boxes($post_id_temp, $i);
 
-																			//do_action('rwmb_after_save_post', $post_id_temp);
+																			//do_action('rwmb_after_save_post', $post_id_temp); // Hook must be moved from within is_admin() in index.php
 																			$obj_calendar->rwmb_after_save_post($post_id_temp);
 																		}
 
@@ -676,7 +714,7 @@ switch($type_switch)
 							{
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{
-									//do_action('rwmb_after_save_post', $post_id);
+									//do_action('rwmb_after_save_post', $post_id); // Hook must be moved from within is_admin() in index.php
 									$obj_webshop->rwmb_after_save_post($post_id);
 
 									$json_output['success'] = true;
@@ -719,7 +757,7 @@ switch($type_switch)
 
 							if($post_id > 0)
 							{
-								//do_action('rwmb_after_save_post', $post_id);
+								//do_action('rwmb_after_save_post', $post_id); // Hook must be moved from within is_admin() in index.php
 								$obj_webshop->rwmb_after_save_post($post_id);
 
 								$json_output['success'] = true;

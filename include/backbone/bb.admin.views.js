@@ -12,13 +12,14 @@ var WebshopAdminView = Backbone.View.extend(
 
 	events:
 	{
+		/*"change .event_children .type_select #mf_calendar_category": "get_event_max_length",*/
 		"blur .event_children .start_date": "set_limit_end_date",
 		"change .event_children .start_date": "set_limit_end_date",
 		"blur .event_children .start_time": "set_limit_end_time",
 		"change .event_children .start_time": "set_limit_end_time",
 		"submit form": "submit_form",
 		"blur .event_children .form_textfield input": "add_event_field",
-		"change .event_children .form_textfield input": "add_event_field",
+		/*"change .event_children .form_textfield input": "add_event_field",*/
 		"click .event_children .event_name .description .fa-trash": "clear_event_field",
 		"keyup .maps_location input": "clear_coordinates",
 	},
@@ -54,12 +55,36 @@ var WebshopAdminView = Backbone.View.extend(
 		this.model.getPage(action);
 	},
 
+	/*get_event_max_length: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			dom_action = "admin/webshop/event_max_length";
+
+		this.model.submitForm(dom_action, 'post_id=' + dom_obj.parents("form").find("input[name='post_id']").val() + '&category_id=' + dom_obj.val());
+	},*/
+
+	get_event_max_length: function(dom_obj)
+	{
+		var event_max_length = parseInt(script_webshop_admin_views.event_max_length),
+			category_max_length = dom_obj.closest("li").find("#" + script_webshop_admin_views.calendar_meta_prefix + "category :selected");
+
+		if(category_max_length.length > 0)
+		{
+			if(typeof category_max_length.data('event_max_length') !== 'undefined' && category_max_length.data('event_max_length') > 0)
+			{
+				event_max_length = category_max_length.data('event_max_length');
+			}
+		}
+
+		return (event_max_length - 1);
+	},
+
 	set_limit_start_date: function(e)
 	{
 		var dom_obj = (e.currentTarget ? jQuery(e.currentTarget) : e),
 			date = new Date();
 
-		date.setDate(date.getDate() - script_webshop_admin_views.event_max_length);
+		date.setDate(date.getDate() - this.get_event_max_length(dom_obj));
 
 		var date_year = date.getFullYear(),
 			date_month = (date.getMonth() + 1),
@@ -82,7 +107,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			var date = new Date(date_start_val);
 
-			date.setDate(date.getDate() + script_webshop_admin_views.event_max_length);
+			date.setDate(date.getDate() + this.get_event_max_length(dom_obj));
 
 			var date_year = date.getFullYear(),
 				date_month = (date.getMonth() + 1),
@@ -218,6 +243,15 @@ var WebshopAdminView = Backbone.View.extend(
 					init_media_button();
 				}
 			break;
+
+			/*case 'admin_webshop_event_max_length':
+				console.log('admin_webshop_event_max_length: ' , response.post_id , response.category_id , response.event_max_length);
+
+				if(response.event_max_length > 0)
+				{
+					
+				}
+			break;*/
 		}
 	},
 

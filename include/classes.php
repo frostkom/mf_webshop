@@ -63,12 +63,7 @@ class mf_webshop
 
 		$this->option_type = '';
 
-		$this->event_max_length = 9;
-
-		// Needs to be here because Poedit does not pick up this from below
-		/*$arr_localize = array(
-			__("Show all", 'lang_webshop'),
-		);*/
+		$this->event_max_length = 10;
 	}
 
 	function get_type_id($post)
@@ -1771,11 +1766,14 @@ class mf_webshop
 				$plugin_include_url = plugin_dir_url(__FILE__);
 				$plugin_version = get_plugin_version(__FILE__);
 
+				$obj_calendar = new mf_calendar();
+
 				mf_enqueue_style('style_webshop_admin', $plugin_include_url."style_admin.css", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
 				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
 				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array(
 					'event_max_length' => $this->event_max_length,
+					'calendar_meta_prefix' => $obj_calendar->meta_prefix,
 					'confirm_question' => __("Are you sure?", 'lang_webshop'),
 				), $plugin_version);
 
@@ -1946,7 +1944,12 @@ class mf_webshop
 																								."<select id='<%= field_value.id %>' name='<%= field_value.id %>[]'>
 																									<% _.each(field_value.options, function(meta_option_value, meta_option_key)
 																									{ %>
-																										<% if(typeof meta_option_value.key !== 'undefined')
+																										<% if(typeof meta_option_value.value !== 'undefined' && typeof meta_option_value.value.name !== 'undefined')
+																										{ %>
+																											<option value='<%= meta_option_value.key %>'<% if(meta_option_value.key == field_value.value){%> selected<%} %> data-event_max_length='<%= meta_option_value.value.event_max_length %>'><%= meta_option_value.value.name %></option>
+																										<% }
+
+																										else if(typeof meta_option_value.key !== 'undefined')
 																										{ %>
 																											<option value='<%= meta_option_value.key %>'<% if(meta_option_value.key == field_value.value){%> selected<%} %>><%= meta_option_value.value %></option>
 																										<% }
@@ -2920,6 +2923,8 @@ class mf_webshop
 	{
 		if(!isset($data['post_id'])){		$data['post_id'] = 0;}
 
+		$obj_calendar = new mf_calendar();
+
 		$arr_event_fields = $this->get_events_meta_boxes();
 
 		foreach($arr_event_fields as $key => $arr_field)
@@ -2942,6 +2947,24 @@ class mf_webshop
 
 					foreach($arr_event_fields[$key]['options'] as $option_key => $option_value)
 					{
+						if($option_key > 0 && $arr_event_fields[$key]['id'] == $obj_calendar->meta_prefix.'category')
+						{
+							$event_max_length = get_post_meta($option_key, $this->meta_prefix.'event_max_length', true);
+
+							if($event_max_length > 0)
+							{
+								$option_value = array(
+									'name' => $option_value,
+									'event_max_length' => $event_max_length,
+								);
+							}
+
+							/*else
+							{
+								do_log("No max length: ".$option_key.", ".$obj_calendar->meta_prefix.'event_max_length');
+							}*/
+						}
+
 						$arr_data_temp[] = array('key' => $option_key, 'value' => $option_value);
 					}
 
@@ -4045,14 +4068,14 @@ class mf_webshop
 					),
 				);
 
-				/*$arr_fields[] = array(
+				$arr_fields[] = array(
 					'name' => __("Event Max Length", 'lang_webshop'),
 					'id' => $this->meta_prefix.'event_max_length',
 					'type' => 'number',
 					'attributes' => array(
 						'min' => 0,
 					),
-				);*/
+				);
 			}
 
 			$meta_boxes[] = array(
