@@ -365,44 +365,6 @@ switch($type_switch)
 					$json_output['admin_webshop_response']['name_product'] = get_option_or_default('setting_webshop_replace_product'.$obj_webshop->option_type, __("Product", 'lang_webshop'));
 				break;
 
-				/*case 'webshop/event_max_length':
-					$post_id = check_var('post_id', 'int');
-
-					if($post_id > 0)
-					{
-						$obj_webshop->get_option_type_from_post_id($post_id);
-					}
-
-					else
-					{
-						$obj_webshop->option_type = check_var('option_type');
-					}
-
-					$obj_calendar = new mf_calendar();
-					//$arr_category_id = check_var($obj_calendar->meta_prefix.'category', 'array');
-					//$category_id = (isset($arr_category_id[0]) ? $arr_category_id[0] : 0);
-
-					$category_id = check_var('category_id', 'int');
-
-					if($category_id > 0)
-					{
-						$event_max_length = get_post_meta($category_id, $obj_calendar->meta_prefix.'event_max_length', true);
-					}
-
-					else
-					{
-						$event_max_length = 0;
-					}
-					
-					$json_output['admin_webshop_response'] = array(
-						'type' => $type,
-						'post_id' => $post_id,
-						'category_id' => $category_id,
-						'event_max_length' => (!is_array($event_max_length) && $event_max_length > 0 ? $event_max_length : 0),
-						//'debug' => $post_id.", ".$obj_webshop->option_type.", ".$obj_calendar->meta_prefix.'category'.", ".var_export($category_id, true).", ".var_export($event_max_length, true),
-					);
-				break;*/
-
 				case 'webshop/save':
 					$post_id = check_var('post_id', 'int');
 					$post_title = check_var('post_title');

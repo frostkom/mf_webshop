@@ -12,7 +12,7 @@ var WebshopAdminView = Backbone.View.extend(
 
 	events:
 	{
-		/*"change .event_children .type_select #mf_calendar_category": "get_event_max_length",*/
+		"change .event_children .type_select #mf_calendar_category": "on_change_category",
 		"blur .event_children .start_date": "set_limit_end_date",
 		"change .event_children .start_date": "set_limit_end_date",
 		"blur .event_children .start_time": "set_limit_end_time",
@@ -55,13 +55,10 @@ var WebshopAdminView = Backbone.View.extend(
 		this.model.getPage(action);
 	},
 
-	/*get_event_max_length: function(e)
+	on_change_category: function(e)
 	{
-		var dom_obj = jQuery(e.currentTarget),
-			dom_action = "admin/webshop/event_max_length";
-
-		this.model.submitForm(dom_action, 'post_id=' + dom_obj.parents("form").find("input[name='post_id']").val() + '&category_id=' + dom_obj.val());
-	},*/
+		this.set_limit_end_date(jQuery(e.currentTarget).closest("li").find(".start_date"));
+	},
 
 	get_event_max_length: function(dom_obj)
 	{
