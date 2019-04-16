@@ -240,15 +240,6 @@ var WebshopAdminView = Backbone.View.extend(
 					init_media_button();
 				}
 			break;
-
-			/*case 'admin_webshop_event_max_length':
-				console.log('admin_webshop_event_max_length: ' , response.post_id , response.category_id , response.event_max_length);
-
-				if(response.event_max_length > 0)
-				{
-					
-				}
-			break;*/
 		}
 	},
 
