@@ -1793,8 +1793,8 @@ class mf_webshop
 										<%= product.post_title %>
 										<div class='row-actions'>"
 											."<a href='#admin/webshop/edit/<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
-											.(IS_ADMIN ? " | <a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
-											." | <a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
+											.(IS_ADMIN ? "<a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
+											."<a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
 										."</div>
 									</td>
 									<td><%= product.post_modified %></td>
@@ -7877,7 +7877,6 @@ class widget_webshop_search extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
@@ -7906,7 +7905,6 @@ class widget_webshop_search extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -7948,7 +7946,6 @@ class widget_webshop_map extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
@@ -7969,7 +7966,6 @@ class widget_webshop_map extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8155,7 +8151,6 @@ class widget_webshop_form extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if(is_array($instance['webshop_doc_type']) || $instance['webshop_doc_type'] != '')
@@ -8206,7 +8201,6 @@ class widget_webshop_form extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8290,7 +8284,6 @@ class widget_webshop_list extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if(is_array($instance['webshop_locations']))
@@ -8329,7 +8322,6 @@ class widget_webshop_list extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8386,7 +8378,6 @@ class widget_webshop_favorites extends WP_Widget
 		global $wpdb;
 
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if(count($instance['webshop_products']) > 0)
@@ -8420,7 +8411,6 @@ class widget_webshop_favorites extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8485,7 +8475,6 @@ class widget_webshop_recent extends WP_Widget
 		global $wpdb;
 
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['webshop_amount'] > 0)
@@ -8526,7 +8515,6 @@ class widget_webshop_recent extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8589,7 +8577,6 @@ class widget_webshop_events extends WP_Widget
 		global $post;
 
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['webshop_amount'] > 0)
@@ -8675,7 +8662,6 @@ class widget_webshop_events extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8748,7 +8734,6 @@ class widget_webshop_filter_products extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['webshop_amount'] > 0)
@@ -8797,7 +8782,6 @@ class widget_webshop_filter_products extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -8883,7 +8867,6 @@ class widget_webshop_product_meta extends WP_Widget
 		global $post;
 
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['webshop_meta_type'] != '')
@@ -9195,7 +9178,6 @@ class widget_webshop_product_meta extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -9333,7 +9315,6 @@ class widget_webshop_categories extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
@@ -9356,7 +9337,6 @@ class widget_webshop_categories extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
@@ -9603,7 +9583,6 @@ class widget_webshop_cart extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
@@ -9624,7 +9603,6 @@ class widget_webshop_cart extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
