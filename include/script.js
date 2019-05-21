@@ -137,12 +137,12 @@ function hide_products()
 
 function init_maps()
 {
-	if(search_map_obj.length > 0 && search_map_obj.is(':visible'))
+	if(search_map_obj.length > 0 && search_map_obj.is(":visible"))
 	{
 		has_maps = true;
 	}
 
-	if(search_input_obj.length > 0 && search_input_obj.is(':visible'))
+	if(search_input_obj.length > 0 && search_input_obj.is(":visible"))
 	{
 		has_map_search = true;
 	}

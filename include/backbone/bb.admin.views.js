@@ -1,6 +1,6 @@
 var WebshopAdminView = Backbone.View.extend(
 {
-	el: jQuery(".admin_container"),
+	el: jQuery("#admin_webshop_edit"),
 
 	initialize: function()
 	{
@@ -197,7 +197,7 @@ var WebshopAdminView = Backbone.View.extend(
 				/* Hack as long as show_textfield() etc. is used */
 				dom_container.find(".description").each(function()
 				{
-					if(jQuery(this).is(':empty'))
+					if(jQuery(this).is(":empty"))
 					{
 						jQuery(this).remove();
 					}
@@ -289,7 +289,7 @@ var WebshopAdminView = Backbone.View.extend(
 			dom_parent.find("input[type!='hidden']").val('').attr('value', '');
 			dom_parent.find("select option:selected").prop('selected', false);
 
-			if(dom_parent.is(':last-child') == false)
+			if(dom_parent.is(":last-child") == false)
 			{
 				dom_parent.addClass('hide');
 			}

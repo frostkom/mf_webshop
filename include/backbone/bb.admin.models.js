@@ -29,7 +29,7 @@ var WebshopAdminModel = Backbone.Model.extend(
 
 		if(dom_action)
 		{
-			url += '?type=' + dom_action; /*.replace('#', '')*/
+			url += '?type=' + dom_action;
 		}
 
 		jQuery().callAPI(

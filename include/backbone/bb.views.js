@@ -10,7 +10,7 @@ var my_lat, my_lon;
 
 var WebshopView = Backbone.View.extend(
 {
-	el: jQuery('body'),
+	el: jQuery("body"),
 
 	initialize: function()
 	{
@@ -465,7 +465,7 @@ var WebshopView = Backbone.View.extend(
 
 	product_form_has_changed: function()
 	{
-		return script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(':checked') || jQuery("#webshop_map_bounds").val() != '';
+		return script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '';
 	},
 
 	show_quote_request_button: function()
@@ -479,7 +479,7 @@ var WebshopView = Backbone.View.extend(
 			var dom_obj = jQuery(this),
 				dom_parent = dom_obj.parents("li"),
 				is_hidden = dom_parent.hasClass('hide'),
-				is_checked = dom_obj.is(':checked');
+				is_checked = dom_obj.is(":checked");
 
 			if(!is_hidden && is_checked)
 			{
@@ -721,7 +721,7 @@ var WebshopView = Backbone.View.extend(
 
 	show_map_coords: function(fit_icons)
 	{
-		if(search_map_obj.length > 0 && search_map_obj.is(':visible'))
+		if(search_map_obj.length > 0 && search_map_obj.is(":visible"))
 		{
 			remove_markers();
 
@@ -845,7 +845,7 @@ var WebshopView = Backbone.View.extend(
 		var dom_obj = jQuery(e.currentTarget),
 			dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
 
-		if(dom_obj.is(':checked'))
+		if(dom_obj.is(":checked"))
 		{
 			dom_obj.parent(".form_checkbox").siblings(".form_checkbox").children(".event_filter_category").prop('checked', false);
 

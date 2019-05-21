@@ -3210,7 +3210,7 @@ class mf_webshop
 	{
 		$form_id = get_option('setting_webshop_payment_form'.$this->option_type);
 
-		$obj_form = new mf_form($form_id);
+		$obj_form = new mf_form(array('id' => $form_id));
 
 		echo "<div class='wrap'>
 			<h1>".$obj_form->get_form_name()."</h1>"
@@ -5289,7 +5289,7 @@ class mf_webshop
 
 		if($setting_quote_form > 0)
 		{
-			$obj_form = new mf_form($setting_quote_form);
+			$obj_form = new mf_form(array('id' => $setting_quote_form));
 
 			$query_prefix = $obj_form->get_post_info()."_";
 
