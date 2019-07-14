@@ -4300,7 +4300,7 @@ class mf_webshop
 
 								if($column_icon != '')
 								{
-									$column_title = $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $column_title, 'nbsp' => false));
+									$column_title = $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $column_title));
 								}
 
 								$cols[$column] = $column_title;
@@ -7384,7 +7384,7 @@ class mf_webshop
 					{
 						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 
-						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_post_title($category_id), 'nbsp' => false, 'class' => "category_".$category_id));
+						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_post_title($category_id), 'class' => "category_".$category_id));
 					}
 
 				$product_image .= "</div>";
@@ -7885,6 +7885,8 @@ class widget_webshop_search extends WP_Widget
 
 			if($instance['webshop_heading'] != '')
 			{
+				$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 				echo $before_title
 					.$instance['webshop_heading']
 				.$after_title;
@@ -7954,6 +7956,8 @@ class widget_webshop_map extends WP_Widget
 
 			if($instance['webshop_heading'] != '')
 			{
+				$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 				echo $before_title
 					.$instance['webshop_heading']
 				.$after_title;
@@ -8165,6 +8169,8 @@ class widget_webshop_form extends WP_Widget
 
 					if($instance['webshop_heading'] != '')
 					{
+						$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 						echo $before_title
 							.$instance['webshop_heading']
 						.$after_title;
@@ -8292,6 +8298,8 @@ class widget_webshop_list extends WP_Widget
 
 				if($instance['webshop_heading'] != '')
 				{
+					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.$instance['webshop_heading']
 					.$after_title;
@@ -8386,6 +8394,8 @@ class widget_webshop_favorites extends WP_Widget
 
 				if($instance['webshop_heading'] != '')
 				{
+					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.$instance['webshop_heading']
 					.$after_title;
@@ -8483,6 +8493,8 @@ class widget_webshop_recent extends WP_Widget
 
 				if($instance['webshop_heading'] != '')
 				{
+					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.$instance['webshop_heading']
 					.$after_title;
@@ -8590,6 +8602,8 @@ class widget_webshop_events extends WP_Widget
 
 				if($instance['webshop_heading'] != '')
 				{
+					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.$instance['webshop_heading']
 					.$after_title;
@@ -8744,6 +8758,8 @@ class widget_webshop_filter_products extends WP_Widget
 
 				if($instance['webshop_heading'] != '')
 				{
+					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.str_replace("[category]", get_post_title($instance['webshop_category']), $instance['webshop_heading'])
 					.$after_title;
@@ -9073,7 +9089,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 											if($column_icon != '')
 											{
-												$out_temp .= $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $arr_field['name'], 'nbsp' => true));
+												$out_temp .= $obj_font_icons->get_symbol_tag(array('symbol' => $column_icon, 'class' => "fa-lg", 'title' => $arr_field['name']));
 											}
 
 											$out_temp .= "<span>".$arr_field['name']."</span>
@@ -9164,6 +9180,8 @@ class widget_webshop_product_meta extends WP_Widget
 
 					if($instance['webshop_heading'] != '')
 					{
+						$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 						echo $before_title
 							.$instance['webshop_heading']
 						.$after_title;
@@ -9323,6 +9341,8 @@ class widget_webshop_categories extends WP_Widget
 
 			if($instance['webshop_heading'] != '')
 			{
+				$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 				echo $before_title
 					.$instance['webshop_heading']
 				.$after_title;
@@ -9591,6 +9611,8 @@ class widget_webshop_cart extends WP_Widget
 
 			if($instance['webshop_heading'] != '')
 			{
+				$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
+
 				echo $before_title
 					.$instance['webshop_heading']
 				.$after_title;
