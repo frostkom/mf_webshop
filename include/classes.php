@@ -1805,7 +1805,7 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_admin_webshop_list_message'>
-					<p>".__("You haven't added anything yet", 'lang_webshop')."</p>
+					<p>".__("You have not added anything yet", 'lang_webshop')."</p>
 				</script>
 
 				<script type='text/template' id='template_admin_webshop_edit'>
