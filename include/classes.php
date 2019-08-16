@@ -746,8 +746,9 @@ class mf_webshop
 			'setting_webshop_option_types' => __("Types", 'lang_webshop'),
 		);
 
-		$obj_base = new mf_base();
-		$template_admin_id = $obj_base->has_page_template(array('template' => "/plugins/mf_front_end_admin/include/templates/template_admin.php"));
+		/*$obj_base = new mf_base();
+		$template_admin_id = $obj_base->has_page_template(array('template' => "/plugins/mf_front_end_admin/include/templates/template_admin.php"));*/
+		$template_admin_id = apply_filters('get_front_end_admin_id', 0);
 
 		foreach($this->arr_option_types as $option_type)
 		{
