@@ -1562,7 +1562,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo get_media_library(array('name' => $setting_key, 'value' => $option, 'type' => 'image'));
+		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_webshop_symbol_active_image_callback($args = array())
@@ -1570,7 +1570,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo get_media_library(array('name' => $setting_key, 'value' => $option, 'type' => 'image'));
+		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_ghost_inactive_image_callback($args = array())
@@ -1578,7 +1578,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo get_media_library(array('name' => $setting_key, 'value' => $option, 'type' => 'image'));
+		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_ghost_active_image_callback($args = array())
@@ -1586,7 +1586,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo get_media_library(array('name' => $setting_key, 'value' => $option, 'type' => 'image'));
+		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_quote_form_callback($args = array())
@@ -2178,7 +2178,7 @@ class mf_webshop
 
 						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css", $plugin_version);
 
-						$this->footer_output = "<div id='overlay_product'><div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div></div>";
+						$this->footer_output = "<div id='overlay_product' class='overlay_container modal'><div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div></div>";
 					}
 				}
 			}
