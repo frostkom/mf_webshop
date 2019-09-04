@@ -408,8 +408,6 @@ class mf_webshop
 
 	function get_categories_for_select($data = array())
 	{
-		global $wpdb;
-
 		if(!isset($data['add_choose_here'])){		$data['add_choose_here'] = true;}
 		if(!isset($data['display_icons'])){			$data['display_icons'] = false;}
 
@@ -456,8 +454,6 @@ class mf_webshop
 
 	function has_categories($data = array())
 	{
-		global $wpdb;
-
 		if(!isset($data['include_on'])){		$data['include_on'] = 'products';}
 
 		$arr_categories = $this->get_categories_for_select(array('include_on' => $data['include_on'], 'add_choose_here' => false, 'limit' => 2));
@@ -2990,7 +2986,7 @@ class mf_webshop
 
 	function before_meta_box_fields($arr_fields)
 	{
-		global $wpdb, $post;
+		global $post;
 
 		if(isset($post->ID) && $post->ID > 0)
 		{
@@ -5320,7 +5316,13 @@ class mf_webshop
 
 	function get_templates($data)
 	{
-		$obj_base = new mf_base();
+		global $obj_base;
+
+		if(!isset($obj_base))
+		{
+			$obj_base = new mf_base();
+		}
+
 		$out = $obj_base->get_templates(array('lost_connection'));
 
 		switch($data['type'])
@@ -9398,7 +9400,7 @@ class widget_webshop_cart extends WP_Widget
 
 	function get_cart()
 	{
-		global $wpdb; //, $sesWebshopCookie, $intCustomerID, $intCustomerNo, $strOrderName, $emlOrderEmail, $strOrderText, $intDeliveryTypeID, $error_text, $done_text
+		global $wpdb;
 
 		if(isset($_SESSION['sesWebshopCookie']) && $_SESSION['sesWebshopCookie'] != '')
 		{
