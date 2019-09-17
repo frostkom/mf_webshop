@@ -1,0 +1,707 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-09-17 08:54+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Martin Fors\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: da_DK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: esc_html__;esc_html_e;esc_attr__;esc_attr_e;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+msgid "Webshop"
+msgstr "Wepshop"
+
+msgid "The address was not able to be created"
+msgstr "Det var ikke muligt at oprette adressen"
+
+msgid "You have not set a field for e-mails"
+msgstr "Du har ikke angivet et felt til e-mails"
+
+msgid "Could not find an existing group or create a new one"
+msgstr "Kunne ikke finde eksisterende gruppe eller oprette en ny"
+
+msgid "Loading"
+msgstr "Henter"
+
+msgid "Import"
+msgstr "Impoterer"
+
+msgid "You have to install the plugin %s first"
+msgstr "Du skal installere et plugin %s først"
+
+msgid "Product"
+msgstr "Produkt"
+
+msgid "The end date must be later than the start date"
+msgstr "Slut datoen skal være senere end start datoen"
+
+msgid "The end date must be within %d days from the start date"
+msgstr "Slutdatoen skal være indenfor %d dage fra start datoen"
+
+msgid "I have saved the information for you. %sView the page here%s"
+msgstr "Jeg har gemt informationen for dig. % Se siden her %s"
+
+msgid "I could not update the information for you"
+msgstr "Jeg kunne ikke opdatere informationen for dig"
+
+msgid "It does not look like you changed anything, so nothing was saved"
+msgstr "Det ser ikke ud til du har ændret noget så ingen ændringer er gemt"
+
+msgid "I could not save the information for you"
+msgstr "Kunne ikke gemme informationen for dig"
+
+msgid "One with that title already exists"
+msgstr "Den titel eksisterer allerede"
+
+msgid "Read More"
+msgstr "Læs mere"
+
+msgid "Choose Here"
+msgstr "Vælg her"
+
+msgid "A-Z"
+msgstr "A-Z"
+
+msgid "Latest"
+msgstr "Seneste"
+
+msgid "Popularity"
+msgstr "Popularitet"
+
+msgid "Random"
+msgstr "Tilfældig"
+
+msgid "Size"
+msgstr "Størrelse"
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Description"
+msgstr "Beskrivelse"
+
+msgid "Heading"
+msgstr "Overskrift"
+
+msgid "Content"
+msgstr "Indhold"
+
+msgid "Label"
+msgstr "Etiket"
+
+msgid "Input"
+msgstr "Input"
+
+msgid "Text"
+msgstr "Tekst"
+
+msgid "Date"
+msgstr "Dato"
+
+msgid "E-mail"
+msgstr "E-mail adresse"
+
+msgid "Phone Number"
+msgstr "Telefonnummer"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Clock"
+msgstr "Tidspunkt"
+
+msgid "Checkbox"
+msgstr "Afkrydsningsfelt"
+
+msgid "Special Input"
+msgstr "Special input"
+
+msgid "Color Picker"
+msgstr "Farvevælger"
+
+msgid "Event"
+msgstr "Begivenhed"
+
+msgid "Page"
+msgstr "Side"
+
+msgid "File"
+msgstr "Fil"
+
+msgid "Categories"
+msgstr "Kategorier"
+
+msgid "Custom Categories"
+msgstr "Brugerdefineret kategorier"
+
+msgid "Numbers"
+msgstr "Antal"
+
+msgid "Number"
+msgstr "Nummer"
+
+msgid "Price"
+msgstr "Pris"
+
+msgid "Stock"
+msgstr "Lager"
+
+msgid "Interval"
+msgstr "Interval"
+
+msgid "Location"
+msgstr "Lokation"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Local Address"
+msgstr "Lokal adresse"
+
+msgid "Coordinates"
+msgstr "Koordinater"
+
+msgid "Map"
+msgstr "Kort"
+
+msgid "Formatting"
+msgstr "Formatering"
+
+msgid "Contact Button"
+msgstr "Kontakt knap"
+
+msgid "Read More Button"
+msgstr "Læs mere knap"
+
+msgid "Start of Container"
+msgstr "Start af container"
+
+msgid "End of Container"
+msgstr "Afslut container"
+
+msgid "Settings"
+msgstr "Indstillinger"
+
+msgid "Hide Information"
+msgstr "Skjul information"
+
+msgid "Global Code"
+msgstr "Skjul kort"
+
+msgid "Everywhere"
+msgstr "overalt"
+
+msgid "Only on single page"
+msgstr "Kun på en enkelt side"
+
+msgid "Nowhere"
+msgstr "Ingen steder"
+
+msgid "Disable"
+msgstr "Deaktiver"
+
+msgid "Products"
+msgstr "Produkter"
+
+msgid "Events"
+msgstr "Begivenheder"
+
+msgid "Choose Category Here"
+msgstr "Vælg kategori her"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "but not on Search"
+msgstr "Men ikke ved søgning"
+
+msgid "No"
+msgstr "Nej"
+
+msgid "Searchable"
+msgstr "Søgbar"
+
+msgid "Results"
+msgstr "Resultater"
+
+msgid "Contact Info"
+msgstr "Kontakt info"
+
+msgid "Quick Info"
+msgstr "Quick info"
+
+msgid "Filters"
+msgstr "Filtere"
+
+msgid "Customers"
+msgstr "Kunder"
+
+msgid "Delivery Type"
+msgstr "Leveringsform"
+
+msgid "Types"
+msgstr "Typer"
+
+msgid "Icon for %s"
+msgstr "Ikon for %s"
+
+msgid "default"
+msgstr "standard"
+
+msgid "Title for %s"
+msgstr "Titel på %s%"
+
+msgid "Display Sort"
+msgstr "Vis sort"
+
+msgid "Sort Default"
+msgstr "Sort standard"
+
+msgid "Display Filter"
+msgstr "Vis filter"
+
+msgid "Map visibility"
+msgstr "Kort synlighed"
+
+msgid "Mobile"
+msgstr "Mobil"
+
+msgid "Info color"
+msgstr "Farve info"
+
+msgid "Info text color"
+msgstr "tekst farve info"
+
+msgid "Replace %s slug with"
+msgstr "Udskift %s slug med"
+
+msgid "Activate on Front-End Admin"
+msgstr "Aktiver på Front-End Admin"
+
+msgid "Payment Form"
+msgstr "Betalingsform"
+
+msgid "Min results to show number"
+msgstr "Min resultater for vis antal"
+
+msgid "Display Images"
+msgstr "Vis billeder"
+
+msgid "Amount of Images"
+msgstr "Antal af billeder"
+
+msgid "Form for quote request"
+msgstr "Formular til forespørgsel"
+
+msgid "Switch Icon"
+msgstr "Kontakt ikon"
+
+msgid "On"
+msgstr "On"
+
+msgid "Off"
+msgstr "Off"
+
+msgid "Require user to make some kind of search"
+msgstr "Kræver at brugeren udfører en form for søgning"
+
+msgid "Default range minimum"
+msgstr "Standard interval minimum"
+
+msgid "Custom range choices"
+msgstr "Valg af tilpasset interval"
+
+msgid "Email Subject"
+msgstr "Email emne"
+
+msgid "Email Content"
+msgstr "Email indhold"
+
+msgid "Template for Presentation"
+msgstr "Template/skabelon til præsentation"
+
+msgid "Display Breadcrumbs"
+msgstr "Vis cookies"
+
+msgid "Allow Multiple Categories"
+msgstr "Tillad mange kategorier"
+
+msgid "Search"
+msgstr "Søg"
+
+msgid "Choose"
+msgstr "Vælg"
+
+msgid "Add to Search"
+msgstr "Tilføj til søgning"
+
+msgid "Remove from Search"
+msgstr "Slet fra søgning"
+
+msgid "Return to Search"
+msgstr "Tilbage til søgning"
+
+msgid "Search for Another"
+msgstr "Søg efter en anden"
+
+msgid "You have to choose at least one product to proceed"
+msgstr "Du skal vælge mindst et produkt for at kunne forsætte"
+
+msgid "I would like to share these products that I like"
+msgstr "Jeg vil gerne dele disse produkter"
+
+msgid "Here are my favorites (%s)"
+msgstr "Her er mine favoritter"
+
+msgid "Get yours here"
+msgstr "Her finder du dine"
+
+msgid "Show Map"
+msgstr "Vis kort"
+
+msgid "Hide Map"
+msgstr "Skjul kort"
+
+msgid "Are you sure?"
+msgstr "Er du sikker?"
+
+msgid "Name"
+msgstr "Navn"
+
+msgid "Updated"
+msgstr "Opdateret"
+
+msgid "Edit"
+msgstr "Rediger"
+
+msgid "Edit in Admin"
+msgstr "Rediger i Admin"
+
+msgid "View"
+msgstr "Vis"
+
+msgid "You have not added anything yet"
+msgstr "Du har endnu ikke tilføjet noget"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Your name or the name of the %s"
+msgstr "Dit navn eller navnet på %s"
+
+msgid "Add New"
+msgstr "Opret ny"
+
+msgid "Delete"
+msgstr "Slet"
+
+msgid "Street 123, City"
+msgstr "Gade 123, by"
+
+msgid "Start Date"
+msgstr "Start dato"
+
+msgid "Time"
+msgstr "Tidspunkt"
+
+msgid "End Date"
+msgstr "Slut dato"
+
+msgid "Information about %s"
+msgstr "Information om %s"
+
+msgid "Add important information here"
+msgstr "Tilføj vigtig information her"
+
+msgid "Add"
+msgstr "Tilføj"
+
+msgid "Update"
+msgstr "Opdater"
+
+msgid "Create"
+msgstr "Opret"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "your-name"
+msgstr "Dit navn"
+
+msgid "Continue Search"
+msgstr "Forsæt søgningen"
+
+msgid "Unread Orders"
+msgstr "Ulæste ordre"
+
+msgid "Orders"
+msgstr "Ordre"
+
+msgid "Statistics"
+msgstr "Statestik"
+
+msgid "Send e-mail to all"
+msgstr "Send e-mail til alle"
+
+msgid "Pay to Access %s"
+msgstr "Betal for adgang %s"
+
+msgid "Image"
+msgstr "Billede"
+
+msgid "Max Length"
+msgstr "Max længde"
+
+msgid "Required"
+msgstr "Påkrævet"
+
+msgid "Display on Categories"
+msgstr "Vis i kategorier"
+
+msgid "Symbol"
+msgstr "Symbol"
+
+msgid "Alternate text"
+msgstr "Alternativ tekst"
+
+msgid "Default value"
+msgstr "Standard værdi"
+
+msgid "Order number"
+msgstr "Ordrenummer"
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Color"
+msgstr "Farve"
+
+msgid "Customer No"
+msgstr "Kundenummer"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Paid for %s until"
+msgstr "Betalt for %s indtil"
+
+msgid "Choose all"
+msgstr "Vælg alle"
+
+msgid "Print List"
+msgstr "Print liste"
+
+msgid "Sort By"
+msgstr "Sort efter"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Distance"
+msgstr "Afstand"
+
+msgid "I could not find any events"
+msgstr "Ingen registrerede aktiviteter"
+
+msgid "Display More Events (%s)"
+msgstr "Vis flere aktiviteter (%s)"
+
+msgid "I could not find any %s"
+msgstr "Kunne ikke finde %s"
+
+msgid "Display More %s (%s)"
+msgstr "Vis flere %s (%s)"
+
+msgid "I could not find anything that corresponded to your choices"
+msgstr "Kunne ikke finde noget der matchede dine valg"
+
+msgid "Today"
+msgstr "I dag"
+
+msgid "Display Search"
+msgstr "Vis søgning"
+
+msgid "Display Map"
+msgstr "Vis kort"
+
+msgid "Show all"
+msgstr "Vis alt"
+
+msgid "Display start page list"
+msgstr "Vis startside liste"
+
+msgid "Go to on click"
+msgstr "Gå til on click"
+
+msgid "Locations"
+msgstr "Lokationer"
+
+msgid "Display start page favorites"
+msgstr "Vis startside favoritter"
+
+msgid "Display Category"
+msgstr "Vis kategori"
+
+msgid "Display Info"
+msgstr "Vis info"
+
+msgid "Amount"
+msgstr "Antal"
+
+msgid "Display Events"
+msgstr "Vis begivenheder"
+
+msgid "Calendar"
+msgstr "Kalender"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "Closest"
+msgstr "Nærmeste"
+
+msgid "Display Filters"
+msgstr "Vis filtre"
+
+msgid "There are %s events"
+msgstr "Der er %s begivenheder"
+
+msgid "Event Type"
+msgstr "Begivenhed type"
+
+msgid "Display Filtered Products"
+msgstr "Vis filtrerede produkter"
+
+msgid "Filtered Products"
+msgstr "Filtrerede produkter"
+
+msgid "Category Info"
+msgstr "Kategori info"
+
+msgid "Event Info"
+msgstr "Begivenhed info"
+
+msgid "Breadcrumbs"
+msgstr "Cookies"
+
+msgid "Date and Time"
+msgstr "Dato og tidspunkt"
+
+msgid "Contact %s"
+msgstr "Kontakt %s"
+
+msgid "Mark as Favorite"
+msgstr "Marker som favorit"
+
+msgid "I can recommend this event"
+msgstr "Jeg kan anbefalde denne begivenhed"
+
+msgid "Hi! I think that you might like this event. Go to %s to view it."
+msgstr "Hej! Jeg tror denne begivenhed er noget for dig. Gå til %s for at se mere"
+
+msgid "Tell a Friend"
+msgstr "Anbefal til en ven"
+
+msgid "Print the Information"
+msgstr "Udprint informationen"
+
+msgid "Display Categories"
+msgstr "Vis kategorier"
+
+msgid "Display Cart"
+msgstr "Vis vogn"
+
+msgid "Cart"
+msgstr "Vogn"
+
+msgid "The cart has been updated"
+msgstr "Indkøbsvognen er opdateret"
+
+msgid "The order has been completed"
+msgstr "Ordren er afsluttet"
+
+msgid "Order info"
+msgstr "Ordre info"
+
+msgid "You have to select the customer and correct customer number"
+msgstr "Du skal vælge kunden eller korrekt kundenummer"
+
+msgid "You have to enter customer, customer number, name and e-mail"
+msgstr "Du skal indtaste kunde, kundenummer, navn og e-mailadresse"
+
+msgid "Proceed to Checkout"
+msgstr "Forsæt til check ud"
+
+msgid "Checkout"
+msgstr "Check ud"
+
+msgid "Customer"
+msgstr "Kunde"
+
+msgid "Confirm Order"
+msgstr "Bekræft ordre"
+
+msgid "Search for"
+msgstr "Søg efter"
+
+msgid "The amount in stock and in the order is wrong"
+msgstr "Antallet på lager og i ordren er forkert"
+
+msgid "The order was deleted"
+msgstr "Ordren blev annulleret"
+
+msgid "Shipping info"
+msgstr "Forsendelses info"
+
+msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
+msgstr "Din ordre fra %s er nu klar til afhentning. Tak for din bestilling."
+
+msgid "Invoice sent"
+msgstr "Faktura sendt"
+
+msgid "Delivered"
+msgstr "Leveret"
+
+msgid "Ordered by"
+msgstr "Bestilt af"
+
+msgid "Created"
+msgstr "Oprettet"
+
+msgid "unknown"
+msgstr "Ukendt"
+
+msgid "Monthly"
+msgstr "Månedlige"
+
+msgid "Months"
+msgstr "Måneder"
+
+msgid "Years"
+msgstr "År"
+
+msgid "Limit"
+msgstr "Begrænse"
+
+msgid "From"
+msgstr "Fra"
+
+msgid "To"
+msgstr "Til"
+
+msgid "Overall"
+msgstr "Alt i alt"
+
+msgid "First answer"
+msgstr "Tidligst svar"
+
+msgid "Latest answer"
+msgstr "Senest svar"
+

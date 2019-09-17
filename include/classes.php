@@ -5831,7 +5831,7 @@ class mf_webshop
 		else
 		{
 			$out['success'] = false;
-			$out['message'] = __("There was no post_name_for_type for event", 'lang_webshop');
+			$out['message'] = __("The event does not seam to have a slug", 'lang_webshop');
 		}
 
 		return $out;
