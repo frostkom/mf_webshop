@@ -9,12 +9,6 @@ if(!defined('ABSPATH'))
 	require_once($folder."wp-load.php");
 }
 
-/*if(is_plugin_active('mf_cache/index.php'))
-{
-	$obj_cache = new mf_cache();
-	$obj_cache->fetch_request();
-	$obj_cache->get_or_set_file_content(array('suffix' => 'json'));
-}*/
 do_action('run_cache', array('suffix' => 'json'));
 
 $obj_webshop = new mf_webshop();
@@ -805,6 +799,7 @@ switch($type_switch)
 				'date' => $date_temp,
 				'number' => $day_number,
 				'class' => $class,
+				'event_amount_left' => $result['event_amount_left'],
 				'event_amount' => $result['event_amount'],
 				'events' => $arr_events,
 			);
@@ -831,20 +826,48 @@ switch($type_switch)
 		$event_id = check_var('event_id', 'int');
 		$event_type = check_var('event_type');
 		$category = check_var('category');
+		$order_by = check_var('order_by');
+		$latitude = check_var('latitude');
+		$longitude = check_var('longitude');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
-		$json_output = $obj_webshop->get_events(array('id' => $id, 'option_type' => $option_type, 'product_id' => $product_id, 'event_id' => $event_id, 'event_type' => $event_type, 'start_date' => $start_date, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
+		$json_output = $obj_webshop->get_events(array(
+			'id' => $id,
+			'option_type' => $option_type,
+			'product_id' => $product_id,
+			'event_id' => $event_id,
+			'event_type' => $event_type,
+			'start_date' => $start_date,
+			'category' => $category,
+			'order_by' => $order_by,
+			'latitude' => $latitude,
+			'longitude' => $longitude,
+			'limit' => $limit,
+			'amount' => $amount,
+		));
 	break;
 
 	case 'filter_products':
 		$id = check_var('id', 'char');
 		$option_type = check_var('option_type', 'char');
 		$category = check_var('category', 'char');
+		$order_by = check_var('order_by');
+		$latitude = check_var('latitude');
+		$longitude = check_var('longitude');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
-		$json_output = $obj_webshop->get_filter_products(array('id' => $id, 'option_type' => $option_type, 'category' => $category, 'limit' => $limit, 'amount' => $amount));
+		$json_output = $obj_webshop->get_filter_products(array(
+			'id' => $id,
+			'option_type' => $option_type,
+			'category' => $category,
+			'order_by' => $order_by,
+			'latitude' => $latitude,
+			'longitude' => $longitude,
+			'limit' => $limit,
+			'amount' => $amount,
+		));
 	break;
 
 	case 'amount':

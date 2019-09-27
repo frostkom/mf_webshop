@@ -528,7 +528,7 @@ echo "@media all
 				text-align: center;
 			}
 
-			.widget.webshop_events .event_filters
+			.widget.webshop_events .event_filters, .widget.webshop_events .product_filters
 			{
 				margin-bottom: 0;
 				padding-bottom: 0;

@@ -27,12 +27,15 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:calendar_response", this.show_calendars, this);
 		this.model.on("change:event_hash", this.show_events, this);
 
-		this.is_events_view = jQuery(".webshop_widget.webshop_events").length > 0;
+		var dom_obj_events = jQuery(".webshop_widget.webshop_events"),
+			dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
+
+		this.is_events_view = dom_obj_events.length > 0;
 
 		/* Filter Products */
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
-		this.is_filter_products_view = jQuery(".webshop_widget.webshop_filter_products").length > 0;
+		this.is_filter_products_view = dom_obj_products.length > 0;
 
 		if(this.is_favorites_view)
 		{
@@ -64,7 +67,7 @@ var WebshopView = Backbone.View.extend(
 		{
 			if(this.is_events_view)
 			{
-				this.dom_calendar = jQuery(".webshop_widget.webshop_events .event_calendar");
+				this.dom_calendar = dom_obj_events.find(".event_calendar");
 				this.has_calendar = this.dom_calendar.length > 0;
 
 				if(this.has_calendar)
@@ -72,12 +75,109 @@ var WebshopView = Backbone.View.extend(
 					this.load_calendar();
 				}
 
-				this.load_all_events();
+				if(dom_obj_events.find(".event_filter_category:checked").length > 0)
+				{
+					var dom_obj = dom_obj_events.find(".event_filter_category:checked"),
+						dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
+
+					dom_list.attr(
+					{
+						'data-category': dom_obj.attr('value')
+					});
+				}
+
+				if(dom_obj_events.find(".event_filter_order_by").length > 0)
+				{
+					var dom_obj = dom_obj_events.find(".event_filter_order_by"),
+						dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
+
+					dom_list.attr(
+					{
+						'data-order_by': dom_obj.val(),
+						'data-limit': 0
+					}).empty();
+
+					if(navigator.geolocation)
+					{
+						var self = this;
+
+						navigator.geolocation.getCurrentPosition(function(position)
+						{
+							my_lat = position.coords.latitude;
+							my_lon = position.coords.longitude;
+
+							dom_list.attr(
+							{
+								'data-latitude': my_lat,
+								'data-longitude': my_lon
+							});
+
+							self.load_all_events();
+						},
+						function(msg)
+						{
+							self.load_all_events();
+						});
+					}
+
+					else
+					{
+						this.load_all_events();
+					}
+				}
+
+				else
+				{
+					this.load_all_events();
+				}
 			}
 
 			if(this.is_filter_products_view)
 			{
-				this.load_all_filter_products();
+				if(dom_obj_products.find(".product_filter_order_by").length > 0)
+				{
+					var dom_obj = dom_obj_products.find(".product_filter_order_by"),
+						dom_list = dom_obj.parents(".webshop_filter_products").find(".widget_list");
+
+					dom_list.attr(
+					{
+						'data-order_by': dom_obj.val(),
+						'data-limit': 0
+					}).empty();
+
+					if(navigator.geolocation)
+					{
+						var self = this;
+
+						navigator.geolocation.getCurrentPosition(function(position)
+						{
+							my_lat = position.coords.latitude;
+							my_lon = position.coords.longitude;
+
+							dom_list.attr(
+							{
+								'data-latitude': my_lat,
+								'data-longitude': my_lon
+							});
+
+							self.load_all_filter_products();
+						},
+						function(msg)
+						{
+							self.load_all_filter_products();
+						});
+					}
+
+					else
+					{
+						this.load_all_filter_products();
+					}
+				}
+
+				else
+				{
+					this.load_all_filter_products();
+				}
 			}
 		}
 
@@ -98,8 +198,7 @@ var WebshopView = Backbone.View.extend(
 		"click #product_result_search .products": "products_change",
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
-		/*"click .product_search .show_choose_all": "choose_all",*/
-		"click .widget.webshop_map h2": "toggle_aside", /*#product_form aside h2, #product_form .aside h2, .single-mf_product h2.is_map_toggler, */
+		"click .widget.webshop_map h2": "toggle_aside",
 
 		/* Result List */
 		"change #webshop_search input": "search_products_change",
@@ -118,7 +217,11 @@ var WebshopView = Backbone.View.extend(
 		"click .webshop_widget .calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
 		"change .webshop_events .event_filters .event_filter_category": "change_category",
-		"click .webshop_widget .widget_load_more button": "load_more_button"
+		"change .webshop_events .event_filters .event_filter_order_by": "change_order_by",
+		"click .webshop_widget .widget_load_more button": "load_more_button",
+
+		/* Products */
+		"change .webshop_filter_products .product_filters .product_filter_order_by": "change_order_by"
 	},
 
 	search_all_products: function(e)
@@ -175,7 +278,9 @@ var WebshopView = Backbone.View.extend(
 
 			this.search_products(false);
 
-			if(jQuery(".product_search input[type=range]").length > 0)
+			var dom_obj_range = jQuery(".product_search input[type=range]");
+
+			if(dom_obj_range.length > 0)
 			{
 				if(navigator.geolocation)
 				{
@@ -186,7 +291,7 @@ var WebshopView = Backbone.View.extend(
 					},
 					function(msg)
 					{
-						jQuery(".product_search input[type=range]").parent(".form_textfield").addClass('hide');
+						dom_obj_range.parent(".form_textfield").addClass('hide');
 					});
 				}
 			}
@@ -442,26 +547,6 @@ var WebshopView = Backbone.View.extend(
 			return false;
 		}
 	},
-
-	/*choose_all: function(e)
-	{
-		if(this.model.get('products_total') > script_webshop_views.search_max || this.product_form_has_changed() == false)
-		{
-			jQuery(e.currentTarget).next(".show_if_too_many").removeClass('hide');
-
-			scroll_to_top();
-		}
-
-		else
-		{
-			jQuery("#product_result_search .products").each(function()
-			{
-				jQuery(this).prop("checked", true);
-			});
-
-			this.products_change();
-		}
-	},*/
 
 	product_form_has_changed: function()
 	{
@@ -824,14 +909,13 @@ var WebshopView = Backbone.View.extend(
 	change_date: function(e)
 	{
 		var dom_obj = jQuery(e.currentTarget),
-			dom_list = dom_obj.parents(".webshop_events").find(".widget_list"),
-			date = dom_obj.attr('data-date');
+			dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
 
 		dom_obj.parent(".day").addClass('today').siblings(".day").removeClass('today');
 
 		dom_list.attr(
 		{
-			'data-date': date,
+			'data-date': dom_obj.attr('data-date'),
 			'data-limit': 0
 		}).empty();
 
@@ -849,11 +933,9 @@ var WebshopView = Backbone.View.extend(
 		{
 			dom_obj.parent(".form_checkbox").siblings(".form_checkbox").children(".event_filter_category").prop('checked', false);
 
-			var category = dom_obj.attr('value');
-
 			dom_list.attr(
 			{
-				'data-category': category
+				'data-category': dom_obj.attr('value')
 			});
 		}
 
@@ -862,9 +944,34 @@ var WebshopView = Backbone.View.extend(
 			dom_list.removeAttr('data-category');
 		}
 
-		dom_list.empty();
+		dom_list.attr(
+		{
+			'data-limit': 0
+		}).empty();
 
 		this.load_events(dom_list);
+	},
+
+	change_order_by: function(e)
+	{
+		var dom_obj = jQuery(e.currentTarget),
+			dom_list = dom_obj.parents(".webshop_events, .webshop_filter_products").find(".widget_list");
+
+		dom_list.attr(
+		{
+			'data-order_by': dom_obj.val(),
+			'data-limit': 0
+		}).empty();
+
+		if(dom_obj.hasClass(".event_filter_order_by"))
+		{
+			this.load_events(dom_list);
+		}
+
+		else
+		{
+			this.load_filter_products(dom_list);
+		}
 	},
 
 	load_events: function(dom_obj)
@@ -883,6 +990,9 @@ var WebshopView = Backbone.View.extend(
 			event_type = dom_obj.attr('data-event_type') || '',
 			date = dom_obj.attr('data-date'),
 			category = dom_obj.attr('data-category') || '',
+			order_by = dom_obj.attr('data-order_by') || '',
+			latitude = dom_obj.attr('data-latitude') || '',
+			longitude = dom_obj.attr('data-longitude') || '',
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');
 
@@ -911,6 +1021,21 @@ var WebshopView = Backbone.View.extend(
 		if(category != '')
 		{
 			get_vars += "&category=" + category;
+		}
+
+		if(order_by != '')
+		{
+			get_vars += "&order_by=" + order_by;
+		}
+
+		if(latitude != '')
+		{
+			get_vars += "&latitude=" + latitude;
+		}
+
+		if(longitude != '')
+		{
+			get_vars += "&longitude=" + longitude;
 		}
 
 		if(limit > 0)
@@ -977,6 +1102,9 @@ var WebshopView = Backbone.View.extend(
 		var widget_id = dom_obj.attr('id'),
 			option_type = dom_obj.attr('data-option_type') || '',
 			category = dom_obj.attr('data-category'),
+			order_by = dom_obj.attr('data-order_by') || '',
+			latitude = dom_obj.attr('data-latitude') || '',
+			longitude = dom_obj.attr('data-longitude') || '',
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount');
 
@@ -985,6 +1113,21 @@ var WebshopView = Backbone.View.extend(
 		if(option_type != '')
 		{
 			get_vars += "&option_type=" + option_type;
+		}
+
+		if(order_by != '')
+		{
+			get_vars += "&order_by=" + order_by;
+		}
+
+		if(latitude != '')
+		{
+			get_vars += "&latitude=" + latitude;
+		}
+
+		if(longitude != '')
+		{
+			get_vars += "&longitude=" + longitude;
 		}
 
 		if(limit > 0)
@@ -1045,10 +1188,14 @@ var WebshopView = Backbone.View.extend(
 
 		if(dom_type == "events")
 		{
-			var event_amount = this.model.get('event_amount'),
-				event_rest = event_amount - amount;
+			var event_amount_left = this.model.get('event_amount_left'),
+				event_amount = this.model.get('event_amount'),
+				event_rest = event_amount_left + event_amount - amount;
 
-			dom_widget.siblings(".widget_text").find("span").text(event_amount);
+			if(!(event_amount_left > 0))
+			{
+				dom_widget.siblings(".widget_text").find("span").text(event_amount);
+			}
 
 			if(event_rest > 0)
 			{
@@ -1078,21 +1225,23 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget),
 			dom_parent = dom_obj.parents(".webshop_widget"),
-			dom_type = dom_parent.hasClass('webshop_events') ? "events" : "filter_products",
+			dom_type = dom_parent.hasClass('webshop_events') ? 'events' : 'filter_products',
 			dom_list = dom_parent.find(".widget_list"),
 			limit = dom_list.attr('data-limit'),
 			amount = dom_list.attr('data-amount');
 
 		dom_list.attr({'data-limit': (parseInt(amount) + parseInt(limit))});
 
-		if(dom_type == "events")
+		switch(dom_type)
 		{
-			this.load_events(dom_list);
-		}
+			case 'events':
+				this.load_events(dom_list);
+			break;
 
-		else
-		{
-			this.load_filter_products(dom_list);
+			default:
+			case 'filter_products':
+				this.load_filter_products(dom_list);
+			break;
 		}
 
 		return false;

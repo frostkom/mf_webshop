@@ -742,18 +742,18 @@ class mf_webshop
 			'setting_webshop_option_types' => __("Types", 'lang_webshop'),
 		);
 
-		/*$obj_base = new mf_base();
-		$template_admin_id = $obj_base->has_page_template(array('template' => "/plugins/mf_front_end_admin/include/templates/template_admin.php"));*/
 		$template_admin_id = apply_filters('get_front_end_admin_id', 0);
 
 		foreach($this->arr_option_types as $option_type)
 		{
+			$option_type_name = ($option_type != '' ? $option_type : __("default", 'lang_webshop'));
+
 			if($template_admin_id > 0)
 			{
-				$arr_settings['setting_webshop_icon|'.$option_type] = sprintf(__("Icon for %s", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
+				$arr_settings['setting_webshop_icon|'.$option_type] = sprintf(__("Icon for %s", 'lang_webshop'), $option_type_name);
 			}
 
-			$arr_settings['setting_webshop_replace_webshop|'.$option_type] = sprintf(__("Title for %s", 'lang_webshop'), ($option_type != '' ? $option_type : __("default", 'lang_webshop')));
+			$arr_settings['setting_webshop_replace_webshop|'.$option_type] = sprintf(__("Title for %s", 'lang_webshop'), $option_type_name);
 		}
 
 		$arr_settings['setting_webshop_local_storage'] = "Local Storage";
@@ -4807,11 +4807,6 @@ class mf_webshop
 							if($post_coordinates != '')
 							{
 								update_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, $post_coordinates);
-
-								/*list($latitude, $longitude) = $this->split_coordinates($post_coordinates);
-
-								update_post_meta($post_id, $this->meta_prefix.'latitude', $latitude);
-								update_post_meta($post_id, $this->meta_prefix.'longitude', $longitude);*/
 							}
 						}
 					}
@@ -4881,7 +4876,7 @@ class mf_webshop
 		}
 	}
 
-	function edit_user_profile_update($user_id)
+	function profile_update($user_id)
 	{
 		if(current_user_can('edit_user', $user_id))
 		{
@@ -5576,6 +5571,11 @@ class mf_webshop
 		if(!isset($data['event_id'])){		$data['event_id'] = 0;}
 		if(!isset($data['event_type'])){	$data['event_type'] = '';}
 		if(!isset($data['start_date'])){	$data['start_date'] = "";}
+		if(!isset($data['category'])){		$data['category'] = "";}
+		if(!isset($data['order_by'])){		$data['order_by'] = "";}
+		if(!isset($data['latitude'])){		$data['latitude'] = "";}
+		if(!isset($data['longitude'])){		$data['longitude'] = "";}
+		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		if(!isset($data['exact_date']))
 		{
@@ -5590,9 +5590,6 @@ class mf_webshop
 				$data['exact_date'] = "";
 			}
 		}
-
-		if(!isset($data['category'])){		$data['category'] = "";}
-		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		$out = "";
 
@@ -5614,7 +5611,7 @@ class mf_webshop
 			}
 
 			$out['event_response'] = array();
-			$out['event_amount'] = 0;
+			$out['event_amount_left'] = $out['event_amount'] = 0;
 
 			$arr_product_ids = $arr_product_translate_ids = array();
 			$query_where = "";
@@ -5624,43 +5621,26 @@ class mf_webshop
 			if($data['product_id'] > 0)
 			{
 				$query_where .= " AND ID = '".esc_sql($data['product_id'])."'";
-
-				/*if($data['event_type'] == 'distance' && $gps_post_name != '')
-				{
-					$product_coordinates = get_post_meta($data['product_id'], $this->meta_prefix.$gps_post_name, true);
-
-					list($latitude, $longitude) = $this->split_coordinates($product_coordinates);
-				}*/
 			}
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND ".$wpdb->postmeta.".meta_key = %s AND meta_value > '0'".$query_where, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.$events_post_name));
 
 			foreach($result as $r)
 			{
-				/*$arr_categories = get_post_meta($r->ID, $this->meta_prefix.'category', false);
+				$product_coordinates = $product_categories = "";
 
-				if($data['category'] == '' || in_array($data['category'], $arr_categories))
-				{*/
-					$product_coordinates = $product_categories = "";
+				if($gps_post_name != '')
+				{
+					$product_coordinates = get_post_meta($r->ID, $this->meta_prefix.$gps_post_name, true);
+				}
 
-					if($gps_post_name != '')
-					{
-						$product_coordinates = get_post_meta($r->ID, $this->meta_prefix.$gps_post_name, true);
-					}
-
-					/*foreach($arr_categories as $key => $value)
-					{
-						$product_categories .= ($product_categories != '' ? ", " : "").get_post_title($value);
-					}*/
-
-					$arr_product_ids[] = $r->meta_value;
-					$arr_product_translate_ids[$r->meta_value] = array(
-						'product_id' => $r->ID,
-						'product_title' => $r->post_title,
-						'product_coordinates' => $product_coordinates,
-						'product_categories' => $product_categories,
-					);
-				//}
+				$arr_product_ids[] = $r->meta_value;
+				$arr_product_translate_ids[$r->meta_value] = array(
+					'product_id' => $r->ID,
+					'product_title' => $r->post_title,
+					'product_coordinates' => $product_coordinates,
+					'product_categories' => $product_categories,
+				);
 			}
 
 			if(count($arr_product_ids) > 0)
@@ -5671,17 +5651,24 @@ class mf_webshop
 
 				if($data['start_date'] > DEFAULT_DATE)
 				{
-					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'";
-					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS end ON ".$wpdb->posts.".ID = end.post_id AND end.meta_key = '".$obj_calendar->meta_prefix."end'";
-					$query_where .= " AND (SUBSTRING(start.meta_value, 1, 10) >= '".$data['start_date']."' OR SUBSTRING(end.meta_value, 1, 10) >= '".$data['start_date']."')";
-					$query_order = " ORDER BY start.meta_value ASC";
+					$start_date_limit = date("Y-m-d", strtotime("+30 day"));
+
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_start ON ".$wpdb->posts.".ID = postmeta_start.post_id AND postmeta_start.meta_key = '".$obj_calendar->meta_prefix."start'";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_end ON ".$wpdb->posts.".ID = postmeta_end.post_id AND postmeta_end.meta_key = '".$obj_calendar->meta_prefix."end'";
+					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) >= '".$data['start_date']."' OR SUBSTRING(postmeta_end.meta_value, 1, 10) >= '".$data['start_date']."')";
+					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) <= '".$start_date_limit."' OR SUBSTRING(postmeta_end.meta_value, 1, 10) <= '".$start_date_limit."')"; // Display a maximum of 30 days
+
+					if($data['order_by'] == '' || $data['order_by'] == 'date')
+					{
+						$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."postmeta_start.meta_value ASC";
+					}
 				}
 
 				if($data['exact_date'] > DEFAULT_DATE)
 				{
-					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS start ON ".$wpdb->posts.".ID = start.post_id AND start.meta_key = '".$obj_calendar->meta_prefix."start'";
-					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS end ON ".$wpdb->posts.".ID = end.post_id AND end.meta_key = '".$obj_calendar->meta_prefix."end'";
-					$query_where .= " AND (SUBSTRING(start.meta_value, 1, 10) <= '".$data['exact_date']."' AND SUBSTRING(end.meta_value, 1, 10) >= '".$data['exact_date']."')";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_start ON ".$wpdb->posts.".ID = postmeta_start.post_id AND postmeta_start.meta_key = '".$obj_calendar->meta_prefix."start'";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_end ON ".$wpdb->posts.".ID = postmeta_end.post_id AND postmeta_end.meta_key = '".$obj_calendar->meta_prefix."end'";
+					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) <= '".$data['exact_date']."' AND SUBSTRING(postmeta_end.meta_value, 1, 10) >= '".$data['exact_date']."')";
 				}
 
 				if($data['event_id'] > 0)
@@ -5690,33 +5677,49 @@ class mf_webshop
 
 					if($data['event_type'] == 'distance')
 					{
-						$latitude = get_post_meta($data['event_id'], $obj_calendar->meta_prefix.'latitude', true);
-						$longitude = get_post_meta($data['event_id'], $obj_calendar->meta_prefix.'longitude', true);
+						$data['latitude'] = get_post_meta($data['event_id'], $obj_calendar->meta_prefix.'latitude', true);
+						$data['longitude'] = get_post_meta($data['event_id'], $obj_calendar->meta_prefix.'longitude', true);
 					}
 				}
 
-				if($data['event_type'] == 'distance')
+				if($data['latitude'] != '' && $data['longitude'] != '' && ($data['event_type'] == 'distance' || $data['order_by'] == 'distance'))
 				{
-					if($latitude != '' && $longitude != '')
+					$query_select .= ", (6371 * acos(
+						cos( radians(".$data['latitude'].") )
+						* cos( radians( latitude.meta_value ) )
+						* cos( radians( longitude.meta_value ) - radians(".$data['longitude'].") )
+						+ sin( radians(".$data['latitude'].") )
+						* sin( radians( latitude.meta_value ) )
+					)) AS distance";
+
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS latitude ON ".$wpdb->posts.".ID = latitude.post_id AND latitude.meta_key = '".$obj_calendar->meta_prefix."latitude'";
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS longitude ON ".$wpdb->posts.".ID = longitude.post_id AND longitude.meta_key = '".$obj_calendar->meta_prefix."longitude'";
+
+					if($data['event_type'] == 'distance')
 					{
-						$query_select = ", (6371 * acos(
-							cos( radians(".$latitude.") )
-							* cos( radians( latitude.meta_value ) )
-							* cos( radians( longitude.meta_value ) - radians(".$longitude.") )
-							+ sin( radians(".$latitude.") )
-							* sin( radians( latitude.meta_value ) )
-						)) AS distance";
-
-						$query_join .= " INNER JOIN ".$wpdb->postmeta." AS latitude ON ".$wpdb->posts.".ID = latitude.post_id AND latitude.meta_key = '".$obj_calendar->meta_prefix."latitude'";
-						$query_join .= " INNER JOIN ".$wpdb->postmeta." AS longitude ON ".$wpdb->posts.".ID = longitude.post_id AND longitude.meta_key = '".$obj_calendar->meta_prefix."longitude'";
-
 						$query_having = " HAVING distance <= '30'";
 					}
 
-					/*else
-					{
-						do_log("There were no coordinates (".var_export($data, true).")");
-					}*/
+					/*if($data['order_by'] == 'distance')
+					{*/
+						$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
+					//}
+				}
+
+				else if(substr($data['order_by'], 0, 8) == 'location')
+				{
+					list($rest, $location_id) = explode("_", $data['order_by']);
+					$location_name = get_post_title($location_id);
+
+					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_location ON ".$wpdb->posts.".ID = postmeta_location.post_id AND postmeta_location.meta_key = '".$obj_calendar->meta_prefix."location'";
+					$query_where .= " AND postmeta_location.meta_value = '".esc_sql($location_name)."'";
+
+					$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."postmeta_start.meta_value ASC";
+				}
+
+				if($data['category'] > 0)
+				{
+					$query_where .= " AND postmeta_category.meta_value = '".esc_sql($data['category'])."'";
 				}
 
 				if($data['limit'] > 0)
@@ -5724,13 +5727,22 @@ class mf_webshop
 					$query_limit = " LIMIT ".$data['limit'].", 1000";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, calendar.meta_value AS calendar_id, start.meta_value AS post_start".$query_select." 
-					FROM ".$wpdb->postmeta." AS calendar 
-					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = calendar.post_id AND calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'"
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_calendar.meta_value AS calendar_id, postmeta_start.meta_value AS post_start, postmeta_category.meta_value AS post_category".$query_select." 
+					FROM ".$wpdb->postmeta." AS postmeta_calendar 
+					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = postmeta_calendar.post_id AND postmeta_calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'
+					INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id AND postmeta_category.meta_key = '".$obj_calendar->meta_prefix."category'"
 					.$query_join
-				."WHERE post_type = %s AND post_status = 'publish' AND calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_having.$query_order.$query_limit, $obj_calendar->post_type_event));
+				." WHERE post_type = %s AND post_status = 'publish' AND postmeta_calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_having.$query_order.$query_limit, $obj_calendar->post_type_event));
 
-				$out['event_amount'] = $wpdb->num_rows;
+				if($data['limit'] > 0)
+				{
+					$out['event_amount_left'] = $wpdb->num_rows;
+				}
+
+				else
+				{
+					$out['event_amount'] = $wpdb->num_rows;
+				}
 
 				foreach($result as $r)
 				{
@@ -5746,82 +5758,78 @@ class mf_webshop
 
 					$post_id = $r->ID;
 					$post_title = $r->post_title;
+					$post_category = $r->post_category;
 
-					$post_category = get_post_meta($post_id, $obj_calendar->meta_prefix.'category', true);
-
-					if($data['category'] == '' || $data['category'] == $post_category)
+					if($post_category > 0)
 					{
-						if($post_category > 0)
-						{
-							$product_categories = get_post_title($post_category);
+						$product_categories = get_post_title($post_category);
 
-							$list_class = "event_category_".$post_category;
-						}
-
-						else
-						{
-							$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
-
-							$list_class = "calendar_feed_".$feed_id;
-						}
-
-						$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
-						$post_coordinates = get_post_meta($post_id, $obj_calendar->meta_prefix.'coordinates', true);
-
-						$post_start = $r->post_start;
-						$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
-
-						$post_start_date = date("Y-m-d", strtotime($post_start));
-						$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
-						$post_start_day = date("j", strtotime($post_start));
-						$post_start_time = date("H:i", strtotime($post_start));
-
-						$post_end_date = date("Y-m-d", strtotime($post_end));
-						$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
-						$post_end_day = date("j", strtotime($post_end));
-						$post_end_time = date("H:i", strtotime($post_end));
-
-						if($post_start_date == date("Y-m-d"))
-						{
-							$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
-							$post_start_row_2 = __("Today", 'lang_webshop');
-						}
-
-						else
-						{
-							$post_start_row_1 = "<span>".$post_start_day."</span>";
-
-							if($post_end_date != $post_start_date)
-							{
-								$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
-							}
-
-							$post_start_row_2 = $post_start_month_name;
-						}
-
-						$out['event_response'][] = array(
-							'feed_id' => $feed_id,
-							'list_class' => $list_class,
-							'product_id' => $product_id,
-							'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
-							'product_url' => get_permalink($product_id),
-							'product_title' => $product_title,
-							'product_categories' => $product_categories,
-							'product_map' => $product_coordinates,
-							'event_id' => $post_id,
-							'event_url' => get_permalink($post_id),
-							'event_title' => $post_title,
-							'event_start_date_c' => date("c", strtotime($post_start)),
-							'event_end_date_c' =>date("c", strtotime($post_end)) ,
-							'event_start_row_1' => $post_start_row_1,
-							'event_start_row_2' => $post_start_row_2,
-							'event_duration' => $obj_calendar->format_date(array('post_start' => $post_start, 'post_end' => $post_end)),
-							'event_location' => $post_location,
-							'event_coordinates' => $post_coordinates,
-						);
-
-						$i++;
+						$list_class = "event_category_".$post_category;
 					}
+
+					else
+					{
+						$product_categories = $arr_product_translate_ids[$feed_id]['product_categories'];
+
+						$list_class = "calendar_feed_".$feed_id;
+					}
+
+					$post_location = get_post_meta($post_id, $obj_calendar->meta_prefix.'location', true);
+					$post_coordinates = get_post_meta($post_id, $obj_calendar->meta_prefix.'coordinates', true);
+
+					$post_start = $r->post_start;
+					$post_end = get_post_meta($post_id, $obj_calendar->meta_prefix.'end', true);
+
+					$post_start_date = date("Y-m-d", strtotime($post_start));
+					$post_start_month_name = substr(month_name(date("m", strtotime($post_start))), 0, 3);
+					$post_start_day = date("j", strtotime($post_start));
+					$post_start_time = date("H:i", strtotime($post_start));
+
+					$post_end_date = date("Y-m-d", strtotime($post_end));
+					$post_end_month_name = substr(month_name(date("m", strtotime($post_end))), 0, 3);
+					$post_end_day = date("j", strtotime($post_end));
+					$post_end_time = date("H:i", strtotime($post_end));
+
+					if($post_start_date == date("Y-m-d"))
+					{
+						$post_start_row_1 = date("H", strtotime($post_start))."<sup>".date("i", strtotime($post_start))."</sup>";
+						$post_start_row_2 = __("Today", 'lang_webshop');
+					}
+
+					else
+					{
+						$post_start_row_1 = "<span>".$post_start_day."</span>";
+
+						if($post_end_date != $post_start_date)
+						{
+							$post_start_row_1 .= "<span>-".$post_end_day." ".$post_end_month_name."</span>";
+						}
+
+						$post_start_row_2 = $post_start_month_name;
+					}
+
+					$out['event_response'][] = array(
+						'feed_id' => $feed_id,
+						'list_class' => $list_class,
+						'product_id' => $product_id,
+						'name_product' => get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop')),
+						'product_url' => get_permalink($product_id),
+						'product_title' => $product_title,
+						'product_categories' => $product_categories,
+						'product_map' => $product_coordinates,
+						'event_id' => $post_id,
+						'event_url' => get_permalink($post_id),
+						'event_title' => $post_title,
+						'event_start_date_c' => date("c", strtotime($post_start)),
+						'event_end_date_c' =>date("c", strtotime($post_end)) ,
+						'event_start_row_1' => $post_start_row_1,
+						'event_start_row_2' => $post_start_row_2,
+						'event_duration' => $obj_calendar->format_date(array('post_start' => $post_start, 'post_end' => $post_end)),
+						'event_location' => $post_location,
+						'event_coordinates' => $post_coordinates,
+					);
+
+					$i++;
 				}
 			}
 
@@ -5843,6 +5851,9 @@ class mf_webshop
 
 		if(!isset($data['id'])){			$data['id'] = "";}
 		if(!isset($data['category'])){		$data['category'] = "";}
+		if(!isset($data['order_by'])){		$data['order_by'] = "";}
+		if(!isset($data['latitude'])){		$data['latitude'] = "";}
+		if(!isset($data['longitude'])){		$data['longitude'] = "";}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		$out = "";
@@ -8587,6 +8598,50 @@ class widget_webshop_events extends WP_Widget
 		parent::__construct('webshop-events-widget', __("Webshop", 'lang_webshop')." (".__("Events", 'lang_webshop').")", $widget_ops);
 	}
 
+	function get_filters_for_select()
+	{
+		return array(
+			'calendar' => __("Calendar", 'lang_webshop'),
+			'category' => get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop')),
+			'location' => __("Location", 'lang_webshop'),
+			'order_by' => __("Order by", 'lang_webshop'),
+		);
+	}
+
+	function get_event_types_for_select()
+	{
+		return array(
+			'' => __("All", 'lang_webshop'),
+			'distance' => __("Closest", 'lang_webshop'),
+			'today' => __("Today", 'lang_webshop'),
+		);
+	}
+
+	function get_order_by_for_select()
+	{
+		$arr_data = array(
+			'date' => __("Date", 'lang_webshop'),
+			'distance' => __("Closest", 'lang_webshop'),
+		);
+
+		$arr_locations = array();
+		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
+
+		if(count($arr_locations) > 0)
+		{
+			$arr_data["opt_start_location"] = __("Location", 'lang_webshop');
+
+				foreach($arr_locations as $key => $value)
+				{
+					$arr_data["location_".$key] = $value;
+				}
+
+			$arr_data["opt_end_location"] = "";
+		}
+
+		return $arr_data;
+	}
+
 	function widget($args, $instance)
 	{
 		global $post;
@@ -8638,6 +8693,14 @@ class widget_webshop_events extends WP_Widget
 						if(in_array('location', $instance['webshop_filters']))
 						{
 							// Display location filter
+							do_log("The user wants to see a location filter here...");
+						}
+
+						if(in_array('order_by', $instance['webshop_filters']) && IS_SUPER_ADMIN) // Just for testing purposes so far
+						{
+							$event_filter_order_by = check_var('event_filter_order_by', 'char');
+
+							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'event_filter_order_by', 'text' => __("Order by", 'lang_webshop'), 'value' => $event_filter_order_by, 'xtra' => " class='event_filter_order_by'"));
 						}
 
 					echo "</form>";
@@ -8691,24 +8754,6 @@ class widget_webshop_events extends WP_Widget
 		return $instance;
 	}
 
-	function get_filters_for_select()
-	{
-		return array(
-			'calendar' => __("Calendar", 'lang_webshop'),
-			'category' => get_option_or_default('setting_webshop_replace_category', __("Category", 'lang_webshop')),
-			'location' => __("Location", 'lang_webshop'),
-		);
-	}
-
-	function get_event_types_for_select()
-	{
-		return array(
-			'' => __("All", 'lang_webshop'),
-			'distance' => __("Closest", 'lang_webshop'),
-			'today' => __("Today", 'lang_webshop'),
-		);
-	}
-
 	function form($instance)
 	{
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
@@ -8737,6 +8782,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 		$this->arr_default = array(
 			'webshop_heading' => '',
+			'webshop_filters' => array(),
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
@@ -8746,6 +8792,38 @@ class widget_webshop_filter_products extends WP_Widget
 		$this->obj_webshop = new mf_webshop();
 
 		parent::__construct('webshop-filter-products-widget', __("Webshop", 'lang_webshop')." (".__("Filtered Products", 'lang_webshop').")", $widget_ops);
+	}
+
+	function get_filters_for_select()
+	{
+		return array(
+			'order_by' => __("Order by", 'lang_webshop'),
+		);
+	}
+
+	function get_order_by_for_select()
+	{
+		$arr_data = array(
+			'a-z' => __("A-Z", 'lang_webshop'),
+			'distance' => __("Closest", 'lang_webshop'),
+		);
+
+		$arr_locations = array();
+		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
+
+		if(count($arr_locations) > 0)
+		{
+			$arr_data["opt_start_location"] = __("Location", 'lang_webshop');
+
+				foreach($arr_locations as $key => $value)
+				{
+					$arr_data["location_".$key] = $value;
+				}
+
+			$arr_data["opt_end_location"] = "";
+		}
+
+		return $arr_data;
 	}
 
 	function widget($args, $instance)
@@ -8766,6 +8844,20 @@ class widget_webshop_filter_products extends WP_Widget
 					echo $before_title
 						.str_replace("[category]", get_post_title($instance['webshop_category']), $instance['webshop_heading'])
 					.$after_title;
+				}
+
+				if(count($instance['webshop_filters']) > 0 && IS_SUPER_ADMIN) // Just for testing purposes so far
+				{
+					echo "<form action='#' method='post' class='product_filters mf_form'>";
+
+						if(in_array('order_by', $instance['webshop_filters']))
+						{
+							$product_filter_order_by = check_var('product_filter_order_by', 'char');
+
+							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'product_filter_order_by', 'text' => __("Order by", 'lang_webshop'), 'value' => $product_filter_order_by, 'xtra' => " class='product_filter_order_by'"));
+						}
+
+					echo "</form>";
 				}
 
 				//echo "<div class='section'>";
@@ -8804,6 +8896,7 @@ class widget_webshop_filter_products extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
+		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
@@ -8822,6 +8915,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']))
 			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
@@ -9021,7 +9115,6 @@ class widget_webshop_product_meta extends WP_Widget
 							$event_category = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'category', true);
 							$event_date = $obj_calendar->format_date(array('post_id' => $this->obj_webshop->event_id));
 							$event_location = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'location', true);
-							//$event_calendar = get_post_meta($this->obj_webshop->event_id, $obj_calendar->meta_prefix.'calendar', true);
 
 							if($event_category > 0)
 							{

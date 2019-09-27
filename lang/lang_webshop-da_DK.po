@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-17 08:54+0100\n"
+"POT-Creation-Date: 2019-09-18 09:41+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: ..\n"
 
 msgid "Webshop"
-msgstr "Wepshop"
+msgstr ""
 
 msgid "The address was not able to be created"
 msgstr "Det var ikke muligt at oprette adressen"
@@ -52,7 +52,7 @@ msgid "I could not update the information for you"
 msgstr "Jeg kunne ikke opdatere informationen for dig"
 
 msgid "It does not look like you changed anything, so nothing was saved"
-msgstr "Det ser ikke ud til du har ændret noget så ingen ændringer er gemt"
+msgstr "Det ser ikke ud til du har lavet nogen ændringer, så ingenting er gemt"
 
 msgid "I could not save the information for you"
 msgstr "Kunne ikke gemme informationen for dig"
@@ -66,9 +66,6 @@ msgstr "Læs mere"
 msgid "Choose Here"
 msgstr "Vælg her"
 
-msgid "A-Z"
-msgstr "A-Z"
-
 msgid "Latest"
 msgstr "Seneste"
 
@@ -80,9 +77,6 @@ msgstr "Tilfældig"
 
 msgid "Size"
 msgstr "Størrelse"
-
-msgid "Information"
-msgstr "Information"
 
 msgid "Description"
 msgstr "Beskrivelse"
@@ -96,11 +90,11 @@ msgstr "Indhold"
 msgid "Label"
 msgstr "Etiket"
 
-msgid "Input"
-msgstr "Input"
-
 msgid "Text"
 msgstr "Tekst"
+
+msgid "Textarea"
+msgstr "tekst område"
 
 msgid "Date"
 msgstr "Dato"
@@ -110,9 +104,6 @@ msgstr "E-mail adresse"
 
 msgid "Phone Number"
 msgstr "Telefonnummer"
-
-msgid "URL"
-msgstr "URL"
 
 msgid "Clock"
 msgstr "Tidspunkt"
@@ -152,9 +143,6 @@ msgstr "Pris"
 
 msgid "Stock"
 msgstr "Lager"
-
-msgid "Interval"
-msgstr "Interval"
 
 msgid "Location"
 msgstr "Lokation"
@@ -198,6 +186,9 @@ msgstr "Skjul kort"
 msgid "Everywhere"
 msgstr "overalt"
 
+msgid "Only in search view"
+msgstr "Kun i søgefelt"
+
 msgid "Only on single page"
 msgstr "Kun på en enkelt side"
 
@@ -237,6 +228,9 @@ msgstr "Kontakt info"
 msgid "Quick Info"
 msgstr "Quick info"
 
+msgid "Properties"
+msgstr "Egenskaber"
+
 msgid "Filters"
 msgstr "Filtere"
 
@@ -256,7 +250,7 @@ msgid "default"
 msgstr "standard"
 
 msgid "Title for %s"
-msgstr "Titel på %s%"
+msgstr "Titel på %s"
 
 msgid "Display Sort"
 msgstr "Vis sort"
@@ -279,6 +273,9 @@ msgstr "Farve info"
 msgid "Info text color"
 msgstr "tekst farve info"
 
+msgid "Replace Text"
+msgstr "Udskift tekst"
+
 msgid "Replace %s slug with"
 msgstr "Udskift %s slug med"
 
@@ -300,14 +297,11 @@ msgstr "Antal af billeder"
 msgid "Form for quote request"
 msgstr "Formular til forespørgsel"
 
+msgid "Max results to send quote"
+msgstr "Max resultat for at sende tilbud"
+
 msgid "Switch Icon"
 msgstr "Kontakt ikon"
-
-msgid "On"
-msgstr "On"
-
-msgid "Off"
-msgstr "Off"
 
 msgid "Require user to make some kind of search"
 msgstr "Kræver at brugeren udfører en form for søgning"
@@ -333,8 +327,65 @@ msgstr "Vis cookies"
 msgid "Allow Multiple Categories"
 msgstr "Tillad mange kategorier"
 
+msgid "single"
+msgstr "Enkelt"
+
+msgid "Force Individual Contact"
+msgstr "Tving individuel kontakt"
+
+msgid "API key"
+msgstr "API nøgle"
+
+msgid "Symbol inactive image"
+msgstr "Symbol inaktiv billede"
+
+msgid "Symbol active image"
+msgstr "Symbol aktiv billede"
+
+msgid "Ghost symbol inactive image"
+msgstr "Ghost symbol inaktiv billede"
+
+msgid "Ghost symbol active image"
+msgstr "Ghost symbol aktiv billede"
+
+msgid "Symbol inactive color"
+msgstr "Symbol inaktiv farve"
+
+msgid "Symbol active color"
+msgstr "Symbol aktiv farve"
+
+msgid "Map Information"
+msgstr "Kort information"
+
+msgid "Clear"
+msgstr "Ryd"
+
 msgid "Search"
 msgstr "Søg"
+
+msgid "Hidden behind a button"
+msgstr "Skjult bag en knap"
+
+msgid "Favorites"
+msgstr "farvoritter"
+
+msgid "Enter title here"
+msgstr "Indtast titel her"
+
+msgid "Filter amongst %s products"
+msgstr "Filtrer imellem %s produkter"
+
+msgid "Disable by adding any single character"
+msgstr "Deaktiver ved at tilføje et vilkårligt tegn"
+
+msgid "Your search matches %s products"
+msgstr "Din søgning matcher %s produkter"
+
+msgid "Here are your %s saved products"
+msgstr "Her er dine %s gemte produkter"
+
+msgid "Send request for quote"
+msgstr "Send anmodning om tilbud"
 
 msgid "Choose"
 msgstr "Vælg"
@@ -351,8 +402,17 @@ msgstr "Tilbage til søgning"
 msgid "Search for Another"
 msgstr "Søg efter en anden"
 
+msgid "Send request for quote to"
+msgstr "Send anmodning om tilbud til"
+
 msgid "You have to choose at least one product to proceed"
 msgstr "Du skal vælge mindst et produkt for at kunne forsætte"
+
+msgid "Email Your Products"
+msgstr "Email dine produkter"
+
+msgid "In order to send a quote you have to be specific what you want by filtering"
+msgstr "For at kunne sende et tilbud skal du være specifik omkring, hvad du ønsker, ved at filtrere."
 
 msgid "I would like to share these products that I like"
 msgstr "Jeg vil gerne dele disse produkter"
@@ -368,6 +428,21 @@ msgstr "Vis kort"
 
 msgid "Hide Map"
 msgstr "Skjul kort"
+
+msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
+msgstr "Hvis der ikke er indtastet en nedre værdi i et interval, bruges denne procent til at udregne den nedre værdi af intervallet"
+
+msgid "%d will hide the link in the form"
+msgstr "%d vil skjule linket i formularen"
+
+msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
+msgstr "Dette vil til enhver tid tillade besøgende at sende individuelle tilbudsanmodninger, eller er det kun førstegangs besøgende der kommer direkte ind på denne side, der har denne mulighed"
+
+msgid "%s was successfully cleared on this device"
+msgstr "%s var med succes slettet på denne enhed"
+
+msgid "When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
+msgstr "Ved søgninger gemmer vi informationen i den såkaldte %s i besøgsbrowseren. Denne data bruges kun på sitet til at huske, hvad der sidst er gemt og ikke sendt videre til serveren medmindre den besøgende udfylder en forespørgsel. I givet fald sendes informationen sammen med formularen til distribution af forespørgslen til den korrekte modtager"
 
 msgid "Are you sure?"
 msgstr "Er du sikker?"
@@ -465,9 +540,6 @@ msgstr "Påkrævet"
 msgid "Display on Categories"
 msgstr "Vis i kategorier"
 
-msgid "Symbol"
-msgstr "Symbol"
-
 msgid "Alternate text"
 msgstr "Alternativ tekst"
 
@@ -482,6 +554,21 @@ msgstr "Ikon"
 
 msgid "Color"
 msgstr "Farve"
+
+msgid "Connect to new %s"
+msgstr "Opret forbindelse til ny"
+
+msgid "Include on"
+msgstr "Inkluder på"
+
+msgid "Event Max Length"
+msgstr "Begivenhed max længde"
+
+msgid "Affect Heading"
+msgstr "Påvirke overskrift"
+
+msgid "Hidden"
+msgstr "Skjult"
 
 msgid "Customer No"
 msgstr "Kundenummer"
@@ -502,7 +589,7 @@ msgid "Sort By"
 msgstr "Sort efter"
 
 msgid "Filter"
-msgstr "Filter"
+msgstr "Filtre"
 
 msgid "Distance"
 msgstr "Afstand"
@@ -525,14 +612,38 @@ msgstr "Kunne ikke finde noget der matchede dine valg"
 msgid "Today"
 msgstr "I dag"
 
+msgid "The event does not seam to have a slug"
+msgstr "Begivenheden ser ikke ud til at have et slug"
+
+msgid "Update Cart"
+msgstr "Opdater indkøbsvogn"
+
+msgid "Add to Cart"
+msgstr "Tilføj til indkøbsvogn"
+
 msgid "Display Search"
 msgstr "Vis søgning"
 
 msgid "Display Map"
 msgstr "Vis kort"
 
+msgid "Display start page form"
+msgstr "Vis start side formular"
+
+msgid "Form"
+msgstr "Formular"
+
 msgid "Show all"
 msgstr "Vis alt"
+
+msgid "Go to after submit"
+msgstr "Gå til efter indsendelse"
+
+msgid "Default %s"
+msgstr "Standard %s"
+
+msgid "Button text"
+msgstr "Knap tekst"
 
 msgid "Display start page list"
 msgstr "Vis startside liste"
@@ -551,6 +662,15 @@ msgstr "Vis kategori"
 
 msgid "Display Info"
 msgstr "Vis info"
+
+msgid "Display Border"
+msgstr "Vis grænse"
+
+msgid "Display Recent"
+msgstr "Vis nylig"
+
+msgid "Recent"
+msgstr "Nylig"
 
 msgid "Amount"
 msgstr "Antal"
@@ -582,11 +702,20 @@ msgstr "Vis filtrerede produkter"
 msgid "Filtered Products"
 msgstr "Filtrerede produkter"
 
+msgid "Display Product Meta"
+msgstr "Vis produkt meta"
+
+msgid "Product Meta"
+msgstr "Produkt meta"
+
 msgid "Category Info"
 msgstr "Kategori info"
 
 msgid "Event Info"
 msgstr "Begivenhed info"
+
+msgid "Actions"
+msgstr "Aktioner"
 
 msgid "Breadcrumbs"
 msgstr "Cookies"
@@ -611,6 +740,9 @@ msgstr "Anbefal til en ven"
 
 msgid "Print the Information"
 msgstr "Udprint informationen"
+
+msgid "%s offers %s"
+msgstr "%s tilbud%s"
 
 msgid "Display Categories"
 msgstr "Vis kategorier"
