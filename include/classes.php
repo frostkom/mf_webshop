@@ -5921,11 +5921,6 @@ class mf_webshop
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
-		if(IS_SUPER_ADMIN)
-		{
-			do_log("get_filter_products: ".$wpdb->last_query);
-		}
-
 		$i = 0;
 
 		foreach($result as $r)
