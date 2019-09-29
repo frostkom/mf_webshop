@@ -4775,6 +4775,19 @@ class mf_webshop
 		}
 	}
 
+	function split_coordinates($in)
+	{
+		if($in != '')
+		{
+			return array_map('trim', explode(",", trim(trim($in, "("), ")")));
+		}
+
+		else
+		{
+			return array('', '');
+		}
+	}
+
 	function rwmb_after_save_post($post_id)
 	{
 		$this->get_option_type_from_post_id($post_id);
@@ -4807,6 +4820,11 @@ class mf_webshop
 							if($post_coordinates != '')
 							{
 								update_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, $post_coordinates);
+
+								list($latitude, $longitude) = $this->split_coordinates($post_coordinates);
+
+								update_post_meta($post_id, $this->meta_prefix.'latitude', $latitude);
+								update_post_meta($post_id, $this->meta_prefix.'longitude', $longitude);
 							}
 						}
 					}
@@ -5871,16 +5889,42 @@ class mf_webshop
 
 		$out['filter_products_response'] = array();
 
-		$query_limit = "";
+		$query_select = $query_join = $query_order = $query_limit = "";
+
+		if($data['latitude'] != '' && $data['longitude'] != '' && $data['order_by'] == 'distance')
+		{
+			$query_select .= ", (6371 * acos(
+				cos( radians(".$data['latitude'].") )
+				* cos( radians( latitude.meta_value ) )
+				* cos( radians( longitude.meta_value ) - radians(".$data['longitude'].") )
+				+ sin( radians(".$data['latitude'].") )
+				* sin( radians( latitude.meta_value ) )
+			)) AS distance";
+
+			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS latitude ON ".$wpdb->posts.".ID = latitude.post_id AND latitude.meta_key = '".$this->meta_prefix."latitude'";
+			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS longitude ON ".$wpdb->posts.".ID = longitude.post_id AND longitude.meta_key = '".$this->meta_prefix."longitude'";
+
+			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
+		}
+
+		else
+		{
+			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_modified DESC";
+		}
 
 		if($data['limit'] > 0)
 		{
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND ".$wpdb->postmeta.".meta_key = %s AND meta_value = %s ORDER BY post_modified DESC".$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value = %s".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
+
+		if(IS_SUPER_ADMIN)
+		{
+			do_log("get_filter_products: ".$wpdb->last_query);
+		}
 
 		$i = 0;
 
@@ -8808,7 +8852,8 @@ class widget_webshop_filter_products extends WP_Widget
 			'distance' => __("Closest", 'lang_webshop'),
 		);
 
-		$arr_locations = array();
+		/* There are no locations for products */
+		/*$arr_locations = array();
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
 
 		if(count($arr_locations) > 0)
@@ -8821,7 +8866,7 @@ class widget_webshop_filter_products extends WP_Widget
 				}
 
 			$arr_data["opt_end_location"] = "";
-		}
+		}*/
 
 		return $arr_data;
 	}
