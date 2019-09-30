@@ -963,7 +963,7 @@ var WebshopView = Backbone.View.extend(
 			'data-limit': 0
 		}).empty();
 
-		if(dom_obj.hasClass(".event_filter_order_by"))
+		if(dom_obj.hasClass("event_filter_order_by"))
 		{
 			this.load_events(dom_list);
 		}

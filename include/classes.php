@@ -74,8 +74,6 @@ class mf_webshop
 		{
 			$post_id = $post->ID;
 
-			//list($product_id, $option_type) = $this->get_product_id_from_calendar($post_id);
-
 			$this->get_option_type_from_post_id($post_id);
 
 			if($post->post_type == $this->post_type_products.$this->option_type)
@@ -171,8 +169,6 @@ class mf_webshop
 				}
 			}
 		}
-
-		//return $event_id;
 	}
 
 	function is_between($data)
@@ -4330,7 +4326,11 @@ class mf_webshop
 					unset($cols['date']);
 
 					$cols['location_hidden'] = "<i class='fa fa-eye-slash fa-lg'></i>";
-					$cols['products'] = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
+
+					if($this->get_post_name_for_type('location') != '')
+					{
+						$cols['products'] = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
+					}
 				break;
 			}
 		}
@@ -4656,7 +4656,6 @@ class mf_webshop
 
 						case 'products':
 							$result = $this->get_products_from_location($id);
-
 							$count_temp = count($result);
 
 							if($count_temp > 0)
@@ -6067,7 +6066,17 @@ class mf_webshop
 
 		$location_post_name = $this->get_post_name_for_type('location');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d'", 'publish', $this->meta_prefix.$location_post_name, $id));
+		if($location_post_name != '')
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d'", 'publish', $this->meta_prefix.$location_post_name, $id));
+		}
+
+		else
+		{
+			//do_log("I could not find a location key from ".var_export($this->post_name_for_type, true)." (".$this->option_type.")");
+
+			$result = array();
+		}
 
 		return $result;
 	}
@@ -6106,8 +6115,6 @@ class mf_webshop
 		if(!isset($this->post_name_for_type[$this->option_type][$type]))
 		{
 			$this->post_name_for_type[$this->option_type][$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s LIMIT 0, 1", $this->post_type_document_type.$this->option_type, 'publish', $this->meta_prefix.'document_type', $type));
-
-			//do_log("Get post name for type (".$type.") -> ".$wpdb->last_query);
 		}
 
 		return $this->post_name_for_type[$this->option_type][$type];
@@ -8665,6 +8672,8 @@ class widget_webshop_events extends WP_Widget
 
 		$arr_locations = array();
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
+
+		$arr_locations = apply_filters('filter_order_by_locations', $arr_locations);
 
 		if(count($arr_locations) > 0)
 		{
