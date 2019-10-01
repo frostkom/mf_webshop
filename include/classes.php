@@ -3363,7 +3363,7 @@ class mf_webshop
 					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'stats/index.php');
 				}
 
-				if($this->option_type == '' && is_plugin_active("mf_group/index.php") && $this->get_post_name_for_type('email') != '')
+				if($this->option_type == '' && is_plugin_active("mf_group/index.php") && $this->get_post_name_for_type('email') != '' && $this->get_list(array('output' => 'value', 'select' => "COUNT(ID)")) > 1)
 				{
 					$menu_title = __("Send e-mail to all", 'lang_webshop')." ".strtolower($name_products);
 					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'group/index.php');
@@ -4742,9 +4742,32 @@ class mf_webshop
 		}
 	}
 
+	function get_list($data = array())
+	{
+		global $wpdb;
+
+		if(!isset($data['output'])){	$data['output'] = 'array';}
+		if(!isset($data['select'])){	$data['select'] = "ID";}
+		if(!isset($data['order_by'])){	$data['order_by'] = "";}
+
+		$query = $wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".($data['order_by'] != '' ? " ORDER BY ".$data['order_by'] : ""), $this->post_type_products.$this->option_type);
+
+		switch($data['output'])
+		{
+			default:
+			case 'array':
+				return $wpdb->get_results($query);
+			break;
+
+			case 'value':
+				return $wpdb->get_var($query);
+			break;
+		}
+	}
+
 	function rwmb_before_save_post($post_id)
 	{
-		global $wpdb, $post;
+		global $post; //$wpdb, 
 
 		$this->get_option_type_from_post_id($post_id);
 
@@ -4755,7 +4778,8 @@ class mf_webshop
 
 			if($post_meta_new == 'yes' && $post_meta_new != $post_meta_old)
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+				$result = $this->get_list();
 
 				foreach($result as $r)
 				{
@@ -5172,7 +5196,8 @@ class mf_webshop
 									'' => $name_choose_here,
 								);
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+								//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+								$result = $this->get_list();
 
 								foreach($result as $r)
 								{
@@ -5220,7 +5245,8 @@ class mf_webshop
 
 								$obj_webshop_interval->add_interval_type($post_name, $post_title);
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+								//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
+								$result = $this->get_list();
 
 								foreach($result as $r)
 								{
@@ -8137,7 +8163,8 @@ class widget_webshop_form extends WP_Widget
 
 					$is_numeric = in_array($post_custom_type, array('number', 'price', 'size'));
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
+					//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
+					$result = $this->get_list();
 
 					foreach($result as $r)
 					{
@@ -8182,7 +8209,8 @@ class widget_webshop_form extends WP_Widget
 
 					$obj_webshop_interval->add_interval_type($post_name, $post_title);
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
+					//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
+					$result = $this->get_list();
 
 					foreach($result as $r)
 					{
@@ -9596,7 +9624,8 @@ class widget_webshop_cart extends WP_Widget
 			{
 				$accepted = false;
 
-				$result	= $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title ASC", $obj_webshop->post_type_customers.$this->obj_webshop->option_type));
+				//$result	= $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title ASC", $obj_webshop->post_type_customers.$this->obj_webshop->option_type));
+				$result = $this->obj_webshop->get_list(array('order_by' => "post_title ASC"));
 
 				if($wpdb->num_rows > 0)
 				{
