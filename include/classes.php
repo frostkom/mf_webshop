@@ -5694,12 +5694,12 @@ class mf_webshop
 
 				if($data['start_date'] > DEFAULT_DATE)
 				{
-					$start_date_limit = date("Y-m-d", strtotime("+30 day"));
+					$end_date = date("Y-m-d", strtotime($data['start_date']." +1 month"));
 
 					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_start ON ".$wpdb->posts.".ID = postmeta_start.post_id AND postmeta_start.meta_key = '".$obj_calendar->meta_prefix."start'";
 					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_end ON ".$wpdb->posts.".ID = postmeta_end.post_id AND postmeta_end.meta_key = '".$obj_calendar->meta_prefix."end'";
 					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) >= '".$data['start_date']."' OR SUBSTRING(postmeta_end.meta_value, 1, 10) >= '".$data['start_date']."')";
-					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) <= '".$start_date_limit."' OR SUBSTRING(postmeta_end.meta_value, 1, 10) <= '".$start_date_limit."')"; // Display a maximum of 30 days
+					$query_where .= " AND (SUBSTRING(postmeta_start.meta_value, 1, 10) <= '".$end_date."' OR SUBSTRING(postmeta_end.meta_value, 1, 10) <= '".$end_date."')";
 
 					if($data['order_by'] == '' || $data['order_by'] == 'date')
 					{
