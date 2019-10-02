@@ -494,9 +494,6 @@ switch($type_switch)
 
 																		else
 																		{
-																			// What effect does this have?
-																			//list($latitude, $longitude) = $obj_calendar->split_coordinates($arr_event_coordinates[$i]);
-
 																			$post_data_event = array(
 																				'ID' => $arr_event_id[$i],
 																				'post_title' => $arr_event_name[$i],
@@ -505,8 +502,6 @@ switch($type_switch)
 																				'meta_input' => array(
 																					$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
 																					$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																					//$obj_calendar->meta_prefix.'latitude' => $latitude,
-																					//$obj_calendar->meta_prefix.'longitude' => $longitude,
 																					$obj_calendar->meta_prefix.'start' => $event_start,
 																					$obj_calendar->meta_prefix.'end' => $event_end,
 																				),
@@ -562,9 +557,6 @@ switch($type_switch)
 
 																	else
 																	{
-																		// What effect does this have?
-																		//list($latitude, $longitude) = $obj_calendar->split_coordinates($arr_event_coordinates[$i]);
-
 																		$post_data_event = array(
 																			'post_type' => $obj_calendar->post_type_event,
 																			'post_status' => 'publish',
@@ -574,8 +566,6 @@ switch($type_switch)
 																				$obj_calendar->meta_prefix.'calendar' => $calendar_id,
 																				$obj_calendar->meta_prefix.'location' => $arr_event_location[$i],
 																				$obj_calendar->meta_prefix.'coordinates' => $arr_event_coordinates[$i],
-																				//$obj_calendar->meta_prefix.'latitude' => $latitude,
-																				//$obj_calendar->meta_prefix.'longitude' => $longitude,
 																				//$obj_calendar->meta_prefix.'category' => $arr_event_category[$i],
 																				$obj_calendar->meta_prefix.'start' => $event_start,
 																				$obj_calendar->meta_prefix.'end' => $event_end,

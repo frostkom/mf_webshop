@@ -4843,14 +4843,17 @@ class mf_webshop
 							if($post_coordinates != '')
 							{
 								update_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, $post_coordinates);
-
-								list($latitude, $longitude) = $this->split_coordinates($post_coordinates);
-
-								update_post_meta($post_id, $this->meta_prefix.'latitude', $latitude);
-								update_post_meta($post_id, $this->meta_prefix.'longitude', $longitude);
 							}
 						}
 					}
+				}
+
+				if($post_coordinates != '')
+				{
+					list($latitude, $longitude) = $this->split_coordinates($post_coordinates);
+
+					update_post_meta($post_id, $this->meta_prefix.'latitude', $latitude);
+					update_post_meta($post_id, $this->meta_prefix.'longitude', $longitude);
 				}
 			}
 		}
@@ -5932,7 +5935,12 @@ class mf_webshop
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
 		}
 
-		else
+		else if($data['order_by'] == 'alphabetical')
+		{
+			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_title ASC";
+		}
+
+		else //latest
 		{
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_modified DESC";
 		}
@@ -8698,7 +8706,7 @@ class widget_webshop_events extends WP_Widget
 			'distance' => __("Closest", 'lang_webshop'),
 		);
 
-		$arr_locations = array();
+		/*$arr_locations = array();
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
 
 		$arr_locations = apply_filters('filter_order_by_locations', $arr_locations);
@@ -8713,7 +8721,7 @@ class widget_webshop_events extends WP_Widget
 				}
 
 			$arr_data["opt_end_location"] = "";
-		}
+		}*/
 
 		return $arr_data;
 	}
@@ -8880,7 +8888,8 @@ class widget_webshop_filter_products extends WP_Widget
 	function get_order_by_for_select()
 	{
 		$arr_data = array(
-			'a-z' => __("A-Z", 'lang_webshop'),
+			'latest' => __("Latest", 'lang_webshop'),
+			'alphabetical' => __("A-Z", 'lang_webshop'),
 			'distance' => __("Closest", 'lang_webshop'),
 		);
 
