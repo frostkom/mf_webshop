@@ -827,6 +827,7 @@ switch($type_switch)
 		$order_by = check_var('order_by');
 		$latitude = check_var('latitude');
 		$longitude = check_var('longitude');
+		$initial = check_var('initial');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
@@ -841,6 +842,7 @@ switch($type_switch)
 			'order_by' => $order_by,
 			'latitude' => $latitude,
 			'longitude' => $longitude,
+			'initial' => $initial,
 			'limit' => $limit,
 			'amount' => $amount,
 		));
@@ -853,6 +855,7 @@ switch($type_switch)
 		$order_by = check_var('order_by');
 		$latitude = check_var('latitude');
 		$longitude = check_var('longitude');
+		$initial = check_var('initial');
 		$limit = check_var('limit', 'int', true, '0');
 		$amount = check_var('amount', 'int');
 
@@ -863,6 +866,7 @@ switch($type_switch)
 			'order_by' => $order_by,
 			'latitude' => $latitude,
 			'longitude' => $longitude,
+			'initial' => $initial,
 			'limit' => $limit,
 			'amount' => $amount,
 		));

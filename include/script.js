@@ -35,8 +35,6 @@ function add_map_location(data)
 			url = data.dom_obj.attr('data-url') || '',
 			link_text = data.dom_obj.attr('data-link_text') || '';
 
-		/*console.log(id , name , url);*/
-
 		add_marker(
 		{
 			'pos': pos,

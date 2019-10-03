@@ -27,15 +27,15 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:calendar_response", this.show_calendars, this);
 		this.model.on("change:event_hash", this.show_events, this);
 
-		var dom_obj_events = jQuery(".webshop_widget.webshop_events"),
-			dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
+		this.dom_obj_events = jQuery(".webshop_widget.webshop_events");
+		this.dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
 
-		this.is_events_view = dom_obj_events.length > 0;
+		this.is_events_view = this.dom_obj_events.length > 0;
 
 		/* Filter Products */
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
-		this.is_filter_products_view = dom_obj_products.length > 0;
+		this.is_filter_products_view = this.dom_obj_products.length > 0;
 
 		if(this.is_favorites_view)
 		{
@@ -67,117 +67,12 @@ var WebshopView = Backbone.View.extend(
 		{
 			if(this.is_events_view)
 			{
-				this.dom_calendar = dom_obj_events.find(".event_calendar");
-				this.has_calendar = this.dom_calendar.length > 0;
-
-				if(this.has_calendar)
-				{
-					this.load_calendar();
-				}
-
-				if(dom_obj_events.find(".event_filter_category:checked").length > 0)
-				{
-					var dom_obj = dom_obj_events.find(".event_filter_category:checked"),
-						dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
-
-					dom_list.attr(
-					{
-						'data-category': dom_obj.attr('value')
-					});
-				}
-
-				if(dom_obj_events.find(".event_filter_order_by").length > 0)
-				{
-					var dom_obj = dom_obj_events.find(".event_filter_order_by"),
-						dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
-
-					dom_list.attr(
-					{
-						'data-order_by': dom_obj.val(),
-						'data-limit': 0
-					}).empty();
-
-					if(navigator.geolocation)
-					{
-						var self = this;
-
-						navigator.geolocation.getCurrentPosition(function(position)
-						{
-							my_lat = position.coords.latitude;
-							my_lon = position.coords.longitude;
-
-							dom_list.attr(
-							{
-								'data-latitude': my_lat,
-								'data-longitude': my_lon
-							});
-
-							self.load_all_events();
-						},
-						function(msg)
-						{
-							self.load_all_events();
-						});
-					}
-
-					else
-					{
-						this.load_all_events();
-					}
-				}
-
-				else
-				{
-					this.load_all_events();
-				}
+				this.process_events_view();
 			}
 
 			if(this.is_filter_products_view)
 			{
-				if(dom_obj_products.find(".product_filter_order_by").length > 0)
-				{
-					var dom_obj = dom_obj_products.find(".product_filter_order_by"),
-						dom_list = dom_obj.parents(".webshop_filter_products").find(".widget_list");
-
-					dom_list.attr(
-					{
-						'data-order_by': dom_obj.val(),
-						'data-limit': 0
-					}).empty();
-
-					if(navigator.geolocation)
-					{
-						var self = this;
-
-						navigator.geolocation.getCurrentPosition(function(position)
-						{
-							my_lat = position.coords.latitude;
-							my_lon = position.coords.longitude;
-
-							dom_list.attr(
-							{
-								'data-latitude': my_lat,
-								'data-longitude': my_lon
-							});
-
-							self.load_all_filter_products();
-						},
-						function(msg)
-						{
-							self.load_all_filter_products();
-						});
-					}
-
-					else
-					{
-						this.load_all_filter_products();
-					}
-				}
-
-				else
-				{
-					this.load_all_filter_products();
-				}
+				this.process_filter_products_view();
 			}
 		}
 
@@ -222,6 +117,133 @@ var WebshopView = Backbone.View.extend(
 
 		/* Products */
 		"change .webshop_filter_products .product_filters .product_filter_order_by": "change_order_by"
+	},
+		
+	process_events_view: function()
+	{
+		this.dom_calendar = this.dom_obj_events.find(".event_calendar");
+		this.has_calendar = this.dom_calendar.length > 0;
+
+		if(this.has_calendar)
+		{
+			this.load_calendar();
+		}
+
+		if(this.dom_obj_events.find(".event_filter_category:checked").length > 0)
+		{
+			var dom_obj = this.dom_obj_events.find(".event_filter_category:checked"),
+				dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
+
+			dom_list.attr(
+			{
+				'data-category': dom_obj.attr('value')
+			});
+		}
+		
+		var dom_obj = this.dom_obj_events.find(".event_filter_order_by");
+
+		if(dom_obj.length > 0)
+		{
+			var dom_list = dom_obj.parents(".webshop_events").find(".widget_list");
+
+			dom_list.attr(
+			{
+				'data-order_by': dom_obj.val(),
+				'data-limit': 0
+			}).empty();
+
+			if(navigator.geolocation)
+			{
+				var self = this;
+
+				navigator.geolocation.getCurrentPosition(function(position)
+				{
+					my_lat = position.coords.latitude;
+					my_lon = position.coords.longitude;
+
+					dom_list.attr(
+					{
+						'data-latitude': my_lat,
+						'data-longitude': my_lon
+					});
+
+					self.load_all_events();
+
+					/* This is later removed by remove_markers(), so it has to be fixed somehow */
+					/*if(typeof add_my_position_marker === 'function')
+					{
+						add_my_position_marker(position);
+					}*/
+				},
+				function(msg)
+				{
+					console.log("Test 3");
+
+					self.load_all_events();
+				});
+			}
+
+			else
+			{
+				console.log("Test 4");
+
+				this.load_all_events();
+			}
+		}
+
+		else
+		{
+			this.load_all_events();
+		}
+	},
+		
+	process_filter_products_view: function()
+	{
+		var dom_obj = this.dom_obj_products.find(".product_filter_order_by");
+
+		if(dom_obj.length > 0)
+		{
+			var dom_list = dom_obj.parents(".webshop_filter_products").find(".widget_list");
+
+			dom_list.attr(
+			{
+				'data-order_by': dom_obj.val(),
+				'data-limit': 0
+			}).empty();
+
+			if(navigator.geolocation)
+			{
+				var self = this;
+
+				navigator.geolocation.getCurrentPosition(function(position)
+				{
+					my_lat = position.coords.latitude;
+					my_lon = position.coords.longitude;
+
+					dom_list.attr(
+					{
+						'data-latitude': my_lat,
+						'data-longitude': my_lon
+					});
+
+					self.load_all_filter_products();
+				},
+				function(msg)
+				{
+					self.load_all_filter_products();
+				});
+			}
+
+			else
+			{
+				this.load_all_filter_products();
+			}
+		}
+
+		else
+		{
+			this.load_all_filter_products();
+		}
 	},
 
 	search_all_products: function(e)
@@ -976,13 +998,6 @@ var WebshopView = Backbone.View.extend(
 
 	load_events: function(dom_obj)
 	{
-		dom_obj.children(".widget_load_more").remove();
-
-		if(dom_obj.children(".widget_spinner").length == 0)
-		{
-			dom_obj.append(_.template(jQuery("#template_event_spinner").html())(''));
-		}
-
 		var widget_id = dom_obj.attr('id'),
 			option_type = dom_obj.attr('data-option_type') || '',
 			product_id = dom_obj.attr('data-product_id') || 0,
@@ -994,9 +1009,8 @@ var WebshopView = Backbone.View.extend(
 			latitude = dom_obj.attr('data-latitude') || '',
 			longitude = dom_obj.attr('data-longitude') || '',
 			limit = dom_obj.attr('data-limit'),
-			amount = dom_obj.attr('data-amount');
-
-		var get_vars = "type=events&id=" + widget_id + "&start_date=" + date + "&amount=" + amount;
+			amount = dom_obj.attr('data-amount'),
+			get_vars = "type=events&id=" + widget_id + "&start_date=" + date + "&amount=" + amount;
 
 		if(option_type != '')
 		{
@@ -1038,9 +1052,21 @@ var WebshopView = Backbone.View.extend(
 			get_vars += "&longitude=" + longitude;
 		}
 
+		if(dom_obj.children("li").length == 0)
+		{
+			get_vars += "&initial=true";
+		}
+
 		if(limit > 0)
 		{
 			get_vars += "&limit=" + limit;
+		}
+
+		dom_obj.children(".widget_load_more").remove();
+
+		if(dom_obj.children(".widget_spinner").length == 0)
+		{
+			dom_obj.append(_.template(jQuery("#template_event_spinner").html())(''));
 		}
 
 		this.model.getPage(get_vars);
@@ -1050,7 +1076,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var self = this;
 
-		jQuery(".webshop_widget.webshop_events").each(function()
+		this.dom_obj_events.each(function()
 		{
 			self.load_events(jQuery(this).find(".widget_list"));
 		});
@@ -1088,17 +1114,24 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		this.show_or_hide_load_more(widget_id, amount);
+
+		this.add_my_location_to_filter(this.dom_obj_events.find(".event_filter_order_by"));
+	},
+
+	add_my_location_to_filter: function(dom_obj)
+	{
+		var my_location = this.model.get('my_location');
+
+		if(typeof my_location !== 'undefined' && my_location != '')
+		{
+			dom_obj.children("option[value='distance']").append(" (" + my_location + ")");
+
+			this.model.set({'my_location': ''});
+		}
 	},
 
 	load_filter_products: function(dom_obj)
 	{
-		dom_obj.children(".widget_load_more").remove();
-
-		if(dom_obj.children(".widget_spinner").length == 0)
-		{
-			dom_obj.append(_.template(jQuery("#template_filter_products_spinner").html())(''));
-		}
-
 		var widget_id = dom_obj.attr('id'),
 			option_type = dom_obj.attr('data-option_type') || '',
 			category = dom_obj.attr('data-category'),
@@ -1106,9 +1139,8 @@ var WebshopView = Backbone.View.extend(
 			latitude = dom_obj.attr('data-latitude') || '',
 			longitude = dom_obj.attr('data-longitude') || '',
 			limit = dom_obj.attr('data-limit'),
-			amount = dom_obj.attr('data-amount');
-
-		var get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
+			amount = dom_obj.attr('data-amount'),
+			get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
 
 		if(option_type != '')
 		{
@@ -1130,9 +1162,21 @@ var WebshopView = Backbone.View.extend(
 			get_vars += "&longitude=" + longitude;
 		}
 
+		if(dom_obj.children("li").length == 0)
+		{
+			get_vars += "&initial=true";
+		}
+
 		if(limit > 0)
 		{
 			get_vars += "&limit=" + limit;
+		}
+
+		dom_obj.children(".widget_load_more").remove();
+
+		if(dom_obj.children(".widget_spinner").length == 0)
+		{
+			dom_obj.append(_.template(jQuery("#template_filter_products_spinner").html())(''));
 		}
 
 		this.model.getPage(get_vars);
@@ -1142,7 +1186,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var self = this;
 
-		jQuery(".webshop_widget.webshop_filter_products").each(function()
+		this.dom_obj_products.each(function()
 		{
 			self.load_filter_products(jQuery(this).find(".widget_list"));
 		});
@@ -1178,6 +1222,8 @@ var WebshopView = Backbone.View.extend(
 		}
 
 		this.show_or_hide_load_more(widget_id, amount);
+
+		this.add_my_location_to_filter(this.dom_obj_products.find(".product_filter_order_by"));
 	},
 
 	show_or_hide_load_more: function(widget_id, amount)

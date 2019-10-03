@@ -5608,6 +5608,85 @@ class mf_webshop
 		return $out;
 	}
 
+	function get_transient_town_from_coordinates()
+	{
+		$my_location = "";
+
+		$setting_gmaps_api = get_option('setting_gmaps_api');
+
+		if($setting_gmaps_api != '')
+		{
+			$url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$this->data_temp['latitude'].",".$this->data_temp['longitude']."&sensor=false&key=".$setting_gmaps_api;
+
+			list($content, $headers) = get_url_content(array(
+				'url' => $url,
+				'catch_head' => true,
+			));
+
+			switch($headers['http_code'])
+			{
+				case 200:
+					$json = json_decode($content);
+
+					$postal_town = $country = "";
+
+					foreach($json->results as $json_row)
+					{
+						foreach($json_row->address_components as $address_component)
+						{
+							if(isset($address_component->types[0]) && $address_component->types[0] == 'postal_town')
+							{
+								$postal_town = $address_component->long_name;
+							}
+
+							if(isset($address_component->types[0]) && $address_component->types[0] == 'country')
+							{
+								$country = $address_component->long_name;
+							}
+
+							if($postal_town != '' && $country != '')
+							{
+								$my_location = $postal_town.", ".$country;
+
+								break 2;
+							}
+						}
+					}
+				break;
+
+				default:
+					do_log("I could not connect to gMaps: ".$headers['http_code']." (".var_export($headers, true).", ".$content.")");
+				break;
+			}
+		}
+
+		return $my_location;
+	}
+
+	function get_town_from_coordinates($data, $out)
+	{
+		if($data['initial'] != false)
+		{
+			if($data['latitude'] == '' || $data['longitude'] == '')
+			{
+				// Get coordinates from IP
+			}
+
+			if($data['latitude'] != '' && $data['longitude'] != '')
+			{
+				$data['latitude'] = round($data['latitude'], 2);
+				$data['longitude'] = round($data['longitude'], 2);
+
+				$this->data_temp = $data;
+				$this->out_temp = $out;
+
+				$out['my_location'] = get_or_set_transient(array('key' => 'town_from_coordinates_'.$data['latitude'].'_'.$data['longitude'], 'callback' => array($this, 'get_transient_town_from_coordinates')));
+			}
+		}
+
+		return $out;
+	}
+
 	function get_events($data)
 	{
 		global $wpdb;
@@ -5621,6 +5700,7 @@ class mf_webshop
 		if(!isset($data['order_by'])){		$data['order_by'] = "";}
 		if(!isset($data['latitude'])){		$data['latitude'] = "";}
 		if(!isset($data['longitude'])){		$data['longitude'] = "";}
+		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		if(!isset($data['exact_date']))
@@ -5879,6 +5959,8 @@ class mf_webshop
 				}
 			}
 
+			$out = $this->get_town_from_coordinates($data, $out);
+
 			$out['success'] = true;
 		}
 
@@ -5900,6 +5982,7 @@ class mf_webshop
 		if(!isset($data['order_by'])){		$data['order_by'] = "";}
 		if(!isset($data['latitude'])){		$data['latitude'] = "";}
 		if(!isset($data['longitude'])){		$data['longitude'] = "";}
+		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		$out = "";
@@ -5988,6 +6071,8 @@ class mf_webshop
 
 			$i++;
 		}
+
+		$out = $this->get_town_from_coordinates($data, $out);
 
 		$out['success'] = true;
 
