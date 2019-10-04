@@ -1995,7 +1995,8 @@ class mf_webshop
 													<% break;
 
 													case 'gps': %>"
-														.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
+														//.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
+														.apply_filters('get_map', '', array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
 													."<% break;
 
 													case 'interval': %>"
@@ -4838,9 +4839,9 @@ class mf_webshop
 
 						if($post_location != '')
 						{
-							$post_coordinates = get_coordinates_from_location($post_location);
+							$post_coordinates = apply_filters('get_coordinates_from_location', $post_location);
 
-							if($post_coordinates != '')
+							if($post_coordinates != '' && $post_coordinates != $post_location)
 							{
 								update_post_meta($post_id, $this->meta_prefix.$coordinates_post_name, $post_coordinates);
 							}
@@ -5608,9 +5609,39 @@ class mf_webshop
 		return $out;
 	}
 
+	function get_transient_coordinates_from_ip()
+	{
+		$out = "";
+
+		$url = "https://api.ipgeolocationapi.com/geolocate/".$this->ip_temp;
+
+		list($content, $headers) = get_url_content(array(
+			'url' => $url,
+			'catch_head' => true,
+		));
+
+		switch($headers['http_code'])
+		{
+			case 200:
+				$json = json_decode($content);
+
+				if(isset($json->geo->latitude) && isset($json->geo->longitude))
+				{
+					$out = $json->geo->latitude.",".$json->geo->longitude;
+				}
+			break;
+
+			default:
+				do_log("I could not connect to IP Geo API: ".$headers['http_code']." (".var_export($headers, true).", ".$content.")");
+			break;
+		}
+
+		return $out;
+	}
+
 	function get_transient_town_from_coordinates()
 	{
-		$my_location = "";
+		$out = "";
 
 		$setting_gmaps_api = get_option('setting_gmaps_api');
 
@@ -5646,7 +5677,7 @@ class mf_webshop
 
 							if($postal_town != '' && $country != '')
 							{
-								$my_location = $postal_town.", ".$country;
+								$out = $postal_town.", ".$country;
 
 								break 2;
 							}
@@ -5660,7 +5691,7 @@ class mf_webshop
 			}
 		}
 
-		return $my_location;
+		return $out;
 	}
 
 	function get_town_from_coordinates($data, $out)
@@ -5669,7 +5700,11 @@ class mf_webshop
 		{
 			if($data['latitude'] == '' || $data['longitude'] == '')
 			{
-				// Get coordinates from IP
+				$this->ip_temp = $_SERVER['REMOTE_ADDR'];
+
+				$coordinates_from_ip = get_or_set_transient(array('key' => 'coordinates_from_ip_'.$this->ip_temp, 'callback' => array($this, 'get_transient_coordinates_from_ip')));
+
+				list($data['latitude'], $data['longitude']) = explode(",", $coordinates_from_ip);
 			}
 
 			if($data['latitude'] != '' && $data['longitude'] != '')
@@ -5826,10 +5861,7 @@ class mf_webshop
 						$query_having = " HAVING distance <= '30'";
 					}
 
-					/*if($data['order_by'] == 'distance')
-					{*/
-						$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
-					//}
+					$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
 				}
 
 				else if(substr($data['order_by'], 0, 8) == 'location')
