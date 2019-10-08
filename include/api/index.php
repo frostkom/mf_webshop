@@ -829,6 +829,7 @@ switch($type_switch)
 		$longitude = check_var('longitude');
 		$initial = check_var('initial');
 		$limit = check_var('limit', 'int', true, '0');
+		$months = check_var('months', 'int');
 		$amount = check_var('amount', 'int');
 
 		$json_output = $obj_webshop->get_events(array(
@@ -844,6 +845,7 @@ switch($type_switch)
 			'longitude' => $longitude,
 			'initial' => $initial,
 			'limit' => $limit,
+			'months' => $months,
 			'amount' => $amount,
 		));
 	break;

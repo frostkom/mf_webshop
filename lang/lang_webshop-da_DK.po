@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-18 09:41+0100\n"
+"POT-Creation-Date: 2019-10-07 10:01+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -14,9 +14,6 @@ msgstr ""
 "X-Poedit-KeywordsList: esc_html__;esc_html_e;esc_attr__;esc_attr_e;__;_e\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
-
-msgid "Webshop"
-msgstr ""
 
 msgid "The address was not able to be created"
 msgstr "Det var ikke muligt at oprette adressen"
@@ -46,7 +43,7 @@ msgid "The end date must be within %d days from the start date"
 msgstr "Slutdatoen skal være indenfor %d dage fra start datoen"
 
 msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Jeg har gemt informationen for dig. % Se siden her %s"
+msgstr "Jeg har gemt informationen for dig. %sSe siden her%s"
 
 msgid "I could not update the information for you"
 msgstr "Jeg kunne ikke opdatere informationen for dig"
@@ -243,11 +240,11 @@ msgstr "Leveringsform"
 msgid "Types"
 msgstr "Typer"
 
-msgid "Icon for %s"
-msgstr "Ikon for %s"
-
 msgid "default"
 msgstr "standard"
+
+msgid "Icon for %s"
+msgstr "Ikon for %s"
 
 msgid "Title for %s"
 msgstr "Titel på %s"

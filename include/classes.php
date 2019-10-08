@@ -5384,7 +5384,13 @@ class mf_webshop
 
 				<script type='text/template' id='template_event_message'>
 					<li class='info_text'>
-						<p>".__("I could not find any events", 'lang_webshop')."</p>
+						<p>"
+							.__("I could not find any events", 'lang_webshop')
+							."<% if(start_date != '' && end_date != '')
+							{ %>
+								(<%= start_date %> -> <%= end_date %>)
+							<% } %>
+						</p>
 					</li>
 				</script>
 
@@ -5736,6 +5742,7 @@ class mf_webshop
 		if(!isset($data['latitude'])){		$data['latitude'] = "";}
 		if(!isset($data['longitude'])){		$data['longitude'] = "";}
 		if(!isset($data['initial'])){		$data['initial'] = false;}
+		if(!isset($data['months'])){		$data['months'] = 1;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
 		if(!isset($data['exact_date']))
@@ -5773,6 +5780,7 @@ class mf_webshop
 
 			$out['event_response'] = array();
 			$out['event_amount_left'] = $out['event_amount'] = 0;
+			$out['event_start_date'] = $out['event_end_date'] = "";
 
 			$arr_product_ids = $arr_product_translate_ids = array();
 			$query_where = "";
@@ -5812,7 +5820,8 @@ class mf_webshop
 
 				if($data['start_date'] > DEFAULT_DATE)
 				{
-					$end_date = date("Y-m-d", strtotime($data['start_date']." +1 month"));
+					$out['event_start_date'] = $data['start_date'];
+					$out['event_end_date'] = $end_date = date("Y-m-d", strtotime($data['start_date']." +".($data['months'] > 0 && $data['months'] < 12 ? $data['months'] : 1)." month"));
 
 					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_start ON ".$wpdb->posts.".ID = postmeta_start.post_id AND postmeta_start.meta_key = '".$obj_calendar->meta_prefix."start'";
 					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_end ON ".$wpdb->posts.".ID = postmeta_end.post_id AND postmeta_end.meta_key = '".$obj_calendar->meta_prefix."end'";
@@ -8789,6 +8798,7 @@ class widget_webshop_events extends WP_Widget
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_event_type' => '',
+			'webshop_months' => 1,
 			'webshop_amount' => 3,
 		);
 
@@ -8934,6 +8944,11 @@ class widget_webshop_events extends WP_Widget
 						echo " data-event_type='".$instance['webshop_event_type']."'";
 					}
 
+					if($instance['webshop_months'] > 1)
+					{
+						echo " data-months='".$instance['webshop_months']."'";
+					}
+
 				echo " data-date='".$date."' data-limit='0' data-amount='".$instance['webshop_amount']."'>".$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))."</ul>"
 			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'events'));
@@ -8950,6 +8965,7 @@ class widget_webshop_events extends WP_Widget
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_event_type'] = sanitize_text_field($new_instance['webshop_event_type']);
+		$instance['webshop_months'] = sanitize_text_field($new_instance['webshop_months']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
 
 		return $instance;
@@ -8966,7 +8982,10 @@ class widget_webshop_events extends WP_Widget
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_select(array('data' => $this->get_event_types_for_select(), 'name' => $this->get_field_name('webshop_event_type'), 'text' => __("Event Type", 'lang_webshop'), 'value' => $instance['webshop_event_type']))
-				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
+			."</div>
+			<div class='flex_flow'>"
+				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_months'), 'text' => __("Months", 'lang_webshop'), 'value' => $instance['webshop_months'], 'xtra' => "min='1' max='12'"))
+				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount'], 'xtra' => "min='1' max='20'"))
 			."</div>
 		</div>";
 	}
@@ -9063,32 +9082,27 @@ class widget_webshop_filter_products extends WP_Widget
 					echo "</form>";
 				}
 
-				//echo "<div class='section'>";
+				if($instance['webshop_text'] != '')
+				{
+					echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+				}
 
-					if($instance['webshop_text'] != '')
+				echo "<ul id='".$widget_id."' class='widget_list'";
+
+					if($instance['webshop_option_type'] != '')
 					{
-						echo "<div class='widget_text'>".apply_filters('the_content', str_replace("[amount]", "<span></span>", $instance['webshop_text']))."</div>";
+						echo " data-option_type='".$instance['webshop_option_type']."'";
 					}
 
-					echo "<ul id='".$widget_id."' class='widget_list'";
+					if($instance['webshop_category'] != '')
+					{
+						echo " data-category='".$instance['webshop_category']."'";
+					}
 
-						if($instance['webshop_option_type'] != '')
-						{
-							echo " data-option_type='".$instance['webshop_option_type']."'";
-						}
-
-						if($instance['webshop_category'] != '')
-						{
-							echo " data-category='".$instance['webshop_category']."'";
-						}
-
-					echo " data-limit='0' data-amount='".$instance['webshop_amount']."'>"
-						.$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
-					."</ul>";
-
-				//echo "</div>";
-
-			echo $after_widget
+				echo " data-limit='0' data-amount='".$instance['webshop_amount']."'>"
+					.$this->obj_webshop->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
+				."</ul>"
+			.$after_widget
 			.$this->obj_webshop->get_templates(array('type' => 'filter_products'));
 		}
 	}

@@ -118,7 +118,7 @@ var WebshopView = Backbone.View.extend(
 		/* Products */
 		"change .webshop_filter_products .product_filters .product_filter_order_by": "change_order_by"
 	},
-		
+
 	process_events_view: function()
 	{
 		this.dom_calendar = this.dom_obj_events.find(".event_calendar");
@@ -139,7 +139,7 @@ var WebshopView = Backbone.View.extend(
 				'data-category': dom_obj.attr('value')
 			});
 		}
-		
+
 		var dom_obj = this.dom_obj_events.find(".event_filter_order_by");
 
 		if(dom_obj.length > 0)
@@ -195,7 +195,7 @@ var WebshopView = Backbone.View.extend(
 			this.load_all_events();
 		}
 	},
-		
+
 	process_filter_products_view: function()
 	{
 		var dom_obj = this.dom_obj_products.find(".product_filter_order_by");
@@ -1011,8 +1011,14 @@ var WebshopView = Backbone.View.extend(
 			latitude = dom_obj.attr('data-latitude') || '',
 			longitude = dom_obj.attr('data-longitude') || '',
 			limit = dom_obj.attr('data-limit'),
+			months = dom_obj.attr('data-months') || '',
 			amount = dom_obj.attr('data-amount'),
 			get_vars = "type=events&id=" + widget_id + "&start_date=" + date + "&amount=" + amount;
+
+		if(months != '')
+		{
+			get_vars += "&months=" + months;
+		}
 
 		if(option_type != '')
 		{
@@ -1110,7 +1116,7 @@ var WebshopView = Backbone.View.extend(
 
 		else
 		{
-			html = _.template(jQuery("#template_event_message").html())('');
+			html = _.template(jQuery("#template_event_message").html())({'start_date': this.model.get('event_start_date'), 'end_date': this.model.get('event_end_date')});
 
 			dom_widget.html(html);
 		}
