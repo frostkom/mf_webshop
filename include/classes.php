@@ -785,6 +785,14 @@ class mf_webshop
 			'setting_webshop_text_color_info' => __("Info text color", 'lang_webshop'),
 		);
 
+		if(!is_plugin_active('mf_maps/index.php'))
+		{
+			$arr_settings['setting_gmaps_api'] = __("API key", 'lang_webshop');
+		}
+
+		$arr_settings['setting_webshop_replace_show_map'] = __("Replace Text", 'lang_webshop');
+		$arr_settings['setting_webshop_replace_hide_map'] = __("Replace Text", 'lang_webshop');
+
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
 
@@ -949,18 +957,13 @@ class mf_webshop
 
 			//Map
 			############################
-			if($this->get_post_name_for_type('gps') != '')
-			{
+			/*if($this->get_post_name_for_type('gps') != '')
+			{*/
 				$options_area = $options_area_orig."_map";
 
 				add_settings_section($options_area.'|'.$option_type, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 				$arr_settings = array();
-
-				if(!is_plugin_active('mf_maps/index.php'))
-				{
-					$arr_settings['setting_gmaps_api|'.$option_type] = __("API key", 'lang_webshop');
-				}
 
 				$arr_settings['setting_webshop_symbol_inactive_image|'.$option_type] = __("Symbol inactive image", 'lang_webshop');
 				$arr_settings['setting_webshop_symbol_active_image|'.$option_type] = __("Symbol active image", 'lang_webshop');
@@ -977,12 +980,10 @@ class mf_webshop
 					$arr_settings['setting_webshop_symbol_active|'.$option_type] = __("Symbol active color", 'lang_webshop');
 				}
 
-				$arr_settings['setting_webshop_replace_show_map|'.$option_type] = __("Replace Text", 'lang_webshop');
-				$arr_settings['setting_webshop_replace_hide_map|'.$option_type] = __("Replace Text", 'lang_webshop');
 				$arr_settings['setting_map_info|'.$option_type] = __("Map Information", 'lang_webshop');
 
 				show_settings_fields(array('area' => $options_area.'|'.$option_type, 'object' => $this, 'settings' => $arr_settings));
-			}
+			//}
 			############################
 		}
 
@@ -5038,8 +5039,8 @@ class mf_webshop
 
 	function get_webshop_map()
 	{
-		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$this->option_type, __("Show Map", 'lang_webshop'));
-		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$this->option_type, __("Hide Map", 'lang_webshop'));
+		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
+		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
 
 		$out = "<div class='form_button'>
@@ -6918,8 +6919,8 @@ class mf_webshop
 
 		if($this->product_map != '')
 		{
-			$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map'.$this->option_type, __("Show Map", 'lang_webshop'));
-			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map'.$this->option_type, __("Hide Map", 'lang_webshop'));
+			$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
+			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
 
 			$this->template_shortcodes['map']['html'] = "<div class='form_button'>
 				<h2 class='is_map_toggler button'>

@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.6.10
+Version: 2.1.6.12
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -248,6 +248,14 @@ function uninstall_webshop()
 	$arr_options[] = 'setting_webshop_color_info';
 	$arr_options[] = 'setting_webshop_text_color_info';
 
+	if(!is_plugin_active('mf_maps/index.php'))
+	{
+		$arr_options[] = 'setting_gmaps_api';
+	}
+
+	$arr_options[] = 'setting_webshop_replace_show_map';
+	$arr_options[] = 'setting_webshop_replace_hide_map';
+
 	foreach($obj_webshop->arr_option_types as $option_type)
 	{
 		$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
@@ -285,12 +293,9 @@ function uninstall_webshop()
 		$arr_options[] = 'setting_replace_quote_request'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_none_checked'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_too_many'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_webshop_replace_show_map'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_webshop_replace_hide_map'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_map_info'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_products_slug'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_replace_categories_slug'.$obj_webshop->option_type;
-		$arr_options[] = 'setting_gmaps_api'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_inactive_image'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_webshop_symbol_active_image'.$obj_webshop->option_type;
 		$arr_options[] = 'setting_ghost_inactive_image'.$obj_webshop->option_type;
