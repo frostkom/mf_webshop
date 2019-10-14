@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-31 21:07+0100\n"
+"POT-Creation-Date: 2019-10-10 08:45+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -30,8 +30,32 @@ msgstr "Kunne ikke finne eksisterende gruppe eller lage en ny"
 msgid "Loading"
 msgstr "Laster inn"
 
-msgid "Show all"
-msgstr "Vis alle"
+msgid "Import"
+msgstr "Importere"
+
+msgid "You have to install the plugin %s first"
+msgstr "Du må installere plugin %s først"
+
+msgid "Product"
+msgstr "Produkt"
+
+msgid "I have saved the information for you. %sView the page here%s"
+msgstr "Informasjon lagret - %sse siden din%s"
+
+msgid "I could not update the information for you"
+msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
+
+msgid "It does not look like you changed anything, so nothing was saved"
+msgstr "Det ser ikke ut som om du har endret noe, så ingenting ble lagret"
+
+msgid "I could not save the information for you"
+msgstr "Jeg kunne ikke lagre informasjonen for deg"
+
+msgid "One with that title already exists"
+msgstr "Det eksisterer allerede en med den tittelen"
+
+msgid "Read More"
+msgstr "Les Mer"
 
 msgid "Choose Here"
 msgstr "Velg Her"
@@ -258,8 +282,8 @@ msgstr "Info farge"
 msgid "Info text color"
 msgstr "Info tekstfarge"
 
-msgid "Product"
-msgstr "Produkt"
+msgid "API key"
+msgstr "API-Nøkkel"
 
 msgid "Replace Text"
 msgstr "Erstatt tekst"
@@ -308,9 +332,6 @@ msgstr "Template for presentasjon"
 
 msgid "Allow Multiple Categories"
 msgstr "Tillat flere kategorier"
-
-msgid "API key"
-msgstr "API-Nøkkel"
 
 msgid "Map Information"
 msgstr "Kartinformasjon"
@@ -393,9 +414,6 @@ msgstr "%d vil skjule linken i skjemaet"
 msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
 msgstr "Dette vil tillate besøkende å sende individuelle forespørsler hele tiden, eller er det bare for førstegangsbesøkende som kommer direkte til siden som får dette valget"
 
-msgid "Read More"
-msgstr "Les Mer"
-
 msgid "Are you sure?"
 msgstr "Er du sikker?"
 
@@ -448,7 +466,7 @@ msgid "Update"
 msgstr "Oppdater"
 
 msgid "Create"
-msgstr "Lag"
+msgstr "Skape"
 
 msgid "List"
 msgstr "Legge til i liste"
@@ -467,9 +485,6 @@ msgstr "Uleste ordre"
 
 msgid "Orders"
 msgstr "Ordre"
-
-msgid "Import"
-msgstr "Importere"
 
 msgid "Statistics"
 msgstr "Statestikk"
@@ -561,17 +576,11 @@ msgstr "Jeg kunne ikke finne noe som samsvarer med dine valg"
 msgid "Today"
 msgstr "Idag"
 
-msgid "There was no post_name_for_type for event"
-msgstr "Det var ingen post-name-for-type til event"
-
 msgid "Update Cart"
 msgstr "Oppdater handlekurven"
 
 msgid "Add to Cart"
 msgstr "Legg til i handlekurven"
-
-msgid "You have to install the plugin %s first"
-msgstr "Du må installere plugin %s først"
 
 msgid "Display Search"
 msgstr "Vis Søk"
@@ -584,6 +593,9 @@ msgstr "Vis startside skjema"
 
 msgid "Form"
 msgstr "Skjema"
+
+msgid "Show all"
+msgstr "Vis alle"
 
 msgid "Go to after submit"
 msgstr "Gå til etter innsending"
@@ -641,6 +653,9 @@ msgstr "Vis Filter"
 
 msgid "There are %s events"
 msgstr "Det er %s eventer"
+
+msgid "Months"
+msgstr "Måneder"
 
 msgid "Display Filtered Products"
 msgstr "Vis filtrerte produkter"
@@ -720,21 +735,6 @@ msgstr "Kunde"
 msgid "Confirm Order"
 msgstr "Bekreft ordre"
 
-msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Informasjon lagret - %sse siden din%s"
-
-msgid "I could not update the information for you"
-msgstr "Jeg kunne ikke oppdatere informasjonen for deg"
-
-msgid "It does not look like you changed anything, so nothing was saved"
-msgstr "Det ser ikke ut som om du har endret noe, så ingenting ble lagret"
-
-msgid "I could not save the information for you"
-msgstr "Jeg kunne ikke lagre informasjonen for deg"
-
-msgid "One with that title already exists"
-msgstr "Det eksisterer allerede en med den tittelen"
-
 msgid "Search for"
 msgstr "Søk etter"
 
@@ -767,9 +767,6 @@ msgstr "ukjent"
 
 msgid "Monthly"
 msgstr "Månedlig"
-
-msgid "Months"
-msgstr "Måneder"
 
 msgid "Years"
 msgstr "År"
