@@ -8908,7 +8908,7 @@ class widget_webshop_events extends WP_Widget
 							do_log("The user wants to see a location filter here...");
 						}
 
-						if(in_array('order_by', $instance['webshop_filters']) && IS_SUPER_ADMIN) // Just for testing purposes so far
+						if(in_array('order_by', $instance['webshop_filters']))
 						{
 							$event_filter_order_by = check_var('event_filter_order_by', 'char');
 
@@ -9069,7 +9069,7 @@ class widget_webshop_filter_products extends WP_Widget
 					.$after_title;
 				}
 
-				if(count($instance['webshop_filters']) > 0 && IS_SUPER_ADMIN) // Just for testing purposes so far
+				if(count($instance['webshop_filters']) > 0)
 				{
 					echo "<form action='#' method='post' class='product_filters mf_form'>";
 
