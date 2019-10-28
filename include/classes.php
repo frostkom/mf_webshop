@@ -3593,27 +3593,6 @@ class mf_webshop
 						'attributes' => $arr_attributes,
 					);
 
-					/*switch($post_custom_type)
-					{
-						case 'content':
-							$post_document_max_length = get_post_meta($post_id, $this->meta_prefix.'document_max_length', true);
-
-							if($post_document_max_length > 0)
-							{
-								$arr_attributes['maxlength'] = $post_document_max_length;
-							}
-						break;
-
-						case 'location':
-							$arr_locations = array();
-							get_post_children(array('post_type' => $this->post_type_location.$this->option_type, 'post_status' => ''), $arr_locations);
-
-							$fields_array['options'] = $arr_locations;
-							$fields_array['multiple'] = true;
-							$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_locations)));
-						break;
-					}*/
-
 					$this->filter_fields_array($post_id, $fields_array, 'products');
 
 					if($post_document_public_single == 'yes')
@@ -3740,18 +3719,20 @@ class mf_webshop
 
 			// Document Types
 			####################################
-			$last_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
+			$default_type = $default_searchable = $default_public = $default_public_single = $default_quick = $default_property = 'no';
 
-			$default_type = get_post_meta_or_default($last_id, $this->meta_prefix.'document_type', true, 'no');
-			$default_searchable = get_post_meta_or_default($last_id, $this->meta_prefix.'document_searchable', true, 'no');
-			$default_public = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public', true, 'no');
-			$default_public_single = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public_single', true, 'no');
-			$default_quick = get_post_meta_or_default($last_id, $this->meta_prefix.'document_quick', true, 'no');
-			$default_property = get_post_meta_or_default($last_id, $this->meta_prefix.'document_property', true, 'no');
+			$post_id = check_var('post');
 
-			if(is_plugin_active("mf_calendar/index.php"))
+			if(!($post_id > 0))
 			{
-				$default_events = get_post_meta_or_default($last_id, $this->meta_prefix.'document_events', true, 'no');
+				$last_id = $this->get_document_types(array('select' => "ID", 'order' => "post_date DESC", 'limit' => "0, 1"));
+
+				$default_type = get_post_meta_or_default($last_id, $this->meta_prefix.'document_type', true, 'no');
+				$default_searchable = get_post_meta_or_default($last_id, $this->meta_prefix.'document_searchable', true, 'no');
+				$default_public = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public', true, 'no');
+				$default_public_single = get_post_meta_or_default($last_id, $this->meta_prefix.'document_public_single', true, 'no');
+				$default_quick = get_post_meta_or_default($last_id, $this->meta_prefix.'document_quick', true, 'no');
+				$default_property = get_post_meta_or_default($last_id, $this->meta_prefix.'document_property', true, 'no');
 			}
 
 			$condition_value_placement = '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"';
@@ -3865,6 +3846,13 @@ class mf_webshop
 
 			if(is_plugin_active("mf_calendar/index.php"))
 			{
+				$default_events = 'no';
+
+				if(!($post_id > 0))
+				{
+					$default_events = get_post_meta_or_default($last_id, $this->meta_prefix.'document_events', true, 'no');
+				}
+
 				$arr_fields[] = array(
 					'name' => __("Events", 'lang_webshop'),
 					'id' => $this->meta_prefix.'document_events',
@@ -4024,8 +4012,17 @@ class mf_webshop
 			####################################
 			$name_product = get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'));
 
-			$last_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s ORDER BY post_date DESC LIMIT 0, 1", $this->post_type_categories.$this->option_type));
-			$default_value = get_post_meta_or_default($last_id, $this->meta_prefix.'connect_new_products', true, 'no');
+			$default_value = 'no';
+
+			if(!($post_id > 0))
+			{
+				$last_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s ORDER BY post_date DESC LIMIT 0, 1", $this->post_type_categories.$this->option_type));
+
+				if($last_id > 0)
+				{
+					$default_value = get_post_meta_or_default($last_id, $this->meta_prefix.'connect_new_products', true, 'no');
+				}
+			}
 
 			$arr_fields = array(
 				array(

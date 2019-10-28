@@ -654,6 +654,8 @@ switch($type_switch)
 													{
 														$post_data['meta_input'][$id_temp] = $post_value_new;
 														//do_log(sprintf("Changed from %s to %s for %s in %s", var_export($post_value_old, true), var_export($post_value_new, true), $id_temp, $post_title));
+
+														$updated = true;
 													}
 												break;
 											}
