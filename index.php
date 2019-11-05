@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.6.17
+Version: 2.1.6.18
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -155,11 +155,6 @@ function activate_webshop()
 	replace_post_type(array('old' => 'mf_document_type', 'new' => 'mf_doc_type'));
 	replace_post_type(array('old' => 'mf_customers', 'new' => 'mf_customer'));
 	replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
-
-	replace_option(array('old' => 'setting_webshop_post_types', 'new' => 'setting_webshop_option_types'));
-	replace_option(array('old' => 'setting_replace_hide_map', 'new' => 'setting_webshop_replace_hide_map'));
-
-	replace_user_meta(array('old' => 'mf_orders_viewed', 'new' => 'meta_orders_viewed'));
 
 	$obj_webshop->get_option_types();
 
