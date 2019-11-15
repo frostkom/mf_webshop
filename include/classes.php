@@ -1780,20 +1780,28 @@ class mf_webshop
 							</tr>
 						</thead>
 						<tbody>
-							<% _.each(list, function(product)
+							<% if(list.length > 0)
+							{
+								_.each(list, function(product)
+								{ %>
+									<tr id='product_<%= product.post_id %>'>
+										<td>
+											<%= product.post_title %>
+											<div class='row-actions'>"
+												."<a href='#admin/webshop/edit/<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
+												.(IS_ADMIN ? "<a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
+												."<a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
+											."</div>
+										</td>
+										<td><%= product.post_modified %></td>
+									</tr>
+								<% });
+							}
+
+							else
 							{ %>
-								<tr id='product_<%= product.post_id %>'>
-									<td>
-										<%= product.post_title %>
-										<div class='row-actions'>"
-											."<a href='#admin/webshop/edit/<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
-											.(IS_ADMIN ? "<a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
-											."<a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
-										."</div>
-									</td>
-									<td><%= product.post_modified %></td>
-								</tr>
-							<% }); %>
+								<tr><td colspan='2'>".__("There is nothing to show", 'lang_webshop')."</td></tr>
+							<% } %>
 						</tbody>
 					</table>
 				</script>
