@@ -781,7 +781,7 @@ switch($type_switch)
 
 			if(substr($date_temp, 0, 7) != substr($date, 0, 7))
 			{
-				$class .= " disabled";
+				$class .= " is_disabled";
 			}
 
 			$arr_events = array();

@@ -6893,7 +6893,7 @@ class mf_webshop
 								{
 									$is_chosen = in_array($key, $product_categories);
 
-									$product_quick_temp .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
+									$product_quick_temp .= "<li".($is_chosen ? "" : " class='is_disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
 								}
 
 							$product_quick_temp .= "</ul>";
@@ -7033,7 +7033,7 @@ class mf_webshop
 						{
 							$is_chosen = in_array($key, $product_categories);
 
-							$out_property .= "<li".($is_chosen ? "" : " class='disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
+							$out_property .= "<li".($is_chosen ? "" : " class='is_disabled grey'")."><i class='fa".($is_chosen ? " fa-check green" : "")."'></i> ".$value."</li>";
 
 							if($is_chosen)
 							{

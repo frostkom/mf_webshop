@@ -122,10 +122,10 @@ echo "<div class='wrap'>
 				<div class='postbox'>
 					<h3 class='hndle'><span>".__("Filter", 'lang_webshop')."</span></h3>
 					<form method='post' class='inside mf_form'>"
-						.show_select(array('data' => $arr_data_limit, 'name' => 'intStatsLimit', 'text' => __("Limit", 'lang_webshop'), 'value' => $intStatsLimit, 'xtra' => "rel='submit_change' disabled"))
+						.show_select(array('data' => $arr_data_limit, 'name' => 'intStatsLimit', 'text' => __("Limit", 'lang_webshop'), 'value' => $intStatsLimit, 'xtra' => "rel='submit_change' class='is_disabled' disabled"))
 						."<div class='flex_flow'>"
-							.show_textfield(array('type' => 'date', 'name' => 'dteStatsDateStart', 'text' => __("From", 'lang_webshop'), 'value' => $dteStatsDateStart, 'xtra' => "rel='submit_change' disabled"))
-							.show_textfield(array('type' => 'date', 'name' => 'dteStatsDateEnd', 'text' => __("To", 'lang_webshop'), 'value' => $dteStatsDateEnd, 'xtra' => "rel='submit_change' min='".$dteStatsDateStart."' disabled"))
+							.show_textfield(array('type' => 'date', 'name' => 'dteStatsDateStart', 'text' => __("From", 'lang_webshop'), 'value' => $dteStatsDateStart, 'xtra' => "rel='submit_change' class='is_disabled' disabled"))
+							.show_textfield(array('type' => 'date', 'name' => 'dteStatsDateEnd', 'text' => __("To", 'lang_webshop'), 'value' => $dteStatsDateEnd, 'xtra' => "rel='submit_change' min='".$dteStatsDateStart."' class='is_disabled' disabled"))
 						."</div>
 					</form>
 				</div>

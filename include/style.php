@@ -237,7 +237,7 @@ echo "@media all
 			font-weight: normal;
 		}
 
-	li.disabled
+	li.is_disabled
 	{
 		cursor: no-drop;
 		text-decoration: line-through;
@@ -603,7 +603,7 @@ echo "@media all
 								color: ".$setting_calendar_date_text_color.";
 							}
 
-						.webshop_events .calendar_days .day.disabled
+						.webshop_events .calendar_days .day.is_disabled
 						{
 							background-image: url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f6f6f6' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0H10L0 10M20 20V10L10 20'/%3E%3C/g%3E%3C/svg%3E\");
 							cursor: not-allowed;

@@ -151,7 +151,7 @@ var WebshopAdminView = Backbone.View.extend(
 		{
 			this.model.submitForm(dom_action, dom_obj.serialize());
 
-			dom_obj.find("button[type='submit']").addClass('loading').attr('disabled', true);
+			dom_obj.find("button[type='submit']").addClass('loading is_disabled').attr('disabled', true);
 
 			return false;
 		}

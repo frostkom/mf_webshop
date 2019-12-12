@@ -73,7 +73,7 @@ if(!class_exists('pagination'))
 
 		function button($data)
 		{
-			return "<a href='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."&paged=".($data['page'] - 1)."' class='button".($this->current == $data['page'] ? " disabled" : "")."'>"
+			return "<a href='".preg_replace("/\&paged\=\d+/", "", $_SERVER['REQUEST_URI'])."&paged=".($data['page'] - 1)."' class='button".($this->current == $data['page'] ? " is_disabled" : "")."'>"
 				.(isset($data['text']) ? $data['text'] : $data['page'])
 			."</a>";
 		}

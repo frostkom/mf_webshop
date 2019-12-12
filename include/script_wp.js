@@ -5,7 +5,7 @@ jQuery(function($)
 
 	if(typeof form_serialized == 'undefined' && typeof form_products == 'undefined')
 	{
-		$('button[name=btnLocalStorageClear]').attr('disabled', true);
+		$('button[name=btnLocalStorageClear]').addClass('is_disabled').attr('disabled', true);
 	}
 
 	$(document).on('click', "button[name=btnLocalStorageClear]", function()
@@ -16,7 +16,7 @@ jQuery(function($)
 		$.Storage.remove('form_serialized');
 		$.Storage.remove('last_product');
 
-		$('button[name=btnLocalStorageClear]').attr('disabled', true);
+		$('button[name=btnLocalStorageClear]').addClass('is_disabled').attr('disabled', true);
 		$('#storage_response').html(script_webshop_wp.cleared_message);
 
 		return false;
