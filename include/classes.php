@@ -5765,7 +5765,7 @@ class mf_webshop
 			}
 		}
 
-		$out = "";
+		$out = array();
 
 		if(isset($data['option_type']))
 		{
@@ -6032,7 +6032,7 @@ class mf_webshop
 		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
-		$out = "";
+		$out = array();
 
 		if(isset($data['option_type']))
 		{
