@@ -8796,6 +8796,7 @@ class widget_webshop_events extends WP_Widget
 		$this->arr_default = array(
 			'webshop_heading' => '',
 			'webshop_filters' => array(),
+			'webshop_filters_order_by' => '',
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_event_type' => '',
@@ -8910,7 +8911,7 @@ class widget_webshop_events extends WP_Widget
 
 						if(in_array('order_by', $instance['webshop_filters']))
 						{
-							$event_filter_order_by = check_var('event_filter_order_by', 'char');
+							$event_filter_order_by = check_var('event_filter_order_by', 'char', true, $instance['webshop_filters_order_by']);
 
 							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'event_filter_order_by', 'text' => __("Order by", 'lang_webshop'), 'value' => $event_filter_order_by, 'xtra' => " class='event_filter_order_by'"));
 						}
@@ -8963,6 +8964,7 @@ class widget_webshop_events extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
+		$instance['webshop_filters_order_by'] = sanitize_text_field($new_instance['webshop_filters_order_by']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_event_type'] = sanitize_text_field($new_instance['webshop_event_type']);
@@ -8978,8 +8980,14 @@ class widget_webshop_events extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
-			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']))
-			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
+			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']));
+
+			if(in_array('order_by', $instance['webshop_filters']))
+			{
+				echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => $this->get_field_name('webshop_filters_order_by'), 'text' => __("Order by", 'lang_webshop')." (".__("Default", 'lang_webshop').")", 'value' => $instance['webshop_filters_order_by']));
+			}
+
+			echo show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_select(array('data' => $this->get_event_types_for_select(), 'name' => $this->get_field_name('webshop_event_type'), 'text' => __("Event Type", 'lang_webshop'), 'value' => $instance['webshop_event_type']))
@@ -9004,6 +9012,7 @@ class widget_webshop_filter_products extends WP_Widget
 		$this->arr_default = array(
 			'webshop_heading' => '',
 			'webshop_filters' => array(),
+			'webshop_filters_order_by' => '',
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
@@ -9075,7 +9084,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 						if(in_array('order_by', $instance['webshop_filters']))
 						{
-							$product_filter_order_by = check_var('product_filter_order_by', 'char');
+							$product_filter_order_by = check_var('product_filter_order_by', 'char', true, $instance['webshop_filters_order_by']);
 
 							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'product_filter_order_by', 'text' => __("Order by", 'lang_webshop'), 'value' => $product_filter_order_by, 'xtra' => " class='product_filter_order_by'"));
 						}
@@ -9115,6 +9124,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
+		$instance['webshop_filters_order_by'] = sanitize_text_field($new_instance['webshop_filters_order_by']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
@@ -9133,8 +9143,14 @@ class widget_webshop_filter_products extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
-			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']))
-			.show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
+			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']));
+
+			if(in_array('order_by', $instance['webshop_filters']))
+			{
+				echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => $this->get_field_name('webshop_filters_order_by'), 'text' => __("Order by", 'lang_webshop')." (".__("Default", 'lang_webshop').")", 'value' => $instance['webshop_filters_order_by']));
+			}
+
+			echo show_textarea(array('name' => $this->get_field_name('webshop_text'), 'text' => __("Text", 'lang_webshop'), 'value' => $instance['webshop_text'], 'placeholder' => sprintf(__("There are %s events", 'lang_webshop'), "[amount]")))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
