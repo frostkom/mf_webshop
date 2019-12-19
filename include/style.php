@@ -509,14 +509,7 @@ echo "@media all
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
-		$obj_calendar = new mf_calendar();
-
 		$setting_calendar_date_bg = get_option_or_default('setting_calendar_date_bg', '#019cdb');
-
-		/*$rgb = $obj_calendar->HTMLToRGB($setting_calendar_date_bg);
-		$hsl = $obj_calendar->RGBToHSL($rgb);
-
-		$setting_calendar_date_text_color = ($hsl->lightness > 200 ? "#333" : "#fff");*/
 
 		$obj_base = new mf_base();
 		$setting_calendar_date_text_color = $obj_base->get_text_color_from_background($setting_calendar_date_bg);
@@ -637,6 +630,11 @@ echo "@media all
 								width: .5em;
 							}
 
+								.webshop_events .calendar_days .day li + li
+								{
+									margin-left: .2em;
+								}
+
 						.webshop_events .calendar_days .day:nth-of-type(7n + 7)
 						{
 							border-right: 0;
@@ -742,6 +740,7 @@ echo "@media all
 							text-transform: uppercase;
 						}";
 
+			$obj_calendar = new mf_calendar();
 			$result = $obj_calendar->get_calendar_colors();
 
 			foreach($result as $r)

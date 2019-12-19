@@ -5609,13 +5609,8 @@ class mf_webshop
 							<span><%= day.number %></span>
 						<% } %>
 					</div>
-				<% }); %>";
-
-				/*$out .= "<section class='task warning' style='grid-row: 2; grid-column: 4 / span 3; align-self: center;'>Project 1</section>
-				<section class='task danger' style='grid-row: 2; grid-column: 2 / span 3; align-self: end;'>Project 2</section>
-				<section class='task info' style='grid-row: 5; grid-column: 6 / span 2; align-self: end;'>Project 4</section>";*/
-
-			$out .= "</div>
+				<% }); %>
+			</div>
 		</div>";
 
 		return $out;
