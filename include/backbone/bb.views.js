@@ -1,5 +1,11 @@
 if(typeof script_webshop_views != 'undefined')
 {
+	function preload(url)
+	{
+		var img = new Image();
+		img.src = url;
+	}
+
 	if(script_webshop_views.symbol_active){		preload(script_webshop_views.symbol_active);}
 	if(script_webshop_views.symbol_inactive){	preload(script_webshop_views.symbol_inactive);}
 	if(script_webshop_views.ghost_active){		preload(script_webshop_views.ghost_active);}

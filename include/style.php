@@ -416,96 +416,109 @@ echo "@media all
 	#wrapper .widget.webshop_widget .widget_text
 	{
 		margin: 0;
-	}
+	}";
 
-	.webshop_filter_products .list_item, .webshop_events .list_item
+	if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
 	{
-		background: #e4eff3;
-		display: -webkit-box;
-		display: -ms-flexbox;
-		display: -webkit-flex;
-		display: flex;
-		margin-bottom: .5em;
-		overflow: hidden;
-		padding: 1em 1em 1em .8em;
-		transition: all .8s ease;
-	}
-
-		.webshop_filter_products .list_item:hover
+		echo ".widget.webshop_filter_products .product_filters
 		{
-			background: #bddae5;
+			margin-bottom: 0;
 		}
 
-		#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
-		{
-			-webkit-box-flex: 1 1 auto;
-			-webkit-flex: 1 1 auto;
-			-ms-flex: 1 1 auto;
-			flex: 1 1 auto;
-		}
-
-			#wrapper .webshop_filter_products li h2, #wrapper .webshop_events li h2
+			.webshop_filter_products .product_filters > div:last-child select
 			{
-				font-weight: normal;
 				margin-bottom: 0;
-				/*white-space: nowrap;*/ /* This makes no sense on mobile since a lot of titles get cut off */
 			}
 
-				#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a, #wrapper .webshop_filter_products li p a, #wrapper .webshop_events li p a
+		.webshop_filter_products .list_item, .webshop_events .list_item
+		{
+			background: #e4eff3;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			margin-bottom: .5em;
+			overflow: hidden;
+			padding: 1em 1em 1em .8em;
+			transition: all .8s ease;
+		}
+
+			.webshop_filter_products .list_item:hover
+			{
+				background: #bddae5;
+			}
+
+			#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
+			{
+				-webkit-box-flex: 1 1 auto;
+				-webkit-flex: 1 1 auto;
+				-ms-flex: 1 1 auto;
+				flex: 1 1 auto;
+			}
+
+				#wrapper .webshop_filter_products li h2, #wrapper .webshop_events li h2
 				{
-					display: inline;
+					font-weight: normal;
+					margin-bottom: 0;
+					/*white-space: nowrap;*/ /* This makes no sense on mobile since a lot of titles get cut off */
 				}
 
-					#wrapper .webshop_events li h2 a
+					#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a, #wrapper .webshop_filter_products li p a, #wrapper .webshop_events li p a
 					{
-						text-transform: uppercase;
+						display: inline;
 					}
 
-				#wrapper .webshop_filter_products li h2 span
-				{
-					font-size: .7em;
-				}
+						#wrapper .webshop_events li h2 a
+						{
+							text-transform: uppercase;
+						}
 
-					#wrapper .webshop_events li h2 span
+					#wrapper .webshop_filter_products li h2 span
 					{
-						margin-left: .5em;
 						font-size: .7em;
 					}
 
-			#wrapper .webshop_filter_products li .list_url, #wrapper .webshop_events li .list_url
-			{
-				-webkit-box-flex: 0 0 6em;
-				-webkit-flex: 0 0 6em;
-				-ms-flex: 0 0 6em;
-				flex: 0 0 6em;
-				text-align: center;
-			}
+						#wrapper .webshop_events li h2 span
+						{
+							margin-left: .5em;
+							font-size: .7em;
+						}
 
-				#wrapper .webshop_events li .list_url a, #wrapper .webshop_filter_products li .list_url a
+				#wrapper .webshop_filter_products li .list_url, #wrapper .webshop_events li .list_url
 				{
-					background: #666;
-					border-radius: 2em;
-					color: #fff;
-					opacity: 1;
-					top: 50%;
-					transition: all 1.2s ease;
-					-webkit-transform: translateY(0%, -50%);
-					transform: translate(0%, -50%);
+					-webkit-box-flex: 0 0 6em;
+					-webkit-flex: 0 0 6em;
+					-ms-flex: 0 0 6em;
+					flex: 0 0 6em;
+					text-align: center;
 				}
 
-					.is_desktop #wrapper .webshop_events li .list_url a, .is_desktop #wrapper .webshop_filter_products li .list_url a
+					#wrapper .webshop_filter_products li .list_url a, #wrapper .webshop_events li .list_url a
 					{
-						opacity: 0;
-						-webkit-transform: translateY(100%, -50%);
-						transform: translate(100%, -50%);
+						background: #666;
+						border-radius: 2em;
+						color: #fff;
+						opacity: 1;
+						top: 50%;
+						transition: all 1.2s ease;
+						-webkit-transform: translateY(0%, -50%);
+						transform: translate(0%, -50%);
 					}
 
-						.is_desktop #wrapper .webshop_events li:hover .list_url a, .is_desktop #wrapper .webshop_filter_products li:hover .list_url a
+						.is_desktop #wrapper .webshop_filter_products li .list_url a, .is_desktop #wrapper .webshop_events li .list_url a
 						{
-							opacity: 1;
-							-webkit-transform: translateY(0%, -50%);
-							transform: translate(0%, -50%);
-						}";
+							opacity: 0;
+							-webkit-transform: translateY(100%, -50%);
+							transform: translate(100%, -50%);
+						}
+
+							.is_desktop #wrapper .webshop_filter_products li:hover .list_url a, .is_desktop #wrapper .webshop_events li:hover .list_url a
+							{
+								opacity: 1;
+								-webkit-transform: translateY(0%, -50%);
+								transform: translate(0%, -50%);
+							}";
+	}
 
 	if(is_plugin_active("mf_calendar/index.php"))
 	{
