@@ -6844,7 +6844,7 @@ class mf_webshop
 
 		if(isset($obj_slideshow) && count($this->slideshow_images) > 0)
 		{
-			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->show(array('images' => $this->slideshow_images));
+			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array('images' => $this->slideshow_images));
 		}
 
 		if($post_content != '')
@@ -9272,7 +9272,7 @@ class widget_webshop_product_meta extends WP_Widget
 								{
 									$obj_slideshow = new mf_slideshow();
 
-									$html = $obj_slideshow->show(array(
+									$html = $obj_slideshow->render_slides(array(
 										'images' => $arr_product_image,
 										'settings' => array(
 											'slideshow_style' => 'original',
