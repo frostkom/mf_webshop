@@ -2252,6 +2252,31 @@ class mf_webshop
 		$this->option_type = str_replace($this->post_type_products, "", get_post_type($post_id));
 	}
 
+	function filter_is_file_used($arr_used)
+	{
+		global $wpdb;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM ".$wpdb->postmeta." WHERE (meta_key LIKE %s AND meta_value LIKE %s OR meta_key = %s AND meta_value = %s)", $this->meta_prefix.'product_image', "%".$arr_used['id']."%", $this->meta_prefix.'categories', $arr_used['id']));
+		$rows = $wpdb->num_rows;
+
+		if($rows > 0)
+		{
+			$arr_used['amount'] += $rows;
+
+			foreach($result as $r)
+			{
+				if($arr_used['example'] != '')
+				{
+					break;
+				}
+
+				$arr_used['example'] = admin_url("post.php?action=edit&post=".$r->post_id);
+			}
+		}
+
+		return $arr_used;
+	}
+
 	function widgets_init()
 	{
 		//register_widget('widget_webshop_categories');
