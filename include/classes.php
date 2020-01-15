@@ -1608,7 +1608,11 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		$arr_data = array();
-		get_post_children(array('add_choose_here' => true), $arr_data);
+		get_post_children(array(
+			'add_choose_here' => true,
+			'where' => "(post_parent = '0' OR post_content LIKE '%[%' AND post_content LIKE '%]%')",
+			//'debug' => true,
+		), $arr_data);
 
 		$post_content = "[product_default]";
 
@@ -1638,7 +1642,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false, 'is_payment' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function combined_head()
