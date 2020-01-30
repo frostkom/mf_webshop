@@ -351,9 +351,7 @@ switch($type_switch)
 
 					else
 					{
-						$user_data = get_userdata(get_current_user_id());
-
-						$json_output['admin_webshop_response']['post_title'] = $user_data->display_name;
+						$json_output['admin_webshop_response']['post_title'] = get_user_info();
 					}
 
 					$json_output['admin_webshop_response']['option_type'] = $obj_webshop->option_type;

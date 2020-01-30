@@ -128,9 +128,7 @@ class mf_webshop
 
 		else
 		{
-			$user_data = get_userdata(get_current_user_id());
-
-			$post_title = $user_data->display_name;
+			$post_title = get_user_info();
 			$post_author = get_current_user_id();
 		}
 
