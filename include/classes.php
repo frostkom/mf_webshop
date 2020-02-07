@@ -1587,7 +1587,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_quote_form_single_callback($args = array())
@@ -1597,7 +1597,7 @@ class mf_webshop
 
 		$obj_form = new mf_form();
 
-		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_webshop_product_template_callback($args = array())
@@ -6389,6 +6389,11 @@ class mf_webshop
 					$url_parts = parse_url($data['meta']);
 
 					$data['meta'] = "<a href='".$data['meta']."'>".str_replace("www.", "", $url_parts['host'])."</a>";
+
+					if(!isset($url_parts['host']))
+					{
+						do_log("host does not exist (".$data['meta']." -> ".var_export($url_parts, true).")");
+					}
 				break;
 			}
 
