@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-16 13:23+0100\n"
+"POT-Creation-Date: 2020-02-26 15:14+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -255,11 +255,11 @@ msgstr "Leveranssätt"
 msgid "Types"
 msgstr "Typer"
 
+msgid "default"
+msgstr "Standard"
+
 msgid "Icon for %s"
 msgstr "Ikon för %s"
-
-msgid "default"
-msgstr "standard"
 
 msgid "Title for %s"
 msgstr "Titel på %s"
@@ -284,6 +284,9 @@ msgstr "Färg på info"
 
 msgid "Info text color"
 msgstr "Textfärg på info"
+
+msgid "API key"
+msgstr "API-nyckel"
 
 msgid "Replace Text"
 msgstr "Ersätt text"
@@ -350,9 +353,6 @@ msgstr "singel"
 
 msgid "Force Individual Contact"
 msgstr "Tvinga individuell kontakt"
-
-msgid "API key"
-msgstr "API-nyckel"
 
 msgid "Symbol inactive image"
 msgstr "Inaktiv symbol på karta"
@@ -480,8 +480,8 @@ msgstr "Redigera i admin"
 msgid "View"
 msgstr "Visa"
 
-msgid "You have not added anything yet"
-msgstr "Du har inte lagt till något ännu"
+msgid "There is nothing to show"
+msgstr "Det finns inget att visa"
 
 msgid "Title"
 msgstr "Rubrik"
@@ -516,11 +516,8 @@ msgstr "Lägg till viktig information här"
 msgid "Add"
 msgstr "Lägg till"
 
-msgid "Update"
-msgstr "Uppdatera"
-
-msgid "Create"
-msgstr "Skapa"
+msgid "Save"
+msgstr "Spara"
 
 msgid "List"
 msgstr "Lista"
@@ -627,17 +624,20 @@ msgstr "Jag kunde inte hitta några händelser"
 msgid "Display More Events (%s)"
 msgstr "Visa fler händelser (%s)"
 
-msgid "I could not find any %s"
-msgstr "Jag kunde inte hitta några %s"
-
 msgid "Display More %s (%s)"
 msgstr "Visa fler %s (%s)"
+
+msgid "I could not find any %s"
+msgstr "Jag kunde inte hitta några %s"
 
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jag kunde inte hitta något som stämde överens med dina val"
 
 msgid "Today"
 msgstr "I dag"
+
+msgid "The event does not seam to have a slug"
+msgstr "Händelsen verkar inte ha någon adress"
 
 msgid "Update Cart"
 msgstr "Uppdatera kundkorg"
@@ -651,11 +651,17 @@ msgstr "Visa sök"
 msgid "Display Map"
 msgstr "Visa karta"
 
+msgid "Display start page form"
+msgstr "Visa startsida från"
+
 msgid "Form"
 msgstr "Formulär"
 
 msgid "Show all"
 msgstr "Visa alla"
+
+msgid "Go to after submit"
+msgstr "Gå till efter skicka"
 
 msgid "Default %s"
 msgstr "Standard %s"
@@ -663,8 +669,23 @@ msgstr "Standard %s"
 msgid "Button text"
 msgstr "Knapptext"
 
+msgid "Display Webshop List"
+msgstr "Visa webshopplista"
+
+msgid "Go to on click"
+msgstr "Gå till vid klick"
+
 msgid "Locations"
 msgstr "Platser"
+
+msgid "Display start page favorites"
+msgstr "Visa favoriter"
+
+msgid "Display Category"
+msgstr "Visa kategori"
+
+msgid "Display Info"
+msgstr "Visa info"
 
 msgid "Display Border"
 msgstr "Visa ram"
@@ -678,14 +699,125 @@ msgstr "Senaste"
 msgid "Amount"
 msgstr "Antal"
 
+msgid "Display Events"
+msgstr "Visa händelser"
+
+msgid "Calendar"
+msgstr "Kalender"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "Order by"
+msgstr "Sortera efter"
+
 msgid "Closest"
 msgstr "Närmast"
+
+msgid "Display Filters"
+msgstr "Visa filter"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Order by Text"
+msgstr "Sortera på text"
+
+msgid "There are %s events"
+msgstr "Det finns %s händelser"
+
+msgid "Event Type"
+msgstr "Händelsetyp"
+
+msgid "Months"
+msgstr "Månader"
+
+msgid "Display Filtered Products"
+msgstr "Visa filtrerade produkter"
+
+msgid "Filtered Products"
+msgstr "Filtrerade produkter"
+
+msgid "Display Product Meta"
+msgstr "Visa produktinfo"
+
+msgid "Product Meta"
+msgstr "Produktinfo"
 
 msgid "Slideshow"
 msgstr "Bildspel"
 
+msgid "Category Info"
+msgstr "Kategoriinfo"
+
+msgid "Event Info"
+msgstr "Händelseinfo"
+
+msgid "Actions"
+msgstr "Åtgärd"
+
+msgid "Breadcrumbs"
+msgstr "Brödsmulor"
+
+msgid "Date and Time"
+msgstr "Datum och tid"
+
+msgid "Contact %s"
+msgstr "Kontakta %s"
+
+msgid "Mark as Favorite"
+msgstr "Markera som favorit"
+
+msgid "I can recommend this event"
+msgstr "Jag kan rekommendera denna händelse"
+
 msgid "Hi! I think that you might like this event. Go to %s to view it."
 msgstr "Hej! Jag tror att du kommer att gilla denna händelse. Gå till %s för att se den."
+
+msgid "Tell a Friend"
+msgstr "Berätta för en vän"
+
+msgid "Print the Information"
+msgstr "Skriv ut informationen"
+
+msgid "%s offers %s"
+msgstr "%s erbjuder %s"
+
+msgid "Display Categories"
+msgstr "Visa kategorier"
+
+msgid "Display Cart"
+msgstr "Visa kundkorg"
+
+msgid "Cart"
+msgstr "Kundkorg"
+
+msgid "The cart has been updated"
+msgstr "Kundkorgen har uppdaterats"
+
+msgid "The order has been completed"
+msgstr "Orderna är avklarad"
+
+msgid "Order info"
+msgstr "Orderinfo"
+
+msgid "You have to select the customer and correct customer number"
+msgstr "Du behöver välja en kund och korrekt kundnummer"
+
+msgid "You have to enter customer, customer number, name and e-mail"
+msgstr "Du behöver ange kund, kundnummer, namn och e-post"
+
+msgid "Proceed to Checkout"
+msgstr "Gå vidare till utcheckning"
+
+msgid "Checkout"
+msgstr "Utcheckning"
+
+msgid "Customer"
+msgstr "Kund"
+
+msgid "Confirm Order"
+msgstr "Bekräfta order"
 
 msgid "Search for"
 msgstr "Sök efter"
@@ -719,9 +851,6 @@ msgstr "okänd"
 
 msgid "Monthly"
 msgstr "Per månad"
-
-msgid "Months"
-msgstr "Månader"
 
 msgid "Years"
 msgstr "År"

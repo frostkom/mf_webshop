@@ -1743,9 +1743,11 @@ class mf_webshop
 		return "http://googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/";
 	}
 
-	function init_base_admin($arr_views)
+	function init_base_admin($arr_views, $data = array())
 	{
 		global $wpdb;
+
+		if(!isset($data['init'])){	$data['init'] = false;}
 
 		$is_template_set = false;
 
@@ -1757,7 +1759,7 @@ class mf_webshop
 
 			$templates = "";
 
-			if($is_template_set == false && !is_admin())
+			if($is_template_set == false && $data['init'] == true)
 			{
 				$plugin_include_url = plugin_dir_url(__FILE__);
 				$plugin_version = get_plugin_version(__FILE__);
@@ -1806,10 +1808,6 @@ class mf_webshop
 							<% } %>
 						</tbody>
 					</table>
-				</script>
-
-				<script type='text/template' id='template_admin_webshop_list_message'>
-					<p>".__("You have not added anything yet", 'lang_webshop')."</p>
 				</script>
 
 				<script type='text/template' id='template_admin_webshop_edit'>
@@ -2039,17 +2037,7 @@ class mf_webshop
 							<% }
 						}); %>
 						<div class='form_button'>
-							<button type='submit' class='button-primary'>
-								<% if(post_id > 0)
-								{ %>"
-									.__("Update", 'lang_webshop')
-								."<% }
-
-								else
-								{%>"
-									.__("Create", 'lang_webshop')
-								."<% } %>
-							</button>
+							<button type='submit' class='button-primary'>".__("Save", 'lang_webshop')."</button>
 							<% if(post_id > 0)
 							{ %>"
 								.input_hidden(array('name' => 'post_id', 'value' => "<%= post_id %>"))
@@ -6386,13 +6374,14 @@ class mf_webshop
 				break;
 
 				case 'url':
+					$meta_original = $data['meta'];
 					$url_parts = parse_url($data['meta']);
 
 					$data['meta'] = "<a href='".$data['meta']."'>".str_replace("www.", "", $url_parts['host'])."</a>";
 
 					if(!isset($url_parts['host']))
 					{
-						do_log("host does not exist (".$data['meta']." -> ".var_export($url_parts, true).")");
+						do_log("host does not exist (".$meta_original." -> ".var_export($url_parts, true).")");
 					}
 				break;
 			}
@@ -8540,7 +8529,7 @@ class widget_webshop_list extends WP_Widget
 	{
 		$widget_ops = array(
 			'classname' => 'webshop_list webshop_widget',
-			'description' => __("Display start page list", 'lang_webshop')
+			'description' => __("Display Webshop List", 'lang_webshop')
 		);
 
 		$this->arr_default = array(

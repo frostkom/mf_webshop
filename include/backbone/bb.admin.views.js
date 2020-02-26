@@ -166,19 +166,10 @@ var WebshopAdminView = Backbone.View.extend(
 		switch(type)
 		{
 			case 'admin_webshop_list':
-				var amount = response.list.length,
-					dom_template = jQuery("#template_" + type),
+				var dom_template = jQuery("#template_" + type),
 					dom_container = jQuery("#" + type);
 
-				if(amount > 0)
-				{
-					html = _.template(dom_template.html())(response);
-				}
-
-				else
-				{
-					html = _.template(jQuery("#template_" + type + "_message").html())('');
-				}
+				html = _.template(dom_template.html())(response);
 
 				dom_container.children("div").html(html);
 
