@@ -26,13 +26,13 @@ var WebshopAdminView = Backbone.View.extend(
 
 	next_request: function()
 	{
-		var response = this.model.get("next_request");
+		var response = this.model.get('next_request');
 
 		if(response != '')
 		{
 			this.model.getPage(response);
 
-			this.model.set({"next_request" : ""});
+			this.model.set({'next_request' : ""});
 		}
 	},
 

@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.6.32
+Version: 2.1.6.33
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -96,7 +96,9 @@ load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))
 
 function activate_webshop()
 {
-	global $wpdb, $obj_webshop;
+	global $wpdb;
+
+	$obj_webshop = new mf_webshop();
 
 	require_plugin("meta-box/meta-box.php", "Meta Box");
 	require_plugin("mf_maps/index.php", "MF Maps");
