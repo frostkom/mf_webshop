@@ -4158,7 +4158,7 @@ class mf_webshop
 			// Customers
 			####################################
 			$meta_boxes[] = array(
-				'id' => '',
+				'id' => $this->meta_prefix.'settings',
 				'title' => __("Settings", 'lang_webshop'),
 				'post_types' => array($this->post_type_customers.$this->option_type),
 				//'context' => 'side',
