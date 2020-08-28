@@ -8113,7 +8113,7 @@ class widget_webshop_search extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_search',
 			'description' => __("Display Search", 'lang_webshop')
 		);
@@ -8125,7 +8125,7 @@ class widget_webshop_search extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-search-widget', __("Webshop", 'lang_webshop')." (".__("Search", 'lang_webshop').")", $widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Webshop", 'lang_webshop')." (".__("Search", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -8174,7 +8174,7 @@ class widget_webshop_search extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 		."</div>";
 	}
@@ -8184,7 +8184,7 @@ class widget_webshop_map extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_map',
 			'description' => __("Display Map", 'lang_webshop')
 		);
@@ -8196,7 +8196,7 @@ class widget_webshop_map extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-map-widget', __("Webshop", 'lang_webshop')." (".__("Map", 'lang_webshop').")", $widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Webshop", 'lang_webshop')." (".__("Map", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -8237,7 +8237,7 @@ class widget_webshop_map extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 		."</div>";
 	}
@@ -8247,7 +8247,7 @@ class widget_webshop_form extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_form',
 			'description' => __("Display start page form", 'lang_webshop')
 		);
@@ -8264,7 +8264,7 @@ class widget_webshop_form extends WP_Widget
 
 		$this->name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
-		parent::__construct('webshop-widget', __("Webshop", 'lang_webshop')." (".__("Form", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-widget', __("Webshop", 'lang_webshop')." (".__("Form", 'lang_webshop').")", $this->widget_ops);
 
 		$this->name_doc_types = get_option_or_default('setting_webshop_replace_doc_types', __("Filters", 'lang_webshop'));
 	}
@@ -8502,7 +8502,7 @@ class widget_webshop_form extends WP_Widget
 		}
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $arr_data_action, 'name' => $this->get_field_name('webshop_action'), 'text' => __("Go to after submit", 'lang_webshop'), 'value' => $instance['webshop_action']))
 			."<div class='flex_flow'>"
 				.show_select(array('data' => $arr_data_doc_type, 'name' => $this->get_field_name('webshop_doc_type')."[]", 'text' => $this->name_doc_types, 'value' => $instance['webshop_doc_type']));
@@ -8527,7 +8527,7 @@ class widget_webshop_list extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_list webshop_widget',
 			'description' => __("Display Webshop List", 'lang_webshop')
 		);
@@ -8540,7 +8540,7 @@ class widget_webshop_list extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-list-widget', __("Webshop", 'lang_webshop')." (".__("List", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-list-widget', __("Webshop", 'lang_webshop')." (".__("List", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -8606,7 +8606,7 @@ class widget_webshop_list extends WP_Widget
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data_locations);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('webshop_action'), 'text' => __("Go to on click", 'lang_webshop'), 'value' => $instance['webshop_action']))
 			.show_select(array('data' => $arr_data_locations, 'name' => $this->get_field_name('webshop_locations')."[]", 'text' => __("Locations", 'lang_webshop'), 'value' => $instance['webshop_locations']))
 		."</div>";
@@ -8617,7 +8617,7 @@ class widget_webshop_favorites extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_favorites webshop_widget',
 			'description' => __("Display start page favorites", 'lang_webshop')
 		);
@@ -8632,7 +8632,7 @@ class widget_webshop_favorites extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-favorites-widget', __("Webshop", 'lang_webshop')." (".__("Favorites", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-favorites-widget', __("Webshop", 'lang_webshop')." (".__("Favorites", 'lang_webshop').")", $this->widget_ops);
 
 		$this->name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 	}
@@ -8696,7 +8696,7 @@ class widget_webshop_favorites extends WP_Widget
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_products, 'order_by' => 'post_title'), $arr_data);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('webshop_products')."[]", 'text' => $this->name_products, 'value' => $instance['webshop_products']))
 			.show_select(array('data' => get_yes_no_for_select(), 'name' => $this->get_field_name('webshop_display_category'), 'text' => __("Display Category", 'lang_webshop'), 'value' => $instance['webshop_display_category']))
 			."<div class='flex_flow'>"
@@ -8716,7 +8716,7 @@ class widget_webshop_recent extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_recent webshop_widget',
 			'description' => __("Display Recent", 'lang_webshop')
 		);
@@ -8731,7 +8731,7 @@ class widget_webshop_recent extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-recent-widget', __("Webshop", 'lang_webshop')." (".__("Recent", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-recent-widget', __("Webshop", 'lang_webshop')." (".__("Recent", 'lang_webshop').")", $this->widget_ops);
 
 		$this->name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 	}
@@ -8799,7 +8799,7 @@ class widget_webshop_recent extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			."<div class='flex_flow'>"
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
 				.show_select(array('data' => get_yes_no_for_select(), 'name' => $this->get_field_name('webshop_display_category'), 'text' => __("Display Category", 'lang_webshop'), 'value' => $instance['webshop_display_category']))
@@ -8821,7 +8821,7 @@ class widget_webshop_events extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_events webshop_widget',
 			'description' => __("Display Events", 'lang_webshop')
 		);
@@ -8840,7 +8840,7 @@ class widget_webshop_events extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-events-widget', __("Webshop", 'lang_webshop')." (".__("Events", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-events-widget', __("Webshop", 'lang_webshop')." (".__("Events", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function get_filters_for_select()
@@ -9015,7 +9015,7 @@ class widget_webshop_events extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']));
 
 			if(in_array('order_by', $instance['webshop_filters']))
@@ -9041,7 +9041,7 @@ class widget_webshop_filter_products extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_filter_products webshop_widget',
 			'description' => __("Display Filtered Products", 'lang_webshop')
 		);
@@ -9060,7 +9060,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-filter-products-widget', __("Webshop", 'lang_webshop')." (".__("Filtered Products", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-filter-products-widget', __("Webshop", 'lang_webshop')." (".__("Filtered Products", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function get_filters_for_select()
@@ -9184,7 +9184,7 @@ class widget_webshop_filter_products extends WP_Widget
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->get_filters_for_select(), 'name' => $this->get_field_name('webshop_filters')."[]", 'text' => __("Display Filters", 'lang_webshop'), 'value' => $instance['webshop_filters']));
 
 			if(in_array('order_by', $instance['webshop_filters']))
@@ -9208,7 +9208,7 @@ class widget_webshop_product_meta extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_product_meta webshop_widget',
 			'description' => __("Display Product Meta", 'lang_webshop')
 		);
@@ -9224,7 +9224,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-product_meta-widget', __("Webshop", 'lang_webshop')." (".__("Product Meta", 'lang_webshop').")", $widget_ops);
+		parent::__construct('webshop-product_meta-widget', __("Webshop", 'lang_webshop')." (".__("Product Meta", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function get_meta_types_for_select()
@@ -9587,7 +9587,7 @@ class widget_webshop_product_meta extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->get_meta_types_for_select(), 'name' => $this->get_field_name('webshop_meta_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_meta_type']));
 
 			switch($instance['webshop_meta_type'])
@@ -9623,7 +9623,7 @@ class widget_webshop_categories extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_categories',
 			'description' => __("Display Categories", 'lang_webshop')
 		);
@@ -9635,7 +9635,7 @@ class widget_webshop_categories extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-categories-widget', __("Webshop", 'lang_webshop')." (".__("Categories", 'lang_webshop').")", $widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Webshop", 'lang_webshop')." (".__("Categories", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function get_product_list_item($post_id = 0, $category_id = 0)
@@ -9744,7 +9744,7 @@ class widget_webshop_categories extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 		."</div>";
 	}
@@ -9754,7 +9754,7 @@ class widget_webshop_cart extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'webshop_cart',
 			'description' => __("Display Cart", 'lang_webshop')
 		);
@@ -9766,7 +9766,7 @@ class widget_webshop_cart extends WP_Widget
 
 		$this->obj_webshop = new mf_webshop();
 
-		parent::__construct('webshop-cart-widget', __("Webshop", 'lang_webshop')." (".__("Cart", 'lang_webshop').")", $widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Webshop", 'lang_webshop')." (".__("Cart", 'lang_webshop').")", $this->widget_ops);
 	}
 
 	function get_cart()
@@ -10013,7 +10013,7 @@ class widget_webshop_cart extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='webshop-title'"))
+			.show_textfield(array('name' => $this->get_field_name('webshop_heading'), 'text' => __("Heading", 'lang_webshop'), 'value' => $instance['webshop_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 		."</div>";
 	}
