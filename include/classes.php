@@ -7812,79 +7812,82 @@ class mf_webshop
 	}
 }
 
-class mf_webshop_import extends mf_import
+if(class_exists('mf_import'))
 {
-	function get_defaults()
+	class mf_webshop_import extends mf_import
 	{
-		global $wpdb;
-
-		$this->obj_webshop = new mf_webshop();
-
-		$this->prefix = $wpdb->base_prefix;
-		$this->table = "posts";
-		$this->post_type = $this->obj_webshop->post_type_products;
-		$this->actions = array('import');
-		$this->columns = array(
-			'post_title' => __("Title", 'lang_webshop'),
-			'post_content' => __("Content", 'lang_webshop'),
-		);
-
-		$this->arr_type = array(
-			'ghost',
-			'description',
-			'number',
-			'price',
-			'stock',
-			'size',
-			'interval',
-			//'checkbox',
-			'email',
-			'url',
-			'date',
-			'clock',
-			'gps',
-			'address',
-			'local_address',
-			'phone',
-		);
-
-		foreach($this->arr_type as $type)
+		function get_defaults()
 		{
-			$result = $this->obj_webshop->get_post_type_info(array('type' => $type, 'single' => false));
+			global $wpdb;
 
-			foreach($result as $r)
+			$this->obj_webshop = new mf_webshop();
+
+			$this->prefix = $wpdb->base_prefix;
+			$this->table = "posts";
+			$this->post_type = $this->obj_webshop->post_type_products;
+			$this->actions = array('import');
+			$this->columns = array(
+				'post_title' => __("Title", 'lang_webshop'),
+				'post_content' => __("Content", 'lang_webshop'),
+			);
+
+			$this->arr_type = array(
+				'ghost',
+				'description',
+				'number',
+				'price',
+				'stock',
+				'size',
+				'interval',
+				//'checkbox',
+				'email',
+				'url',
+				'date',
+				'clock',
+				'gps',
+				'address',
+				'local_address',
+				'phone',
+			);
+
+			foreach($this->arr_type as $type)
 			{
-				$this->columns[$r->post_name] = $r->post_title;
-			}
-		}
+				$result = $this->obj_webshop->get_post_type_info(array('type' => $type, 'single' => false));
 
-		$this->unique_columns = array(
-			'post_title',
-		);
-	}
-
-	function get_external_value(&$strRowField, &$value)
-	{
-		$saved_option = false;
-
-		foreach($this->arr_type as $type)
-		{
-			$result = $this->obj_webshop->get_post_type_info(array('type' => $type, 'single' => false));
-
-			foreach($result as $r)
-			{
-				if($strRowField == $r->post_name)
+				foreach($result as $r)
 				{
-					$this->query_option[$this->obj_webshop->meta_prefix.$r->post_name] = $value;
-
-					$saved_option = true;
+					$this->columns[$r->post_name] = $r->post_title;
 				}
 			}
+
+			$this->unique_columns = array(
+				'post_title',
+			);
 		}
 
-		if($saved_option == true)
+		function get_external_value(&$strRowField, &$value)
 		{
-			$value = "";
+			$saved_option = false;
+
+			foreach($this->arr_type as $type)
+			{
+				$result = $this->obj_webshop->get_post_type_info(array('type' => $type, 'single' => false));
+
+				foreach($result as $r)
+				{
+					if($strRowField == $r->post_name)
+					{
+						$this->query_option[$this->obj_webshop->meta_prefix.$r->post_name] = $value;
+
+						$saved_option = true;
+					}
+				}
+			}
+
+			if($saved_option == true)
+			{
+				$value = "";
+			}
 		}
 	}
 }
