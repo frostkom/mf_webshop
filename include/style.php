@@ -14,13 +14,21 @@ else
 	global $wpdb;
 }
 
-if(!isset($obj_theme_core))
+if(class_exists('mf_theme_core'))
 {
-	$obj_theme_core = new mf_theme_core();
+	if(!isset($obj_theme_core))
+	{
+		$obj_theme_core = new mf_theme_core();
+	}
+
+	$obj_theme_core->get_params();
+	$setting_mobile_breakpoint = $obj_theme_core->options['mobile_breakpoint'];
 }
 
-$obj_theme_core->get_params();
-$setting_mobile_breakpoint = $obj_theme_core->options['mobile_breakpoint'];
+else
+{
+	$setting_mobile_breakpoint = 600;
+}
 
 $obj_webshop = new mf_webshop();
 

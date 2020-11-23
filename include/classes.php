@@ -1645,10 +1645,24 @@ class mf_webshop
 
 	function combined_head()
 	{
-		$obj_theme_core = new mf_theme_core();
-		$obj_theme_core->get_params();
+		if(class_exists('mf_theme_core'))
+		{
+			global $obj_theme_core;
 
-		$setting_mobile_breakpoint = isset($this->options['mobile_breakpoint']) ? $this->options['mobile_breakpoint'] : 600;
+			if(!isset($obj_theme_core))
+			{
+				$obj_theme_core = new mf_theme_core();
+			}
+
+			$obj_theme_core->get_params();
+
+			$setting_mobile_breakpoint = isset($obj_theme_core->options['mobile_breakpoint']) ? $obj_theme_core->options['mobile_breakpoint'] : 600;
+		}
+
+		else
+		{
+			$setting_mobile_breakpoint = 600;
+		}
 
 		$setting_gmaps_api = get_option('setting_gmaps_api');
 		$symbol_active_image = get_option('setting_webshop_symbol_active_image');
@@ -3247,7 +3261,7 @@ class mf_webshop
 
 		if(!isset($data['user_id']))
 		{
-			if(get_current_user_id() > 0)
+			if(is_user_logged_in())
 			{
 				$data['user_id'] = get_current_user_id();
 			}
@@ -9939,7 +9953,7 @@ class widget_webshop_cart extends WP_Widget
 				."</div>
 			</form>";
 
-			if(get_current_user_id() > 0 && !($intCustomerID > 0))
+			if(!($intCustomerID > 0) && is_user_logged_in())
 			{
 				$result = $wpdb->get_results($wpdb->prepare("SELECT customerID, orderName, orderEmail FROM ".$wpdb->prefix."webshop_order WHERE userID = '%d' ORDER BY orderCreated DESC LIMIT 0, 1", get_current_user_id()));
 
