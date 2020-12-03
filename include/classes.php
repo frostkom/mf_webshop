@@ -1582,20 +1582,30 @@ class mf_webshop
 
 	function setting_quote_form_callback($args = array())
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
-
-		$obj_form = new mf_form();
 
 		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_quote_form_single_callback($args = array())
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
-
-		$obj_form = new mf_form();
 
 		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
@@ -1635,10 +1645,15 @@ class mf_webshop
 
 	function setting_webshop_payment_form_callback($args = array())
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
-
-		$obj_form = new mf_form();
 
 		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false, 'is_payment' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
@@ -1701,15 +1716,22 @@ class mf_webshop
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
-		if($pagenow == 'options-general.php' && check_var('page') == 'settings_mf_base')
+		switch($pagenow)
 		{
-			mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
-			mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage")), $plugin_version);
-		}
+			case 'options-general.php':
+				if(check_var('page') == 'settings_mf_base')
+				{
+					mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
+					mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage")), $plugin_version);
+				}
+			break;
 
-		if($pagenow == 'admin.php' && check_var('page') == 'mf_webshop/stats/index.php')
-		{
-			mf_enqueue_script('jquery-flot', $plugin_base_include_url."jquery.flot.min.0.7.js", $plugin_version);
+			case 'admin.php':
+				if(check_var('page') == 'mf_webshop/stats/index.php')
+				{
+					mf_enqueue_script('jquery-flot', $plugin_base_include_url."jquery.flot.min.0.7.js", $plugin_version);
+				}
+			break;
 		}
 	}
 
@@ -2483,9 +2505,12 @@ class mf_webshop
 
 	function filter_form_on_submit($data)
 	{
-		global $wpdb, $error_text;
+		global $wpdb, $error_text, $obj_form;
 
-		$obj_form = new mf_form();
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
 
 		$answer_text = "";
 
@@ -3245,18 +3270,25 @@ class mf_webshop
 	/* Admin */
 	function admin_menu_payment_page()
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		$form_id = get_option('setting_webshop_payment_form'.$this->option_type);
 
-		$obj_form = new mf_form(array('id' => $form_id));
-
 		echo "<div class='wrap'>
-			<h1>".$obj_form->get_form_name()."</h1>"
+			<h1>".$obj_form->get_form_name($form_id)."</h1>"
 			.apply_filters('the_content', "[mf_form id=".$form_id."]")
 		."</div>";
 	}
 
 	function confirm_payment($data = array())
 	{
+		global $obj_form;
+
 		if(!isset($data['paid'])){		$data['paid'] = 0;}
 
 		if(!isset($data['user_id']))
@@ -3268,7 +3300,10 @@ class mf_webshop
 
 			else
 			{
-				$obj_form = new mf_form();
+				if(!isset($obj_form))
+				{
+					$obj_form = new mf_form();
+				}
 
 				$data['user_id'] = $obj_form->get_meta(array('id' => $data['answer_id'], 'meta_key' => 'user_id'));
 			}
@@ -5362,13 +5397,20 @@ class mf_webshop
 
 	function get_form_fields_passthru()
 	{
+		global $obj_form;
+
 		$out = "";
 
 		$setting_quote_form = get_option('setting_quote_form'.$this->option_type);
 
 		if($setting_quote_form > 0)
 		{
-			$obj_form = new mf_form(array('id' => $setting_quote_form));
+			if(!isset($obj_form))
+			{
+				$obj_form = new mf_form();
+			}
+
+			$obj_form->id = $setting_quote_form;
 
 			$query_prefix = $obj_form->get_post_info()."_";
 
