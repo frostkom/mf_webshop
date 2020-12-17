@@ -5455,211 +5455,221 @@ class mf_webshop
 
 		$out = $obj_base->get_templates(array('lost_connection'));
 
-		switch($data['type'])
+		if(!isset($this->template_used))
 		{
-			case 'events':
-				$out .= "<script type='text/template' id='template_calendar_spinner'>"
-					.$this->get_spinner_template(array('tag' => 'div', 'size' => "fa-2x"))
-				."</script>
+			$this->template_used = array();
+		}
 
-				<script type='text/template' id='template_calendar'>"
-					.$this->get_event_calendar()
-				."</script>
+		if(!isset($this->template_used[$data['type']]) || $this->template_used[$data['type']] == false)
+		{
+			switch($data['type'])
+			{
+				case 'events':
+					$out .= "<script type='text/template' id='template_calendar_spinner'>"
+						.$this->get_spinner_template(array('tag' => 'div', 'size' => "fa-2x"))
+					."</script>
 
-				<script type='text/template' id='template_event_spinner'>"
-					.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
-				."</script>
+					<script type='text/template' id='template_calendar'>"
+						.$this->get_event_calendar()
+					."</script>
 
-				<script type='text/template' id='template_event_message'>
-					<li class='info_text'>
-						<p>"
-							.__("I could not find any events", 'lang_webshop')
-							."<% if(start_date != '' && end_date != '')
-							{ %>
-								(<%= start_date %> -> <%= end_date %>)
-							<% } %>
-						</p>
-					</li>
-				</script>
+					<script type='text/template' id='template_event_spinner'>"
+						.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
+					."</script>
 
-				<script type='text/template' id='template_event_item'>
-					<li itemscope itemtype='//schema.org/Event' class='list_item <%= list_class %>'>
-						<div class='event_date'>
-							<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
-							<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
-						</div>
-						<div>
-							<h2><a href='<%= event_url %>' itemprop='name'><%= event_title %></a><% if(product_categories != ''){ %><span>(<%= product_categories %>)</span><% } %></h2>
-							<p>
-								<span class='duration'><i class='far fa-clock'></i> <%= event_duration %></span>
-								<% if(event_location != '')
+					<script type='text/template' id='template_event_message'>
+						<li class='info_text'>
+							<p>"
+								.__("I could not find any events", 'lang_webshop')
+								."<% if(start_date != '' && end_date != '')
 								{ %>
-									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= event_location %></span>
-								<% }
-
-								if(event_coordinates != '')
-								{ %>"
-									.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coords' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
-								."<% } %>
-							</p>
-							<p><%= name_product %>: <a href='<%= product_url %>'><%= product_title %></a></p>
-						</div>
-						<div class='list_url'>
-							<a href='<%= event_url %>'>".__("Read More", 'lang_webshop')."</a>
-						</div>
-						<% if(product_map != '')
-						{ %>"
-							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
-						."<% } %>
-					</li>
-				</script>
-
-				<script type='text/template' id='template_event_load_more'>
-					<li class='widget_load_more form_button'>"
-						.show_button(array('text' => sprintf(__("Display More Events (%s)", 'lang_webshop'), "<%= event_rest %>"), 'class' => "button"))
-					."</li>
-				</script>";
-			break;
-
-			case 'filter_products':
-				$name_products = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
-
-				if($data['button_text'] != '')
-				{
-					$filter_products_load_more_button_text = sprintf($data['button_text']." (%s)", "<%= filter_products_rest %>");
-				}
-
-				else
-				{
-					$filter_products_load_more_button_text = sprintf(__("Display More %s (%s)", 'lang_webshop'), $name_products, "<%= filter_products_rest %>");
-				}
-
-				$out .= "<script type='text/template' id='template_filter_products_spinner'>"
-					.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
-				."</script>
-
-				<script type='text/template' id='template_filter_products_message'>
-					<li class='info_text'>
-						<p>".sprintf(__("I could not find any %s", 'lang_webshop'), $name_products)."</p>
-					</li>
-				</script>
-
-				<script type='text/template' id='template_filter_products_item'>
-					<li class='list_item'>
-						<div>
-							<h2><a href='<%= product_url %>'><%= product_title %></a>";
-
-								/*$out .= "<% if(product_location != '')
-								{ %>
-									<span>(<%= product_location %>)</span>
-								<% } %>";*/
-
-							$out .= "</h2>
-							<p>
-								<% if(product_address != '')
-								{ %>
-									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
+									(<%= start_date %> -> <%= end_date %>)
 								<% } %>
 							</p>
-						</div>
-						<div class='list_url'>
-							<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
-						</div>
-					</li>
-				</script>
+						</li>
+					</script>
 
-				<script type='text/template' id='template_filter_products_load_more'>
-					<li class='widget_load_more form_button'>"
-						.show_button(array('text' => $filter_products_load_more_button_text, 'class' => "button"))
-					."</li>
-				</script>";
-			break;
+					<script type='text/template' id='template_event_item'>
+						<li itemscope itemtype='//schema.org/Event' class='list_item <%= list_class %>'>
+							<div class='event_date'>
+								<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
+								<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
+							</div>
+							<div>
+								<h2><a href='<%= event_url %>' itemprop='name'><%= event_title %></a><% if(product_categories != ''){ %><span>(<%= product_categories %>)</span><% } %></h2>
+								<p>
+									<span class='duration'><i class='far fa-clock'></i> <%= event_duration %></span>
+									<% if(event_location != '')
+									{ %>
+										<span class='location'><i class='fas fa-map-marker-alt'></i> <%= event_location %></span>
+									<% }
 
-			case 'products':
-				$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
+									if(event_coordinates != '')
+									{ %>"
+										.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coords' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+									."<% } %>
+								</p>
+								<p><%= name_product %>: <a href='<%= product_url %>'><%= product_title %></a></p>
+							</div>
+							<div class='list_url'>
+								<a href='<%= event_url %>'>".__("Read More", 'lang_webshop')."</a>
+							</div>
+							<% if(product_map != '')
+							{ %>"
+								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+							."<% } %>
+						</li>
+					</script>
 
-				$out .= "<script type='text/template' id='template_product_message'>
-					<li class='info_text'>
-						<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
-					</li>
-				</script>
+					<script type='text/template' id='template_event_load_more'>
+						<li class='widget_load_more form_button'>"
+							.show_button(array('text' => sprintf(__("Display More Events (%s)", 'lang_webshop'), "<%= event_rest %>"), 'class' => "button"))
+						."</li>
+					</script>";
+				break;
 
-				<script type='text/template' id='template_product_item'>
-					<li id='product_<%= product_id %>'<%= (product_url != '' ? '' : ' class=ghost') %>>
-						<div class='product_heading product_column'>
-							<h2>
+				case 'filter_products':
+					$name_products = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
+
+					if($data['button_text'] != '')
+					{
+						$filter_products_load_more_button_text = sprintf($data['button_text']." (%s)", "<%= filter_products_rest %>");
+					}
+
+					else
+					{
+						$filter_products_load_more_button_text = sprintf(__("Display More %s (%s)", 'lang_webshop'), $name_products, "<%= filter_products_rest %>");
+					}
+
+					$out .= "<script type='text/template' id='template_filter_products_spinner'>"
+						.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
+					."</script>
+
+					<script type='text/template' id='template_filter_products_message'>
+						<li class='info_text'>
+							<p>".sprintf(__("I could not find any %s", 'lang_webshop'), $name_products)."</p>
+						</li>
+					</script>
+
+					<script type='text/template' id='template_filter_products_item'>
+						<li class='list_item'>
+							<div>
+								<h2><a href='<%= product_url %>'><%= product_title %></a>";
+
+									/*$out .= "<% if(product_location != '')
+									{ %>
+										<span>(<%= product_location %>)</span>
+									<% } %>";*/
+
+								$out .= "</h2>
+								<p>
+									<% if(product_address != '')
+									{ %>
+										<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
+									<% } %>
+								</p>
+							</div>
+							<div class='list_url'>
+								<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
+							</div>
+						</li>
+					</script>
+
+					<script type='text/template' id='template_filter_products_load_more'>
+						<li class='widget_load_more form_button'>"
+							.show_button(array('text' => $filter_products_load_more_button_text, 'class' => "button"))
+						."</li>
+					</script>";
+				break;
+
+				case 'products':
+					$name_choose = get_option_or_default('setting_webshop_replace_choose_product'.$this->option_type, __("Choose", 'lang_webshop'));
+
+					$out .= "<script type='text/template' id='template_product_message'>
+						<li class='info_text'>
+							<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
+						</li>
+					</script>
+
+					<script type='text/template' id='template_product_item'>
+						<li id='product_<%= product_id %>'<%= (product_url != '' ? '' : ' class=ghost') %>>
+							<div class='product_heading product_column'>
+								<h2>
+									<% if(product_url != '')
+									{ %>
+										<a href='<%= product_url %>'><%= product_title %></a>
+									<% }
+
+									else
+									{ %>
+										<span><%= product_title %></span>
+									<% } %>
+								</h2>
+								<% if(product_location != '')
+								{ %>
+									<p class='product_location'><%= product_location %></p>
+								<% }
+
+								if(product_clock != '')
+								{ %>
+									<span class='product_clock'><%= product_clock %></span>
+								<% } %>
+							</div>
+
+							<div class='product_image_container'>
 								<% if(product_url != '')
 								{ %>
-									<a href='<%= product_url %>'><%= product_title %></a>
+									<a href='<%= product_url %>'>
+								<% } %>
+
+									<%= product_image %>
+
+								<% if(product_url != '')
+								{ %>
+									</a>
 								<% }
 
-								else
+								if(product_data != '')
 								{ %>
-									<span><%= product_title %></span>
+									<div class='product_data'><%= product_data %></div>
 								<% } %>
-							</h2>
-							<% if(product_location != '')
-							{ %>
-								<p class='product_location'><%= product_location %></p>
-							<% }
-
-							if(product_clock != '')
-							{ %>
-								<span class='product_clock'><%= product_clock %></span>
-							<% } %>
-						</div>
-
-						<div class='product_image_container'>
-							<% if(product_url != '')
-							{ %>
-								<a href='<%= product_url %>'>
-							<% } %>
-
-								<%= product_image %>
-
-							<% if(product_url != '')
-							{ %>
-								</a>
-							<% }
-
-							if(product_data != '')
-							{ %>
-								<div class='product_data'><%= product_data %></div>
-							<% } %>
-						</div>
-
-						<ul class='product_meta product_column'>
-							<% _.each(product_meta, function(meta)
-							{ %>
-								<li class='<%= meta.class %>'>
-									<%= meta.content %>
-								</li>
-							<% }); %>
-						</ul>
-
-						<% if(product_description != '')
-						{ %>
-							<div class='product_description product_column'>
-								<%= product_description %>
 							</div>
-						<% } %>"
-						/*."<% if(product_has_email == 1 || 1 == 1)
-						{ %>"*/
-							// This can't be removed until '#product_result_search .products' can be checked and work
-							.show_checkbox(array('name' => 'products[]', 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
-						//."<% } %>"
-						."<% if(product_url != '' && product_has_read_more == false)
-						{ %>
-							<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
-						<% }
 
-						if(product_map != '')
-						{ %>"
-							.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
-						."<% } %>
-					</li>
-				</script>";
-			break;
+							<ul class='product_meta product_column'>
+								<% _.each(product_meta, function(meta)
+								{ %>
+									<li class='<%= meta.class %>'>
+										<%= meta.content %>
+									</li>
+								<% }); %>
+							</ul>
+
+							<% if(product_description != '')
+							{ %>
+								<div class='product_description product_column'>
+									<%= product_description %>
+								</div>
+							<% } %>"
+							/*."<% if(product_has_email == 1 || 1 == 1)
+							{ %>"*/
+								// This can't be removed until '#product_result_search .products' can be checked and work
+								.show_checkbox(array('name' => 'products[]', 'value' => '<%= product_id %>', 'compare' => 'disabled', 'text' => $name_choose, 'switch' => true, 'switch_icon_on' => get_option('setting_webshop_switch_icon_on'.$this->option_type), 'switch_icon_off' => get_option('setting_webshop_switch_icon_off'.$this->option_type), 'xtra_class' => "color_button_2".(get_option('setting_quote_form'.$this->option_type) > 0 ? "" : " hide"))) //, 'compare' => '<%= product_id %>' //This makes it checked by default
+							//."<% } %>"
+							."<% if(product_url != '' && product_has_read_more == false)
+							{ %>
+								<a href='<%= product_url %>' class='product_link product_column'>".__("Read More", 'lang_webshop')."&hellip;</a>
+							<% }
+
+							if(product_map != '')
+							{ %>"
+								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+							."<% } %>
+						</li>
+					</script>";
+				break;
+			}
+
+			$this->template_used[$data['type']] = true;
 		}
 
 		return $out;
@@ -5823,7 +5833,7 @@ class mf_webshop
 
 	function get_events($data)
 	{
-		global $wpdb;
+		global $wpdb, $obj_calendar;
 
 		if(!isset($data['id'])){			$data['id'] = "";}
 		if(!isset($data['product_id'])){	$data['product_id'] = 0;}
@@ -5863,7 +5873,10 @@ class mf_webshop
 
 		if($events_post_name != '')
 		{
-			$obj_calendar = new mf_calendar();
+			if(!isset($obj_calendar))
+			{
+				$obj_calendar = new mf_calendar();
+			}
 
 			if($data['id'] != '')
 			{
