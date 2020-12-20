@@ -7,7 +7,7 @@ get_header();
 
 	if(have_posts())
 	{
-		echo "<article>";
+		echo "<article".(IS_ADMIN ? " class='template_webshop'" : "").">";
 
 			while(have_posts())
 			{

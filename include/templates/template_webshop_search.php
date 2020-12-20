@@ -9,7 +9,7 @@ get_header();
 
 	echo "<form action='".get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search'>
 		<div class='aside'><div>".$obj_webshop->get_webshop_map()."</div></div>
-		<article>"
+		<article".(IS_ADMIN ? " class='template_webshop_search'" : "").">"
 			."<section>"
 				.$obj_webshop->get_search_result_info(array('type' => 'filter'))
 				.$obj_webshop->get_webshop_search()
