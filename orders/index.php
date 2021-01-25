@@ -135,7 +135,7 @@ function update_product_amount($intProductID2, $intProductAmount2)
 
 			if($post_meta > 0 && $intProductAmount2 > 0)
 			{
-				$intProductAmount_result = $post_meta - $intProductAmount2 > 0 ? $post_meta - $intProductAmount2 : 0;
+				$intProductAmount_result = ($post_meta - $intProductAmount2 > 0 ? $post_meta - $intProductAmount2 : 0);
 
 				update_post_meta($intProductID2, $obj_webshop->meta_prefix.$post_name, $intProductAmount_result);
 			}

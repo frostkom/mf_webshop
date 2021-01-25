@@ -2889,7 +2889,7 @@ class mf_webshop
 			break;
 
 			case 'email':
-				$fields_array['attributes']['placeholder'] = get_post_meta_or_default($post_id, $this->meta_prefix.'document_placeholder', true, __("your-name", 'lang_webshop')."@".get_site_url_clean(array('trim' => "/")));
+				$fields_array['attributes']['placeholder'] = get_post_meta_or_default($post_id, $this->meta_prefix.'document_placeholder', true, get_placeholder_email());
 				$fields_array['desc'] = get_post_meta($post_id, $this->meta_prefix.'document_description', true);
 			break;
 
@@ -3478,6 +3478,7 @@ class mf_webshop
 		$this->option_type = '';
 	}
 
+	// Same as in MF Health
 	function update_rwmb_post_meta($post_id, $meta_key, $meta_value)
 	{
 		global $wpdb;
@@ -7999,7 +8000,12 @@ if(class_exists('RWMB_Field'))
 		{
 			global $wpdb;
 
-			$obj_webshop = new mf_webshop();
+			global $obj_webshop;
+
+			if(!isset($obj_webshop))
+			{
+				$obj_webshop = new mf_webshop();
+			}
 
 			$post_name = str_replace($obj_webshop->meta_prefix, "", $field['id']);
 			$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name));
@@ -8036,7 +8042,12 @@ if(class_exists('RWMB_Field'))
 		{
 			if(is_plugin_active('mf_calendar/index.php'))
 			{
-				$obj_calendar = new mf_calendar();
+				global $obj_calendar;
+
+				if(!isset($obj_calendar))
+				{
+					$obj_calendar = new mf_calendar();
+				}
 
 				$arr_data = array();
 				get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
@@ -8159,7 +8170,12 @@ if(class_exists('RWMB_Field'))
 			{
 				if(is_plugin_active('mf_social_feed/index.php'))
 				{
-					$obj_social_feed = new mf_social_feed();
+					global $obj_social_feed;
+
+					if(!isset($obj_social_feed))
+					{
+						$obj_social_feed = new mf_social_feed();
+					}
 
 					$arr_data = array();
 					get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
