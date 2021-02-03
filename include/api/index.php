@@ -146,7 +146,7 @@ switch($type_switch)
 												break;
 
 												case 'education':
-													if(is_plugin_active('mf_education/index.php'))
+													if(is_plugin_active("mf_education/index.php"))
 													{
 														$obj_education = new mf_education();
 
@@ -160,7 +160,7 @@ switch($type_switch)
 												break;
 
 												case 'event':
-													if(!is_plugin_active('mf_calendar/index.php'))
+													if(!is_plugin_active("mf_calendar/index.php"))
 													{
 														$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
 													}
@@ -179,7 +179,7 @@ switch($type_switch)
 												break;
 
 												case 'social':
-													if(is_plugin_active('mf_social_feed/index.php'))
+													if(is_plugin_active("mf_social_feed/index.php"))
 													{
 														$obj_social_feed = new mf_social_feed();
 
@@ -441,7 +441,7 @@ switch($type_switch)
 											switch($type_temp)
 											{
 												case 'event':
-													if(is_plugin_active('mf_calendar/index.php'))
+													if(is_plugin_active("mf_calendar/index.php"))
 													{
 														$obj_calendar = new mf_calendar();
 

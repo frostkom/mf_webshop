@@ -134,7 +134,7 @@ class mf_webshop
 
 		$event_id = 0;
 
-		if(is_plugin_active('mf_calendar/index.php'))
+		if(is_plugin_active("mf_calendar/index.php"))
 		{
 			$event_post_name = $this->get_post_name_for_type('event');
 
@@ -787,7 +787,7 @@ class mf_webshop
 			'setting_webshop_text_color_info' => __("Info text color", 'lang_webshop'),
 		);
 
-		if(!is_plugin_active('mf_maps/index.php'))
+		if(!is_plugin_active("mf_maps/index.php"))
 		{
 			$arr_settings['setting_gmaps_api'] = __("API key", 'lang_webshop');
 		}
@@ -2700,7 +2700,7 @@ class mf_webshop
 
 		$debug = array();
 
-		if(is_plugin_active('mf_calendar/index.php'))
+		if(is_plugin_active("mf_calendar/index.php"))
 		{
 			$obj_calendar = new mf_calendar();
 
@@ -6522,7 +6522,7 @@ class mf_webshop
 				break;
 
 				case 'event':
-					if($data['meta'] > 0 && is_plugin_active('mf_calendar/index.php'))
+					if($data['meta'] > 0 && is_plugin_active("mf_calendar/index.php"))
 					{
 						$obj_calendar = new mf_calendar();
 						$obj_calendar->get_events(array('feeds' => array($data['meta']), 'limit' => 1));
@@ -6765,7 +6765,7 @@ class mf_webshop
 						break;
 
 						case 'event':
-							/*if(is_plugin_active('mf_calendar/index.php'))
+							/*if(is_plugin_active("mf_calendar/index.php"))
 							{
 								$obj_calendar = new mf_calendar();
 								$obj_calendar->get_events(array('feeds' => array($post_meta), 'limit' => 1));
@@ -6969,7 +6969,7 @@ class mf_webshop
 						break;
 
 						case 'event':
-							if(is_plugin_active('mf_calendar/index.php'))
+							if(is_plugin_active("mf_calendar/index.php"))
 							{
 								$data_temp = $this->arr_product_quick[$i];
 
@@ -7174,7 +7174,7 @@ class mf_webshop
 			}
 		}
 
-		if($this->product_social > 0 && is_plugin_active('mf_social_feed/index.php'))
+		if($this->product_social > 0 && is_plugin_active("mf_social_feed/index.php"))
 		{
 			$this->template_shortcodes['social']['html'] = "<div class='product_social'>
 				<h3>".get_post_title($this->product_social)."</h3>"
@@ -7537,7 +7537,7 @@ class mf_webshop
 							break;
 
 							case 'event':
-								/*if(is_plugin_active('mf_calendar/index.php'))
+								/*if(is_plugin_active("mf_calendar/index.php"))
 								{
 									$obj_calendar = new mf_calendar();
 									$obj_calendar->get_events(array('feeds' => array($post_meta), 'limit' => 1));
@@ -8040,7 +8040,7 @@ if(class_exists('RWMB_Field'))
 	{
 		static public function html($meta, $field)
 		{
-			if(is_plugin_active('mf_calendar/index.php'))
+			if(is_plugin_active("mf_calendar/index.php"))
 			{
 				global $obj_calendar;
 
@@ -8168,7 +8168,7 @@ if(class_exists('RWMB_Field'))
 		{
 			static public function html($meta, $field)
 			{
-				if(is_plugin_active('mf_social_feed/index.php'))
+				if(is_plugin_active("mf_social_feed/index.php"))
 				{
 					global $obj_social_feed;
 
