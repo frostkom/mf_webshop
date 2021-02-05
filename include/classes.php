@@ -3115,9 +3115,14 @@ class mf_webshop
 		return $single_template;
 	}
 
+	function get_template_path()
+	{
+		return str_replace(WP_CONTENT_DIR, "", plugin_dir_path(__FILE__))."templates/";
+	}
+
 	function get_page_templates($templates)
 	{
-		$templates_path = str_replace(WP_CONTENT_DIR, "", plugin_dir_path(__FILE__))."templates/";
+		$templates_path = $this->get_template_path();
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
@@ -4748,6 +4753,50 @@ class mf_webshop
 				break;
 			}
 		}
+	}
+
+	function get_page_template($post_id)
+	{
+		global $wpdb;
+
+		return $wpdb->get_var($wpdb->prepare("SELECT meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE ID = '%d' AND post_type = %s AND meta_key = %s LIMIT 0, 1", $post_id, 'page', '_wp_page_template'));
+	}
+
+	function display_post_states($post_states, $post)
+	{
+		$page_template = $this->get_page_template($post->ID);
+
+		if($page_template != '')
+		{
+			$templates_path = $this->get_template_path();
+
+			switch($page_template)
+			{
+				case $templates_path.'template_webshop.php':
+					$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+					$post_states['template_webshop'] = $name_webshop;
+				break;
+
+				/*case $templates_path.'template_webshop_search.php':
+					$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+					$post_states['template_webshop_search'] = $name_webshop." (".__("Search", 'lang_webshop').")";
+				break;*/
+
+				case $templates_path.'template_webshop_favorites.php':
+					$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
+
+					$post_states['template_webshop_favorites'] = $name_webshop." (".__("Favorites", 'lang_webshop').")";
+				break;
+
+				/*default:
+					$post_states['default'] = $page_template;
+				break;*/
+			}
+		}
+
+		return $post_states;
 	}
 
 	function enter_title_here($title)
