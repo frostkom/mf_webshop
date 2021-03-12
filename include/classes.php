@@ -1737,6 +1737,13 @@ class mf_webshop
 				}
 			break;
 		}
+
+		if(function_exists('wp_add_privacy_policy_content'))
+		{
+			$content = sprintf(__("When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients.", 'lang_webshop'), 'localStorage');
+
+			wp_add_privacy_policy_content(get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop')), $content);
+		}
 	}
 
 	function updated_option($option_name, $old_value, $option_value)
@@ -1765,7 +1772,7 @@ class mf_webshop
 		}
 	}
 
-	function add_policy($content)
+	/*function add_policy($content)
 	{
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
@@ -1775,7 +1782,7 @@ class mf_webshop
 		."</p>";
 
 		return $content;
-	}
+	}*/
 
 	function get_map_marker_url($option_key)
 	{
