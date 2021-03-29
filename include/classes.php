@@ -1709,11 +1709,6 @@ class mf_webshop
 	{
 		global $pagenow;
 
-		if(!is_plugin_active("mf_base/index.php") || !is_plugin_active("mf_maps/index.php"))
-		{
-			deactivate_plugins(str_replace("include/classes.php", "index.php", plugin_basename(__FILE__)));
-		}
-
 		$this->combined_head();
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
@@ -7000,7 +6995,9 @@ class mf_webshop
 
 		if(isset($obj_slideshow) && count($this->slideshow_images) > 0)
 		{
-			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array('images' => $this->slideshow_images));
+			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
+				'images' => $this->slideshow_images,
+			));
 		}
 
 		if($post_content != '')
