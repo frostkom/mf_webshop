@@ -4463,7 +4463,7 @@ class mf_webshop
 						case 'connect_new_products':
 							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
-							echo "<i class='".($post_meta == 'yes' ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
+							echo "<i class='fa ".($post_meta == 'yes' ? "fa-check green" : "fa-times red")." fa-lg'></i>";
 						break;
 
 						case 'include_on':
@@ -4539,7 +4539,7 @@ class mf_webshop
 
 							if($post_meta == true)
 							{
-								echo "<i class='".($post_meta == true ? "fa fa-eye-slash" : "fa fa-eye")." fa-lg'></i>";
+								echo "<i class='fa ".($post_meta == true ? "fa-eye-slash" : "fa-eye")." fa-lg'></i>";
 							}
 						break;
 
@@ -4623,7 +4623,7 @@ class mf_webshop
 
 							if($post_meta != '')
 							{
-								echo "<i class='".($post_meta == 'yes' ? "fa fa-check green" : "fa fa-times red")." fa-lg'></i>";
+								echo "<i class='fa ".($post_meta == 'yes' ? "fa-check green" : "fa-times red")." fa-lg'></i>";
 							}
 						break;
 					}
