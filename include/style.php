@@ -1554,7 +1554,7 @@ echo "@media all
 					display: none;
 				}
 
-			.product_quick
+			.product_quick, .product_quick ul
 			{
 				list-style: none;
 			}
@@ -1617,10 +1617,10 @@ echo "@media all
 									clear: both;
 								}
 
-								.product_quick > li > ul i
-								{
-									min-width: 1.5em;
-								}
+									.product_quick > li > ul i
+									{
+										min-width: 1.5em;
+									}
 
 			.product_property
 			{
