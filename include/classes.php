@@ -2642,7 +2642,6 @@ class mf_webshop
 					);
 
 					$obj_form->mail_data['content'] = $obj_form->get_page_content_for_email();
-					//$obj_form->mail_data['subject'] = $obj_form->page_content_data['subject'];
 
 					if(isset($data['obj_form']->answer_data['email']) && $data['obj_form']->answer_data['email'] != '')
 					{
@@ -6235,6 +6234,8 @@ class mf_webshop
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value = %s".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
+
+		//do_log("get_filter_products: ".$wpdb->last_query);
 
 		$i = 0;
 
