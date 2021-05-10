@@ -96,9 +96,11 @@ class mf_webshop
 		}
 	}
 
-	function get_category_colors()
+	function get_category_colors($data = array())
 	{
 		global $wpdb;
+
+		if(!isset($data['type'])){	$data['type'] = 'category_icon_color';}
 
 		$result = array();
 
@@ -108,7 +110,7 @@ class mf_webshop
 		{
 			$option_type = ($option_type != '' ? "_".$option_type : '');
 
-			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $this->post_type_categories.$option_type, $this->meta_prefix.'category_icon_color'));
+			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $this->post_type_categories.$option_type, $this->meta_prefix.$data['type']));
 
 			$result = array_merge($result, $result_temp);
 		}
@@ -358,15 +360,18 @@ class mf_webshop
 
 	function get_symbols_for_select()
 	{
-		$obj_font_icons = new mf_font_icons();
+		global $obj_font_icons;
 
-		$arr_icons = $obj_font_icons->get_array(array('allow_optgroup' => false));
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$arr_data = array(
 			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
 		);
 
-		foreach($arr_icons as $icon)
+		foreach($obj_font_icons->get_array(array('allow_optgroup' => false)) as $icon)
 		{
 			$arr_data[$icon] = $icon;
 		}
@@ -416,7 +421,12 @@ class mf_webshop
 
 		if($data['display_icons'])
 		{
-			$obj_font_icons = new mf_font_icons();
+			global $obj_font_icons;
+
+			if(!isset($obj_font_icons))
+			{
+				$obj_font_icons = new mf_font_icons();
+			}
 		}
 
 		foreach($result as $r)
@@ -1019,7 +1029,12 @@ class mf_webshop
 
 			/*if($option != '')
 			{
-				$obj_font_icons = new mf_font_icons();
+				global $obj_font_icons;
+
+				if(!isset($obj_font_icons))
+				{
+					$obj_font_icons = new mf_font_icons();
+				}
 
 				$suffix = $obj_font_icons->get_symbol_tag(array('symbol' => $option));
 			}*/
@@ -4114,6 +4129,11 @@ class mf_webshop
 
 			$arr_fields = array(
 				array(
+					'name' => __("Background Color", 'lang_webshop'),
+					'id' => $this->meta_prefix.'category_background_color',
+					'type' => 'color',
+				),
+				array(
 					'name' => __("Icon", 'lang_webshop'),
 					'id' => $this->meta_prefix.'category_icon',
 					'type' => 'select',
@@ -4332,6 +4352,8 @@ class mf_webshop
 
 	function column_header($cols, $post_type)
 	{
+		global $obj_font_icons;
+
 		$this->get_option_types();
 
 		foreach($this->arr_option_types as $option_type)
@@ -4343,6 +4365,7 @@ class mf_webshop
 				case $this->post_type_categories.$this->option_type:
 					unset($cols['date']);
 
+					$cols['category_background_color'] = __("Background", 'lang_webshop');
 					$cols['category_icon'] = __("Icon", 'lang_webshop');
 					$cols['products'] = get_option_or_default('setting_webshop_replace_products'.$this->option_type, __("Products", 'lang_webshop'));
 					$cols['connect_new_products'] = sprintf(__("Connect to new %s", 'lang_webshop'), strtolower(get_option_or_default('setting_webshop_replace_product'.$this->option_type, __("Product", 'lang_webshop'))));
@@ -4354,7 +4377,10 @@ class mf_webshop
 				break;
 
 				case $this->post_type_products.$this->option_type:
-					$obj_font_icons = new mf_font_icons();
+					if(!isset($obj_font_icons))
+					{
+						$obj_font_icons = new mf_font_icons();
+					}
 
 					unset($cols['date']);
 
@@ -4427,7 +4453,7 @@ class mf_webshop
 
 	function column_cell($col, $id)
 	{
-		global $wpdb;
+		global $wpdb, $obj_font_icons;
 
 		$post_type = get_post_type($id);
 
@@ -4442,12 +4468,24 @@ class mf_webshop
 				case $this->post_type_categories.$this->option_type:
 					switch($col)
 					{
+						case 'category_background_color':
+							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+
+							if($post_meta != '')
+							{
+								echo "<i class='fas fa-circle fa-lg' style='color: ".$post_meta."'></i>";
+							}
+						break;
+
 						case 'category_icon':
 							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
 
 							if($post_meta != '')
 							{
-								$obj_font_icons = new mf_font_icons();
+								if(!isset($obj_font_icons))
+								{
+									$obj_font_icons = new mf_font_icons();
+								}
 
 								echo $obj_font_icons->get_symbol_tag(array('symbol' => $post_meta, 'class' => "category_".$id." fa-lg"));
 							}
@@ -4498,7 +4536,10 @@ class mf_webshop
 
 								echo "<div class='category_icon nowrap'>";
 
-									$obj_font_icons = new mf_font_icons();
+									if(!isset($obj_font_icons))
+									{
+										$obj_font_icons = new mf_font_icons();
+									}
 
 									for($i = 0; $i < $count_temp; $i++)
 									{
@@ -5195,9 +5236,12 @@ class mf_webshop
 
 	function get_webshop_search()
 	{
-		global $wpdb;
+		global $wpdb, $obj_font_icons;
 
-		$obj_font_icons = new mf_font_icons();
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
@@ -5603,9 +5647,16 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_filter_products_item'>
-						<li class='list_item'>
-							<div>
-								<h2><a href='<%= product_url %>'><%= product_title %></a>";
+						<li class='list_item category_<%= category_id %>'>"
+							."<div>
+								<h2>";
+
+									$out .= "<% if(category_icon != '')
+									{ %>
+										<i class='<%= category_icon %>' title='<%= category_title %>'></i>
+									<% } %>";
+
+								$out .= "<a href='<%= product_url %>'><%= product_title %></a>";
 
 									/*$out .= "<% if(product_location != '')
 									{ %>
@@ -6183,6 +6234,8 @@ class mf_webshop
 		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
+		$arr_categories = explode(",", $data['category']);
+
 		$out = array();
 
 		if(isset($data['option_type']))
@@ -6231,7 +6284,7 @@ class mf_webshop
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value = %s".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category', $data['category']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category'));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
@@ -6248,9 +6301,24 @@ class mf_webshop
 
 			$post_id = $r->ID;
 			$post_title = $r->post_title;
+			$category_id = $r->category_id;
+
+			$category_icon = $category_name = "";
+
+			if($category_id > 0)
+			{
+				$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
+				$category_title = get_post_title($category_id);
+			}
+
 			$post_url = get_permalink($post_id);
 
 			$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
+
+			if($post_location > 0)
+			{
+				$post_location = get_post_title($post_location);
+			}
 
 			$post_address = "";
 
@@ -6262,10 +6330,13 @@ class mf_webshop
 			}
 
 			$out['filter_products_response'][] = array(
+				'category_id' => $category_id,
+				'category_icon' => $category_icon,
+				'category_title' => $category_title,
 				'product_id' => $post_id,
 				'product_title' => $post_title,
 				'product_url' => $post_url,
-				'product_location' => get_post_title($post_location),
+				'product_location' => post_location,
 				'product_address' => $post_address,
 			);
 
@@ -6469,6 +6540,8 @@ class mf_webshop
 
 	function gather_product_meta($data)
 	{
+		global $obj_font_icons;
+
 		if($data['public'] == 'yes' && (is_array($data['meta']) && count($data['meta']) > 0 || $data['meta'] != '' || in_array($data['type'], array('divider', 'heading'))))
 		{
 			$class = $data['type'];
@@ -6522,7 +6595,10 @@ class mf_webshop
 				case 'categories':
 					if(is_array($data['meta']))
 					{
-						$obj_font_icons = new mf_font_icons();
+						if(!isset($obj_font_icons))
+						{
+							$obj_font_icons = new mf_font_icons();
+						}
 
 						$content = "<span title='".$data['title']."'>";
 
@@ -6632,11 +6708,14 @@ class mf_webshop
 
 	function get_single_info($post)
 	{
-		global $wpdb;
+		global $wpdb, $obj_font_icons;
 
 		$out = "";
 
-		$obj_font_icons = new mf_font_icons();
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$post_id = $post->ID;
 		$post_content = $post->post_content;
@@ -9205,7 +9284,7 @@ class widget_webshop_filter_products extends WP_Widget
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
-			'webshop_category' => '',
+			'webshop_category' => array(),
 			'webshop_button_text' => '',
 		);
 
@@ -9257,14 +9336,29 @@ class widget_webshop_filter_products extends WP_Widget
 		{
 			$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
+			if(!is_array($instance['webshop_category']))
+			{
+				if($instance['webshop_category'] > 0)
+				{
+					$instance['webshop_category'] = array($instance['webshop_category']);
+				}
+			}
+
 			echo $before_widget;
 
 				if($instance['webshop_heading'] != '')
 				{
 					$instance['webshop_heading'] = apply_filters('widget_title', $instance['webshop_heading'], $instance, $this->id_base);
 
+					$category_title = "";
+
+					foreach($instance['webshop_category'] as $webshop_category)
+					{
+						$category_title .= ($category_title != '' ? ", " : "").get_post_title($webshop_category);
+					}
+
 					echo $before_title
-						.str_replace("[category]", get_post_title($instance['webshop_category']), $instance['webshop_heading'])
+						.str_replace("[category]", $category_title, $instance['webshop_heading'])
 					.$after_title;
 				}
 
@@ -9295,9 +9389,9 @@ class widget_webshop_filter_products extends WP_Widget
 						echo " data-option_type='".$instance['webshop_option_type']."'";
 					}
 
-					if($instance['webshop_category'] != '')
+					if(count($instance['webshop_category']) > 0)
 					{
-						echo " data-category='".$instance['webshop_category']."'";
+						echo " data-category='".implode(",", $instance['webshop_category'])."'";
 					}
 
 				echo " data-limit='0' data-amount='".$instance['webshop_amount']."'>"
@@ -9320,7 +9414,23 @@ class widget_webshop_filter_products extends WP_Widget
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
-		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
+		//$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
+
+		if(is_array($new_instance['webshop_category']))
+		{
+			$instance['webshop_category'] = $new_instance['webshop_category'];
+		}
+
+		else if($new_instance['webshop_category'] > 0)
+		{
+			$instance['webshop_category'] = array($instance['webshop_category']);
+		}
+
+		else
+		{
+			$instance['webshop_category'] = array();
+		}
+
 		$instance['webshop_button_text'] = sanitize_text_field($new_instance['webshop_button_text']);
 
 		return $instance;
@@ -9349,7 +9459,7 @@ class widget_webshop_filter_products extends WP_Widget
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
 			."</div>"
-			.show_select(array('data' => $this->obj_webshop->get_categories_for_select(array('include_on' => 'products')), 'name' => $this->get_field_name('webshop_category'), 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
+			.show_select(array('data' => $this->obj_webshop->get_categories_for_select(array('include_on' => 'products')), 'name' => $this->get_field_name('webshop_category')."[]", 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
 			.show_textfield(array('name' => $this->get_field_name('webshop_button_text'), 'text' => __("Button Text", 'lang_webshop'), 'value' => $instance['webshop_button_text']))
 		."</div>";
 	}
@@ -9406,7 +9516,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $post;
+		global $post, $obj_font_icons;
 
 		extract($args);
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
@@ -9465,7 +9575,10 @@ class widget_webshop_product_meta extends WP_Widget
 								$category_icon = get_post_meta($category_id, $this->obj_webshop->meta_prefix.'category_icon', true);
 								$category_title = get_post_title($category_id);
 
-								$obj_font_icons = new mf_font_icons();
+								if(!isset($obj_font_icons))
+								{
+									$obj_font_icons = new mf_font_icons();
+								}
 
 								$arr_exclude = array("[category]", "[product]");
 								$arr_include = array($category_title, get_post_title($this->obj_webshop->product_id));
@@ -9594,7 +9707,10 @@ class widget_webshop_product_meta extends WP_Widget
 						break;
 
 						case 'event_info':
-							$obj_font_icons = new mf_font_icons();
+							if(!isset($obj_font_icons))
+							{
+								$obj_font_icons = new mf_font_icons();
+							}
 
 							$out_temp = "";
 

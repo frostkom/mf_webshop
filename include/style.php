@@ -449,11 +449,25 @@ echo "@media all
 			overflow: hidden;
 			padding: 1em 1em 1em .8em;
 			transition: all .8s ease;
-		}
+		}";
 
-			.webshop_filter_products .list_item:hover
+			$result = $obj_webshop->get_category_colors(array('type' => 'category_background_color'));
+
+			foreach($result as $r)
 			{
-				background: #bddae5;
+				$post_id = $r->ID;
+				$post_color = $r->meta_value;
+
+				echo ".webshop_filter_products .list_item.category_".$post_id."
+				{
+					background: ".$post_color.";
+				}";
+			}
+
+			echo ".webshop_filter_products .list_item:hover
+			{
+				/*background: #bddae5;*/
+				box-shadow: inset 0 0 20em rgba(0, 0, 0, .1);
 			}
 
 			#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
@@ -1334,7 +1348,7 @@ echo "@media all
 									$post_id = $r->ID;
 									$post_color = $r->meta_value;
 
-									echo ".category_icon .category_".$post_id."
+									echo ".category_icon .category_".$post_id.", .webshop_filter_products .list_item.category_".$post_id." h2 > i
 									{
 										color: ".$post_color." !important;
 									}";

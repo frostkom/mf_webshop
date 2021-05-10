@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.7.13
+Version: 2.1.8.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -107,7 +107,7 @@ if(is_plugin_active("mf_base/index.php"))
 		require_plugin("meta-box/meta-box.php", "Meta Box");
 		require_plugin("mf_maps/index.php", "MF Maps");
 
-		$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
+		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
 		$arr_update_column = array();
 
