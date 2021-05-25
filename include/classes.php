@@ -5648,13 +5648,19 @@ class mf_webshop
 
 					<script type='text/template' id='template_filter_products_item'>
 						<li class='list_item category_<%= category_id %>'>"
-							."<div>
-								<h2>";
+							."<div>";
 
-									$out .= "<% if(category_icon != '')
+								$out .= "<% if(custom_category_id > 0)
+								{ %>
+									<div class='custom_category custom_category_<%= custom_category_id %>'></div>
+								<% } %>";
+
+								$out .= "<h2>";
+
+									/*$out .= "<% if(category_icon != '')
 									{ %>
 										<i class='<%= category_icon %>' title='<%= category_title %>'></i>
-									<% } %>";
+									<% } %>";*/
 
 								$out .= "<a href='<%= product_url %>'><%= product_title %></a>";
 
@@ -6303,12 +6309,19 @@ class mf_webshop
 			$post_title = $r->post_title;
 			$category_id = $r->category_id;
 
-			$category_icon = $category_name = "";
+			$custom_category_id = ""; //$category_icon = $category_title = 
 
-			if($category_id > 0)
+			/*if($category_id > 0)
 			{
 				$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 				$category_title = get_post_title($category_id);
+			}*/
+
+			$custom_categories = $this->get_post_name_for_type('custom_categories');
+
+			if($custom_categories != '')
+			{
+				$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
 			}
 
 			$post_url = get_permalink($post_id);
@@ -6331,8 +6344,9 @@ class mf_webshop
 
 			$out['filter_products_response'][] = array(
 				'category_id' => $category_id,
-				'category_icon' => $category_icon,
-				'category_title' => $category_title,
+				//'category_icon' => $category_icon,
+				//'category_title' => $category_title,
+				'custom_category_id' => $custom_category_id,
 				'product_id' => $post_id,
 				'product_title' => $post_title,
 				'product_url' => $post_url,
@@ -7315,7 +7329,7 @@ class mf_webshop
 			."</div>";
 		}
 
-		$this->template_shortcodes['previous_next']['html'] = "<div class='product_previous_next flex_flow'></div>";
+		$this->template_shortcodes['previous_next']['html'] = "<div class='product_previous_next flex_flow hide'></div>";
 
 		return $out;
 	}

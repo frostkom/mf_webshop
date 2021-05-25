@@ -113,9 +113,8 @@ echo "<div class='wrap'>
 							);
 						}
 
-						echo show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300)); //, 'width' => 600
-
-					echo "</div>
+						echo show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300))
+					."</div>
 				</div>
 			</div>
 			<div id='postbox-container-1'>
@@ -129,7 +128,6 @@ echo "<div class='wrap'>
 						."</div>
 					</form>
 				</div>
-
 				<div class='postbox'>
 					<h3 class='hndle'><span>".__("Location", 'lang_webshop')."</span></h3>
 					<div class='inside'>
@@ -162,8 +160,7 @@ echo "<div class='wrap'>
 					</div>";
 				}
 
-				echo "
-			</div>
+			echo "</div>
 		</div>
 	</div>
 </div>";

@@ -466,9 +466,16 @@ echo "@media all
 
 			echo ".webshop_filter_products .list_item:hover
 			{
-				/*background: #bddae5;*/
 				box-shadow: inset 0 0 20em rgba(0, 0, 0, .1);
 			}
+
+				.webshop_filter_products .list_item h2, .webshop_filter_products .list_item .location
+				{
+					display: block;
+					/*overflow: hidden;
+					text-overflow: ellipsis;*/
+					white-space: nowrap;
+				}
 
 			#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
 			{
@@ -775,28 +782,32 @@ echo "@media all
 							text-transform: uppercase;
 						}";
 
-			$obj_calendar = new mf_calendar();
-			$result = $obj_calendar->get_calendar_colors();
-
-			foreach($result as $r)
+			if(is_plugin_active("mf_calendar/index.php"))
 			{
-				$post_id = $r->ID;
-				$post_color = $r->meta_value;
+				$obj_calendar = new mf_calendar();
 
-				echo ".webshop_events li.calendar_feed_".$post_id."
+				$result = $obj_calendar->get_calendar_colors();
+
+				foreach($result as $r)
 				{
-					border-left-color: ".$post_color.";
-				}
+					$post_id = $r->ID;
+					$post_color = $r->meta_value;
 
-					#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
+					echo ".webshop_events li.calendar_feed_".$post_id."
 					{
-						color: ".$post_color.";
+						border-left-color: ".$post_color.";
 					}
 
-				.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
-				{
-					background: ".$post_color.";
-				}";
+						#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
+						{
+							color: ".$post_color.";
+						}
+
+					.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
+					{
+						background: ".$post_color.";
+					}";
+				}
 			}
 
 			$result = $obj_webshop->get_category_colors();
@@ -1341,6 +1352,8 @@ echo "@media all
 										margin-bottom: 5%;
 									}";
 
+								// Categories
+								############################
 								$result = $obj_webshop->get_category_colors();
 
 								foreach($result as $r)
@@ -1353,6 +1366,55 @@ echo "@media all
 										color: ".$post_color." !important;
 									}";
 								}
+								############################
+
+								// Custom Categories
+								############################
+								$obj_webshop->get_option_types();
+
+								foreach($obj_webshop->arr_option_types as $option_type)
+								{
+									$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+
+									$custom_categories = $obj_webshop->get_post_name_for_type('custom_categories');
+
+									if($custom_categories != '')
+									{
+										$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->post_type_products.$option_type, $obj_webshop->meta_prefix.$custom_categories));
+
+										if($wpdb->num_rows > 0)
+										{
+											echo ".webshop_filter_products .list_item .custom_category
+											{
+												background-size: contain;
+												float: left;
+												height: 2.5em;
+												margin: .2em .5em 0 0;
+												width: 2.5em;
+											}";
+
+											foreach($result as $r)
+											{
+												$post_id = $r->ID;
+												$custom_category_id = $r->meta_value;
+
+												if($custom_category_id > 0)
+												{
+													$custom_category_img = get_post_meta_file_src(array('post_id' => $custom_category_id, 'meta_key' => $obj_webshop->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
+
+													if($custom_category_img != '')
+													{
+														echo ".webshop_filter_products .list_item .custom_category.custom_category_".$custom_category_id."
+														{
+															background-image: url('".$custom_category_img."');
+														}";
+													}
+												}
+											}
+										}
+									}
+								}
+								############################
 
 							echo ".product_image_container img
 							{

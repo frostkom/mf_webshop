@@ -405,7 +405,12 @@ var WebshopView = Backbone.View.extend(
 
 				if(html != "")
 				{
-					jQuery(".product_previous_next").html(html);
+					jQuery(".product_previous_next").html(html).removeClass('hide');
+				}
+
+				else
+				{
+					jQuery(".product_previous_next").addClass('hide');
 				}
 			}
 		}
@@ -577,7 +582,7 @@ var WebshopView = Backbone.View.extend(
 
 	product_form_has_changed: function()
 	{
-		return script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '';
+		return (script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '');
 	},
 
 	show_quote_request_button: function()
