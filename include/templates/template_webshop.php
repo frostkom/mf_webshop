@@ -7,6 +7,11 @@ get_header();
 
 	if(have_posts())
 	{
+		if(!isset($obj_theme_core))
+		{
+			$obj_theme_core = new mf_theme_core();
+		}
+
 		echo "<article".(IS_ADMIN ? " class='template_webshop'" : "").">";
 
 			while(have_posts())
@@ -18,7 +23,7 @@ get_header();
 
 				echo "<h1>".$post_title."</h1>";
 
-				if(is_active_sidebar('widget_after_heading') && !post_password_required())
+				if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($post->ID) == false)
 				{
 					ob_start();
 

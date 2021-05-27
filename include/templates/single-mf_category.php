@@ -4,7 +4,15 @@ get_header();
 
 	if(have_posts())
 	{
-		$obj_webshop = new mf_webshop();
+		if(!isset($obj_theme_core))
+		{
+			$obj_theme_core = new mf_theme_core();
+		}
+
+		if(!isset($obj_webshop))
+		{
+			$obj_webshop = new mf_webshop();
+		}
 
 		while(have_posts())
 		{
@@ -16,7 +24,7 @@ get_header();
 
 			$after_heading = "";
 
-			if(is_active_sidebar('widget_after_heading') && !post_password_required())
+			if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($cat_id) == false)
 			{
 				ob_start();
 

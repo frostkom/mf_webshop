@@ -4,7 +4,15 @@ get_header();
 
 	if(have_posts())
 	{
-		$obj_webshop = new mf_webshop();
+		if(!isset($obj_theme_core))
+		{
+			$obj_theme_core = new mf_theme_core();
+		}
+
+		if(!isset($obj_webshop))
+		{
+			$obj_webshop = new mf_webshop();
+		}
 
 		echo "<article".(IS_ADMIN ? " class='single-mf_product'" : "").">";
 
@@ -12,7 +20,7 @@ get_header();
 			{
 				the_post();
 
-				if(is_active_sidebar('widget_after_heading') && !post_password_required())
+				if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($post->ID) == false)
 				{
 					ob_start();
 
