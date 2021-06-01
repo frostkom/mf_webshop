@@ -6338,7 +6338,7 @@ class mf_webshop
 				'product_id' => $post_id,
 				'product_title' => $post_title,
 				'product_url' => $post_url,
-				'product_location' => post_location,
+				'product_location' => $post_location,
 				'product_address' => $post_address,
 			);
 
