@@ -5909,7 +5909,7 @@ class mf_webshop
 
 				$coordinates_from_ip = get_or_set_transient(array('key' => 'coordinates_from_ip_'.$this->ip_temp, 'callback' => array($this, 'get_transient_coordinates_from_ip')));
 
-				list($data['latitude'], $data['longitude']) = explode(",", $coordinates_from_ip);
+				@list($data['latitude'], $data['longitude']) = explode(",", $coordinates_from_ip);
 			}
 
 			if($data['latitude'] != '' && $data['longitude'] != '')
@@ -6281,8 +6281,6 @@ class mf_webshop
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category'));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
-
-		//do_log("get_filter_products: ".$wpdb->last_query);
 
 		$i = 0;
 
@@ -9297,6 +9295,7 @@ class widget_webshop_filter_products extends WP_Widget
 	function get_order_by_for_select()
 	{
 		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
 			'latest' => __("Latest", 'lang_webshop'),
 			'alphabetical' => __("A-Z", 'lang_webshop'),
 			'distance' => __("Closest", 'lang_webshop'),

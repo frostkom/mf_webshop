@@ -789,12 +789,20 @@ switch($type_switch)
 
 			$result = $obj_webshop->get_events(array('product_id' => $product_id, 'exact_date' => $date_temp, 'amount' => 5));
 
-			foreach($result['event_response'] as $event)
+			if(is_array($result['event_response']))
 			{
-				$arr_events[] = array(
-					'class' => $event['list_class'],
-				);
+				foreach($result['event_response'] as $event)
+				{
+					$arr_events[] = array(
+						'class' => $event['list_class'],
+					);
+				}
 			}
+
+			/*else
+			{
+				do_log("No result from get_events() => ".$product_id.", ".$date_temp);
+			}*/
 
 			$arr_days[] = array(
 				'date' => $date_temp,

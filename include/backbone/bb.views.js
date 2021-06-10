@@ -1166,44 +1166,47 @@ var WebshopView = Backbone.View.extend(
 			amount = dom_obj.attr('data-amount'),
 			get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
 
-		if(option_type != '')
-		{
-			get_vars += "&option_type=" + option_type;
-		}
-
 		if(order_by != '')
 		{
-			get_vars += "&order_by=" + order_by;
+			if(option_type != '')
+			{
+				get_vars += "&option_type=" + option_type;
+			}
+
+			if(order_by != '')
+			{
+				get_vars += "&order_by=" + order_by;
+			}
+
+			if(latitude != '')
+			{
+				get_vars += "&latitude=" + latitude;
+			}
+
+			if(longitude != '')
+			{
+				get_vars += "&longitude=" + longitude;
+			}
+
+			if(dom_obj.children("li").length == 0)
+			{
+				get_vars += "&initial=true";
+			}
+
+			if(limit > 0)
+			{
+				get_vars += "&limit=" + limit;
+			}
+
+			dom_obj.children(".widget_load_more").remove();
+
+			if(dom_obj.children(".widget_spinner").length == 0)
+			{
+				dom_obj.append(_.template(jQuery("#template_filter_products_spinner").html())(''));
+			}
+
+			this.model.getPage(get_vars);
 		}
-
-		if(latitude != '')
-		{
-			get_vars += "&latitude=" + latitude;
-		}
-
-		if(longitude != '')
-		{
-			get_vars += "&longitude=" + longitude;
-		}
-
-		if(dom_obj.children("li").length == 0)
-		{
-			get_vars += "&initial=true";
-		}
-
-		if(limit > 0)
-		{
-			get_vars += "&limit=" + limit;
-		}
-
-		dom_obj.children(".widget_load_more").remove();
-
-		if(dom_obj.children(".widget_spinner").length == 0)
-		{
-			dom_obj.append(_.template(jQuery("#template_filter_products_spinner").html())(''));
-		}
-
-		this.model.getPage(get_vars);
 	},
 
 	load_all_filter_products: function()
