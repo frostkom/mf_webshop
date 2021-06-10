@@ -30,7 +30,10 @@ else
 	$setting_mobile_breakpoint = 600;
 }
 
-$obj_webshop = new mf_webshop();
+if(!isset($obj_webshop))
+{
+	$obj_webshop = new mf_webshop();
+}
 
 $setting_webshop_display_sort = get_option('setting_webshop_display_sort');
 $setting_webshop_display_filter = get_option('setting_webshop_display_filter');

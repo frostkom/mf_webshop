@@ -6297,13 +6297,7 @@ class mf_webshop
 			$post_title = $r->post_title;
 			$category_id = $r->category_id;
 
-			$custom_category_id = ""; //$category_icon = $category_title = 
-
-			/*if($category_id > 0)
-			{
-				$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
-				$category_title = get_post_title($category_id);
-			}*/
+			$custom_category_id = "";
 
 			$custom_categories = $this->get_post_name_for_type('custom_categories');
 
@@ -6332,8 +6326,6 @@ class mf_webshop
 
 			$out['filter_products_response'][] = array(
 				'category_id' => $category_id,
-				//'category_icon' => $category_icon,
-				//'category_title' => $category_title,
 				'custom_category_id' => $custom_category_id,
 				'product_id' => $post_id,
 				'product_title' => $post_title,

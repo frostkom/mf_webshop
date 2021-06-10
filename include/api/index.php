@@ -11,7 +11,10 @@ if(!defined('ABSPATH'))
 
 do_action('run_cache', array('suffix' => 'json'));
 
-$obj_webshop = new mf_webshop();
+if(!isset($obj_webshop))
+{
+	$obj_webshop = new mf_webshop();
+}
 
 $json_output = array(
 	'success' => false,

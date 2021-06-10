@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.8.9
+Version: 2.1.8.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -148,13 +148,6 @@ if(is_plugin_active("mf_base/index.php"))
 
 		update_columns($arr_update_column);
 
-		/*if(function_exists('add_css_selectors'))
-		{
-			add_css_selectors(array(
-				"",
-			));
-		}*/
-
 		replace_post_type(array('old' => 'mf_categories', 'new' => 'mf_category'));
 		replace_post_type(array('old' => 'mf_products', 'new' => 'mf_product'));
 		replace_post_type(array('old' => 'mf_custom_categories', 'new' => 'mf_cust_cat'));
@@ -195,40 +188,6 @@ if(is_plugin_active("mf_base/index.php"))
 		mf_uninstall_plugin(array(
 			'options' => $arr_options,
 		));
-
-		// Update lat/long for all products with coordinates
-		########################################
-		/*$obj_webshop->get_option_types();
-
-		foreach($obj_webshop->arr_option_types as $option_type)
-		{
-			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
-
-			$coordinates_post_name = $obj_webshop->get_post_name_for_type('coordinates');
-
-			if($coordinates_post_name != '')
-			{
-				$result = $obj_webshop->get_list();
-
-				foreach($result as $r)
-				{
-					$post_id = $r->ID;
-
-					$post_coordinates = get_post_meta($post_id, $obj_webshop->meta_prefix.$coordinates_post_name, true);
-
-					if($post_coordinates != '')
-					{
-						list($latitude, $longitude) = $obj_webshop->split_coordinates($post_coordinates);
-
-						update_post_meta($post_id, $obj_webshop->meta_prefix.'latitude', $latitude);
-						update_post_meta($post_id, $obj_webshop->meta_prefix.'longitude', $longitude);
-					}
-				}
-			}
-		}
-
-		$obj_webshop->option_type = '';*/
-		########################################
 	}
 
 	function uninstall_webshop()
