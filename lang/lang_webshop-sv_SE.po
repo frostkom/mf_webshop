@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-07 12:24+0100\n"
+"POT-Creation-Date: 2021-06-24 13:29+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -202,7 +202,7 @@ msgstr "Intervall"
 #: ../include/classes.php:319
 #: ../include/classes.php:320
 #: ../include/classes.php:674
-#: ../stats/index.php:134
+#: ../stats/index.php:132
 msgid "Location"
 msgstr "Plats"
 
@@ -428,7 +428,7 @@ msgstr "Ersätt text"
 #: ../include/classes.php:817
 #: ../include/classes.php:1191
 #: ../include/classes.php:1211
-#: ../include/api/index.php:358
+#: ../include/api/index.php:361
 msgid "Product"
 msgstr "Produkt"
 
@@ -672,87 +672,87 @@ msgstr "%s rensades från denna enhet"
 msgid "When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
 msgstr "Vid sökning sparar vi information i en sk. %s i den besökandes webbläsare. Denna data används endast på webbsidan för att komma ihåg vad som senast sparades och skicka inte vidare till servern förrän besökaren fullföljer en förfrågan. Då skickas information med vid sidan om formuläret för att dela ut förfrågan till rätt mottagare."
 
-#: ../include/classes.php:1837
+#: ../include/classes.php:1825
 msgid "Are you sure?"
 msgstr "Är du säker?"
 
-#: ../include/classes.php:1844
+#: ../include/classes.php:1832
 msgid "Name"
 msgstr "Namn"
 
-#: ../include/classes.php:1845
+#: ../include/classes.php:1833
 msgid "Updated"
 msgstr "Uppdaterat"
 
-#: ../include/classes.php:1857
+#: ../include/classes.php:1845
 msgid "Edit"
 msgstr "Redigera"
 
-#: ../include/classes.php:1858
+#: ../include/classes.php:1846
 msgid "Edit in Admin"
 msgstr "Redigera i admin"
 
-#: ../include/classes.php:1859
+#: ../include/classes.php:1847
 msgid "View"
 msgstr "Visa"
 
-#: ../include/classes.php:1869
+#: ../include/classes.php:1857
 msgid "There is nothing to show"
 msgstr "Det finns inget att visa"
 
-#: ../include/classes.php:1877
+#: ../include/classes.php:1865
 msgid "Title"
 msgstr "Rubrik"
 
-#: ../include/classes.php:1877
+#: ../include/classes.php:1865
 #, php-format
 msgid "Your name or the name of the %s"
 msgstr "Ditt namn eller namnet på %s"
 
-#: ../include/api/index.php:59
+#: ../include/api/index.php:62
 msgid "Draft"
 msgstr "Utkast"
 
-#: ../include/api/index.php:165
-#: ../include/api/index.php:197
+#: ../include/api/index.php:168
+#: ../include/api/index.php:200
 #, php-format
 msgid "You have to install the plugin %s first"
 msgstr "Du behöver installera pluginet %s först"
 
-#: ../include/api/index.php:484
-#: ../include/api/index.php:547
+#: ../include/api/index.php:487
+#: ../include/api/index.php:550
 msgid "The end date must be later than the start date"
 msgstr "Slutdatumet måste vara senare än startdatumet"
 
-#: ../include/api/index.php:490
-#: ../include/api/index.php:553
+#: ../include/api/index.php:493
+#: ../include/api/index.php:556
 #, php-format
 msgid "The end date must be within %d days from the start date"
 msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
 
-#: ../include/api/index.php:677
-#: ../include/api/index.php:719
+#: ../include/api/index.php:680
+#: ../include/api/index.php:722
 #, php-format
 msgid "I have saved the information for you. %sView the page here%s"
 msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-#: ../include/api/index.php:687
+#: ../include/api/index.php:690
 msgid "I could not update the information for you"
 msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-#: ../include/api/index.php:693
+#: ../include/api/index.php:696
 msgid "It does not look like you changed anything, so nothing was saved"
 msgstr "Det ser inte ut som att något har ändrats, så inget sparades"
 
-#: ../include/api/index.php:726
+#: ../include/api/index.php:729
 msgid "I could not save the information for you"
 msgstr "Jag kunde inte spara informationen åt dig"
 
-#: ../include/api/index.php:732
+#: ../include/api/index.php:735
 msgid "One with that title already exists"
 msgstr "En med den rubriken finns redan"
 
-#: ../include/templates/single-mf_category.php:68
+#: ../include/templates/single-mf_category.php:76
 msgid "Read More"
 msgstr "Läs mer"
 
@@ -827,31 +827,31 @@ msgstr "Månader"
 msgid "Years"
 msgstr "År"
 
-#: ../stats/index.php:123
+#: ../stats/index.php:122
 msgid "Filter"
 msgstr ""
 
-#: ../stats/index.php:125
+#: ../stats/index.php:124
 msgid "Limit"
 msgstr "Antal"
 
-#: ../stats/index.php:127
+#: ../stats/index.php:126
 msgid "From"
 msgstr "Från"
 
-#: ../stats/index.php:128
+#: ../stats/index.php:127
 msgid "To"
 msgstr "Till"
 
-#: ../stats/index.php:157
+#: ../stats/index.php:155
 msgid "Overall"
 msgstr "Allmänt"
 
-#: ../stats/index.php:159
+#: ../stats/index.php:157
 msgid "First answer"
 msgstr "Första svaret"
 
-#: ../stats/index.php:160
+#: ../stats/index.php:158
 msgid "Latest answer"
 msgstr "Senaste svaret"
 

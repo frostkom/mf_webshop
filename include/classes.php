@@ -5818,26 +5818,66 @@ class mf_webshop
 	{
 		$out = "";
 
-		$url = "https://api.ipgeolocationapi.com/geolocate/".$this->ip_temp;
+		//$type = 'ipgeolocationapi'; // Not anymore is working
+		$type = 'geoplugin';
+		//$type = 'ipapi';
+
+		switch($type)
+		{
+			case 'ipgeolocationapi':
+				$url = "https://api.ipgeolocationapi.com/geolocate/".$this->ip_temp;
+			break;
+
+			case 'geoplugin':
+				$url = "http://www.geoplugin.net/json.gp?ip=".$this->ip_temp;
+			break;
+
+			case 'ipapi':
+				$url = "http://ip-api.com/json/".$this->ip_temp;
+			break;
+		}
 
 		list($content, $headers) = get_url_content(array(
 			'url' => $url,
 			'catch_head' => true,
 		));
 
+		$log_message = "I could not connect to IP Geo API";
+
 		switch($headers['http_code'])
 		{
 			case 200:
 				$json = json_decode($content);
 
-				if(isset($json->geo->latitude) && isset($json->geo->longitude))
+				switch($type)
 				{
-					$out = $json->geo->latitude.",".$json->geo->longitude;
+					case 'ipgeolocationapi':
+						if(isset($json->geo->latitude) && isset($json->geo->longitude))
+						{
+							$out = $json->geo->latitude.",".$json->geo->longitude;
+						}
+					break;
+
+					case 'geoplugin':
+						if(isset($json->geoplugin_latitude) && isset($json->geoplugin_longitude))
+						{
+							$out = $json->geoplugin_latitude.",".$json->geoplugin_longitude;
+						}
+					break;
+
+					case 'ipapi':
+						if(isset($json->lat) && isset($json->lon))
+						{
+							$out = $json->lat.",".$json->lon;
+						}
+					break;
 				}
+
+				do_log($log_message, 'trash');
 			break;
 
 			default:
-				do_log("I could not connect to IP Geo API: ".$headers['http_code']." (".var_export($headers, true).", ".$content.")");
+				do_log($log_message." (Type: ".$type."): ".$headers['http_code']." (".var_export($headers, true).", ".$content.")");
 			break;
 		}
 
@@ -8091,7 +8131,7 @@ if(class_exists('mf_import'))
 	}
 }
 
-if(class_exists('RWMB_Field'))
+if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 {
 	class RWMB__Field extends RWMB_Field{}
 

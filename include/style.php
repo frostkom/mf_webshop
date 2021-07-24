@@ -475,8 +475,8 @@ echo "@media all
 				.webshop_filter_products .list_item h2, .webshop_filter_products .list_item .location
 				{
 					display: block;
-					/*overflow: hidden;
-					text-overflow: ellipsis;*/
+					overflow: hidden;
+					text-overflow: ellipsis;
 					white-space: nowrap;
 				}
 
@@ -486,13 +486,13 @@ echo "@media all
 				-webkit-flex: 1 1 auto;
 				-ms-flex: 1 1 auto;
 				flex: 1 1 auto;
+				max-width: 60%;
 			}
 
 				#wrapper .webshop_filter_products li h2, #wrapper .webshop_events li h2
 				{
 					font-weight: normal;
 					margin-bottom: 0;
-					/*white-space: nowrap;*/ /* This makes no sense on mobile since a lot of titles get cut off */
 				}
 
 					#wrapper .webshop_filter_products li h2 a, #wrapper .webshop_events li h2 a, #wrapper .webshop_filter_products li p a, #wrapper .webshop_events li p a
@@ -518,11 +518,11 @@ echo "@media all
 
 				#wrapper .webshop_filter_products li .list_url, #wrapper .webshop_events li .list_url
 				{
-					-webkit-box-flex: 0 0 6em;
+					/*-webkit-box-flex: 0 0 6em;
 					-webkit-flex: 0 0 6em;
 					-ms-flex: 0 0 6em;
-					flex: 0 0 6em;
-					text-align: center;
+					flex: 0 0 6em;*/
+					text-align: right;
 				}
 
 					#wrapper .webshop_filter_products li .list_url a, #wrapper .webshop_events li .list_url a
@@ -530,7 +530,10 @@ echo "@media all
 						background: #666;
 						border-radius: 2em;
 						color: #fff;
+						display: inline-block;
 						opacity: 1;
+						padding: .3em 1em;
+						text-align: center;
 						top: 50%;
 						transition: all 1.2s ease;
 						-webkit-transform: translateY(0%, -50%);
@@ -938,6 +941,7 @@ echo "@media all
 	{
 		position: relative;
 	}
+
 		.widget.webshop_map #webshop_map
 		{
 			min-height: 300px;

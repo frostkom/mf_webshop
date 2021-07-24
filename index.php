@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: 
-Version: 2.1.8.12
+Version: 2.1.8.18
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -14,7 +14,7 @@ Depends: Meta Box, MF Base, MF Maps
 GitHub Plugin URI: frostkom/mf_webshop
 */
 
-if(is_plugin_active("mf_base/index.php"))
+if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 {
 	include_once("include/classes.php");
 	include_once("include/functions.php");
