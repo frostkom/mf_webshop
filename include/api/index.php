@@ -39,6 +39,11 @@ switch($type_switch)
 				$arr_type[2] = $arr_type[3];
 			}
 
+			else // Just to make sure that option_type isn't carried forward from another loop earlier in the code
+			{
+				$obj_webshop->option_type = "";
+			}
+
 			$type_temp = $arr_type[1]."/".$arr_type[2];
 
 			switch($type_temp)
