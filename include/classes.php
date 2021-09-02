@@ -2591,11 +2591,12 @@ class mf_webshop
 
 		if(count($arr_product_ids) > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id));
 
 			foreach($result as $r)
 			{
 				$data['obj_form']->email_admin = $r->formEmail;
+				$data['obj_form']->email_notify_from = $r->formEmailNotifyFrom;
 				$data['obj_form']->email_notify_page = $r->formEmailNotifyPage;
 				$data['obj_form']->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $data['obj_form']->form_name);
 			}
@@ -2665,6 +2666,7 @@ class mf_webshop
 							$name_temp = get_bloginfo('name');
 						}
 
+						$obj_form->mail_data['from'] = $data['obj_form']->answer_data['email'];
 						$obj_form->mail_data['headers'] = "From: ".$name_temp." <".$data['obj_form']->answer_data['email'].">\r\n";
 					}
 
