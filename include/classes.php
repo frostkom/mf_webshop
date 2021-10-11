@@ -5947,7 +5947,7 @@ class mf_webshop
 		{
 			if($data['latitude'] == '' || $data['longitude'] == '')
 			{
-				$this->ip_temp = $_SERVER['REMOTE_ADDR'];
+				$this->ip_temp = get_current_visitor_ip();
 
 				$coordinates_from_ip = get_or_set_transient(array('key' => 'coordinates_from_ip_'.$this->ip_temp, 'callback' => array($this, 'get_transient_coordinates_from_ip')));
 
@@ -10082,7 +10082,7 @@ class widget_webshop_cart extends WP_Widget
 
 		else
 		{
-			$_SESSION['sesWebshopCookie'] = $sesWebshopCookie = md5(AUTH_SALT.$_SERVER['REMOTE_ADDR'].date("Y-m-d H:i:s"));
+			$_SESSION['sesWebshopCookie'] = $sesWebshopCookie = md5(AUTH_SALT.get_current_visitor_ip().date("Y-m-d H:i:s"));
 		}
 
 		$intProductID = check_var('intProductID');
