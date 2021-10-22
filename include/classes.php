@@ -2429,7 +2429,7 @@ class mf_webshop
 						$query_join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix.$address_post_name."'";
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish' AND ID = '%d'", $this->post_type_products.$this->option_type, $product_id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND ID = '%d'", $this->post_type_products.$this->option_type, 'publish', $product_id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -4870,7 +4870,7 @@ class mf_webshop
 
 			else
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = 'publish' AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes'", $this->post_type_categories.$this->option_type));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes'", $this->post_type_categories.$this->option_type, 'publish'));
 
 				foreach($result as $r)
 				{
@@ -4912,7 +4912,7 @@ class mf_webshop
 		if(!isset($data['select'])){	$data['select'] = "ID";}
 		if(!isset($data['order_by'])){	$data['order_by'] = "";}
 
-		$query = $wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'".($data['order_by'] != '' ? " ORDER BY ".$data['order_by'] : ""), $this->post_type_products.$this->option_type);
+		$query = $wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s".($data['order_by'] != '' ? " ORDER BY ".$data['order_by'] : ""), $this->post_type_products.$this->option_type, 'publish');
 
 		switch($data['output'])
 		{
@@ -4929,7 +4929,7 @@ class mf_webshop
 
 	function rwmb_before_save_post($post_id)
 	{
-		global $post; //$wpdb, 
+		global $post;
 
 		$this->get_option_type_from_post_id($post_id);
 
@@ -4940,7 +4940,6 @@ class mf_webshop
 
 			if($post_meta_new == 'yes' && $post_meta_new != $post_meta_old)
 			{
-				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
 				$result = $this->get_list();
 
 				foreach($result as $r)
@@ -5364,7 +5363,6 @@ class mf_webshop
 									'' => $name_choose_here,
 								);
 
-								//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
 								$result = $this->get_list();
 
 								foreach($result as $r)
@@ -5406,14 +5404,8 @@ class mf_webshop
 
 								$post_title = get_post_meta_or_default($post_id, $this->meta_prefix.'document_alt_text', true, $post_title);
 
-								/*if($post_document_alt_text != '')
-								{
-									$post_title = $post_document_alt_text;
-								}*/
-
 								$obj_webshop_interval->add_interval_type($post_name, $post_title);
 
-								//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products.$this->option_type));
 								$result = $this->get_list();
 
 								foreach($result as $r)
@@ -6143,7 +6135,7 @@ class mf_webshop
 					INNER JOIN ".$wpdb->posts." ON ".$wpdb->posts.".ID = postmeta_calendar.post_id AND postmeta_calendar.meta_key = '".$obj_calendar->meta_prefix."calendar'
 					INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id AND postmeta_category.meta_key = '".$obj_calendar->meta_prefix."category'"
 					.$query_join
-				." WHERE post_type = %s AND post_status = 'publish' AND postmeta_calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_having.$query_order.$query_limit, $obj_calendar->post_type_event));
+				." WHERE post_type = %s AND post_status = %s AND postmeta_calendar.meta_value IN ('".implode("', '", $arr_product_ids)."')".$query_where.$query_having.$query_order.$query_limit, $obj_calendar->post_type_event, 'publish'));
 
 				if($data['limit'] > 0)
 				{
@@ -6320,7 +6312,7 @@ class mf_webshop
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = 'publish' AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, $this->meta_prefix.'category'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = %s AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.'category'));
 
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
@@ -8595,7 +8587,6 @@ class widget_webshop_form extends WP_Widget
 
 					$is_numeric = in_array($post_custom_type, array('number', 'price', 'size'));
 
-					//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
 					$result = $this->get_list();
 
 					foreach($result as $r)
@@ -8634,14 +8625,8 @@ class widget_webshop_form extends WP_Widget
 
 					$post_title = get_post_meta_or_default($data['post_id'], $this->obj_webshop->meta_prefix.'document_alt_text', true, $post_title);
 
-					/*if($post_document_alt_text != '')
-					{
-						$post_title = $post_document_alt_text;
-					}*/
-
 					$obj_webshop_interval->add_interval_type($post_name, $post_title);
 
-					//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish'", $this->post_type_products));
 					$result = $this->get_list();
 
 					foreach($result as $r)
@@ -8930,7 +8915,7 @@ class widget_webshop_favorites extends WP_Widget
 					$query_join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".esc_sql($this->obj_webshop->meta_prefix.$address_post_name)."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish' AND ID IN ('".implode("','", $instance['webshop_products'])."') ORDER BY menu_order ASC", $this->obj_webshop->post_type_products));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND ID IN ('".implode("','", $instance['webshop_products'])."') ORDER BY menu_order ASC", $this->obj_webshop->post_type_products, 'publish'));
 				$rows = $wpdb->num_rows;
 
 				echo $this->obj_webshop->get_widget_list($instance, $result, $rows)
@@ -9036,7 +9021,7 @@ class widget_webshop_recent extends WP_Widget
 					$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS address_meta ON ".$wpdb->posts.".ID = address_meta.post_id AND address_meta.meta_key = '".esc_sql($this->obj_webshop->meta_prefix.$address_post_name)."'";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish'".$query_where." ORDER BY post_date DESC LIMIT 0, ".esc_sql($instance['webshop_amount']), $this->obj_webshop->post_type_products));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s".$query_where." ORDER BY post_date DESC LIMIT 0, ".esc_sql($instance['webshop_amount']), $this->obj_webshop->post_type_products, 'publish'));
 				$rows = $wpdb->num_rows;
 
 				echo $this->obj_webshop->get_widget_list($instance, $result, $rows)
@@ -10127,7 +10112,6 @@ class widget_webshop_cart extends WP_Widget
 			{
 				$accepted = false;
 
-				//$result	= $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title ASC", $obj_webshop->post_type_customers.$this->obj_webshop->option_type));
 				$result = $this->obj_webshop->get_list(array('order_by' => "post_title ASC"));
 
 				if($wpdb->num_rows > 0)

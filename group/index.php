@@ -40,7 +40,7 @@ if($intGroupID > 0)
 	{
 		$obj_group->remove_all_address($intGroupID);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = 'publish' AND meta_value != '' GROUP BY meta_value", $obj_webshop->meta_prefix.$email_post_name, $obj_webshop->post_type_products));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->meta_prefix.$email_post_name, $obj_webshop->post_type_products, 'publish'));
 
 		foreach($result as $r)
 		{

@@ -236,7 +236,7 @@ echo "<div class='wrap'>
 				$intUserID = $r->userID;
 				$strOrderCreated = $r->orderCreated;
 
-				$strCustomerName = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = 'publish' AND ID = '%d'", $obj_webshop->post_type_customers, $intCustomerID));
+				$strCustomerName = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND ID = '%d'", $obj_webshop->post_type_customers, 'publish', $intCustomerID));
 
 				echo "<tr>
 					<td>";

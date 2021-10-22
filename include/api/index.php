@@ -957,7 +957,17 @@ switch($type_switch)
 
 		$json_output['product_response'] = array();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = 'publish'".$query_where.($query_group != '' ? " GROUP BY ".$query_group : "").($query_order != '' ? " ORDER BY ".$query_order : ""), $obj_webshop->post_type_products.$obj_webshop->option_type));
+		if($query_group != '')
+		{
+			$query_group = " GROUP BY ".$query_group;
+		}
+		
+		if($query_order != '')
+		{
+			$query_order = " ORDER BY ".$query_order;
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s".$query_where.$query_group.$query_order, $obj_webshop->post_type_products.$obj_webshop->option_type, 'publish'));
 
 		foreach($result as $r)
 		{
