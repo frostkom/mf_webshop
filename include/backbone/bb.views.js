@@ -439,26 +439,29 @@ var WebshopView = Backbone.View.extend(
 		var hash = location.hash.replace('#', '');
 		hash = hash.replace('webshop/', '');
 
-		jQuery.each(hash.split('&'), function(index, value)
+		if(hash != '')
 		{
-			var arr_values = value.split('=');
-
-			/* Filter product[] etc. */
-			if(arr_values[0].indexOf('%5B') === -1)
+			jQuery.each(hash.split('&'), function(index, value)
 			{
-				var dom_obj = jQuery("#" + arr_values[0]);
+				var arr_values = value.split('=');
 
-				if(dom_obj.is("[type='checkbox']"))
+				/* Filter product[] etc. */
+				if(arr_values[0].indexOf('%5B') === -1)
 				{
-					dom_obj.prop('checked', arr_values[1]);
-				}
+					var dom_obj = jQuery("#" + arr_values[0]);
 
-				else
-				{
-					dom_obj.val(arr_values[1]);
+					if(dom_obj.is("[type='checkbox']"))
+					{
+						dom_obj.prop('checked', arr_values[1]);
+					}
+
+					else
+					{
+						dom_obj.val(arr_values[1]);
+					}
 				}
-			}
-		});
+			});
+		}
 	},
 
 	set_hash: function()
