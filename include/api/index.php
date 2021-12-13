@@ -961,7 +961,7 @@ switch($type_switch)
 		{
 			$query_group = " GROUP BY ".$query_group;
 		}
-		
+
 		if($query_order != '')
 		{
 			$query_order = " ORDER BY ".$query_order;

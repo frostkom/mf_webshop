@@ -565,10 +565,10 @@ class mf_webshop
 
 	function init()
 	{
-		if(!session_id())
+		/*if(!session_id())
 		{
 			@session_start();
-		}
+		}*/
 
 		$this->get_option_types();
 
@@ -10060,7 +10060,7 @@ class widget_webshop_cart extends WP_Widget
 	{
 		global $wpdb;
 
-		if(isset($_SESSION['sesWebshopCookie']) && $_SESSION['sesWebshopCookie'] != '')
+		/*if(isset($_SESSION['sesWebshopCookie']) && $_SESSION['sesWebshopCookie'] != '')
 		{
 			$sesWebshopCookie = check_var('sesWebshopCookie', 'char', true);
 		}
@@ -10068,6 +10068,15 @@ class widget_webshop_cart extends WP_Widget
 		else
 		{
 			$_SESSION['sesWebshopCookie'] = $sesWebshopCookie = md5(AUTH_SALT.get_current_visitor_ip().date("Y-m-d H:i:s"));
+		}*/
+
+		$sesWebshopCookie = get_user_meta(get_current_user_id(), 'meta_webshop_session', true);
+
+		if($sesWebshopCookie == '')
+		{
+			$sesWebshopCookie = md5(AUTH_SALT.get_current_visitor_ip().date("Y-m-d H:i:s"));
+
+			update_user_meta(get_current_user_id(), 'meta_webshop_session', $sesWebshopCookie);
 		}
 
 		$intProductID = check_var('intProductID');
