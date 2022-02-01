@@ -182,16 +182,12 @@ var WebshopView = Backbone.View.extend(
 				},
 				function(msg)
 				{
-					console.log("Test 3");
-
 					self.load_all_events();
 				});
 			}
 
 			else
 			{
-				console.log("Test 4");
-
 				this.load_all_events();
 			}
 		}
