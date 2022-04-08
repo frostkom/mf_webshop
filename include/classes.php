@@ -6540,7 +6540,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE meta_key = '".$this->meta_prefix."document_type' AND post_id = '%d' LIMIT 0, 1", $id));
+		return $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_id = '%d' AND meta_key = %s LIMIT 0, 1", $id, $this->meta_prefix.'document_type'));
 	}
 
 	function get_product_name($data)
