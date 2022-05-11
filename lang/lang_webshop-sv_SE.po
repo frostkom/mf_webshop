@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-24 13:29+0100\n"
+"POT-Creation-Date: 2022-04-20 09:24+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -428,7 +428,7 @@ msgstr "Ersätt text"
 #: ../include/classes.php:817
 #: ../include/classes.php:1191
 #: ../include/classes.php:1211
-#: ../include/api/index.php:361
+#: ../include/api/index.php:366
 msgid "Product"
 msgstr "Produkt"
 
@@ -709,46 +709,46 @@ msgstr "Rubrik"
 msgid "Your name or the name of the %s"
 msgstr "Ditt namn eller namnet på %s"
 
-#: ../include/api/index.php:62
+#: ../include/api/index.php:67
 msgid "Draft"
 msgstr "Utkast"
 
-#: ../include/api/index.php:168
-#: ../include/api/index.php:200
+#: ../include/api/index.php:173
+#: ../include/api/index.php:205
 #, php-format
 msgid "You have to install the plugin %s first"
 msgstr "Du behöver installera pluginet %s först"
 
-#: ../include/api/index.php:487
-#: ../include/api/index.php:550
+#: ../include/api/index.php:492
+#: ../include/api/index.php:555
 msgid "The end date must be later than the start date"
 msgstr "Slutdatumet måste vara senare än startdatumet"
 
-#: ../include/api/index.php:493
-#: ../include/api/index.php:556
+#: ../include/api/index.php:498
+#: ../include/api/index.php:561
 #, php-format
 msgid "The end date must be within %d days from the start date"
 msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
 
-#: ../include/api/index.php:680
-#: ../include/api/index.php:722
+#: ../include/api/index.php:685
+#: ../include/api/index.php:727
 #, php-format
 msgid "I have saved the information for you. %sView the page here%s"
 msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-#: ../include/api/index.php:690
+#: ../include/api/index.php:695
 msgid "I could not update the information for you"
 msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-#: ../include/api/index.php:696
+#: ../include/api/index.php:701
 msgid "It does not look like you changed anything, so nothing was saved"
 msgstr "Det ser inte ut som att något har ändrats, så inget sparades"
 
-#: ../include/api/index.php:729
+#: ../include/api/index.php:734
 msgid "I could not save the information for you"
 msgstr "Jag kunde inte spara informationen åt dig"
 
-#: ../include/api/index.php:735
+#: ../include/api/index.php:740
 msgid "One with that title already exists"
 msgstr "En med den rubriken finns redan"
 

@@ -5106,7 +5106,7 @@ class mf_webshop
 		{
 			$setting_range_min_default = get_option_or_default('setting_range_min_default', 10);
 
-			$value_min = $value * ($setting_range_min_default / 100);
+			$value_min = ($value * ($setting_range_min_default / 100));
 			$value_max = $value;
 		}
 
@@ -5297,7 +5297,7 @@ class mf_webshop
 						switch($post_custom_type)
 						{
 							case 'checkbox':
-								$out .= show_checkbox(array('name' => $post_name, 'text' => $post_title, 'value' => 1, 'compare' => (isset($_REQUEST[$post_name]) ? 1 : 0), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+								$out .= show_checkbox(array('name' => $post_name, 'text' => $post_title, 'value' => 1, 'compare' => isset($_REQUEST[$post_name]), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
 							break;
 
 							case 'categories':
@@ -7103,6 +7103,7 @@ class mf_webshop
 		{
 			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
 				'images' => $this->slideshow_images,
+				//'settings' => array('image_fit' => 'contain'), // Can't be ovveridden this way since it is set in style.php
 			));
 		}
 
