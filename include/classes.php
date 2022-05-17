@@ -3484,6 +3484,9 @@ class mf_webshop
 					add_menu_page($name_webshop, $name_webshop, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
 				}
 			}
+
+			$menu_title = __("Settings", 'lang_webshop');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_webshop".$this->option_type));
 		}
 
 		$this->option_type = '';
