@@ -6317,9 +6317,11 @@ class mf_webshop
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = %s AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.'category'));
 
+		//do_log($wpdb->last_query);
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
 		$i = 0;
+		$post_id_temp = 0;
 
 		foreach($result as $r)
 		{
@@ -6329,47 +6331,52 @@ class mf_webshop
 			}
 
 			$post_id = $r->ID;
-			$post_title = $r->post_title;
+			$post_title = stripslashes(stripslashes($r->post_title));
 			$category_id = $r->category_id;
 
-			$custom_category_id = "";
-
-			$custom_categories = $this->get_post_name_for_type('custom_categories');
-
-			if($custom_categories != '')
+			if($post_id != $post_id_temp)
 			{
-				$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
+				$custom_category_id = "";
+
+				$custom_categories = $this->get_post_name_for_type('custom_categories');
+
+				if($custom_categories != '')
+				{
+					$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
+				}
+
+				$post_url = get_permalink($post_id);
+
+				$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
+
+				if($post_location > 0)
+				{
+					$post_location = get_post_title($post_location);
+				}
+
+				$post_address = "";
+
+				$address_post_name = $this->get_post_name_for_type('address');
+
+				if($address_post_name != '')
+				{
+					$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
+				}
+
+				$out['filter_products_response'][] = array(
+					'category_id' => $category_id,
+					'custom_category_id' => $custom_category_id,
+					'product_id' => $post_id,
+					'product_title' => $post_title,
+					'product_url' => $post_url,
+					'product_location' => $post_location,
+					'product_address' => $post_address,
+				);
+
+				$i++;
+
+				$post_id_temp = $post_id;
 			}
-
-			$post_url = get_permalink($post_id);
-
-			$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
-
-			if($post_location > 0)
-			{
-				$post_location = get_post_title($post_location);
-			}
-
-			$post_address = "";
-
-			$address_post_name = $this->get_post_name_for_type('address');
-
-			if($address_post_name != '')
-			{
-				$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
-			}
-
-			$out['filter_products_response'][] = array(
-				'category_id' => $category_id,
-				'custom_category_id' => $custom_category_id,
-				'product_id' => $post_id,
-				'product_title' => $post_title,
-				'product_url' => $post_url,
-				'product_location' => $post_location,
-				'product_address' => $post_address,
-			);
-
-			$i++;
 		}
 
 		$out = $this->get_town_from_coordinates($data, $out);
