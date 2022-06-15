@@ -563,6 +563,96 @@ class mf_webshop
 		return $option;
 	}
 
+	function cron_base()
+	{
+		global $wpdb;
+
+		$obj_cron = new mf_cron();
+		$obj_cron->start(__CLASS__);
+
+		if($obj_cron->is_running == false)
+		{
+			$this->get_option_types();
+
+			foreach($this->arr_option_types as $option_type)
+			{
+				$this->option_type = ($option_type != '' ? "_".$option_type : '');
+
+				$setting_webshop_user_updated_notification = get_option('setting_webshop_user_updated_notification'.$this->option_type);
+
+				if($setting_webshop_user_updated_notification > 0)
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_author, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < %s LIMIT 0, 5", $this->post_type_products.$this->option_type, 'publish', date("Y-m-d", strtotime("-".$setting_webshop_user_updated_notification." month"))));
+
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+						$post_title = $r->post_title;
+						$post_author = $r->post_author;
+						$post_modified = $r->post_modified;
+
+						$meta_webshop_reminder_sent = get_user_meta($post_author, 'meta_webshop_reminder_sent', true);
+
+						//do_log("Check: ".$post_title." (".$meta_webshop_reminder_sent.")");
+
+						if($meta_webshop_reminder_sent > DEFAULT_DATE)
+						{
+							if($meta_webshop_reminder_sent < date("Y-m-d H:i:s", strtotime("-1 month")))
+							{
+								do_log("Deactivate ".$user_data->user_email." (".$user_data->display_name.") because the person has not updated the info within ".$setting_webshop_user_updated_notification." + 1 months (".$this->option_type.")");
+
+								/*$post_data = array(
+									'ID' => $post_id,
+									'post_status' => 'draft',
+								);
+
+								wp_update_post($post_data);
+								delete_user_meta($post_author, 'meta_webshop_reminder_sent');*/
+							}
+
+							else
+							{
+								do_log("The user ".$user_data->user_email." (".$user_data->display_name.") has received a reminder but not 1 month ago (#".$post_id.")");
+							}
+						}
+
+						else
+						{
+							$user_data = get_userdata($post_author);
+
+							//do_log("Send message to ".$user_data->user_email." (".$user_data->display_name.") because the person has not updated the info within ".$setting_webshop_user_updated_notification." months (".$post_modified.")");
+
+							$front_end_admin_url = apply_filters('get_front_end_admin_url', '');
+
+							if($front_end_admin_url != '')
+							{
+								$instructor_url = $front_end_admin_url."#admin/webshop/edit/".$post_id;
+							}
+
+							else
+							{
+								$instructor_url = admin_url("post.php?post=".$post_id."&action=edit");
+							}
+
+							$mail_to = $user_data->user_email;
+							$mail_subject = __("A reminder to update your information", 'lang_webshop');
+							$mail_content = "<a href='".$instructor_url."'>".sprintf(__("You have not updated your information since %s which is more than %d months ago. Please do so.", 'lang_webshop'), $post_modified, $setting_webshop_user_updated_notification)."</a>";
+
+							$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+
+							if($sent)
+							{
+								update_user_meta($post_author, 'meta_webshop_reminder_sent', date("Y-m-d H:i:s"));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$obj_cron->end();
+	}
+
 	function init()
 	{
 		/*if(!session_id())
@@ -947,6 +1037,8 @@ class mf_webshop
 					$arr_settings['setting_replace_return_to_search|'.$option_type] = __("Replace Text", 'lang_webshop');
 					$arr_settings['setting_replace_search_for_another|'.$option_type] = __("Replace Text", 'lang_webshop');
 				}
+
+				$arr_settings['setting_webshop_user_updated_notification|'.$option_type] = __("Reminder if not updated", 'lang_webshop');
 
 				$arr_settings['setting_quote_form_single|'.$option_type] = __("Form for quote request", 'lang_webshop')." (".__("single", 'lang_webshop').")";
 
@@ -1627,6 +1719,14 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+	}
+
+	function setting_webshop_user_updated_notification_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='12'", 'suffix' => __("months", 'lang_webshop'), 'description' => __("This will send a message to every user that has not updated their information within the amount of months chosen", 'lang_webshop')));
 	}
 
 	function setting_webshop_product_template_callback($args = array())
@@ -4868,6 +4968,8 @@ class mf_webshop
 		{
 			if($update == true)
 			{
+				delete_user_meta(get_current_user_id(), 'meta_webshop_reminder_sent');
+
 				// Clear Cache?
 			}
 
@@ -5312,14 +5414,14 @@ class mf_webshop
 							break;
 
 							case 'custom_categories':
-								$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type.$this->option_type, $post_name));
+								$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type.$this->option_type, $post_name));
 
 								$arr_data = array();
 								get_post_children(array(
 									'add_choose_here' => true,
 									'post_type' => $this->post_type_custom_categories.$this->option_type,
 									'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
-									'where' => "meta_value = '".esc_sql($post_id)."'",
+									'where' => "meta_value = '".esc_sql($post_id_temp)."'",
 									//'debug' => true,
 								), $arr_data);
 
@@ -5462,7 +5564,7 @@ class mf_webshop
 							break;
 
 							default:
-								do_log(sprintf("The type %s does not have a case", $post_custom_type)." (search)");
+								do_log(sprintf("The type %s does not have a case", $post_custom_type)." (".$post_id." -> search)");
 							break;
 						}
 					}
@@ -6315,13 +6417,12 @@ class mf_webshop
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, postmeta_category.meta_value AS category_id".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = %s AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.'category'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = %s AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."') GROUP BY ID".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.'category'));
 
 		//do_log($wpdb->last_query);
 		$out['filter_products_amount'] = $wpdb->num_rows;
 
 		$i = 0;
-		$post_id_temp = 0;
 
 		foreach($result as $r)
 		{
@@ -6332,51 +6433,46 @@ class mf_webshop
 
 			$post_id = $r->ID;
 			$post_title = stripslashes(stripslashes($r->post_title));
-			$category_id = $r->category_id;
+			$category_id = get_post_meta($post_id, $this->meta_prefix.'category', true);
 
-			if($post_id != $post_id_temp)
+			$custom_category_id = "";
+
+			$custom_categories = $this->get_post_name_for_type('custom_categories');
+
+			if($custom_categories != '')
 			{
-				$custom_category_id = "";
-
-				$custom_categories = $this->get_post_name_for_type('custom_categories');
-
-				if($custom_categories != '')
-				{
-					$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
-				}
-
-				$post_url = get_permalink($post_id);
-
-				$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
-
-				if($post_location > 0)
-				{
-					$post_location = get_post_title($post_location);
-				}
-
-				$post_address = "";
-
-				$address_post_name = $this->get_post_name_for_type('address');
-
-				if($address_post_name != '')
-				{
-					$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
-				}
-
-				$out['filter_products_response'][] = array(
-					'category_id' => $category_id,
-					'custom_category_id' => $custom_category_id,
-					'product_id' => $post_id,
-					'product_title' => $post_title,
-					'product_url' => $post_url,
-					'product_location' => $post_location,
-					'product_address' => $post_address,
-				);
-
-				$i++;
-
-				$post_id_temp = $post_id;
+				$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
 			}
+
+			$post_url = get_permalink($post_id);
+
+			$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
+
+			if($post_location > 0)
+			{
+				$post_location = get_post_title($post_location);
+			}
+
+			$post_address = "";
+
+			$address_post_name = $this->get_post_name_for_type('address');
+
+			if($address_post_name != '')
+			{
+				$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
+			}
+
+			$out['filter_products_response'][] = array(
+				'category_id' => $category_id,
+				'custom_category_id' => $custom_category_id,
+				'product_id' => $post_id,
+				'product_title' => $post_title,
+				'product_url' => $post_url,
+				'product_location' => $post_location,
+				'product_address' => $post_address,
+			);
+
+			$i++;
 		}
 
 		$out = $this->get_town_from_coordinates($data, $out);
@@ -7013,7 +7109,7 @@ class mf_webshop
 
 							else
 							{
-								do_log(sprintf("The type %s does not have a case", $this->meta_type)." (single)");
+								do_log(sprintf("The type %s does not have a case", $this->meta_type)." (".$this->meta_id." -> single)");
 							}
 						break;
 					}
@@ -7842,7 +7938,7 @@ class mf_webshop
 
 								else
 								{
-									do_log(sprintf("The type %s does not have a case", $this->meta_type)." (list)");
+									do_log(sprintf("The type %s does not have a case", $this->meta_type)." (".$this->meta_id." -> list)");
 								}
 							break;
 						}
@@ -8655,7 +8751,7 @@ class widget_webshop_form extends WP_Widget
 				break;
 
 				default:
-					do_log(sprintf("The type %s does not have a case", $post_custom_type)." (widget)");
+					do_log(sprintf("The type %s does not have a case", $post_custom_type)." (".$data['post_id']." -> widget)");
 				break;
 			}
 		}
