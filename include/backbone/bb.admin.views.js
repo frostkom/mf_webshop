@@ -230,6 +230,14 @@ var WebshopAdminView = Backbone.View.extend(
 				{
 					init_media_button();
 				}
+
+				jQuery(".meta_box > div").each(function()
+				{
+					if(jQuery(this).children("*").length == 0)
+					{
+						jQuery(this).parent(".meta_box").addClass('hide');
+					}
+				});
 			break;
 		}
 	},

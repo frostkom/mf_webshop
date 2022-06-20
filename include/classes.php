@@ -6367,7 +6367,15 @@ class mf_webshop
 		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
-		$arr_categories = explode(",", $data['category']);
+		if($data['category'] != 'undefined')
+		{
+			$arr_categories = explode(",", $data['category']);
+		}
+
+		else
+		{
+			$arr_categories = array();
+		}
 
 		$out = array();
 
@@ -6384,7 +6392,7 @@ class mf_webshop
 
 		$out['filter_products_response'] = array();
 
-		$query_select = $query_join = $query_order = $query_limit = "";
+		$query_select = $query_join = $query_where = $query_order = $query_limit = "";
 
 		if($data['latitude'] != '' && $data['longitude'] != '' && $data['order_by'] == 'distance')
 		{
@@ -6412,12 +6420,18 @@ class mf_webshop
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_modified DESC";
 		}
 
+		if(count($arr_categories) > 0)
+		{
+			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id";
+			$query_where .= " AND postmeta_category.meta_key = '".$this->meta_prefix.'category'."' AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')";
+		}
+
 		if($data['limit'] > 0)
 		{
 			$query_limit = " LIMIT ".$data['limit'].", 1000";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id".$query_join." WHERE post_type = %s AND post_status = %s AND postmeta_category.meta_key = %s AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."') GROUP BY ID".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish', $this->meta_prefix.'category'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s".$query_where." GROUP BY ID".$query_order.$query_limit, $this->post_type_products.$this->option_type, 'publish'));
 
 		//do_log($wpdb->last_query);
 		$out['filter_products_amount'] = $wpdb->num_rows;
