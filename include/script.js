@@ -5,7 +5,7 @@ var map_initialized = false,
 	search_map_obj = "",
 	search_input = "webshop_map_input",
 	search_input_obj = "",
-	search_coords_obj = "",
+	search_coordinates_obj = "",
 	map_bounds_obj = "";
 
 function remove_markers()
@@ -25,15 +25,15 @@ function add_map_location(data)
 {
 	if(!data.icon){	data.icon = "";}
 
-	var coords_temp = data.dom_obj.val();
+	var coordinates_temp = data.dom_obj.val();
 
-	if(coords_temp && coords_temp != '')
+	if(coordinates_temp && coordinates_temp != '')
 	{
-		var pos = get_position_from_string(coords_temp),
+		var pos = get_position_from_string(coordinates_temp),
 			id = data.dom_obj.attr('data-id'),
 			name = data.dom_obj.attr('data-name'),
-			url = data.dom_obj.attr('data-url') || '',
-			link_text = data.dom_obj.attr('data-link_text') || '';
+			url = (data.dom_obj.attr('data-url') || ''),
+			link_text = (data.dom_obj.attr('data-link_text') || '');
 
 		add_marker(
 		{
@@ -50,17 +50,17 @@ function fitIcons()
 {
 	if(map_bounds_obj.length > 0 && map_bounds_obj.val() != '')
 	{
-		var coords_temp = map_bounds_obj.val().split("), (");
+		var coordinates_temp = map_bounds_obj.val().split("), (");
 
-		if(coords_temp[0] && coords_temp[1])
+		if(coordinates_temp[0] && coordinates_temp[1])
 		{
-			var coords_temp_1 = coords_temp[0].replace("(", ""),
-				coords_temp_2 = coords_temp[1].replace("(", "");
+			var coordinates_temp_1 = coordinates_temp[0].replace("(", ""),
+				coordinates_temp_2 = coordinates_temp[1].replace("(", "");
 
-			if(coords_temp_1 != '' && coords_temp_2 != '')
+			if(coordinates_temp_1 != '' && coordinates_temp_2 != '')
 			{
-				var latlng_1 = get_position_from_string(coords_temp_1),
-					latlng_2 = get_position_from_string(coords_temp_2),
+				var latlng_1 = get_position_from_string(coordinates_temp_1),
+					latlng_2 = get_position_from_string(coordinates_temp_2),
 					bounds = new google.maps.LatLngBounds(latlng_1, latlng_2);
 
 				map_object.fitBounds(bounds);
@@ -97,7 +97,7 @@ function fitIcons()
 function do_dragend()
 {
 	map_bounds_obj.val(map_object.getBounds());
-	search_coords_obj.val('');
+	search_coordinates_obj.val('');
 }
 
 function hide_products()
@@ -183,7 +183,7 @@ function init_maps()
 
 				bounds.extend(place.geometry.location);
 
-				search_coords_obj.val(place.geometry.location);
+				search_coordinates_obj.val(place.geometry.location);
 				map_bounds_obj.val('');
 			}
 
@@ -216,7 +216,7 @@ function init_maps()
 
 		var symbol_active_image = (script_webshop.symbol_active_image != '' ? script_webshop.symbol_active_image : "http://googlemapsmarkers.com/v1/" + script_webshop.symbol_active + "/");
 
-		add_map_location({'dom_obj': search_coords_obj, 'icon': symbol_active_image});
+		add_map_location({'dom_obj': search_coordinates_obj, 'icon': symbol_active_image});
 
 		fitIcons();
 
@@ -243,13 +243,13 @@ function show_list_active_or_not(self)
 
 jQuery(function($)
 {
-	map_initialized = false;
+	/*map_initialized = false;
 	has_maps = false;
-	has_map_search = false;
+	has_map_search = false;*/
 
 	search_map_obj = $("#" + search_map);
 	search_input_obj = $("#" + search_input);
-	search_coords_obj = $("#webshop_map_coords");
+	search_coordinates_obj = $("#webshop_map_coordinates");
 	map_bounds_obj = $("#webshop_map_bounds");
 
 	init_maps();
@@ -291,7 +291,7 @@ jQuery(function($)
 		show_list_active_or_not($(this));
 	});
 
-	/* Inactive enter/submit when webshop_map_input is in focus */
+	/* Inactivate enter/submit when webshop_map_input is in focus */
 	search_input_obj.on('keydown', function(event)
 	{
 		if(event.key == 'Enter')

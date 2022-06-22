@@ -512,7 +512,7 @@ var WebshopView = Backbone.View.extend(
 		this.show_quote_request_button();
 	},
 
-	get_coords_from_string: function(string)
+	get_coordinates_from_string: function(string)
 	{
 		return string.replace("(", "").replace(")", "").split(", ");
 	},
@@ -539,13 +539,13 @@ var WebshopView = Backbone.View.extend(
 			var self = this,
 				dom_val = jQuery(e.currentTarget).val();
 
-			jQuery("#product_result_search .map_coords").each(function()
+			jQuery("#product_result_search .map_coordinates").each(function()
 			{
 				var dom_obj = jQuery(this),
 					dom_parent = dom_obj.parents("li"),
-					dom_coords = dom_obj.val(),
-					arr_coords = self.get_coords_from_string(dom_coords),
-					distance = self.get_distance(my_lat, my_lon, arr_coords[0], arr_coords[1]);
+					dom_coordinates = dom_obj.val(),
+					arr_coordinates = self.get_coordinates_from_string(dom_coordinates),
+					distance = self.get_distance(my_lat, my_lon, arr_coordinates[0], arr_coordinates[1]);
 
 				if(distance < dom_val)
 				{
@@ -691,7 +691,7 @@ var WebshopView = Backbone.View.extend(
 
 				this.get_products();
 
-				this.show_map_coords({'fit_icons': true, 'remove_markers': false});
+				this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
 
 				if(!this.is_favorites_view)
 				{
@@ -835,7 +835,7 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	show_map_coords: function(data)
+	show_map_coordinates: function(data)
 	{
 		if(search_map_obj.length > 0 && search_map_obj.is(":visible"))
 		{
@@ -844,16 +844,16 @@ var WebshopView = Backbone.View.extend(
 				remove_markers();
 			}
 
-			jQuery(".map_coords").each(function()
+			jQuery(".map_coordinates").each(function()
 			{
 				var dom_obj = jQuery(this),
 					dom_product = dom_obj.parents("li"),
 					is_hovering = dom_product.hasClass('hover'),
-					icon = is_hovering ? script_webshop_views.symbol_active : script_webshop_views.symbol_inactive;
+					icon = (is_hovering ? script_webshop_views.symbol_active : script_webshop_views.symbol_inactive);
 
 				if(dom_obj.parents("li").hasClass('ghost'))
 				{
-					icon = is_hovering ? script_webshop_views.ghost_active : script_webshop_views.ghost_inactive;
+					icon = (is_hovering ? script_webshop_views.ghost_active : script_webshop_views.ghost_inactive);
 				}
 
 				add_map_location({'dom_obj': dom_obj, 'icon': icon});
@@ -870,14 +870,14 @@ var WebshopView = Backbone.View.extend(
 	{
 		jQuery(e.currentTarget).addClass('hover');
 
-		this.show_map_coords({'fit_icons': false, 'remove_markers': true});
+		this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});
 	},
 
 	section_unhover: function(e)
 	{
 		jQuery(e.currentTarget).removeClass('hover');
 
-		this.show_map_coords({'fit_icons': false, 'remove_markers': true});
+		this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});
 	},
 
 	toggle_aside: function(e)
@@ -894,7 +894,7 @@ var WebshopView = Backbone.View.extend(
 				init_maps();
 			}
 
-			this.show_map_coords({'fit_icons': true, 'remove_markers': false});
+			this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
 		}
 	},
 
@@ -1121,7 +1121,7 @@ var WebshopView = Backbone.View.extend(
 
 			dom_widget.append(html);
 
-			this.show_map_coords({'fit_icons': true, 'remove_markers': false});
+			this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
 		}
 
 		else
@@ -1220,7 +1220,8 @@ var WebshopView = Backbone.View.extend(
 
 	show_filter_products: function()
 	{
-		var widget_id = this.model.get('widget_id'),
+		var self = this,
+			widget_id = this.model.get('widget_id'),
 			dom_widget = jQuery("#" + widget_id),
 			response = this.model.get('filter_products_response'),
 			amount = response.length,
@@ -1238,6 +1239,8 @@ var WebshopView = Backbone.View.extend(
 			}
 
 			dom_widget.append(html);
+
+			this.show_map_coordinates({'fit_icons': true, 'remove_markers': true});
 		}
 
 		else

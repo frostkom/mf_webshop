@@ -936,6 +936,9 @@ echo "@media all
 		}
 	}
 
+	//$setting_webshop_search_page_map_height = get_option('setting_webshop_search_page_map_height', 754);
+	$setting_webshop_search_page_map_height = 754;
+
 	echo "/* Map */
 	.map_wrapper
 	{
@@ -950,7 +953,7 @@ echo "@media all
 
 		.is_webshop_search_page #webshop_map
 		{
-			min-height: 754px !important;
+			min-height: ".$setting_webshop_search_page_map_height."px !important;
 		}
 
 		.single-mf_product #webshop_map
@@ -982,10 +985,10 @@ echo "@media all
 			{
 				border: 1px solid #e1e1e1;
 				box-sizing: border-box;
-				margin: 2.5%;
+				margin: 1.3%;
 				opacity: .5;
 				padding: .5em;
-				width: 89%;
+				width: 90%;
 			}
 
 				#webshop_map_input:hover

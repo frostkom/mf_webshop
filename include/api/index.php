@@ -675,7 +675,7 @@ switch($type_switch)
 								// Do nothing. $json_output['message'] should be set so the user knows what's gone wrong
 							}
 
-							else if($updated == true)
+							else/* if($updated == true)*/
 							{
 								if(wp_update_post($post_data) > 0 || $updated == true)
 								{
@@ -696,10 +696,10 @@ switch($type_switch)
 								}
 							}
 
-							else
+							/*else
 							{
 								$json_output['message'] = __("It does not look like you changed anything, so nothing was saved", 'lang_webshop');
-							}
+							}*/
 						}
 					}
 

@@ -2154,8 +2154,8 @@ class mf_webshop
 													<% break;
 
 													case 'gps': %>"
-														//.get_map(array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
-														.apply_filters('get_map', '', array('input_name' => 'webshop_map_input', 'coords_name' => "<%= meta_field.id %>", 'coords' => "<%= meta_field.value %>"))
+														//.get_map(array('input_name' => 'webshop_map_input', 'coordinates_name' => "<%= meta_field.id %>", 'coordinates' => "<%= meta_field.value %>"))
+														.apply_filters('get_map', '', array('input_name' => 'webshop_map_input', 'coordinates_name' => "<%= meta_field.id %>", 'coordinates' => "<%= meta_field.value %>"))
 													."<% break;
 
 													case 'interval': %>"
@@ -5303,6 +5303,8 @@ class mf_webshop
 
 	function get_webshop_map()
 	{
+		$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
+
 		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
 		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
@@ -5312,15 +5314,21 @@ class mf_webshop
 				<span>".$setting_replace_show_map."</span>
 				<span>".$setting_webshop_replace_hide_map."</span>
 			</h2>
-			<div class='map_wrapper'>
-				<div id='webshop_map'></div>";
+			<div class='map_wrapper'>";
+
+				if(in_array('search', $setting_maps_controls))
+				{
+					$out .= show_textfield(array('name' => 'webshop_map_input', 'placeholder' => __("Search for an address and find its position", 'lang_webshop'), 'xtra' => "class='webshop_map_input'")); //, 'value' => $data['input']
+				}
+
+				$out .= "<div id='webshop_map'></div>";
 
 				if($setting_map_info != '')
 				{
 					$out .= "<div class='webshop_map_info'>".nl2br($setting_map_info)."</div>";
 				}
 
-				$out .= input_hidden(array('name' => 'webshop_map_coords', 'allow_empty' => true))
+				$out .= input_hidden(array('name' => 'webshop_map_coordinates', 'allow_empty' => true))
 				.input_hidden(array('name' => 'webshop_map_bounds', 'allow_empty' => true))
 			."</div>
 		</div>";
@@ -5688,7 +5696,7 @@ class mf_webshop
 
 									if(event_coordinates != '')
 									{ %>"
-										.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coords' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+										.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 									."<% } %>
 								</p>
 								<p><%= name_product %>: <a href='<%= product_url %>'><%= product_title %></a></p>
@@ -5698,7 +5706,7 @@ class mf_webshop
 							</div>
 							<% if(product_map != '')
 							{ %>"
-								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 							."<% } %>
 						</li>
 					</script>
@@ -5734,8 +5742,8 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_filter_products_item'>
-						<li class='list_item category_<%= category_id %>'>"
-							."<div>";
+						<li class='list_item<% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
+							<div>";
 
 								$out .= "<% if(custom_category_id > 0)
 								{ %>
@@ -5749,7 +5757,7 @@ class mf_webshop
 										<i class='<%= category_icon %>' title='<%= category_title %>'></i>
 									<% } %>";*/
 
-								$out .= "<a href='<%= product_url %>'><%= product_title %></a>";
+									$out .= "<a href='<%= product_url %>'><%= product_title %></a>";
 
 									/*$out .= "<% if(product_location != '')
 									{ %>
@@ -5767,6 +5775,10 @@ class mf_webshop
 							<div class='list_url'>
 								<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 							</div>
+							<% if(product_coordinates != '')
+							{ %>"
+								.input_hidden(array('value' => "<%= product_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+							."<% } %>
 						</li>
 					</script>
 
@@ -5857,7 +5869,7 @@ class mf_webshop
 
 							if(product_map != '')
 							{ %>"
-								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coords' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 							."<% } %>
 						</li>
 					</script>";
@@ -6484,6 +6496,7 @@ class mf_webshop
 				'product_url' => $post_url,
 				'product_location' => $post_location,
 				'product_address' => $post_address,
+				'product_coordinates' => get_post_meta($post_id, $this->meta_prefix.'coordinates', true),
 			);
 
 			$i++;
@@ -7311,6 +7324,8 @@ class mf_webshop
 
 		if($this->product_map != '')
 		{
+			$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
+
 			$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
 			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
 
@@ -7319,17 +7334,23 @@ class mf_webshop
 					<span>".$setting_webshop_replace_show_map."</span>
 					<span>".$setting_webshop_replace_hide_map."</span>
 				</h2>
-				<div class='map_wrapper'>
-					<div id='webshop_map'></div>
+				<div class='map_wrapper'>";
+
+					if(in_array('search', $setting_maps_controls))
+					{
+						$this->template_shortcodes['map']['html'] .= show_textfield(array('name' => 'maps_search_input', 'placeholder' => __("Search for an address and find its position", 'lang_webshop'), 'xtra' => "class='maps_search_input'")); //, 'value' => $data['input']
+					}
+
+					$this->template_shortcodes['map']['html'] .= "<div id='webshop_map'></div>
 				</div>
 			</div>";
 
-			$out .= input_hidden(array('name' => 'webshop_map_coords', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coords' class='map_coords' data-name='".$this->product_title."'")); // data-url=''
+			$out .= input_hidden(array('name' => 'webshop_map_coordinates', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coordinates' class='map_coordinates' data-name='".$this->product_title."'")); // data-url=''
 		}
 
 		if($this->product_coordinates != '')
 		{
-			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coords' data-name='".$this->product_title."'")); // data-url=''
+			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coordinates' data-name='".$this->product_title."'")); // data-url=''
 		}
 
 		if(count($this->product_meta) > 0)
@@ -8027,10 +8048,10 @@ class mf_webshop
 		}
 	}
 
-	function get_distance($coords_1, $coords_2)
+	function get_distance($coordinates_1, $coordinates_2)
 	{
-		list($lat_1, $lon_1) = $this->get_lat_long_from_coords($coords_1);
-		list($lat_2, $lon_2) = $this->get_lat_long_from_coords($coords_2);
+		list($lat_1, $lon_1) = $this->get_lat_long_from_coordinates($coordinates_1);
+		list($lat_2, $lon_2) = $this->get_lat_long_from_coordinates($coordinates_2);
 
 		/* v1 */
 		/*$earth_radius = 6371000; //meters and your distance will be in meters
@@ -8052,9 +8073,9 @@ class mf_webshop
 		return $distance;
 	}
 
-	function get_lat_long_from_coords($coords)
+	function get_lat_long_from_coordinates($coordinates)
 	{
-		return explode(", ", str_replace(array("(", ")"), "", $coords));
+		return explode(", ", str_replace(array("(", ")"), "", $coordinates));
 	}
 
 	function insert_sent($data)
@@ -9817,7 +9838,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 								if($event_coordinates != '')
 								{
-									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coords' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."' data-link_text='".__("Read More", 'lang_webshop')."'"));
+									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coordinates' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."' data-link_text='".__("Read More", 'lang_webshop')."'"));
 								}
 							}
 
@@ -9836,7 +9857,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 									if($product_coordinates != '')
 									{
-										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coords' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'"));
+										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coordinates' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'"));
 									}
 								}
 							}
