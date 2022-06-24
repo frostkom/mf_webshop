@@ -1156,11 +1156,12 @@ var WebshopView = Backbone.View.extend(
 	load_filter_products: function(dom_obj)
 	{
 		var widget_id = dom_obj.attr('id'),
-			option_type = dom_obj.attr('data-option_type') || '',
+			option_type = (dom_obj.attr('data-option_type') || ''),
 			category = dom_obj.attr('data-category'),
-			order_by = dom_obj.attr('data-order_by') || '',
-			latitude = dom_obj.attr('data-latitude') || '',
-			longitude = dom_obj.attr('data-longitude') || '',
+			order_by = (dom_obj.attr('data-order_by') || ''),
+			link_product = (dom_obj.attr('data-link_product') || ''),
+			latitude = (dom_obj.attr('data-latitude') || ''),
+			longitude = (dom_obj.attr('data-longitude') || ''),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount'),
 			get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
@@ -1175,6 +1176,11 @@ var WebshopView = Backbone.View.extend(
 			if(order_by != '')
 			{
 				get_vars += "&order_by=" + order_by;
+			}
+
+			if(link_product != '')
+			{
+				get_vars += "&link_product=" + link_product;
 			}
 
 			if(latitude != '')
@@ -1259,13 +1265,13 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_widget = jQuery("#" + widget_id),
 			dom_parent = dom_widget.parents(".webshop_widget"),
-			dom_type = dom_parent.hasClass('webshop_events') ? "events" : "filter_products";
+			dom_type = (dom_parent.hasClass('webshop_events') ? "events" : "filter_products");
 
 		if(dom_type == "events")
 		{
 			var event_amount_left = this.model.get('event_amount_left'),
 				event_amount = this.model.get('event_amount'),
-				event_rest = event_amount_left + event_amount - amount;
+				event_rest = (event_amount_left + event_amount - amount);
 
 			if(!(event_amount_left > 0))
 			{
@@ -1283,7 +1289,7 @@ var WebshopView = Backbone.View.extend(
 		else
 		{
 			var filter_products_amount = this.model.get('filter_products_amount'),
-				filter_products_rest = filter_products_amount - amount;
+				filter_products_rest = (filter_products_amount - amount);
 
 			dom_widget.siblings(".widget_text").find("span").text(filter_products_amount);
 

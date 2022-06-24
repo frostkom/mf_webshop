@@ -871,6 +871,7 @@ switch($type_switch)
 		$option_type = check_var('option_type', 'char');
 		$category = check_var('category', 'char');
 		$order_by = check_var('order_by');
+		$link_product = check_var('link_product');
 		$latitude = check_var('latitude');
 		$longitude = check_var('longitude');
 		$initial = check_var('initial');
@@ -881,6 +882,7 @@ switch($type_switch)
 			'id' => $id,
 			'option_type' => $option_type,
 			'category' => $category,
+			'link_product' => $link_product,
 			'order_by' => $order_by,
 			'latitude' => $latitude,
 			'longitude' => $longitude,

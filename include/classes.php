@@ -64,6 +64,9 @@ class mf_webshop
 		$this->option_type = '';
 
 		$this->event_max_length = 10;
+
+		$this->user_updated_notification_subject_placeholder = __("A reminder to update your information", 'lang_webshop');
+		$this->user_updated_notification_content_placeholder = "[link_start]".sprintf(__("You have not updated your information since %s which is more than %s months ago. Please do so.", 'lang_webshop'), "[post_modified]", "[month_amount]")."[link_end]";
 	}
 
 	function get_type_id($post)
@@ -582,6 +585,9 @@ class mf_webshop
 
 				if($setting_webshop_user_updated_notification > 0)
 				{
+					$setting_webshop_user_updated_notification_subject = get_option_or_default('setting_webshop_user_updated_notification_subject'.$this->option_type, $this->user_updated_notification_subject_placeholder);
+					$setting_webshop_user_updated_notification_content = get_option_or_default('setting_webshop_user_updated_notification_content'.$this->option_type, $this->user_updated_notification_content_placeholder);
+
 					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_author, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < %s LIMIT 0, 5", $this->post_type_products.$this->option_type, 'publish', date("Y-m-d", strtotime("-".$setting_webshop_user_updated_notification." month"))));
 
 					foreach($result as $r)
@@ -634,9 +640,15 @@ class mf_webshop
 								$instructor_url = admin_url("post.php?post=".$post_id."&action=edit");
 							}
 
+							$arr_exclude = $arr_include = array();
+							$arr_exclude[] = "[link_start]";		$arr_include[] = "<a href='".$instructor_url."'>";
+							$arr_exclude[] = "[link_end]";			$arr_include[] = "</a>";
+							$arr_exclude[] = "[post_modified]";		$arr_include[] = $post_modified;
+							$arr_exclude[] = "[month_amount]";		$arr_include[] = $setting_webshop_user_updated_notification;
+
 							$mail_to = $user_data->user_email;
-							$mail_subject = __("A reminder to update your information", 'lang_webshop');
-							$mail_content = "<a href='".$instructor_url."'>".sprintf(__("You have not updated your information since %s which is more than %d months ago. Please do so.", 'lang_webshop'), $post_modified, $setting_webshop_user_updated_notification)."</a>";
+							$mail_subject = $setting_webshop_user_updated_notification_subject;
+							$mail_content = str_replace($arr_exclude, $arr_include, $setting_webshop_user_updated_notification_content);
 
 							$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
 
@@ -1039,6 +1051,12 @@ class mf_webshop
 				}
 
 				$arr_settings['setting_webshop_user_updated_notification|'.$option_type] = __("Reminder if not updated", 'lang_webshop');
+
+				if(get_option('setting_webshop_user_updated_notification'.$this->option_type) > 0)
+				{
+					$arr_settings['setting_webshop_user_updated_notification_subject|'.$option_type] = __("E-mail Subject", 'lang_webshop');
+					$arr_settings['setting_webshop_user_updated_notification_content|'.$option_type] = __("E-mail Content", 'lang_webshop');
+				}
 
 				$arr_settings['setting_quote_form_single|'.$option_type] = __("Form for quote request", 'lang_webshop')." (".__("single", 'lang_webshop').")";
 
@@ -1727,6 +1745,28 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='12'", 'suffix' => __("months", 'lang_webshop'), 'description' => __("This will send a message to every user that has not updated their information within the amount of months chosen", 'lang_webshop')));
+	}
+
+	function setting_webshop_user_updated_notification_subject_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => $this->user_updated_notification_subject_placeholder));
+	}
+
+	function setting_webshop_user_updated_notification_content_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+			'class' => "hide_media_button hide_tabs",
+			'mini_toolbar' => true,
+			'editor_height' => 100,
+		));
+		
+		echo "<p class='description'>".$this->user_updated_notification_content_placeholder."</p>";
 	}
 
 	function setting_webshop_product_template_callback($args = array())
@@ -5680,7 +5720,7 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_event_item'>
-						<li itemscope itemtype='//schema.org/Event' class='list_item <%= list_class %>'>
+						<li itemscope itemtype='//schema.org/Event' class='list_item<% if(list_class != ''){ %> <%= list_class %><% } %>'>
 							<div class='event_date'>
 								<div itemprop='startDate' content='<%= event_start_date_c %>'><%= event_start_row_1 %></div>
 								<div itemprop='endDate' content='<%= event_end_date_c %>'><%= event_start_row_2 %></div>
@@ -5757,7 +5797,15 @@ class mf_webshop
 										<i class='<%= category_icon %>' title='<%= category_title %>'></i>
 									<% } %>";*/
 
-									$out .= "<a href='<%= product_url %>'><%= product_title %></a>";
+									$out .= "<% if(product_url != '')
+									{ %>
+										<a href='<%= product_url %>'>
+									<% } %>
+										<%= product_title %>
+									<% if(product_url != '')
+									{ %>
+										</a>
+									<% } %>";
 
 									/*$out .= "<% if(product_location != '')
 									{ %>
@@ -5772,9 +5820,12 @@ class mf_webshop
 									<% } %>
 								</p>
 							</div>
-							<div class='list_url'>
-								<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
-							</div>
+							<% if(product_url != '')
+							{ %>
+								<div class='list_url'>
+									<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
+								</div>
+							<% } %>
 							<% if(product_coordinates != '')
 							{ %>"
 								.input_hidden(array('value' => "<%= product_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
@@ -6374,6 +6425,7 @@ class mf_webshop
 		if(!isset($data['id'])){			$data['id'] = "";}
 		if(!isset($data['category'])){		$data['category'] = "";}
 		if(!isset($data['order_by'])){		$data['order_by'] = "";}
+		if(!isset($data['link_product'])){	$data['link_product'] = 'yes';}
 		if(!isset($data['latitude'])){		$data['latitude'] = "";}
 		if(!isset($data['longitude'])){		$data['longitude'] = "";}
 		if(!isset($data['initial'])){		$data['initial'] = false;}
@@ -6461,7 +6513,7 @@ class mf_webshop
 			$post_title = stripslashes(stripslashes($r->post_title));
 			$category_id = get_post_meta($post_id, $this->meta_prefix.'category', true);
 
-			$custom_category_id = "";
+			$custom_category_id = $post_url = $post_address = "";
 
 			$custom_categories = $this->get_post_name_for_type('custom_categories');
 
@@ -6470,7 +6522,10 @@ class mf_webshop
 				$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
 			}
 
-			$post_url = get_permalink($post_id);
+			if($data['link_product'] == 'yes')
+			{
+				$post_url = get_permalink($post_id);
+			}
 
 			$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
 
@@ -6478,8 +6533,6 @@ class mf_webshop
 			{
 				$post_location = get_post_title($post_location);
 			}
-
-			$post_address = "";
 
 			$address_post_name = $this->get_post_name_for_type('address');
 
@@ -9445,6 +9498,7 @@ class widget_webshop_filter_products extends WP_Widget
 			'webshop_text' => '',
 			'webshop_option_type' => '',
 			'webshop_amount' => 3,
+			'webshop_link_product' => 'yes',
 			'webshop_category' => array(),
 			'webshop_button_text' => '',
 		);
@@ -9546,6 +9600,11 @@ class widget_webshop_filter_products extends WP_Widget
 
 				echo "<ul id='".$widget_id."' class='widget_list'";
 
+					if($instance['webshop_link_product'] != '')
+					{
+						echo " data-link_product='".$instance['webshop_link_product']."'";
+					}
+
 					if($instance['webshop_option_type'] != '')
 					{
 						echo " data-option_type='".$instance['webshop_option_type']."'";
@@ -9570,12 +9629,13 @@ class widget_webshop_filter_products extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
-		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
+		$instance['webshop_filters'] = (is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array());
 		$instance['webshop_filters_order_by'] = sanitize_text_field($new_instance['webshop_filters_order_by']);
 		$instance['webshop_filters_order_by_text'] = sanitize_text_field($new_instance['webshop_filters_order_by_text']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
+		$instance['webshop_link_product'] = sanitize_text_field($new_instance['webshop_link_product']);
 		//$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 
 		if(is_array($new_instance['webshop_category']))
@@ -9621,6 +9681,7 @@ class widget_webshop_filter_products extends WP_Widget
 				.show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']))
 				.show_textfield(array('type' => 'number', 'name' => $this->get_field_name('webshop_amount'), 'text' => __("Amount", 'lang_webshop'), 'value' => $instance['webshop_amount']))
 			."</div>"
+			.show_select(array('data' => get_yes_no_for_select(), 'name' => $this->get_field_name('webshop_link_product'), 'text' => __("Link Product", 'lang_webshop'), 'value' => $instance['webshop_link_product']))
 			.show_select(array('data' => $this->obj_webshop->get_categories_for_select(array('include_on' => 'products')), 'name' => $this->get_field_name('webshop_category')."[]", 'text' => $name_category, 'value' => $instance['webshop_category'], 'required' => true))
 			.show_textfield(array('name' => $this->get_field_name('webshop_button_text'), 'text' => __("Button Text", 'lang_webshop'), 'value' => $instance['webshop_button_text']))
 		."</div>";
