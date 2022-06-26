@@ -241,12 +241,34 @@ function show_list_active_or_not(self)
 	}
 }
 
+function webshop_marker_event(data, map_object, marker)
+{
+	var infowindow = new google.maps.InfoWindow(
+	{
+		content: "<div class='marker_content'>"
+			+ (data.name != '' ? "<h3>" + data.name + "</h3>" : "")
+			+ (data.text != '' ? "<p>" + data.text + "</p>" : "")
+		+ "</div>"
+	});
+
+	jQuery(document).on('click', ".webshop_filter_products .list_item_" + data.id + " h2", function()
+	{
+		if(jQuery(this).children("a").length == 0)
+		{
+			for(var i = 0; i < arr_infowindows.length; i++)
+			{
+				arr_infowindows[i].close();
+			}
+
+			arr_infowindows.push(infowindow);
+
+			infowindow.open(map_object, marker);
+		}
+	});
+}
+
 jQuery(function($)
 {
-	/*map_initialized = false;
-	has_maps = false;
-	has_map_search = false;*/
-
 	search_map_obj = $("#" + search_map);
 	search_input_obj = $("#" + search_input);
 	search_coordinates_obj = $("#webshop_map_coordinates");

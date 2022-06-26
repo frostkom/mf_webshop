@@ -320,6 +320,7 @@ class mf_webshop
 				'stock' => __("Number", 'lang_webshop')." (".__("Stock", 'lang_webshop').")",
 				'interval' => __("Interval", 'lang_webshop'),
 			'group_location' => "-- ".__("Location", 'lang_webshop')." --",
+				'city' => __("City", 'lang_webshop'),
 				'location' => __("Location", 'lang_webshop'),
 				'address' => __("Address", 'lang_webshop'),
 				'local_address' => __("Local Address", 'lang_webshop'),
@@ -1765,7 +1766,7 @@ class mf_webshop
 			'mini_toolbar' => true,
 			'editor_height' => 100,
 		));
-		
+
 		echo "<p class='description'>".$this->user_updated_notification_content_placeholder."</p>";
 	}
 
@@ -2017,6 +2018,7 @@ class mf_webshop
 											{
 												switch(meta_field.type)
 												{
+													case 'city':
 													case 'address':
 													case 'local_address': %>"
 														.show_textfield(array('name' => '<%= meta_field.id %>', 'text' => "<%= meta_field.name %>", 'value' => "<%= meta_field.value %>", 'xtra_class' => "maps_location", 'xtra' => "<% if(meta_field.attributes.required == true){ %> required<%} %>", 'placeholder' => "<%= meta_field.attributes.placeholder %>", 'description' => "<%= meta_field.desc %>"))
@@ -5782,7 +5784,7 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_filter_products_item'>
-						<li class='list_item<% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
+						<li class='list_item list_item_<%= product_id %><% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
 							<div>";
 
 								$out .= "<% if(custom_category_id > 0)
@@ -5799,12 +5801,12 @@ class mf_webshop
 
 									$out .= "<% if(product_url != '')
 									{ %>
-										<a href='<%= product_url %>'>
-									<% } %>
-										<%= product_title %>
-									<% if(product_url != '')
+										<a href='<%= product_url %>'><%= product_title %></a>
+									<% }
+
+									else
 									{ %>
-										</a>
+										<%= product_title %>
 									<% } %>";
 
 									/*$out .= "<% if(product_location != '')
@@ -5812,21 +5814,26 @@ class mf_webshop
 										<span>(<%= product_location %>)</span>
 									<% } %>";*/
 
-								$out .= "</h2>
-								<p>
-									<% if(product_address != '')
-									{ %>
-										<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
-									<% } %>
-								</p>
+								$out .= "</h2>";
+
+								/*$out .= "<% if(product_address != '')
+								{ %>
+									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
+								<% } %>";*/
+
+								$out .= "<% if(product_info != '')
+								{ %>
+									<p><%= product_info %></p>
+								<% } %>
 							</div>
 							<% if(product_url != '')
 							{ %>
 								<div class='list_url'>
 									<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
 								</div>
-							<% } %>
-							<% if(product_coordinates != '')
+							<% }
+
+							if(product_coordinates != '')
 							{ %>"
 								.input_hidden(array('value' => "<%= product_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
 							."<% } %>
@@ -6420,7 +6427,7 @@ class mf_webshop
 
 	function get_filter_products($data)
 	{
-		global $wpdb;
+		global $wpdb, $obj_font_icons;
 
 		if(!isset($data['id'])){			$data['id'] = "";}
 		if(!isset($data['category'])){		$data['category'] = "";}
@@ -6513,7 +6520,7 @@ class mf_webshop
 			$post_title = stripslashes(stripslashes($r->post_title));
 			$category_id = get_post_meta($post_id, $this->meta_prefix.'category', true);
 
-			$custom_category_id = $post_url = $post_address = "";
+			$custom_category_id = $post_url = $product_info = $post_address = "";
 
 			$custom_categories = $this->get_post_name_for_type('custom_categories');
 
@@ -6534,11 +6541,82 @@ class mf_webshop
 				$post_location = get_post_title($post_location);
 			}
 
-			$address_post_name = $this->get_post_name_for_type('address');
-
-			if($address_post_name != '')
+			if(is_user_logged_in())
 			{
-				$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
+				$result_doc_type = $wpdb->get_results($wpdb->prepare("SELECT ID, post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s ORDER BY menu_order ASC", $this->post_type_document_type.$this->option_type, 'publish', $this->meta_prefix.'document_public', 'yes'));
+
+				foreach($result_doc_type as $r)
+				{
+					$post_meta = get_post_meta($post_id, $this->meta_prefix.$r->post_name, true);
+
+					if($post_meta != '')
+					{
+						$post_document_type = get_post_meta($r->ID, $this->meta_prefix.'document_type', true);
+						$post_document_symbol = get_post_meta($r->ID, $this->meta_prefix.'document_symbol', true);
+
+						$post_meta_symbol = "";
+
+						if($post_document_symbol != '')
+						{
+							if(!isset($obj_font_icons))
+							{
+								$obj_font_icons = new mf_font_icons();
+							}
+
+							$post_meta_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $post_document_symbol))." ";
+						}
+
+						switch($post_document_type)
+						{
+							case 'address':
+								$post_meta = "<span class='location'>".$post_meta_symbol.$post_meta."</span>";
+							break;
+
+							case 'city':
+								$post_meta = "<span>".$post_meta_symbol.$post_meta."</span>";
+							break;
+
+							/*case 'email':
+								$post_meta = apply_filters('the_content', "<a href='mailto:".$post_meta."'>".$post_meta_symbol.$post_meta."</a>");
+							break;*/
+
+							case 'phone':
+								$post_meta = "<a href='".format_phone_no($post_meta)."'>".$post_meta_symbol.$post_meta."</a>";
+							break;
+
+							case 'url':
+								$parsed_url = parse_url($post_meta);
+
+								$post_meta = "<a href='".$post_meta."'>".($post_meta_symbol != '' ? $post_meta_symbol : (isset($parsed_url['host']) ? str_replace("www.", "", $parsed_url['host']) : $post_meta))."</a>";
+							break;
+
+							default:
+								//$post_meta = "<span>".$post_meta_symbol.$post_meta."</span>";
+								$post_meta = "";
+							break;
+						}
+
+						if($post_meta != '')
+						{
+							$product_info .= ($product_info != '' ? " | " : "").$post_meta;
+						}
+					}
+				}
+			}
+
+			else
+			{
+				$address_post_name = $this->get_post_name_for_type('address');
+
+				if($address_post_name != '')
+				{
+					$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
+				}
+
+				if($post_address != '')
+				{
+					$product_info .= ($product_info != '' ? " | " : "")."<span class='location'><i class='fas fa-map-marker-alt'></i> ".$post_address."</span>";
+				}
 			}
 
 			$out['filter_products_response'][] = array(
@@ -6548,7 +6626,8 @@ class mf_webshop
 				'product_title' => $post_title,
 				'product_url' => $post_url,
 				'product_location' => $post_location,
-				'product_address' => $post_address,
+				//'product_address' => $post_address,
+				'product_info' => $product_info,
 				'product_coordinates' => get_post_meta($post_id, $this->meta_prefix.'coordinates', true),
 			);
 

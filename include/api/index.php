@@ -401,6 +401,7 @@ switch($type_switch)
 
 							$post_data = array(
 								'ID' => $post_id,
+								'post_status' => 'publish',
 								'post_modified' => date("Y-m-d H:i:s"),
 								'meta_input' => array(),
 							);

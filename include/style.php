@@ -274,6 +274,11 @@ echo "@media all
 			text-decoration: none;
 		}
 
+			.aside ul p a
+			{
+				display: inline;
+			}
+
 	#wrapper h1 a
 	{
 		color: inherit;
@@ -479,6 +484,11 @@ echo "@media all
 					text-overflow: ellipsis;
 					white-space: nowrap;
 				}
+
+					.webshop_filter_products .list_item h2
+					{
+						cursor: pointer;
+					}
 
 			#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
 			{
