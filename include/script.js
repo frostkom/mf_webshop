@@ -32,8 +32,21 @@ function add_map_location(data)
 		var pos = get_position_from_string(coordinates_temp),
 			id = data.dom_obj.attr('data-id'),
 			name = data.dom_obj.attr('data-name'),
+			text = (data.dom_obj.attr('data-text') || ''),
 			url = (data.dom_obj.attr('data-url') || ''),
 			link_text = (data.dom_obj.attr('data-link_text') || '');
+
+		if(text != '')
+		{
+			text = text.replace("[url=", "<a href='");
+			text = text.replace("[/url]", "</a>");
+			text = text.replace("]", "'>");
+		}
+
+		if(url != '')
+		{
+			text += "<a href='" + url + "'>" + link_text + "</a>";
+		}
 
 		add_marker(
 		{
@@ -41,7 +54,7 @@ function add_map_location(data)
 			'icon': data.icon,
 			'id': id,
 			'name': name,
-			'text': (url != '' ? "<a href='" + url + "'>" + link_text + "</a>" : "")
+			'text': text
 		});
 	}
 }

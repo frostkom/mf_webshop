@@ -589,7 +589,7 @@ class mf_webshop
 					$setting_webshop_user_updated_notification_subject = get_option_or_default('setting_webshop_user_updated_notification_subject'.$this->option_type, $this->user_updated_notification_subject_placeholder);
 					$setting_webshop_user_updated_notification_content = get_option_or_default('setting_webshop_user_updated_notification_content'.$this->option_type, $this->user_updated_notification_content_placeholder);
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_author, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < %s LIMIT 0, 5", $this->post_type_products.$this->option_type, 'publish', date("Y-m-d", strtotime("-".$setting_webshop_user_updated_notification." month"))));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_author, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < %s ORDER BY post_modified ASC LIMIT 0, 5", $this->post_type_products.$this->option_type, 'publish', date("Y-m-d", strtotime("-".$setting_webshop_user_updated_notification." month"))));
 
 					foreach($result as $r)
 					{
@@ -627,8 +627,6 @@ class mf_webshop
 						{
 							$user_data = get_userdata($post_author);
 
-							//do_log("Send message to ".$user_data->user_email." (".$user_data->display_name.") because the person has not updated the info within ".$setting_webshop_user_updated_notification." months (".$post_modified.")");
-
 							$front_end_admin_url = apply_filters('get_front_end_admin_url', '');
 
 							if($front_end_admin_url != '')
@@ -651,11 +649,19 @@ class mf_webshop
 							$mail_subject = $setting_webshop_user_updated_notification_subject;
 							$mail_content = str_replace($arr_exclude, $arr_include, $setting_webshop_user_updated_notification_content);
 
-							$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
-
-							if($sent)
+							if(strlen($mail_subject) > 1)
 							{
-								update_user_meta($post_author, 'meta_webshop_reminder_sent', date("Y-m-d H:i:s"));
+								$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+
+								if($sent)
+								{
+									update_user_meta($post_author, 'meta_webshop_reminder_sent', date("Y-m-d H:i:s"));
+								}
+							}
+
+							else
+							{
+								do_log("Send message to ".$user_data->user_email." (".$user_data->display_name.") because the person has not updated the info within ".$setting_webshop_user_updated_notification." months (".$post_modified.")");
 							}
 						}
 					}
@@ -4548,6 +4554,8 @@ class mf_webshop
 							}
 						}
 					}
+
+					$cols['last_updated'] = __("Last Updated", 'lang_webshop');
 				break;
 
 				case $this->post_type_custom_categories.$this->option_type:
@@ -4767,6 +4775,57 @@ class mf_webshop
 							else
 							{
 								do_log("MF Calendar does not seam to be activated");
+							}
+						break;
+
+						case 'last_updated':
+							$row_actions = "";
+
+							$result = $wpdb->get_results($wpdb->prepare("SELECT post_author, post_modified FROM ".$wpdb->posts." WHERE ID = '%d' LIMIT 0, 1", $id));
+
+							foreach($result as $r)
+							{
+								$post_author = $r->post_author;
+								$post_modified = $r->post_modified;
+
+								if($post_modified > DEFAULT_DATE)
+								{
+									echo format_date($post_modified);
+
+									$setting_webshop_user_updated_notification = get_option('setting_webshop_user_updated_notification'.$this->option_type);
+
+									if($setting_webshop_user_updated_notification > 0)
+									{
+										$meta_webshop_reminder_sent = get_user_meta($post_author, 'meta_webshop_reminder_sent', true);
+
+										if($meta_webshop_reminder_sent > DEFAULT_DATE)
+										{
+											if($meta_webshop_reminder_sent < date("Y-m-d H:i:s", strtotime("-1 month")))
+											{
+												$row_actions .= ($row_actions != '' ? " | " : "")."<span>".sprintf(__("The user was notified %s and has been deactivated until the profile has been updated", 'lang_webshop'), format_date($meta_webshop_reminder_sent))."</span>";
+
+												echo "<i class='set_tr_color' rel='red'></i>";
+											}
+
+											else
+											{
+												$row_actions .= ($row_actions != '' ? " | " : "")."<span>".sprintf(__("The user was notified %s", 'lang_webshop'), format_date($meta_webshop_reminder_sent))."</span>";
+
+												echo "<i class='set_tr_color' rel='yellow'></i>";
+											}
+										}
+
+										else
+										{
+											//echo "<i class='set_tr_color' rel='green'></i>";
+										}
+									}
+								}
+							}
+
+							if($row_actions != '')
+							{
+								echo "<div class='row-actions'>".$row_actions."</div>";
 							}
 						break;
 					}
@@ -5738,7 +5797,15 @@ class mf_webshop
 
 									if(event_coordinates != '')
 									{ %>"
-										.input_hidden(array('value' => "<%= event_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+										.input_hidden(array(
+											'value' => "<%= event_coordinates %>",
+											'xtra' => "class='map_coordinates' data-id='<%= event_id %>' data-name='<%= product_title %> - <%= event_title %>'"
+												."<% if(event_url != '')
+												{ %>"
+													."data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
+												."<% } %>"
+												.(IS_ADMIN ? " data-type='events_coordinates'" : ""),
+										))
 									."<% } %>
 								</p>
 								<p><%= name_product %>: <a href='<%= product_url %>'><%= product_title %></a></p>
@@ -5748,7 +5815,15 @@ class mf_webshop
 							</div>
 							<% if(product_map != '')
 							{ %>"
-								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+								.input_hidden(array(
+									'value' => "<%= product_map %>",
+									'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>'"
+										."<% if(event_url != '')
+										{ %>"
+											." data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
+										."<% } %>"
+										.(IS_ADMIN ? " data-type='events_map'" : ""),
+								))
 							."<% } %>
 						</li>
 					</script>
@@ -5835,7 +5910,19 @@ class mf_webshop
 
 							if(product_coordinates != '')
 							{ %>"
-								.input_hidden(array('value' => "<%= product_coordinates %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+								.input_hidden(array(
+									'value' => "<%= product_coordinates %>",
+									'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>'"
+										."<% if(product_marker_info != '')
+										{ %>"
+											." data-text='<%= product_marker_info %>'"
+										."<% } %>"
+										."<% if(product_url != '')
+										{ %>"
+											." data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
+										."<% } %>"
+										.(IS_ADMIN ? " data-type='products_coordinates'" : ""),
+								))
 							."<% } %>
 						</li>
 					</script>
@@ -5927,7 +6014,15 @@ class mf_webshop
 
 							if(product_map != '')
 							{ %>"
-								.input_hidden(array('value' => "<%= product_map %>", 'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>' data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"))
+								.input_hidden(array(
+									'value' => "<%= product_map %>",
+									'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>'"
+										."<% if(product_url != '')
+										{ %>"
+											." data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
+										."<% } %>"
+										.(IS_ADMIN ? " data-type='products_map'" : ""),
+								))
 							."<% } %>
 						</li>
 					</script>";
@@ -6520,7 +6615,7 @@ class mf_webshop
 			$post_title = stripslashes(stripslashes($r->post_title));
 			$category_id = get_post_meta($post_id, $this->meta_prefix.'category', true);
 
-			$custom_category_id = $post_url = $product_info = $post_address = "";
+			$custom_category_id = $product_marker_info = $post_url = $product_info = $post_address = "";
 
 			$custom_categories = $this->get_post_name_for_type('custom_categories');
 
@@ -6547,7 +6642,7 @@ class mf_webshop
 
 				foreach($result_doc_type as $r)
 				{
-					$post_meta = get_post_meta($post_id, $this->meta_prefix.$r->post_name, true);
+					$post_meta_marker = $post_meta = get_post_meta($post_id, $this->meta_prefix.$r->post_name, true);
 
 					if($post_meta != '')
 					{
@@ -6581,12 +6676,14 @@ class mf_webshop
 							break;*/
 
 							case 'phone':
+								$post_meta_marker = "[url=".format_phone_no($post_meta)."]".$post_meta_symbol.$post_meta."[/url]";
 								$post_meta = "<a href='".format_phone_no($post_meta)."'>".$post_meta_symbol.$post_meta."</a>";
 							break;
 
 							case 'url':
 								$parsed_url = parse_url($post_meta);
 
+								$post_meta_marker = "[url=".$post_meta."]".(isset($parsed_url['host']) ? str_replace("www.", "", $parsed_url['host']) : $post_meta)."[/url]";
 								$post_meta = "<a href='".$post_meta."'>".($post_meta_symbol != '' ? $post_meta_symbol : (isset($parsed_url['host']) ? str_replace("www.", "", $parsed_url['host']) : $post_meta))."</a>";
 							break;
 
@@ -6598,6 +6695,7 @@ class mf_webshop
 
 						if($post_meta != '')
 						{
+							$product_marker_info .= ($product_marker_info != '' ? " | " : "").$post_meta_marker;
 							$product_info .= ($product_info != '' ? " | " : "").$post_meta;
 						}
 					}
@@ -6615,6 +6713,7 @@ class mf_webshop
 
 				if($post_address != '')
 				{
+					$product_marker_info .= ($product_info != '' ? " | " : "").$post_address;
 					$product_info .= ($product_info != '' ? " | " : "")."<span class='location'><i class='fas fa-map-marker-alt'></i> ".$post_address."</span>";
 				}
 			}
@@ -6624,6 +6723,7 @@ class mf_webshop
 				'custom_category_id' => $custom_category_id,
 				'product_id' => $post_id,
 				'product_title' => $post_title,
+				'product_marker_info' => $product_marker_info,
 				'product_url' => $post_url,
 				'product_location' => $post_location,
 				//'product_address' => $post_address,
@@ -7477,12 +7577,33 @@ class mf_webshop
 				</div>
 			</div>";
 
-			$out .= input_hidden(array('name' => 'webshop_map_coordinates', 'value' => $this->product_map, 'xtra' => "id='webshop_map_coordinates' class='map_coordinates' data-name='".$this->product_title."'")); // data-url=''
+			$product_xtra = "id='webshop_map_coordinates' class='map_coordinates' data-name='".$this->product_title."'"; // data-url=''
+
+			if(IS_ADMIN)
+			{
+				$product_xtra .= " data-type='product_single_map'";
+			}
+
+			$out .= input_hidden(array(
+				'name' => 'webshop_map_coordinates',
+				'value' => $this->product_map,
+				'xtra' => $product_xtra,
+			));
 		}
 
 		if($this->product_coordinates != '')
 		{
-			$out .= input_hidden(array('value' => $this->product_coordinates, 'xtra' => "class='map_coordinates' data-name='".$this->product_title."'")); // data-url=''
+			$product_xtra = "class='map_coordinates' data-name='".$this->product_title."'"; // data-url=''
+
+			if(IS_ADMIN)
+			{
+				$product_xtra .= " data-type='product_single_coordinates'";
+			}
+
+			$out .= input_hidden(array(
+				'value' => $this->product_coordinates,
+				'xtra' => $product_xtra,
+			));
 		}
 
 		if(count($this->product_meta) > 0)
@@ -9978,7 +10099,32 @@ class widget_webshop_product_meta extends WP_Widget
 
 								if($event_coordinates != '')
 								{
-									$out_temp .= input_hidden(array('value' => $event_coordinates, 'xtra' => "class='map_coordinates' data-id='".$this->obj_webshop->event_id."' data-name='".($product_id > 0 ? get_post_title($product_id)." - " : "").get_post_title($this->obj_webshop->event_id)."' data-url='".get_permalink($this->obj_webshop->event_id)."' data-link_text='".__("Read More", 'lang_webshop')."'"));
+									$event_name = $event_xtra = "";
+
+									if($product_id > 0)
+									{
+										$event_name .= get_post_title($product_id)." - ";
+									}
+
+									$event_name .= get_post_title($this->obj_webshop->event_id);
+									$event_url = get_permalink($this->obj_webshop->event_id);
+
+									$event_xtra = "class='map_coordinates' data-id='".$this->obj_webshop->event_id."' data-name='".$event_name."'";
+
+									if($event_url != '')
+									{
+										$event_xtra .= " data-url='".$event_url."' data-link_text='".__("Read More", 'lang_webshop')."'";
+									}
+
+									if(IS_ADMIN)
+									{
+										$event_xtra .= " data-type='event_meta'";
+									}
+
+									$out_temp .= input_hidden(array(
+										'value' => $event_coordinates,
+										'xtra' => $event_xtra,
+									));
 								}
 							}
 
@@ -9997,7 +10143,19 @@ class widget_webshop_product_meta extends WP_Widget
 
 									if($product_coordinates != '')
 									{
-										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => "class='map_coordinates' data-id='".$product_id."' data-name='".$product_title."' data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'"));
+										$product_xtra = "class='map_coordinates' data-id='".$product_id."' data-name='".$product_title."'";
+
+										if($product_url != '')
+										{
+											$product_xtra .= " data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'";
+										}
+
+										if(IS_ADMIN)
+										{
+											$product_xtra .= " data-type='product_meta'";
+										}
+
+										$out_temp .= input_hidden(array('value' => $product_coordinates, 'xtra' => $product_xtra));
 									}
 								}
 							}
