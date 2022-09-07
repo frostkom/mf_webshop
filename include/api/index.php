@@ -219,7 +219,10 @@ switch($type_switch)
 													if($multiple_temp)
 													{
 														$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
-														$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
+														//$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "multiselect";
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['multiple'] = "";
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['size'] = get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])));
 													}
 												break;
 											}
@@ -432,7 +435,7 @@ switch($type_switch)
 									{
 										$id_temp = $arr_meta_box['fields'][$field_id]['id'];
 										$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
-										$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+										$multiple_temp = (isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false);
 
 										if(!in_array($id_temp, $arr_fields_excluded))
 										{

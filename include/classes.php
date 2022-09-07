@@ -2059,7 +2059,14 @@ class mf_webshop
 														{ %>
 															<div class='form_select type_<%= meta_field.type %><%= meta_field.class %>'>
 																<label for='<%= meta_field.id %>'><%= meta_field.name %></label>
-																<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'<%= meta_field.attributes %><% if(meta_field.attributes.required == true){ %> required<%} %>>
+																<select id='<%= meta_field.id %>' name='<%= meta_field.id %><% if(meta_field.multiple == true){ %>[]<% } %>'"
+																	//."<%= meta_field.attributes %>" // attributes is not a string anymore
+																	//."<% if(meta_field.attributes.required == true){ %> required<%} %>"
+																	."<% _.each(meta_field.attributes, function(meta_attribute_value, meta_attribute_key)
+																	{ %>
+																		<%= meta_attribute_key %>='<%= meta_attribute_value %>'
+																	<% }); %>"
+																.">
 																	<% _.each(meta_field.options, function(meta_option_value, meta_option_key)
 																	{ %>
 																		<option value='<%= meta_option_key %>'<% if(meta_option_key == meta_field.value || meta_field.multiple == true && meta_field.value.indexOf(meta_option_key) !== -1){%> selected<%} %>><%= meta_option_value %></option>
@@ -4083,7 +4090,7 @@ class mf_webshop
 					'attributes' => array(
 						'condition_type' => 'hide_this_if',
 						'condition_selector' => $this->meta_prefix.'document_type',
-						'condition_value' => '"categories_v2", "description", "color", "gps", "overlay", "heading", "categories", "categories_v2", "event", "container_start", "container_end", "read_more_button", "file_advanced", "event", "coordinates", "divider", "education"',
+						'condition_value' => '"categories_v2", "description", "color", "gps", "overlay", "heading", "categories", "categories_v2", "event", "container_start", "container_end", "read_more_button", "file_advanced", "event", "coordinates", "divider"', //, "education"
 					),
 				),
 			);
@@ -8552,9 +8559,7 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 	{
 		static public function html($meta, $field)
 		{
-			global $wpdb;
-
-			global $obj_webshop;
+			global $wpdb, $obj_webshop;
 
 			if(!isset($obj_webshop))
 			{
@@ -9931,7 +9936,7 @@ class widget_webshop_product_meta extends WP_Widget
 				'event_info' => __("Event Info", 'lang_webshop'),
 				'actions' => __("Actions", 'lang_webshop'),
 				'breadcrumbs' => __("Breadcrumbs", 'lang_webshop'),
-			//'opt_end_products' => "",
+			//'opt_end_events' => "",
 		);
 
 		return $arr_data;
