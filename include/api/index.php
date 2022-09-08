@@ -78,7 +78,7 @@ switch($type_switch)
 				break;
 
 				case 'webshop/edit':
-					$post_id = isset($arr_type[3]) ? $arr_type[3] : 0;
+					$post_id = (isset($arr_type[3]) ? $arr_type[3] : 0);
 
 					$json_output['admin_webshop_response'] = array(
 						'type' => $arr_type[0]."_".str_replace("/", "_", $type_temp),
@@ -106,7 +106,25 @@ switch($type_switch)
 
 						foreach($result as $r)
 						{
-							$json_output['admin_webshop_response']['post_title'] = $post_title = $r->post_title;
+							$setting_webshop_title_fields_amount = get_option_or_default('setting_webshop_title_fields_amount'.$obj_webshop->option_type, 1);
+
+							switch($setting_webshop_title_fields_amount)
+							{
+								default:
+								case 1:
+									$json_output['admin_webshop_response']['post_title'] = $post_title = $r->post_title;
+								break;
+								
+								case 2:
+									$post_title = $r->post_title;
+
+									list($post_title, $post_title_2) = explode(" ", $post_title, 2);
+
+									$json_output['admin_webshop_response']['post_title'] = $post_title;
+									$json_output['admin_webshop_response']['post_title_2'] = $post_title_2;
+								break;
+							}
+
 							$json_output['admin_webshop_response']['post_name'] = $post_name = $r->post_name;
 							$post_type = $r->post_type;
 							$post_author = $r->post_author;
@@ -128,7 +146,7 @@ switch($type_switch)
 										$id_temp = $arr_meta_box['fields'][$field_id]['id'];
 										$value_temp = "";
 										$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
-										$multiple_temp = isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false;
+										$multiple_temp = (isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false);
 
 										$display_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['display'] = !in_array($id_temp, $arr_fields_excluded);
 
@@ -371,7 +389,23 @@ switch($type_switch)
 
 				case 'webshop/save':
 					$post_id = check_var('post_id', 'int');
-					$post_title = check_var('post_title');
+
+					$setting_webshop_title_fields_amount = get_option_or_default('setting_webshop_title_fields_amount'.$obj_webshop->option_type, 1);
+
+					switch($setting_webshop_title_fields_amount)
+					{
+						default:
+						case 1:
+							$post_title = check_var('post_title');
+						break;
+						
+						case 2:
+							$post_title = check_var('post_title');
+							$post_title_2 = check_var('post_title_2');
+
+							$post_title .= " ".$post_title_2;
+						break;
+					}
 
 					$json_output['admin_webshop_response'] = array(
 						'type' => $type,

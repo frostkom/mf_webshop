@@ -179,7 +179,7 @@ class mf_webshop
 		$out = false;
 
 		$value_min = $data['value'][0];
-		$value_max = isset($data['value'][1]) ? $data['value'][1] : "";
+		$value_max = (isset($data['value'][1]) ? $data['value'][1] : '');
 		$compare_min = $data['compare'][0];
 		$compare_max = $data['compare'][1];
 
@@ -1074,6 +1074,10 @@ class mf_webshop
 					$arr_settings['setting_webshop_force_individual_contact|'.$option_type] = __("Force Individual Contact", 'lang_webshop');
 				}
 
+				$arr_settings['setting_webshop_title_fields_amount|'.$option_type] = __("Amount of Fields for Title", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_product_title|'.$option_type] = __("Title Label", 'lang_webshop');
+				$arr_settings['setting_webshop_replace_product_description|'.$option_type] = __("Title Description", 'lang_webshop');
+
 				$arr_settings['setting_webshop_replace_title_information|'.$option_type] = __("Replace Text", 'lang_webshop');
 				$arr_settings['setting_webshop_replace_title_settings|'.$option_type] = __("Replace Text", 'lang_webshop');
 				$arr_settings['setting_webshop_replace_title_contact_info|'.$option_type] = __("Replace Text", 'lang_webshop');
@@ -1414,6 +1418,33 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote", 'lang_webshop')));
+	}
+
+	function setting_webshop_title_fields_amount_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key, 1);
+
+		echo show_select(array('data' =>  array(1 => __("One Field", 'lang_webshop'), 2 => __("Two Fields", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
+	}
+
+	function setting_webshop_replace_product_title_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Title", 'lang_webshop')));
+	}
+
+	function setting_webshop_replace_product_description_callback($args = array())
+	{
+		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$option = get_option($setting_key);
+
+		$option_type = $this->get_settings_header_type($args);
+		$name_product = get_option_or_default('setting_webshop_replace_product'.($option_type != '' ? "_".$option_type : ''), __("Product", 'lang_webshop'));
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), $name_product)));
 	}
 
 	function setting_webshop_replace_title_information_callback($args = array())
@@ -1837,7 +1868,7 @@ class mf_webshop
 
 			$obj_theme_core->get_params();
 
-			$setting_mobile_breakpoint = isset($obj_theme_core->options['mobile_breakpoint']) ? $obj_theme_core->options['mobile_breakpoint'] : 600;
+			$setting_mobile_breakpoint = (isset($obj_theme_core->options['mobile_breakpoint']) ? $obj_theme_core->options['mobile_breakpoint'] : 600);
 		}
 
 		else
@@ -1972,6 +2003,10 @@ class mf_webshop
 					'confirm_question' => __("Are you sure?", 'lang_webshop'),
 				), $plugin_version);
 
+				$setting_webshop_title_fields_amount = get_option_or_default('setting_webshop_title_fields_amount'.$this->option_type, 1);
+				$name_title = get_option_or_default('setting_webshop_replace_product_title'.$this->option_type, __("Title", 'lang_webshop'));
+				$name_description = get_option_or_default('setting_webshop_replace_product_description'.$this->option_type, sprintf(__("Your name or the name of the %s", 'lang_webshop'), "<%= name_product %>"));
+
 				$templates .= "<script type='text/template' id='template_admin_webshop_list'>
 					<table class='widefat striped'>
 						<thead>
@@ -2008,10 +2043,34 @@ class mf_webshop
 				</script>
 
 				<script type='text/template' id='template_admin_webshop_edit'>
-					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>"
-						.show_textfield(array('name' => 'post_title', 'text' => __("Title", 'lang_webshop'), 'value' => "<%= post_title %>", 'maxlength' => 50, 'required' => true, 'description' => sprintf(__("Your name or the name of the %s", 'lang_webshop'), "<%= name_product %>")))
+					<form method='post' action='#' class='mf_form' data-action='admin/webshop/save'>";
+
+						switch($setting_webshop_title_fields_amount)
+						{
+							default:
+							case 1:
+								$templates .= show_textfield(array('name' => 'post_title', 'text' => $name_title, 'value' => "<%= post_title %>", 'maxlength' => 50, 'required' => true, 'description' => $name_description));
+							break;
+							
+							case 2:
+								@list($name_title, $name_title_2) = explode("|", $name_title);
+								@list($name_description, $name_description_2) = explode("|", $name_description);
+
+								if($name_title_2 == '')
+								{
+									$name_title_2 = "&nbsp;";
+								}
+
+								$templates .= "<div class='flex_flow'>"
+									.show_textfield(array('name' => 'post_title', 'text' => $name_title, 'value' => "<%= post_title %>", 'maxlength' => 25, 'required' => true, 'description' => $name_description))
+									.show_textfield(array('name' => 'post_title_2', 'text' => $name_title_2, 'value' => "<%= post_title_2 %>", 'maxlength' => 25, 'required' => true, 'description' => $name_description_2))
+								."</div>";
+							break;
+						}
+
 						//.show_textfield(array('name' => 'post_name', 'text' => __("URL", 'lang_webshop'), 'value' => "<%= post_name %>"))
-						."<% _.each(meta_boxes, function(meta_box)
+
+						$templates .= "<% _.each(meta_boxes, function(meta_box)
 						{ %>
 							<% if(meta_box.fields.length > 0)
 							{ %>
