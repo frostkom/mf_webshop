@@ -2051,7 +2051,7 @@ class mf_webshop
 							case 1:
 								$templates .= show_textfield(array('name' => 'post_title', 'text' => $name_title, 'value' => "<%= post_title %>", 'maxlength' => 50, 'required' => true, 'description' => $name_description));
 							break;
-							
+
 							case 2:
 								@list($name_title, $name_title_2) = explode("|", $name_title);
 								@list($name_description, $name_description_2) = explode("|", $name_description);
@@ -7411,6 +7411,7 @@ class mf_webshop
 						case 'clock':
 						case 'container_start':
 						case 'container_end':
+						case 'file_advanced':
 						case 'description':
 						case 'ghost':
 						case 'interval':
@@ -7434,7 +7435,7 @@ class mf_webshop
 
 							else
 							{
-								do_log(sprintf("The type %s does not have a case", $this->meta_type)." (".$this->meta_id." -> single)");
+								do_log(sprintf("The type %s does not have a case", $this->meta_type)." (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> single)");
 							}
 						break;
 					}
@@ -8292,7 +8293,7 @@ class mf_webshop
 
 								else
 								{
-									do_log(sprintf("The type %s does not have a case", $this->meta_type)." (".$this->meta_id." -> list)");
+									do_log(sprintf("The type %s does not have a case", $this->meta_type)." (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> list)");
 								}
 							break;
 						}

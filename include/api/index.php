@@ -114,7 +114,7 @@ switch($type_switch)
 								case 1:
 									$json_output['admin_webshop_response']['post_title'] = $post_title = $r->post_title;
 								break;
-								
+
 								case 2:
 									$post_title = $r->post_title;
 
@@ -398,7 +398,7 @@ switch($type_switch)
 						case 1:
 							$post_title = check_var('post_title');
 						break;
-						
+
 						case 2:
 							$post_title = check_var('post_title');
 							$post_title_2 = check_var('post_title_2');
