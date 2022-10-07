@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-08 10:05+0100\n"
+"POT-Creation-Date: 2022-10-07 09:38+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -442,7 +442,7 @@ msgstr "Ersätt text"
 #: ../include/classes.php:1312
 #: ../include/classes.php:1332
 #: ../include/classes.php:1445
-#: ../include/api/index.php:369
+#: ../include/api/index.php:387
 msgid "Product"
 msgstr "Produkt"
 
@@ -769,38 +769,38 @@ msgstr "Det finns inget att visa"
 msgid "Draft"
 msgstr "Utkast"
 
-#: ../include/api/index.php:173
-#: ../include/api/index.php:205
+#: ../include/api/index.php:191
+#: ../include/api/index.php:223
 #, php-format
 msgid "You have to install the plugin %s first"
 msgstr "Du behöver installera pluginet %s först"
 
-#: ../include/api/index.php:496
-#: ../include/api/index.php:559
+#: ../include/api/index.php:530
+#: ../include/api/index.php:593
 msgid "The end date must be later than the start date"
 msgstr "Slutdatumet måste vara senare än startdatumet"
 
-#: ../include/api/index.php:502
-#: ../include/api/index.php:565
+#: ../include/api/index.php:536
+#: ../include/api/index.php:599
 #, php-format
 msgid "The end date must be within %d days from the start date"
 msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
 
-#: ../include/api/index.php:689
-#: ../include/api/index.php:731
+#: ../include/api/index.php:723
+#: ../include/api/index.php:765
 #, php-format
 msgid "I have saved the information for you. %sView the page here%s"
 msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-#: ../include/api/index.php:699
+#: ../include/api/index.php:733
 msgid "I could not update the information for you"
 msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-#: ../include/api/index.php:738
+#: ../include/api/index.php:772
 msgid "I could not save the information for you"
 msgstr "Jag kunde inte spara informationen åt dig"
 
-#: ../include/api/index.php:744
+#: ../include/api/index.php:778
 msgid "One with that title already exists"
 msgstr "En med den rubriken finns redan"
 

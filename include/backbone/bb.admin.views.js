@@ -145,7 +145,7 @@ var WebshopAdminView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget),
 			dom_action = dom_obj.attr('data-action'),
-			api_url = dom_obj.attr('data-api-url') || '';
+			api_url = (dom_obj.attr('data-api-url') || '');
 
 		if(api_url == '')
 		{

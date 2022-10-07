@@ -5361,6 +5361,16 @@ class mf_webshop
 		}
 	}
 
+	function filter_cookie_types($array)
+	{
+		if(apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
+		{
+			$array['ip']['webshop_get_events'] = array('label' => __("Widget that uses IP address to find out lat/long for visitor but it isn't stored", 'lang_webshop'), 'used' => false, 'lifetime' => "1 second");
+		}
+
+		return $array;
+	}
+
 	/* Public */
 	function get_interval_min($value)
 	{
@@ -6275,11 +6285,14 @@ class mf_webshop
 		{
 			if($data['latitude'] == '' || $data['longitude'] == '')
 			{
-				$this->ip_temp = get_current_visitor_ip();
+				if(apply_filters('get_allow_cookies', true) == true)
+				{
+					$this->ip_temp = get_current_visitor_ip();
 
-				$coordinates_from_ip = get_or_set_transient(array('key' => 'coordinates_from_ip_'.$this->ip_temp, 'callback' => array($this, 'get_transient_coordinates_from_ip')));
+					$coordinates_from_ip = get_or_set_transient(array('key' => 'coordinates_from_ip_'.$this->ip_temp, 'callback' => array($this, 'get_transient_coordinates_from_ip')));
 
-				@list($data['latitude'], $data['longitude']) = explode(",", $coordinates_from_ip);
+					@list($data['latitude'], $data['longitude']) = explode(",", $coordinates_from_ip);
+				}
 			}
 
 			if($data['latitude'] != '' && $data['longitude'] != '')
@@ -9274,7 +9287,7 @@ class widget_webshop_list extends WP_Widget
 				get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data);
 
 				echo "<div class='section'>
-					<ul class='text_columns columns_3'>"; //".(count($arr_data) % 3 == 0 || count($arr_data) > 4 ? "" : "columns_2")."
+					<ul class='text_columns columns_3'>";
 
 						foreach($arr_data as $key => $value)
 						{
@@ -9901,7 +9914,6 @@ class widget_webshop_filter_products extends WP_Widget
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
 		$instance['webshop_amount'] = sanitize_text_field($new_instance['webshop_amount']);
 		$instance['webshop_link_product'] = sanitize_text_field($new_instance['webshop_link_product']);
-		//$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 
 		if(is_array($new_instance['webshop_category']))
 		{
@@ -10564,16 +10576,6 @@ class widget_webshop_cart extends WP_Widget
 	function get_cart()
 	{
 		global $wpdb;
-
-		/*if(isset($_SESSION['sesWebshopCookie']) && $_SESSION['sesWebshopCookie'] != '')
-		{
-			$sesWebshopCookie = check_var('sesWebshopCookie', 'char', true);
-		}
-
-		else
-		{
-			$_SESSION['sesWebshopCookie'] = $sesWebshopCookie = md5(AUTH_SALT.get_current_visitor_ip().date("Y-m-d H:i:s"));
-		}*/
 
 		$sesWebshopCookie = get_user_meta(get_current_user_id(), 'meta_webshop_session', true);
 
