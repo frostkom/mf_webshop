@@ -3399,7 +3399,6 @@ class mf_webshop
 				foreach(array_map('trim', explode(",", $setting_range_choices)) as $option)
 				{
 					//$option = trim($option);
-
 					$arr_data[str_replace("+", "-", $option)] = $option;
 				}
 			}
@@ -5936,14 +5935,12 @@ class mf_webshop
 
 					<script type='text/template' id='template_filter_products_item'>
 						<li class='list_item list_item_<%= product_id %><% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
-							<div>";
-
-								$out .= "<% if(custom_category_id > 0)
+							<div>
+								<% if(custom_category_id > 0)
 								{ %>
 									<div class='custom_category custom_category_<%= custom_category_id %>'></div>
-								<% } %>";
-
-								$out .= "<h2>";
+								<% } %>
+								<h2>";
 
 									/*$out .= "<% if(category_icon != '')
 									{ %>
@@ -6612,7 +6609,7 @@ class mf_webshop
 		if(!isset($data['initial'])){		$data['initial'] = false;}
 		if(!isset($data['limit'])){			$data['limit'] = 0;}
 
-		if($data['category'] != 'undefined')
+		if($data['category'] != 'undefined' && $data['category'] != '')
 		{
 			$arr_categories = explode(",", $data['category']);
 		}
@@ -6639,7 +6636,7 @@ class mf_webshop
 
 		$query_select = $query_join = $query_where = $query_order = $query_limit = "";
 
-		if($data['latitude'] != '' && $data['longitude'] != '' && $data['order_by'] == 'distance')
+		if($data['latitude'] != '' && $data['longitude'] != '' && ($data['order_by'] == 'distance' || $data['order_by'] == 'map_center'))
 		{
 			$query_select .= ", (6371 * acos(
 				cos( radians(".$data['latitude'].") )
@@ -8864,7 +8861,7 @@ class widget_webshop_search extends WP_Widget
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
-		echo $before_widget;
+		echo apply_filters('filter_before_widget', $before_widget);
 
 			if($instance['webshop_heading'] != '')
 			{
@@ -8935,7 +8932,7 @@ class widget_webshop_map extends WP_Widget
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
-		echo $before_widget;
+		echo apply_filters('filter_before_widget', $before_widget);
 
 			if($instance['webshop_heading'] != '')
 			{
@@ -9143,7 +9140,7 @@ class widget_webshop_form extends WP_Widget
 			{
 				$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
-				echo $before_widget;
+				echo apply_filters('filter_before_widget', $before_widget);
 
 					if($instance['webshop_heading'] != '')
 					{
@@ -9272,7 +9269,7 @@ class widget_webshop_list extends WP_Widget
 
 		if(is_array($instance['webshop_locations']))
 		{
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['webshop_heading'] != '')
 				{
@@ -9368,7 +9365,7 @@ class widget_webshop_favorites extends WP_Widget
 
 		if(count($instance['webshop_products']) > 0)
 		{
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['webshop_heading'] != '')
 				{
@@ -9467,7 +9464,7 @@ class widget_webshop_recent extends WP_Widget
 
 		if($instance['webshop_amount'] > 0)
 		{
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['webshop_heading'] != '')
 				{
@@ -9625,7 +9622,7 @@ class widget_webshop_events extends WP_Widget
 
 			$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['webshop_heading'] != '')
 				{
@@ -9802,20 +9799,9 @@ class widget_webshop_filter_products extends WP_Widget
 			'distance' => __("Closest", 'lang_webshop'),
 		);
 
-		/* There are no locations for products */
-		/*$arr_locations = array();
-		get_post_children(array('post_type' => $this->obj_webshop->post_type_location, 'post_status' => ''), $arr_locations); //.$this->obj_webshop->option_type
-
-		if(count($arr_locations) > 0)
+		/*if(IS_SUPER_ADMIN)
 		{
-			$arr_data["opt_start_location"] = __("Location", 'lang_webshop');
-
-				foreach($arr_locations as $key => $value)
-				{
-					$arr_data["location_".$key] = $value;
-				}
-
-			$arr_data["opt_end_location"] = "";
+			$arr_data['map_center'] = __("Map Center", 'lang_webshop');
 		}*/
 
 		return $arr_data;
@@ -9838,7 +9824,7 @@ class widget_webshop_filter_products extends WP_Widget
 				}
 			}
 
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['webshop_heading'] != '')
 				{
@@ -10354,7 +10340,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 			if($widget_content != '')
 			{
-				echo $before_widget;
+				echo apply_filters('filter_before_widget', $before_widget);
 
 					if($instance['webshop_heading'] != '')
 					{
@@ -10515,7 +10501,7 @@ class widget_webshop_categories extends WP_Widget
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
-		echo $before_widget;
+		echo apply_filters('filter_before_widget', $before_widget);
 
 			if($instance['webshop_heading'] != '')
 			{
@@ -10581,7 +10567,7 @@ class widget_webshop_cart extends WP_Widget
 
 		if($sesWebshopCookie == '')
 		{
-			$sesWebshopCookie = md5(AUTH_SALT.get_current_visitor_ip().date("Y-m-d H:i:s"));
+			$sesWebshopCookie = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip().date("Y-m-d H:i:s"));
 
 			update_user_meta(get_current_user_id(), 'meta_webshop_session', $sesWebshopCookie);
 		}
@@ -10784,7 +10770,7 @@ class widget_webshop_cart extends WP_Widget
 
 		$this->obj_webshop->option_type = ($instance['webshop_option_type'] != '' ? "_".$instance['webshop_option_type'] : '');
 
-		echo $before_widget;
+		echo apply_filters('filter_before_widget', $before_widget);
 
 			if($instance['webshop_heading'] != '')
 			{

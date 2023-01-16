@@ -519,15 +519,15 @@ var WebshopView = Backbone.View.extend(
 
 	get_distance: function(lat1, lon1, lat2, lon2, unit)
 	{
-		var radlat1 = Math.PI * lat1/180,
-			radlat2 = Math.PI * lat2/180,
-			theta = lon1-lon2,
-			radtheta = Math.PI * theta/180,
-			dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		var radlat1 = (Math.PI * lat1 / 180),
+			radlat2 = (Math.PI * lat2 / 180),
+			theta = (lon1 - lon2),
+			radtheta = (Math.PI * theta / 180),
+			dist = (Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta));
 
 		dist = Math.acos(dist);
-		dist = dist * 180 / Math.PI;
-		dist = dist * 60 * 1.1515 * 1.609344;
+		dist = (dist * 180 / Math.PI);
+		dist = (dist * 60 * 1.1515 * 1.609344);
 
 		return dist;
 	},
@@ -1004,6 +1004,7 @@ var WebshopView = Backbone.View.extend(
 
 		else
 		{
+			/*console.log("1007");*/
 			this.load_filter_products(dom_list);
 		}
 	},
@@ -1011,17 +1012,17 @@ var WebshopView = Backbone.View.extend(
 	load_events: function(dom_obj)
 	{
 		var widget_id = dom_obj.attr('id'),
-			option_type = dom_obj.attr('data-option_type') || '',
-			product_id = dom_obj.attr('data-product_id') || 0,
-			event_id = dom_obj.attr('data-event_id') || 0,
-			event_type = dom_obj.attr('data-event_type') || '',
+			option_type = (dom_obj.attr('data-option_type') || ''),
+			product_id = (dom_obj.attr('data-product_id') || 0),
+			event_id = (dom_obj.attr('data-event_id') || 0),
+			event_type = (dom_obj.attr('data-event_type') || ''),
 			date = dom_obj.attr('data-date'),
-			category = dom_obj.attr('data-category') || '',
-			order_by = dom_obj.attr('data-order_by') || '',
-			latitude = dom_obj.attr('data-latitude') || '',
-			longitude = dom_obj.attr('data-longitude') || '',
+			category = (dom_obj.attr('data-category') || ''),
+			order_by = (dom_obj.attr('data-order_by') || ''),
+			latitude = (dom_obj.attr('data-latitude') || ''),
+			longitude = (dom_obj.attr('data-longitude') || ''),
 			limit = dom_obj.attr('data-limit'),
-			months = dom_obj.attr('data-months') || '',
+			months = (dom_obj.attr('data-months') || ''),
 			amount = dom_obj.attr('data-amount'),
 			get_vars = "type=events&id=" + widget_id + "&start_date=" + date + "&amount=" + amount;
 
@@ -1050,7 +1051,7 @@ var WebshopView = Backbone.View.extend(
 			get_vars += "&event_type=" + event_type;
 		}
 
-		if(category != '')
+		if(typeof category !== 'undefined' && category != '')
 		{
 			get_vars += "&category=" + category;
 		}
@@ -1160,11 +1161,14 @@ var WebshopView = Backbone.View.extend(
 			category = dom_obj.attr('data-category'),
 			order_by = (dom_obj.attr('data-order_by') || ''),
 			link_product = (dom_obj.attr('data-link_product') || ''),
-			latitude = (dom_obj.attr('data-latitude') || ''),
-			longitude = (dom_obj.attr('data-longitude') || ''),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount'),
-			get_vars = "type=filter_products&id=" + widget_id + "&category=" + category + "&amount=" + amount;
+			get_vars = "type=filter_products&id=" + widget_id + "&amount=" + amount;
+
+		if(typeof category !== 'undefined' && category != '')
+		{
+			get_vars += "&category=" + category;
+		}
 
 		if(order_by != '')
 		{
@@ -1173,14 +1177,25 @@ var WebshopView = Backbone.View.extend(
 				get_vars += "&option_type=" + option_type;
 			}
 
-			if(order_by != '')
-			{
-				get_vars += "&order_by=" + order_by;
-			}
+			get_vars += "&order_by=" + order_by;
 
 			if(link_product != '')
 			{
 				get_vars += "&link_product=" + link_product;
+			}
+
+			switch(order_by)
+			{
+				default:
+				case 'distance':
+					var latitude = (dom_obj.attr('data-latitude') || ''),
+						longitude = (dom_obj.attr('data-longitude') || '');
+				break;
+
+				case 'map_center':
+					var latitude = (dom_obj.attr('data-map-latitude') || ''),
+						longitude = (dom_obj.attr('data-map-longitude') || '');
+				break;
 			}
 
 			if(latitude != '')
@@ -1220,6 +1235,7 @@ var WebshopView = Backbone.View.extend(
 
 		this.dom_obj_products.each(function()
 		{
+			/*console.log("1241");*/
 			self.load_filter_products(jQuery(this).find(".widget_list"));
 		});
 	},
@@ -1265,7 +1281,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_widget = jQuery("#" + widget_id),
 			dom_parent = dom_widget.parents(".webshop_widget"),
-			dom_type = (dom_parent.hasClass('webshop_events') ? "events" : "filter_products");
+			dom_type = (dom_parent.hasClass('webshop_events') ? 'events' : 'filter_products');
 
 		if(dom_type == "events")
 		{
@@ -1306,7 +1322,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget),
 			dom_parent = dom_obj.parents(".webshop_widget"),
-			dom_type = dom_parent.hasClass('webshop_events') ? 'events' : 'filter_products',
+			dom_type = (dom_parent.hasClass('webshop_events') ? 'events' : 'filter_products'),
 			dom_list = dom_parent.find(".widget_list"),
 			limit = dom_list.attr('data-limit'),
 			amount = dom_list.attr('data-amount');
@@ -1321,6 +1337,7 @@ var WebshopView = Backbone.View.extend(
 
 			default:
 			case 'filter_products':
+				/*console.log("1343");*/
 				this.load_filter_products(dom_list);
 			break;
 		}

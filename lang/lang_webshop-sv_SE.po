@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-07 09:38+0100\n"
+"POT-Creation-Date: 2022-11-11 11:20+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,1217 +15,726 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../group/index.php:8
-#: ../include/classes.php:494
-#: ../include/classes.php:1129
-#: ../include/classes.php:1171
-#: ../include/classes.php:1184
-#: ../include/classes.php:1226
-#: ../include/classes.php:1281
-#: ../include/classes.php:1291
-#: ../include/classes.php:1301
-#: ../include/classes.php:1311
-#: ../include/classes.php:1322
-#: ../include/classes.php:1933
 msgid "Webshop"
 msgstr "Webbshop"
 
-#: ../group/index.php:72
 msgid "The address was not able to be created"
 msgstr "Det gick inte att skapa adressen"
 
-#: ../group/index.php:84
 msgid "You have not set a field for e-mails"
 msgstr "Du har inte angett ett fält för e-post"
 
-#: ../group/index.php:90
 msgid "Could not find an existing group or create a new one"
 msgstr "Det gick inte att hitta en existerande eller skapa en ny"
 
-#: ../group/index.php:94
 msgid "Loading"
 msgstr "Laddar"
 
-#: ../import/index.php:6
 msgid "Import"
 msgstr "Importera"
 
-#: ../include/classes.php:68
-msgid "A reminder to update your information"
-msgstr "En påminnelse om att uppdatera din information"
-
-#: ../include/classes.php:69
-#, php-format
-msgid "You have not updated your information since %s which is more than %s months ago. Please do so."
-msgstr "Du har inte uppdaterat din information sedan %s vilket är mer än %s månader sedan. Var vänlig gör det."
-
-#: ../include/classes.php:233
-#: ../include/classes.php:375
-#: ../include/classes.php:517
-#: ../stats/index.php:21
-msgid "Choose Here"
-msgstr "Välj här"
-
-#: ../include/classes.php:257
-msgid "A-Z"
-msgstr "A-Ö"
-
-#: ../include/classes.php:262
-msgid "Latest"
-msgstr "Senaste"
-
-#: ../include/classes.php:269
-msgid "Popularity"
-msgstr "Popularitet"
-
-#: ../include/classes.php:275
-msgid "Random"
-msgstr "Slumpmässigt"
-
-#: ../include/classes.php:282
-#: ../include/classes.php:319
-msgid "Size"
-msgstr "Storlek"
-
-#: ../include/classes.php:292
-#: ../include/classes.php:1455
-msgid "Information"
-msgstr ""
-
-#: ../include/classes.php:293
-msgid "Description"
-msgstr "Förklaring"
-
-#: ../include/classes.php:294
-msgid "Heading"
-msgstr "Rubrik"
-
-#: ../include/classes.php:295
-msgid "Content"
-msgstr "Innehåll"
-
-#: ../include/classes.php:296
-msgid "Label"
-msgstr "Etikett"
-
-#: ../include/classes.php:297
-msgid "Input"
-msgstr "Inmatning"
-
-#: ../include/classes.php:298
-msgid "Text"
-msgstr ""
-
-#: ../include/classes.php:299
-msgid "Textarea"
-msgstr "Textruta"
-
-#: ../include/classes.php:300
-msgid "Date"
-msgstr "Datum"
-
-#: ../include/classes.php:301
-msgid "E-mail"
-msgstr "E-post"
-
-#: ../include/classes.php:302
-msgid "Phone Number"
-msgstr "Telefonnummer"
-
-#: ../include/classes.php:303
-msgid "URL"
-msgstr ""
-
-#: ../include/classes.php:304
-msgid "Clock"
-msgstr "Klocka"
-
-#: ../include/classes.php:305
-msgid "Checkbox"
-msgstr "Kryssruta"
-
-#: ../include/classes.php:306
-msgid "Special Input"
-msgstr "Specialinmatning"
-
-#: ../include/classes.php:307
-msgid "Color Picker"
-msgstr "Färgväljare"
-
-#: ../include/classes.php:308
-msgid "Event"
-msgstr "Händelse"
-
-#: ../include/classes.php:309
-msgid "Page"
-msgstr "Sida"
-
-#: ../include/classes.php:310
-msgid "File"
-msgstr "Fil"
-
-#: ../include/classes.php:311
-#: ../include/classes.php:312
-#: ../include/classes.php:688
-#: ../include/classes.php:947
-#: ../include/classes.php:1380
-msgid "Categories"
-msgstr "Kategorier"
-
-#: ../include/classes.php:313
-#: ../include/classes.php:741
-msgid "Custom Categories"
-msgstr "Anpassade kategorier"
-
-#: ../include/classes.php:314
-msgid "Social Feed"
-msgstr "Socialt flöde"
-
-#: ../include/classes.php:315
-msgid "Overlay"
-msgstr "Lager över innehåll"
-
-#: ../include/classes.php:316
-msgid "Numbers"
-msgstr "Nummer"
-
-#: ../include/classes.php:317
-#: ../include/classes.php:318
-#: ../include/classes.php:319
-#: ../include/classes.php:320
-msgid "Number"
-msgstr "Nummer"
-
-#: ../include/classes.php:318
-msgid "Price"
-msgstr "Pris"
-
-#: ../include/classes.php:320
-msgid "Stock"
-msgstr "Lager"
-
-#: ../include/classes.php:321
-msgid "Interval"
-msgstr "Intervall"
-
-#: ../include/classes.php:322
-#: ../include/classes.php:324
-#: ../include/classes.php:783
-#: ../stats/index.php:132
-msgid "Location"
-msgstr "Plats"
-
-#: ../include/classes.php:323
-msgid "City"
-msgstr "Ort"
-
-#: ../include/classes.php:325
-msgid "Address"
-msgstr "Adress"
-
-#: ../include/classes.php:326
-msgid "Local Address"
-msgstr "Lokal adress"
-
-#: ../include/classes.php:327
-msgid "Coordinates"
-msgstr "Koordinater"
-
-#: ../include/classes.php:328
-#: ../include/classes.php:1226
-#: ../include/classes.php:1293
-msgid "Map"
-msgstr "Karta"
-
-#: ../include/classes.php:330
-msgid "Formatting"
-msgstr "Formattering"
-
-#: ../include/classes.php:331
-msgid "Divider"
-msgstr "Avdelare"
-
-#: ../include/classes.php:332
-msgid "Contact Button"
-msgstr "Kontakt-knapp"
-
-#: ../include/classes.php:333
-msgid "Read More Button"
-msgstr "Läs mer-knapp"
-
-#: ../include/classes.php:334
-msgid "Start of Container"
-msgstr "Början på behållare"
-
-#: ../include/classes.php:335
-msgid "End of Container"
-msgstr "Slut på behållare"
-
-#: ../include/classes.php:336
-#: ../include/classes.php:1463
-msgid "Settings"
-msgstr "Inställningar"
-
-#: ../include/classes.php:337
-msgid "Hide Information"
-msgstr "Dölj information"
-
-#: ../include/classes.php:338
-msgid "Global Code"
-msgstr "Global kod"
-
-#: ../include/classes.php:351
-msgid "Everywhere"
-msgstr "Överallt"
-
-#: ../include/classes.php:352
-msgid "Only in search view"
-msgstr "Bara på söksidan"
-
-#: ../include/classes.php:353
-msgid "Only on single page"
-msgstr "Bara på individuell sida"
-
-#: ../include/classes.php:354
-msgid "Nowhere"
-msgstr "Ingenstans"
-
-#: ../include/classes.php:389
-#: ../include/classes.php:712
-#: ../include/classes.php:1340
-#: ../include/classes.php:1575
-#: ../stats/index.php:31
-msgid "Products"
-msgstr "Produkter"
-
-#: ../include/classes.php:390
-#: ../include/classes.php:528
-msgid "Events"
-msgstr "Händelser"
-
-#: ../include/classes.php:421
-msgid "Choose Category Here"
-msgstr "Välj kategori här"
-
-#: ../include/classes.php:503
-#: ../include/classes.php:504
-#: ../include/classes.php:1214
-#: ../include/classes.php:1215
-msgid "Yes"
-msgstr "Ja"
-
-#: ../include/classes.php:504
-msgid "but not on Search"
-msgstr "men inte vid Sök"
-
-#: ../include/classes.php:505
-#: ../include/classes.php:1216
-msgid "No"
-msgstr "Nej"
-
-#: ../include/classes.php:520
-msgid "Searchable"
-msgstr "Sökbar"
-
-#: ../include/classes.php:521
-msgid "Results"
-msgstr "Resultat"
-
-#: ../include/classes.php:522
-#: ../include/classes.php:1471
-msgid "Contact Info"
-msgstr "Kontaktinformation"
-
-#: ../include/classes.php:523
-#: ../include/classes.php:1479
-msgid "Quick Info"
-msgstr "Snabbinfo"
-
-#: ../include/classes.php:524
-#: ../include/classes.php:1487
-msgid "Properties"
-msgstr "Egenskaper"
-
-#: ../include/classes.php:762
-#: ../include/classes.php:1388
-msgid "Filters"
-msgstr "Filter"
-
-#: ../include/classes.php:804
-msgid "Customers"
-msgstr "Kunder"
-
-#: ../include/classes.php:823
-msgid "Delivery Type"
-msgstr "Leveranssätt"
-
-#: ../include/classes.php:859
-msgid "Types"
-msgstr "Typer"
-
-#: ../include/classes.php:866
-msgid "default"
-msgstr "Standard"
-
-#: ../include/classes.php:870
-#, php-format
-msgid "Icon for %s"
-msgstr "Ikon för %s"
-
-#: ../include/classes.php:873
-#, php-format
-msgid "Title for %s"
-msgstr "Titel på %s"
-
-#: ../include/classes.php:888
-msgid "Display Sort"
-msgstr "Visa sortering"
-
-#: ../include/classes.php:889
-msgid "Sort Default"
-msgstr "Standardsortering"
-
-#: ../include/classes.php:890
-msgid "Display Filter"
-msgstr "Visa filter"
-
-#: ../include/classes.php:903
-#: ../include/classes.php:904
-msgid "Map visibility"
-msgstr "Visa karta"
-
-#: ../include/classes.php:904
-msgid "Mobile"
-msgstr "Mobil"
-
-#: ../include/classes.php:905
-msgid "Info color"
-msgstr "Färg på info"
-
-#: ../include/classes.php:906
-msgid "Info text color"
-msgstr "Textfärg på info"
-
-#: ../include/classes.php:911
-msgid "API key"
-msgstr "API-nyckel"
-
-#: ../include/classes.php:914
-#: ../include/classes.php:915
-#: ../include/classes.php:935
-#: ../include/classes.php:936
-#: ../include/classes.php:937
-#: ../include/classes.php:938
-#: ../include/classes.php:939
-#: ../include/classes.php:969
-#: ../include/classes.php:970
-#: ../include/classes.php:986
-#: ../include/classes.php:994
-#: ../include/classes.php:997
-#: ../include/classes.php:998
-#: ../include/classes.php:1020
-#: ../include/classes.php:1021
-#: ../include/classes.php:1054
-#: ../include/classes.php:1055
-#: ../include/classes.php:1056
-#: ../include/classes.php:1057
-#: ../include/classes.php:1072
-#: ../include/classes.php:1081
-#: ../include/classes.php:1082
-#: ../include/classes.php:1083
-#: ../include/classes.php:1084
-#: ../include/classes.php:1085
-msgid "Replace Text"
-msgstr "Ersätt text"
-
-#: ../include/classes.php:926
-#: ../include/classes.php:1312
-#: ../include/classes.php:1332
-#: ../include/classes.php:1445
-#: ../include/api/index.php:387
-msgid "Product"
-msgstr "Produkt"
-
-#: ../include/classes.php:940
-#: ../include/classes.php:949
-#, php-format
-msgid "Replace %s slug with"
-msgstr "Ersätt %s-adress med"
-
-#: ../include/classes.php:954
-msgid "Payment Form"
-msgstr "Betalningsformulär"
-
-#: ../include/classes.php:968
-msgid "Min results to show number"
-msgstr "Minsta antal för att visa nummer"
-
-#: ../include/classes.php:972
-msgid "Display Images"
-msgstr "Visa bilder"
-
-#: ../include/classes.php:976
-msgid "Amount of Images"
-msgstr "Antal bilder"
-
-#: ../include/classes.php:981
-#: ../include/classes.php:1068
-msgid "Form for quote request"
-msgstr "Formulär för anbudsförfrågan"
-
-#: ../include/classes.php:985
-msgid "Max results to send quote"
-msgstr "Max antal i resultatet för att kunna skicka anbudsförfrågan"
-
-#: ../include/classes.php:987
-#: ../include/classes.php:988
-msgid "Switch Icon"
-msgstr "Reglageikon"
-
-#: ../include/classes.php:987
-msgid "On"
-msgstr "På"
-
-#: ../include/classes.php:988
-msgid "Off"
-msgstr "Av"
-
-#: ../include/classes.php:990
-msgid "Require user to make some kind of search"
-msgstr "Tvinga användaren att göra någon form av urval"
-
-#: ../include/classes.php:1004
-msgid "Default range minimum"
-msgstr "Standard på minsta intervallvärde"
-
-#: ../include/classes.php:1005
-msgid "Custom range choices"
-msgstr "Egna val i intervall"
-
-#: ../include/classes.php:1022
-msgid "Email Subject"
-msgstr "E-postämne"
-
-#: ../include/classes.php:1023
-msgid "Email Content"
-msgstr "E-postinnehåll"
-
-#: ../include/classes.php:1037
-msgid "Template for Presentation"
-msgstr "Mall för presentation"
-
-#: ../include/classes.php:1042
-msgid "Display Breadcrumbs"
-msgstr "Visa brödsmulor"
-
-#: ../include/classes.php:1049
-msgid "Allow Multiple Categories"
-msgstr "Tillåt flera kategorier"
-
-#: ../include/classes.php:1060
-msgid "Reminder if not updated"
-msgstr "Påminnelse om ej uppdaterad"
-
-#: ../include/classes.php:1064
-msgid "E-mail Subject"
-msgstr "E-postämne"
-
-#: ../include/classes.php:1065
-msgid "E-mail Content"
-msgstr "E-postinnehåll"
-
-#: ../include/classes.php:1068
-msgid "single"
-msgstr "singel"
-
-#: ../include/classes.php:1074
-msgid "Force Individual Contact"
-msgstr "Tvinga individuell kontakt"
-
-#: ../include/classes.php:1077
-msgid "Amount of Fields for Title"
-msgstr "Antal fält för titel"
-
-#: ../include/classes.php:1078
-msgid "Title Label"
-msgstr "Titeletikett"
-
-#: ../include/classes.php:1079
-msgid "Title Description"
-msgstr "Titelbeskrivning"
-
-#: ../include/classes.php:1101
-msgid "Symbol inactive image"
-msgstr "Inaktiv symbol på karta"
-
-#: ../include/classes.php:1102
-msgid "Symbol active image"
-msgstr "Aktiv symbol på karta"
-
-#: ../include/classes.php:1106
-msgid "Ghost symbol inactive image"
-msgstr "Inaktiv symbol på karta för dold info"
-
-#: ../include/classes.php:1107
-msgid "Ghost symbol active image"
-msgstr "Aktiv symbol på karta för dold info"
-
-#: ../include/classes.php:1112
-msgid "Symbol inactive color"
-msgstr "Färg på inaktiv symbol på karta"
-
-#: ../include/classes.php:1113
-msgid "Symbol active color"
-msgstr "Färg på aktiv symbol på karta"
-
-#: ../include/classes.php:1116
-msgid "Map Information"
-msgstr "Kartinformation"
-
-#: ../include/classes.php:1176
-msgid "Clear"
-msgstr "Rensa"
-
-#: ../include/classes.php:1184
-#: ../include/classes.php:1324
-#: ../orders/index.php:99
-msgid "Search"
-msgstr "Sök"
-
-#: ../include/classes.php:1215
-msgid "Hidden behind a button"
-msgstr "Gömd bakom en knapp"
-
-#: ../include/classes.php:1303
-msgid "Favorites"
-msgstr "Favoriter"
-
-#: ../include/classes.php:1348
-msgid "Enter title here"
-msgstr "Fyll i rubrik här"
-
-#: ../include/classes.php:1396
-#, php-format
-msgid "Filter amongst %s products"
-msgstr "Filtrera bland %s produkter"
-
-#: ../include/classes.php:1396
-#: ../include/classes.php:1404
-#: ../include/classes.php:1412
-msgid "Disable by adding any single character"
-msgstr "Inaktivera genom att lägga in ett valfritt tecken"
-
-#: ../include/classes.php:1404
-#, php-format
-msgid "Your search matches %s products"
-msgstr "Din sökning matchar %s produkter"
-
-#: ../include/classes.php:1412
-#, php-format
-msgid "Here are your %s saved products"
-msgstr "Här är dina %s sparade produkter"
-
-#: ../include/classes.php:1420
-msgid "Send request for quote"
-msgstr "Skicka anbud"
-
-#: ../include/classes.php:1428
-msgid "One Field"
-msgstr "Ett fält"
-
-#: ../include/classes.php:1428
-msgid "Two Fields"
-msgstr "Två fält"
-
-#: ../include/classes.php:1436
-#: ../include/classes.php:2007
-msgid "Title"
-msgstr "Rubrik"
-
-#: ../include/classes.php:1447
-#: ../include/classes.php:2008
-#, php-format
-msgid "Your name or the name of the %s"
-msgstr "Ditt namn eller namnet på %s"
-
-#: ../include/classes.php:1495
-msgid "Choose"
-msgstr "Välj"
-
-#: ../include/classes.php:1543
-msgid "Add to Search"
-msgstr "Lägg till i sökning"
-
-#: ../include/classes.php:1551
-msgid "Remove from Search"
-msgstr "Ta bort från sökning"
-
-#: ../include/classes.php:1559
-msgid "Return to Search"
-msgstr "Gå tillbaka till sökning"
-
-#: ../include/classes.php:1567
-msgid "Search for Another"
-msgstr "Sök efter en annan"
-
-#: ../include/classes.php:1577
-msgid "Send request for quote to"
-msgstr "Skicka anbud till"
-
-#: ../include/classes.php:1585
-#: ../include/classes.php:1897
-msgid "You have to choose at least one product to proceed"
-msgstr "Du måste välja minst en innan du går vidare"
-
-#: ../include/classes.php:1593
-msgid "Email Your Products"
-msgstr "E-posta dina produkter"
-
-#: ../include/classes.php:1601
-msgid "In order to send a quote you have to be specific what you want by filtering"
-msgstr "För att kunna skicka en anbudsförfrågan måste du precisera vad du vill se genom att filtrera"
-
-#: ../include/classes.php:1607
-msgid "I would like to share these products that I like"
-msgstr "Jag skulle vilja dela dessa produkter som jag gillar"
-
-#: ../include/classes.php:1615
-#, php-format
-msgid "Here are my favorites (%s)"
-msgstr "Här är mina favoriter (%s)"
-
-#: ../include/classes.php:1629
-msgid "Get yours here"
-msgstr "Hämta din här"
-
-#: ../include/classes.php:1639
-msgid "Show Map"
-msgstr "Visa karta"
-
-#: ../include/classes.php:1647
-msgid "Hide Map"
-msgstr "Dölj karta"
-
-#: ../include/classes.php:1667
-msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
-msgstr "Om inget nedre värde är angivet för ett intervall, används denna procentsats för att räkna ut det nedre värdet i intervallet"
-
-#: ../include/classes.php:1691
-#, php-format
-msgid "%d will hide the link in the form"
-msgstr "%d kommer att dölja länken i formuläret"
-
-#: ../include/classes.php:1785
-msgid "months"
-msgstr "månader"
-
-#: ../include/classes.php:1785
-msgid "This will send a message to every user that has not updated their information within the amount of months chosen"
-msgstr "Detta kommer att skicka ett meddelande till varje användare som inte har uppdaterat sin information inom det valda antalet månader"
-
-#: ../include/classes.php:1840
-msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
-msgstr "Detta tillåter besökarna att skicka individuella förfrågningar hela tiden, annars är det endast vid allra första besöket som detta sker"
-
-#: ../include/classes.php:1917
-#, php-format
-msgid "%s was successfully cleared on this device"
-msgstr "%s rensades från denna enhet"
-
-#: ../include/classes.php:1931
-#, php-format
-msgid "When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
-msgstr "Vid sökning sparar vi information i en sk. %s i den besökandes webbläsare. Denna data används endast på webbsidan för att komma ihåg vad som senast sparades och skicka inte vidare till servern förrän besökaren fullföljer en förfrågan. Då skickas information med vid sidan om formuläret för att dela ut förfrågan till rätt mottagare."
-
-#: ../include/classes.php:2003
-msgid "Are you sure?"
-msgstr "Är du säker?"
-
-#: ../include/classes.php:2014
-msgid "Name"
-msgstr "Namn"
-
-#: ../include/classes.php:2015
-msgid "Updated"
-msgstr "Uppdaterat"
-
-#: ../include/classes.php:2027
-msgid "Edit"
-msgstr "Redigera"
-
-#: ../include/classes.php:2028
-msgid "Edit in Admin"
-msgstr "Redigera i admin"
-
-#: ../include/classes.php:2029
-msgid "View"
-msgstr "Visa"
-
-#: ../include/classes.php:2039
-msgid "There is nothing to show"
-msgstr "Det finns inget att visa"
-
-#: ../include/api/index.php:67
-msgid "Draft"
-msgstr "Utkast"
-
-#: ../include/api/index.php:191
-#: ../include/api/index.php:223
-#, php-format
 msgid "You have to install the plugin %s first"
 msgstr "Du behöver installera pluginet %s först"
 
-#: ../include/api/index.php:530
-#: ../include/api/index.php:593
+msgid "Product"
+msgstr "Produkt"
+
 msgid "The end date must be later than the start date"
 msgstr "Slutdatumet måste vara senare än startdatumet"
 
-#: ../include/api/index.php:536
-#: ../include/api/index.php:599
-#, php-format
 msgid "The end date must be within %d days from the start date"
 msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
 
-#: ../include/api/index.php:723
-#: ../include/api/index.php:765
-#, php-format
 msgid "I have saved the information for you. %sView the page here%s"
 msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-#: ../include/api/index.php:733
 msgid "I could not update the information for you"
 msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-#: ../include/api/index.php:772
+msgid "It does not look like you changed anything, so nothing was saved"
+msgstr "Det ser inte ut som att du har ändrat något, så inget sparades"
+
 msgid "I could not save the information for you"
 msgstr "Jag kunde inte spara informationen åt dig"
 
-#: ../include/api/index.php:778
 msgid "One with that title already exists"
 msgstr "En med den rubriken finns redan"
 
-#: ../include/templates/single-mf_category.php:76
 msgid "Read More"
 msgstr "Läs mer"
 
-#: ../orders/index.php:98
-msgid "Search for"
-msgstr "Sök efter"
+msgid "A reminder to update your information"
+msgstr "En påminnelse om att uppdatera din information"
 
-#: ../orders/index.php:145
-msgid "The amount in stock and in the order is wrong"
-msgstr "Antalet i lager och i order stämmer inte"
+msgid "You have not updated your information since %s which is more than %s months ago. Please do so."
+msgstr "Du har inte uppdaterat din information sedan %s vilket är mer än %s månader sedan. Var vänlig gör det."
 
-#: ../orders/index.php:168
-msgid "The order was deleted"
-msgstr "Ordern har raderats"
+msgid "Choose Here"
+msgstr "Välj här"
 
-#: ../orders/index.php:196
-msgid "Shipping info"
-msgstr "Försändelseinformation"
+msgid "A-Z"
+msgstr "A-Ö"
 
-#: ../orders/index.php:197
-#, php-format
-msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
-msgstr "Din order från %s är nu redo att hämtas. Tack för din order och välkommen tillbaka!"
+msgid "Latest"
+msgstr "Senaste"
 
-#: ../orders/index.php:204
-msgid "Orders"
-msgstr "Ordrar"
+msgid "Popularity"
+msgstr "Popularitet"
 
-#: ../orders/index.php:219
-#: ../orders/index.php:248
-msgid "Invoice sent"
-msgstr "Faktura skickad"
+msgid "Random"
+msgstr "Slumpmässigt"
 
-#: ../orders/index.php:220
-#: ../orders/index.php:264
-msgid "Delivered"
-msgstr "Levererad"
+msgid "Size"
+msgstr "Storlek"
 
-#: ../orders/index.php:221
-msgid "Ordered by"
-msgstr "Beställd av"
+msgid "Description"
+msgstr "Förklaring"
 
-#: ../orders/index.php:222
-msgid "Created"
-msgstr "Skapad"
+msgid "Heading"
+msgstr "Rubrik"
 
-#: ../orders/index.php:289
+msgid "Content"
+msgstr "Innehåll"
+
+msgid "Label"
+msgstr "Etikett"
+
+msgid "Input"
+msgstr "Inmatning"
+
+msgid "Textarea"
+msgstr "Textruta"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "E-mail"
+msgstr "E-post"
+
+msgid "Phone Number"
+msgstr "Telefonnummer"
+
+msgid "Clock"
+msgstr "Klocka"
+
+msgid "Checkbox"
+msgstr "Kryssruta"
+
+msgid "Special Input"
+msgstr "Specialinmatning"
+
+msgid "Color Picker"
+msgstr "Färgväljare"
+
+msgid "Event"
+msgstr "Händelse"
+
+msgid "Page"
+msgstr "Sida"
+
+msgid "File"
+msgstr "Fil"
+
+msgid "Categories"
+msgstr "Kategorier"
+
+msgid "Custom Categories"
+msgstr "Anpassade kategorier"
+
+msgid "Social Feed"
+msgstr "Socialt flöde"
+
+msgid "Overlay"
+msgstr "Lager över innehåll"
+
+msgid "Numbers"
+msgstr "Nummer"
+
+msgid "Number"
+msgstr "Nummer"
+
+msgid "Price"
+msgstr "Pris"
+
+msgid "Stock"
+msgstr "Lager"
+
+msgid "Interval"
+msgstr "Intervall"
+
+msgid "Location"
+msgstr "Plats"
+
+msgid "City"
+msgstr "Ort"
+
+msgid "Address"
+msgstr "Adress"
+
+msgid "Local Address"
+msgstr "Lokal adress"
+
+msgid "Coordinates"
+msgstr "Koordinater"
+
+msgid "Map"
+msgstr "Karta"
+
+msgid "Formatting"
+msgstr "Formattering"
+
+msgid "Divider"
+msgstr "Avdelare"
+
+msgid "Contact Button"
+msgstr "Kontakt-knapp"
+
+msgid "Read More Button"
+msgstr "Läs mer-knapp"
+
+msgid "Start of Container"
+msgstr "Början på behållare"
+
+msgid "End of Container"
+msgstr "Slut på behållare"
+
+msgid "Settings"
+msgstr "Inställningar"
+
+msgid "Hide Information"
+msgstr "Dölj information"
+
+msgid "Global Code"
+msgstr "Global kod"
+
+msgid "Everywhere"
+msgstr "Överallt"
+
+msgid "Only in search view"
+msgstr "Bara på söksidan"
+
+msgid "Only on single page"
+msgstr "Bara på individuell sida"
+
+msgid "Nowhere"
+msgstr "Ingenstans"
+
+msgid "Disable"
+msgstr "Inaktivera"
+
+msgid "Products"
+msgstr "Produkter"
+
+msgid "Events"
+msgstr "Händelser"
+
+msgid "Choose Category Here"
+msgstr "Välj kategori här"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "but not on Search"
+msgstr "men inte vid Sök"
+
+msgid "No"
+msgstr "Nej"
+
+msgid "Searchable"
+msgstr "Sökbar"
+
+msgid "Results"
+msgstr "Resultat"
+
+msgid "Contact Info"
+msgstr "Kontaktinformation"
+
+msgid "Quick Info"
+msgstr "Snabbinfo"
+
+msgid "Properties"
+msgstr "Egenskaper"
+
+msgid "Filters"
+msgstr "Filter"
+
+msgid "Customers"
+msgstr "Kunder"
+
+msgid "Delivery Type"
+msgstr "Leveranssätt"
+
+msgid "Types"
+msgstr "Typer"
+
+msgid "default"
+msgstr "Standard"
+
+msgid "Icon for %s"
+msgstr "Ikon för %s"
+
+msgid "Title for %s"
+msgstr "Titel på %s"
+
+msgid "Display Sort"
+msgstr "Visa sortering"
+
+msgid "Sort Default"
+msgstr "Standardsortering"
+
+msgid "Display Filter"
+msgstr "Visa filter"
+
+msgid "Map visibility"
+msgstr "Visa karta"
+
+msgid "Mobile"
+msgstr "Mobil"
+
+msgid "Info color"
+msgstr "Färg på info"
+
+msgid "Info text color"
+msgstr "Textfärg på info"
+
+msgid "API key"
+msgstr "API-nyckel"
+
+msgid "Replace Text"
+msgstr "Ersätt text"
+
+msgid "Replace %s slug with"
+msgstr "Ersätt %s-adress med"
+
+msgid "Payment Form"
+msgstr "Betalningsformulär"
+
+msgid "Min results to show number"
+msgstr "Minsta antal för att visa nummer"
+
+msgid "Display Images"
+msgstr "Visa bilder"
+
+msgid "Amount of Images"
+msgstr "Antal bilder"
+
+msgid "Form for quote request"
+msgstr "Formulär för anbudsförfrågan"
+
+msgid "Max results to send quote"
+msgstr "Max antal i resultatet för att kunna skicka anbudsförfrågan"
+
+msgid "Switch Icon"
+msgstr "Reglageikon"
+
+msgid "On"
+msgstr "På"
+
+msgid "Off"
+msgstr "Av"
+
+msgid "Require user to make some kind of search"
+msgstr "Tvinga användaren att göra någon form av urval"
+
+msgid "Default range minimum"
+msgstr "Standard på minsta intervallvärde"
+
+msgid "Custom range choices"
+msgstr "Egna val i intervall"
+
+msgid "Email Subject"
+msgstr "E-postämne"
+
+msgid "Email Content"
+msgstr "E-postinnehåll"
+
+msgid "Template for Presentation"
+msgstr "Mall för presentation"
+
+msgid "Display Breadcrumbs"
+msgstr "Visa brödsmulor"
+
+msgid "Allow Multiple Categories"
+msgstr "Tillåt flera kategorier"
+
+msgid "Reminder if not updated"
+msgstr "Påminnelse om ej uppdaterad"
+
+msgid "E-mail Subject"
+msgstr "E-postämne"
+
+msgid "E-mail Content"
+msgstr "E-postinnehåll"
+
+msgid "single"
+msgstr "singel"
+
+msgid "Force Individual Contact"
+msgstr "Tvinga individuell kontakt"
+
+msgid "Amount of Fields for Title"
+msgstr "Antal fält för titel"
+
+msgid "Title Label"
+msgstr "Titeletikett"
+
+msgid "Title Description"
+msgstr "Titelbeskrivning"
+
+msgid "Symbol inactive image"
+msgstr "Inaktiv symbol på karta"
+
+msgid "Symbol active image"
+msgstr "Aktiv symbol på karta"
+
+msgid "Ghost symbol inactive image"
+msgstr "Inaktiv symbol på karta för dold info"
+
+msgid "Ghost symbol active image"
+msgstr "Aktiv symbol på karta för dold info"
+
+msgid "Symbol inactive color"
+msgstr "Färg på inaktiv symbol på karta"
+
+msgid "Symbol active color"
+msgstr "Färg på aktiv symbol på karta"
+
+msgid "Map Information"
+msgstr "Kartinformation"
+
+msgid "Clear"
+msgstr "Rensa"
+
+msgid "Search"
+msgstr "Sök"
+
+msgid "Hidden behind a button"
+msgstr "Gömd bakom en knapp"
+
+msgid "Favorites"
+msgstr "Favoriter"
+
+msgid "Enter title here"
+msgstr "Fyll i rubrik här"
+
+msgid "Filter amongst %s products"
+msgstr "Filtrera bland %s produkter"
+
+msgid "Disable by adding any single character"
+msgstr "Inaktivera genom att lägga in ett valfritt tecken"
+
+msgid "Your search matches %s products"
+msgstr "Din sökning matchar %s produkter"
+
+msgid "Here are your %s saved products"
+msgstr "Här är dina %s sparade produkter"
+
+msgid "Send request for quote"
+msgstr "Skicka anbud"
+
+msgid "One Field"
+msgstr "Ett fält"
+
+msgid "Two Fields"
+msgstr "Två fält"
+
+msgid "Title"
+msgstr "Rubrik"
+
+msgid "Your name or the name of the %s"
+msgstr "Ditt namn eller namnet på %s"
+
+msgid "Choose"
+msgstr "Välj"
+
+msgid "Add to Search"
+msgstr "Lägg till i sökning"
+
+msgid "Remove from Search"
+msgstr "Ta bort från sökning"
+
+msgid "Return to Search"
+msgstr "Gå tillbaka till sökning"
+
+msgid "Search for Another"
+msgstr "Sök efter en annan"
+
+msgid "Send request for quote to"
+msgstr "Skicka anbud till"
+
+msgid "You have to choose at least one product to proceed"
+msgstr "Du måste välja minst en innan du går vidare"
+
+msgid "Email Your Products"
+msgstr "E-posta dina produkter"
+
+msgid "In order to send a quote you have to be specific what you want by filtering"
+msgstr "För att kunna skicka en anbudsförfrågan måste du precisera vad du vill se genom att filtrera"
+
+msgid "I would like to share these products that I like"
+msgstr "Jag skulle vilja dela dessa produkter som jag gillar"
+
+msgid "Here are my favorites (%s)"
+msgstr "Här är mina favoriter (%s)"
+
+msgid "Get yours here"
+msgstr "Hämta din här"
+
+msgid "Show Map"
+msgstr "Visa karta"
+
+msgid "Hide Map"
+msgstr "Dölj karta"
+
+msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
+msgstr "Om inget nedre värde är angivet för ett intervall, används denna procentsats för att räkna ut det nedre värdet i intervallet"
+
+msgid "%d will hide the link in the form"
+msgstr "%d kommer att dölja länken i formuläret"
+
+msgid "months"
+msgstr "månader"
+
+msgid "This will send a message to every user that has not updated their information within the amount of months chosen"
+msgstr "Detta kommer att skicka ett meddelande till varje användare som inte har uppdaterat sin information inom det valda antalet månader"
+
+msgid "This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option"
+msgstr "Detta tillåter besökarna att skicka individuella förfrågningar hela tiden, annars är det endast vid allra första besöket som detta sker"
+
+msgid "%s was successfully cleared on this device"
+msgstr "%s rensades från denna enhet"
+
+msgid "When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
+msgstr "Vid sökning sparar vi information i en sk. %s i den besökandes webbläsare. Denna data används endast på webbsidan för att komma ihåg vad som senast sparades och skicka inte vidare till servern förrän besökaren fullföljer en förfrågan. Då skickas information med vid sidan om formuläret för att dela ut förfrågan till rätt mottagare."
+
+msgid "Are you sure?"
+msgstr "Är du säker?"
+
+msgid "Name"
+msgstr "Namn"
+
+msgid "Updated"
+msgstr "Uppdaterat"
+
+msgid "Edit"
+msgstr "Redigera"
+
+msgid "Edit in Admin"
+msgstr "Redigera i admin"
+
+msgid "View"
+msgstr "Visa"
+
+msgid "There is nothing to show"
+msgstr "Det finns inget att visa"
+
+msgid "Add New"
+msgstr "Lägg till ny"
+
 msgid "Delete"
 msgstr "Radera"
 
-#: ../stats/index.php:29
-msgid "All"
-msgstr "Alla"
+msgid "Street 123, City"
+msgstr "Gata 123, Stad"
 
-#: ../stats/index.php:34
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgid "Time"
+msgstr "Tid"
+
+msgid "End Date"
+msgstr "Slutdatum"
+
+msgid "Information about %s"
+msgstr "Information om %s"
+
+msgid "Add important information here"
+msgstr "Lägg till viktig information här"
+
+msgid "Add"
+msgstr "Lägg till"
+
+msgid "Save"
+msgstr "Spara"
+
+msgid "List"
+msgstr "Lista"
+
+msgid "Continue Search"
+msgstr "Fortsätt sökning"
+
+msgid "Unread Orders"
+msgstr "Olästa ordrar"
+
+msgid "Orders"
+msgstr "Ordrar"
+
 msgid "Statistics"
 msgstr "Statistik"
 
-#: ../stats/index.php:54
-msgid "unknown"
-msgstr "okänd"
+msgid "Send e-mail to all"
+msgstr "Skicka e-post till alla"
 
-#: ../stats/index.php:65
-msgid "Monthly"
-msgstr "Per månad"
+msgid "Pay to Access %s"
+msgstr "Betala för att få tillgång till %s"
 
-#: ../stats/index.php:103
+msgid "Image"
+msgstr "Bild"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Max Length"
+msgstr "Maxlängd"
+
+msgid "Required"
+msgstr "Obligatorisk"
+
+msgid "Display on Categories"
+msgstr "Visa på kategorier"
+
+msgid "Alternate text"
+msgstr "Alternativ text"
+
+msgid "Custom class"
+msgstr "Egen klass"
+
+msgid "Default value"
+msgstr "Standardvärde"
+
+msgid "Placeholder"
+msgstr "Platshållare"
+
+msgid "Order number"
+msgstr "Ordernummer"
+
+msgid "Background Color"
+msgstr "Bakgrundsfärg"
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Color"
+msgstr "Färg"
+
+msgid "Connect to new %s"
+msgstr "Koppla ihop med ny %s"
+
+msgid "Include on"
+msgstr "Inkludera på"
+
+msgid "Event Max Length"
+msgstr "Maxlängd för händelse"
+
+msgid "Hidden"
+msgstr "Dold"
+
+msgid "Customer No"
+msgstr "Kundnummer"
+
+msgid "Background"
+msgstr "Bakgrund"
+
+msgid "Last Updated"
+msgstr "Senast uppdaterad"
+
+msgid "All"
+msgstr "Alla"
+
+msgid "Choose all"
+msgstr "Välj alla"
+
+msgid "Sort By"
+msgstr "Sortera efter"
+
+msgid "Filter"
+msgstr "Filtrera"
+
+msgid "Distance"
+msgstr "Avstånd"
+
+msgid "Today"
+msgstr "Idag"
+
+msgid "Form"
+msgstr "Formulär"
+
+msgid "Button text"
+msgstr "Knapptext"
+
+msgid "Display Border"
+msgstr "Visa ram"
+
+msgid "Amount"
+msgstr "Antal"
+
+msgid "Order by"
+msgstr "Sortera efter"
+
+msgid "Closest"
+msgstr "Närmaste"
+
 msgid "Months"
 msgstr "Månader"
 
-#: ../stats/index.php:111
+msgid "Map Center"
+msgstr "Centrum på karta"
+
+msgid "Button Text"
+msgstr "Knapptext"
+
+msgid "Search for"
+msgstr "Sök efter"
+
+msgid "The amount in stock and in the order is wrong"
+msgstr "Antalet i lager och i order stämmer inte"
+
+msgid "The order was deleted"
+msgstr "Ordern har raderats"
+
+msgid "Shipping info"
+msgstr "Försändelseinformation"
+
+msgid "Your order from %s is now ready for pickup. Thanks for your order and welcome back!"
+msgstr "Din order från %s är nu redo att hämtas. Tack för din order och välkommen tillbaka!"
+
+msgid "Invoice sent"
+msgstr "Faktura skickad"
+
+msgid "Delivered"
+msgstr "Levererad"
+
+msgid "Ordered by"
+msgstr "Beställd av"
+
+msgid "Created"
+msgstr "Skapad"
+
+msgid "unknown"
+msgstr "okänd"
+
+msgid "Monthly"
+msgstr "Per månad"
+
 msgid "Years"
 msgstr "År"
 
-#: ../stats/index.php:122
-msgid "Filter"
-msgstr ""
-
-#: ../stats/index.php:124
 msgid "Limit"
 msgstr "Antal"
 
-#: ../stats/index.php:126
 msgid "From"
 msgstr "Från"
 
-#: ../stats/index.php:127
 msgid "To"
 msgstr "Till"
 
-#: ../stats/index.php:155
 msgid "Overall"
 msgstr "Allmänt"
 
-#: ../stats/index.php:157
 msgid "First answer"
 msgstr "Första svaret"
 
-#: ../stats/index.php:158
 msgid "Latest answer"
 msgstr "Senaste svaret"
 
-#~ msgid "It does not look like you changed anything, so nothing was saved"
-#~ msgstr "Det ser inte ut som att något har ändrats, så inget sparades"
-
-#~ msgid "Disable"
-#~ msgstr "Inaktivera"
-
-#~ msgid "Activate on Front-End Admin"
-#~ msgstr "Aktivera på framsidan"
-
-#~ msgid "Add New"
-#~ msgstr "Lägg till ny"
-
-#~ msgid "Street 123, City"
-#~ msgstr "Marknadsgatan 123, Landsort"
-
-#~ msgid "Start Date"
-#~ msgstr "Startdatum"
-
-#~ msgid "Time"
-#~ msgstr "Tid"
-
-#~ msgid "End Date"
-#~ msgstr "Slutdatum"
-
-#~ msgid "Information about %s"
-#~ msgstr "Information om %s"
-
-#~ msgid "Add important information here"
-#~ msgstr "Lägg till viktig information här"
-
-#~ msgid "Add"
-#~ msgstr "Lägg till"
-
-#~ msgid "Save"
-#~ msgstr "Spara"
-
-#~ msgid "List"
-#~ msgstr "Lista"
-
-#~ msgid "your-name"
-#~ msgstr "ditt-namn"
-
-#~ msgid "001-888-342-324"
-#~ msgstr "070-123 45 67"
-
-#~ msgid "Continue Search"
-#~ msgstr "Fortsätt söka"
-
-#~ msgid "Unread Orders"
-#~ msgstr "Olästa beställningar"
-
-#~ msgid "Send e-mail to all"
-#~ msgstr "Skicka e-post till alla"
-
-#~ msgid "Pay to Access %s"
-#~ msgstr "Betala för tillgång till %s"
-
-#~ msgid "Image"
-#~ msgstr "Bild"
-
-#~ msgid "Type"
-#~ msgstr "Typ"
-
-#~ msgid "Max Length"
-#~ msgstr "Maxlängd"
-
-#~ msgid "Required"
-#~ msgstr "Obligatorisk"
-
-#~ msgid "Display on Categories"
-#~ msgstr "Visa på kategorierna"
-
-#~ msgid "Alternate text"
-#~ msgstr "Alternativ text"
-
-#~ msgid "Custom class"
-#~ msgstr "Egen klass"
-
-#~ msgid "Default value"
-#~ msgstr "Standardvärde"
-
-#~ msgid "Placeholder"
-#~ msgstr "Platshållare"
-
-#~ msgid "Order number"
-#~ msgstr "Ordernummer"
-
-#~ msgid "Icon"
-#~ msgstr "Ikon"
-
-#~ msgid "Color"
-#~ msgstr "Färg"
-
-#~ msgid "Connect to new %s"
-#~ msgstr "Koppla till ny %s"
-
-#~ msgid "Include on"
-#~ msgstr "Inkludera på"
-
-#~ msgid "Event Max Length"
-#~ msgstr "Maxlängd på händelse"
-
-#~ msgid "Affect Heading"
-#~ msgstr "Påverkar rubrik"
-
-#~ msgid "Hidden"
-#~ msgstr "Gömd"
-
-#~ msgid "Customer No"
-#~ msgstr "Kundnummer"
-
-#~ msgid "Paid for %s until"
-#~ msgstr "Betald för %s till"
-
-#~ msgid "Choose all"
-#~ msgstr "Välj alla"
-
-#~ msgid "Print List"
-#~ msgstr "Skriv ut lista"
-
-#~ msgid "Sort By"
-#~ msgstr "Sortera efter"
-
-#~ msgid "Distance"
-#~ msgstr "Avstånd"
-
-#~ msgid "I could not find any events"
-#~ msgstr "Jag kunde inte hitta några händelser"
-
-#~ msgid "Display More Events (%s)"
-#~ msgstr "Visa fler händelser (%s)"
-
-#~ msgid "Display More %s (%s)"
-#~ msgstr "Visa fler %s (%s)"
-
-#~ msgid "I could not find any %s"
-#~ msgstr "Jag kunde inte hitta några %s"
-
-#~ msgid "I could not find anything that corresponded to your choices"
-#~ msgstr "Jag kunde inte hitta något som stämde överens med dina val"
-
-#~ msgid "Today"
-#~ msgstr "I dag"
-
-#~ msgid "The event does not seam to have a slug"
-#~ msgstr "Händelsen verkar inte ha någon adress"
-
-#~ msgid "Update Cart"
-#~ msgstr "Uppdatera kundkorg"
-
-#~ msgid "Add to Cart"
-#~ msgstr "Lägg till i kundkorg"
-
-#~ msgid "Display Search"
-#~ msgstr "Visa sök"
-
-#~ msgid "Display Map"
-#~ msgstr "Visa karta"
-
-#~ msgid "Display start page form"
-#~ msgstr "Visa startsida från"
-
-#~ msgid "Form"
-#~ msgstr "Formulär"
-
-#~ msgid "Show all"
-#~ msgstr "Visa alla"
-
-#~ msgid "Go to after submit"
-#~ msgstr "Gå till efter skicka"
-
-#~ msgid "Default %s"
-#~ msgstr "Standard %s"
-
-#~ msgid "Button text"
-#~ msgstr "Knapptext"
-
-#~ msgid "Display Webshop List"
-#~ msgstr "Visa webshopplista"
-
-#~ msgid "Go to on click"
-#~ msgstr "Gå till vid klick"
-
-#~ msgid "Locations"
-#~ msgstr "Platser"
-
-#~ msgid "Display start page favorites"
-#~ msgstr "Visa favoriter"
-
-#~ msgid "Display Category"
-#~ msgstr "Visa kategori"
-
-#~ msgid "Display Info"
-#~ msgstr "Visa info"
-
-#~ msgid "Display Border"
-#~ msgstr "Visa ram"
-
-#~ msgid "Display Recent"
-#~ msgstr "Visa senaste"
-
-#~ msgid "Recent"
-#~ msgstr "Senaste"
-
-#~ msgid "Amount"
-#~ msgstr "Antal"
-
-#~ msgid "Display Events"
-#~ msgstr "Visa händelser"
-
-#~ msgid "Calendar"
-#~ msgstr "Kalender"
-
-#~ msgid "Category"
-#~ msgstr "Kategori"
-
-#~ msgid "Order by"
-#~ msgstr "Sortera efter"
-
-#~ msgid "Closest"
-#~ msgstr "Närmast"
-
-#~ msgid "Display Filters"
-#~ msgstr "Visa filter"
-
-#~ msgid "Default"
-#~ msgstr "Standard"
-
-#~ msgid "Order by Text"
-#~ msgstr "Sortera på text"
-
-#~ msgid "There are %s events"
-#~ msgstr "Det finns %s händelser"
-
-#~ msgid "Event Type"
-#~ msgstr "Händelsetyp"
-
-#~ msgid "Display Filtered Products"
-#~ msgstr "Visa filtrerade produkter"
-
-#~ msgid "Filtered Products"
-#~ msgstr "Filtrerade produkter"
-
-#~ msgid "Display Product Meta"
-#~ msgstr "Visa produktinfo"
-
-#~ msgid "Product Meta"
-#~ msgstr "Produktinfo"
-
-#~ msgid "Slideshow"
-#~ msgstr "Bildspel"
-
-#~ msgid "Category Info"
-#~ msgstr "Kategoriinfo"
-
-#~ msgid "Event Info"
-#~ msgstr "Händelseinfo"
-
-#~ msgid "Actions"
-#~ msgstr "Åtgärd"
-
-#~ msgid "Breadcrumbs"
-#~ msgstr "Brödsmulor"
-
-#~ msgid "Date and Time"
-#~ msgstr "Datum och tid"
-
-#~ msgid "Contact %s"
-#~ msgstr "Kontakta %s"
-
-#~ msgid "Mark as Favorite"
-#~ msgstr "Markera som favorit"
-
-#~ msgid "I can recommend this event"
-#~ msgstr "Jag kan rekommendera denna händelse"
-
-#~ msgid "Hi! I think that you might like this event. Go to %s to view it."
-#~ msgstr ""
-#~ "Hej! Jag tror att du kommer att gilla denna händelse. Gå till %s för att "
-#~ "se den."
-
-#~ msgid "Tell a Friend"
-#~ msgstr "Berätta för en vän"
-
-#~ msgid "%s offers %s"
-#~ msgstr "%s erbjuder %s"
-
-#~ msgid "Display Categories"
-#~ msgstr "Visa kategorier"
-
-#~ msgid "Display Cart"
-#~ msgstr "Visa kundkorg"
-
-#~ msgid "Cart"
-#~ msgstr "Kundkorg"
-
-#~ msgid "The cart has been updated"
-#~ msgstr "Kundkorgen har uppdaterats"
-
-#~ msgid "The order has been completed"
-#~ msgstr "Orderna är avklarad"
-
-#~ msgid "Order info"
-#~ msgstr "Orderinfo"
-
-#~ msgid "You have to select the customer and correct customer number"
-#~ msgstr "Du behöver välja en kund och korrekt kundnummer"
-
-#~ msgid "You have to enter customer, customer number, name and e-mail"
-#~ msgstr "Du behöver ange kund, kundnummer, namn och e-post"
-
-#~ msgid "Proceed to Checkout"
-#~ msgstr "Gå vidare till utcheckning"
-
-#~ msgid "Checkout"
-#~ msgstr "Utcheckning"
-
-#~ msgid "Customer"
-#~ msgstr "Kund"
-
-#~ msgid "Confirm Order"
-#~ msgstr "Bekräfta order"

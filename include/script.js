@@ -6,7 +6,8 @@ var map_initialized = false,
 	search_input = "webshop_map_input",
 	search_input_obj = "",
 	search_coordinates_obj = "",
-	map_bounds_obj = "";
+	map_bounds_obj = "",
+	filter_products_timeout;
 
 function remove_markers()
 {
@@ -61,6 +62,8 @@ function add_map_location(data)
 
 function fitIcons()
 {
+	/*console.log("65");*/
+
 	if(map_bounds_obj.length > 0 && map_bounds_obj.val() != '')
 	{
 		var coordinates_temp = map_bounds_obj.val().split("), (");
@@ -146,6 +149,34 @@ function hide_products()
 	}
 }
 
+function reorder_products(map_object)
+{
+	var dom_list = search_map_obj.parents(".widget.webshop_map").siblings(".webshop_widget").find("ul.widget_list");
+
+	if(dom_list.length > 0)
+	{
+		var map_lat = map_object.getCenter().lat(),
+			map_lng = map_object.getCenter().lng();
+
+		dom_list.attr(
+		{
+			'data-map-latitude': map_lat,
+			'data-map-longitude': map_lng
+		});
+
+		/*if(typeof myWebshopView !== 'undefined' && dom_list.attr('data-order_by') == 'map_center')
+		{
+			clearTimeout(filter_products_timeout);
+			filter_products_timeout = setTimeout(function()
+			{
+				console.log("172");
+				dom_list.empty();
+				myWebshopView.load_filter_products(dom_list);
+			}, 1000);
+		}*/
+	}
+}
+
 function init_maps()
 {
 	if(search_map_obj.length > 0 && search_map_obj.is(":visible"))
@@ -214,6 +245,7 @@ function init_maps()
 			google.maps.event.addListener(map_object, 'bounds_changed', function()
 			{
 				searchBox.setBounds(map_object.getBounds());
+				reorder_products(map_object);
 			});
 		}
 
@@ -224,6 +256,7 @@ function init_maps()
 			google.maps.event.addListener(map_object, 'bounds_changed', function()
 			{
 				hide_products();
+				reorder_products(map_object);
 			});
 		}
 
