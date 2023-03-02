@@ -9851,7 +9851,7 @@ class widget_webshop_filter_products extends WP_Widget
 							$product_filter_order_by = check_var('product_filter_order_by', 'char', true, $instance['webshop_filters_order_by']);
 							$webshop_filters_order_by_text = $instance['webshop_filters_order_by_text'] != '' ? $instance['webshop_filters_order_by_text'] : __("Order by", 'lang_webshop');
 
-							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'product_filter_order_by', 'text' => $webshop_filters_order_by_text, 'value' => $product_filter_order_by, 'xtra' => " class='product_filter_order_by'"));
+							echo show_select(array('data' => $this->get_order_by_for_select(), 'name' => 'product_filter_order_by', 'text' => $webshop_filters_order_by_text, 'value' => $product_filter_order_by, 'field_class' => "mf_form_field product_filter_order_by"));
 						}
 
 					echo "</form>";
