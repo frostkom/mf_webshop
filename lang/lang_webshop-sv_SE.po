@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-11 11:20+0100\n"
+"POT-Creation-Date: 2023-03-14 17:00+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,50 +15,62 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-msgid "Webshop"
-msgstr "Webbshop"
+msgid "Choose Here"
+msgstr "Välj här"
 
-msgid "The address was not able to be created"
-msgstr "Det gick inte att skapa adressen"
+msgid "All"
+msgstr "Alla"
 
-msgid "You have not set a field for e-mails"
-msgstr "Du har inte angett ett fält för e-post"
+msgid "Products"
+msgstr "Produkter"
 
-msgid "Could not find an existing group or create a new one"
-msgstr "Det gick inte att hitta en existerande eller skapa en ny"
+msgid "Statistics"
+msgstr "Statistik"
 
-msgid "Loading"
-msgstr "Laddar"
+msgid "unknown"
+msgstr "okänd"
 
-msgid "Import"
-msgstr "Importera"
+msgid "Monthly"
+msgstr "Per månad"
 
-msgid "You have to install the plugin %s first"
-msgstr "Du behöver installera pluginet %s först"
+msgid "Months"
+msgstr "Månader"
 
-msgid "Product"
-msgstr "Produkt"
+msgid "Years"
+msgstr "År"
 
-msgid "The end date must be later than the start date"
-msgstr "Slutdatumet måste vara senare än startdatumet"
+msgid "Filter"
+msgstr "Filtrera"
 
-msgid "The end date must be within %d days from the start date"
-msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
+msgid "Limit"
+msgstr "Antal"
 
-msgid "I have saved the information for you. %sView the page here%s"
-msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
+msgid "From"
+msgstr "Från"
 
-msgid "I could not update the information for you"
-msgstr "Jag kunde inte uppdatera informationen åt dig"
+msgid "To"
+msgstr "Till"
 
-msgid "It does not look like you changed anything, so nothing was saved"
-msgstr "Det ser inte ut som att du har ändrat något, så inget sparades"
+msgid "Location"
+msgstr "Plats"
 
-msgid "I could not save the information for you"
-msgstr "Jag kunde inte spara informationen åt dig"
+msgid "Overall"
+msgstr "Allmänt"
 
-msgid "One with that title already exists"
-msgstr "En med den rubriken finns redan"
+msgid "First answer"
+msgstr "Första svaret"
+
+msgid "Latest answer"
+msgstr "Senaste svaret"
+
+msgid "The cart has been updated"
+msgstr "Kundkorgen har uppdaterats"
+
+msgid "The order has been completed"
+msgstr "Ordern är klar"
+
+msgid "Order info"
+msgstr "Orderinformation"
 
 msgid "Read More"
 msgstr "Läs mer"
@@ -68,9 +80,6 @@ msgstr "En påminnelse om att uppdatera din information"
 
 msgid "You have not updated your information since %s which is more than %s months ago. Please do so."
 msgstr "Du har inte uppdaterat din information sedan %s vilket är mer än %s månader sedan. Var vänlig gör det."
-
-msgid "Choose Here"
-msgstr "Välj här"
 
 msgid "A-Z"
 msgstr "A-Ö"
@@ -162,9 +171,6 @@ msgstr "Lager"
 msgid "Interval"
 msgstr "Intervall"
 
-msgid "Location"
-msgstr "Plats"
-
 msgid "City"
 msgstr "Ort"
 
@@ -219,17 +225,14 @@ msgstr "Bara på individuell sida"
 msgid "Nowhere"
 msgstr "Ingenstans"
 
-msgid "Disable"
-msgstr "Inaktivera"
-
-msgid "Products"
-msgstr "Produkter"
-
 msgid "Events"
 msgstr "Händelser"
 
 msgid "Choose Category Here"
 msgstr "Välj kategori här"
+
+msgid "Webshop"
+msgstr "Webbshop"
 
 msgid "Yes"
 msgstr "Ja"
@@ -302,6 +305,9 @@ msgstr "API-nyckel"
 
 msgid "Replace Text"
 msgstr "Ersätt text"
+
+msgid "Product"
+msgstr "Produkt"
 
 msgid "Replace %s slug with"
 msgstr "Ersätt %s-adress med"
@@ -528,161 +534,53 @@ msgstr "Visa"
 msgid "There is nothing to show"
 msgstr "Det finns inget att visa"
 
-msgid "Add New"
-msgstr "Lägg till ny"
-
 msgid "Delete"
 msgstr "Radera"
-
-msgid "Street 123, City"
-msgstr "Gata 123, Stad"
-
-msgid "Start Date"
-msgstr "Startdatum"
-
-msgid "Time"
-msgstr "Tid"
-
-msgid "End Date"
-msgstr "Slutdatum"
-
-msgid "Information about %s"
-msgstr "Information om %s"
-
-msgid "Add important information here"
-msgstr "Lägg till viktig information här"
-
-msgid "Add"
-msgstr "Lägg till"
-
-msgid "Save"
-msgstr "Spara"
-
-msgid "List"
-msgstr "Lista"
-
-msgid "Continue Search"
-msgstr "Fortsätt sökning"
-
-msgid "Unread Orders"
-msgstr "Olästa ordrar"
 
 msgid "Orders"
 msgstr "Ordrar"
 
-msgid "Statistics"
-msgstr "Statistik"
+msgid "Import"
+msgstr "Importera"
 
-msgid "Send e-mail to all"
-msgstr "Skicka e-post till alla"
+msgid "Search for an address and find its position"
+msgstr "Sök efter en adress och hitta platsen"
 
-msgid "Pay to Access %s"
-msgstr "Betala för att få tillgång till %s"
+msgid "You have to install the plugin %s first"
+msgstr "Du behöver installera pluginet %s först"
 
-msgid "Image"
-msgstr "Bild"
+msgid "Show all"
+msgstr "Visa alla"
 
-msgid "Type"
-msgstr "Typ"
+msgid "The end date must be later than the start date"
+msgstr "Slutdatumet måste vara senare än startdatumet"
 
-msgid "Max Length"
-msgstr "Maxlängd"
+msgid "The end date must be within %d days from the start date"
+msgstr "Slutdatumet måste vara inom %d dagar från startdatumet"
 
-msgid "Required"
-msgstr "Obligatorisk"
+msgid "I have saved the information for you. %sView the page here%s"
+msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-msgid "Display on Categories"
-msgstr "Visa på kategorier"
+msgid "I could not update the information for you"
+msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-msgid "Alternate text"
-msgstr "Alternativ text"
+msgid "I could not save the information for you"
+msgstr "Jag kunde inte spara informationen åt dig"
 
-msgid "Custom class"
-msgstr "Egen klass"
+msgid "One with that title already exists"
+msgstr "En med den rubriken finns redan"
 
-msgid "Default value"
-msgstr "Standardvärde"
+msgid "The address was not able to be created"
+msgstr "Det gick inte att skapa adressen"
 
-msgid "Placeholder"
-msgstr "Platshållare"
+msgid "You have not set a field for e-mails"
+msgstr "Du har inte angett ett fält för e-post"
 
-msgid "Order number"
-msgstr "Ordernummer"
+msgid "Could not find an existing group or create a new one"
+msgstr "Det gick inte att hitta en existerande eller skapa en ny"
 
-msgid "Background Color"
-msgstr "Bakgrundsfärg"
-
-msgid "Icon"
-msgstr "Ikon"
-
-msgid "Color"
-msgstr "Färg"
-
-msgid "Connect to new %s"
-msgstr "Koppla ihop med ny %s"
-
-msgid "Include on"
-msgstr "Inkludera på"
-
-msgid "Event Max Length"
-msgstr "Maxlängd för händelse"
-
-msgid "Hidden"
-msgstr "Dold"
-
-msgid "Customer No"
-msgstr "Kundnummer"
-
-msgid "Background"
-msgstr "Bakgrund"
-
-msgid "Last Updated"
-msgstr "Senast uppdaterad"
-
-msgid "All"
-msgstr "Alla"
-
-msgid "Choose all"
-msgstr "Välj alla"
-
-msgid "Sort By"
-msgstr "Sortera efter"
-
-msgid "Filter"
-msgstr "Filtrera"
-
-msgid "Distance"
-msgstr "Avstånd"
-
-msgid "Today"
-msgstr "Idag"
-
-msgid "Form"
-msgstr "Formulär"
-
-msgid "Button text"
-msgstr "Knapptext"
-
-msgid "Display Border"
-msgstr "Visa ram"
-
-msgid "Amount"
-msgstr "Antal"
-
-msgid "Order by"
-msgstr "Sortera efter"
-
-msgid "Closest"
-msgstr "Närmaste"
-
-msgid "Months"
-msgstr "Månader"
-
-msgid "Map Center"
-msgstr "Centrum på karta"
-
-msgid "Button Text"
-msgstr "Knapptext"
+msgid "Loading"
+msgstr "Laddar"
 
 msgid "Search for"
 msgstr "Sök efter"
@@ -710,31 +608,4 @@ msgstr "Beställd av"
 
 msgid "Created"
 msgstr "Skapad"
-
-msgid "unknown"
-msgstr "okänd"
-
-msgid "Monthly"
-msgstr "Per månad"
-
-msgid "Years"
-msgstr "År"
-
-msgid "Limit"
-msgstr "Antal"
-
-msgid "From"
-msgstr "Från"
-
-msgid "To"
-msgstr "Till"
-
-msgid "Overall"
-msgstr "Allmänt"
-
-msgid "First answer"
-msgstr "Första svaret"
-
-msgid "Latest answer"
-msgstr "Senaste svaret"
 

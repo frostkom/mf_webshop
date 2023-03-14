@@ -7643,7 +7643,7 @@ class mf_webshop
 					<span>".$setting_webshop_replace_show_map."</span>
 					<span>".$setting_webshop_replace_hide_map."</span>
 				</h2>
-				<div class='map_wrapper'>";
+				<div class='map_wrapper mf_form'>";
 
 					if(in_array('search', $setting_maps_controls))
 					{
