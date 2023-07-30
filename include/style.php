@@ -1308,7 +1308,7 @@ echo "@media all
 				{
 					float: right;
 					font-size: .8em;
-					margin-top: 1em;
+					margin-top: 1.7em;
 					text-align: right;
 					width: 30%;
 				}
@@ -1345,6 +1345,7 @@ echo "@media all
 						.product_image_container a
 						{
 							color: inherit;
+							padding: 0;
 						}
 
 							.is_mobile .product_image_container .category_icon
@@ -1578,7 +1579,7 @@ echo "@media all
 		.single-mf_product .product_location
 		{
 			display: inline-block;
-			margin-bottom: 1em;
+			margin-bottom: .7em;
 		}
 
 			.single-mf_product .product_location span, .single-mf_product .product_location a
@@ -1601,12 +1602,10 @@ echo "@media all
 					text-decoration: none;
 				}
 
-		/*.single-mf_product #mf-content .mf_share
+		.single-mf_product #mf-content .mf_share
 		{
-			clear: right;
-			float: right;
-			margin-bottom: .9em;
-		}*/
+			margin-bottom: .7em;
+		}
 
 		.single-mf_product .product_container .product_slideshow
 		{

@@ -2434,7 +2434,11 @@ class mf_webshop
 
 						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css", $plugin_version);
 
-						$this->footer_output = "<div id='overlay_product' class='overlay_container modal'><div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div></div>";
+						//do_log("Hide product: #".$post->ID.", post_type = ".$post->post_type.", overlay_post_name = ".$overlay_post_name.", post_overlay = ".$post_overlay);
+
+						$this->footer_output = "<div id='overlay_product' class='overlay_container modal'>
+							<div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div>
+						</div>";
 					}
 				}
 			}
@@ -2668,7 +2672,7 @@ class mf_webshop
 										}
 
 									$out_left .= "</div>
-									<div class='product_image_container'>"
+									<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">"
 										.$arr_product['product_image'];
 
 										if($arr_product['product_data'] != '')
@@ -5387,6 +5391,11 @@ class mf_webshop
 		{
 			$setting_range_min_default = get_option_or_default('setting_range_min_default', 10);
 
+			if(!is_numeric($value))
+			{
+				$value = 1;
+			}
+
 			$value_min = ($value * ($setting_range_min_default / 100));
 			$value_max = $value;
 		}
@@ -6041,7 +6050,7 @@ class mf_webshop
 								<% } %>
 							</div>
 
-							<div class='product_image_container'>
+							<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">
 								<% if(product_url != '')
 								{ %>
 									<a href='<%= product_url %>'>
@@ -8448,7 +8457,7 @@ class mf_webshop
 							$arr_product = $arr_product['product_response'][0];
 
 							$out .= "<li>
-								<div class='product_image_container'>
+								<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">
 									<a href='".$arr_product['product_url']."'>"
 										.$arr_product['product_image']
 									."</a>";
@@ -9186,7 +9195,7 @@ class widget_webshop_form extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_action'] = sanitize_text_field($new_instance['webshop_action']);
-		$instance['webshop_doc_type'] = is_array($new_instance['webshop_doc_type']) ? $new_instance['webshop_doc_type'] : array();
+		$instance['webshop_doc_type'] = (is_array($new_instance['webshop_doc_type']) ? $new_instance['webshop_doc_type'] : array());
 		$instance['webshop_doc_type_default'] = sanitize_text_field($new_instance['webshop_doc_type_default']);
 		$instance['webshop_form_button_text'] = sanitize_text_field($new_instance['webshop_form_button_text']);
 
