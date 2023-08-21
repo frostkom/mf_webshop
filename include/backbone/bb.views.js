@@ -320,7 +320,7 @@ var WebshopView = Backbone.View.extend(
 			}
 		}
 
-		if(jQuery(".webshop_form .webshop_form_link").length > 0)
+		if(jQuery(".webshop_form .product_filtered_amount").length > 0)
 		{
 			this.search_product_amount();
 		}
@@ -730,7 +730,7 @@ var WebshopView = Backbone.View.extend(
 			html = " " + response;
 		}
 
-		jQuery(".webshop_form form a span").html(html);
+		jQuery(".webshop_form .product_filtered_amount").html(html);
 	},
 
 	search_products_change: function()

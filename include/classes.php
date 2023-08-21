@@ -4485,7 +4485,7 @@ class mf_webshop
 	{
 		global $post_type;
 
-		if(substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
+		if(isset($this->post_type_products) && substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
 		{
 			$location_post_name = $this->get_post_name_for_type('location');
 
@@ -4504,7 +4504,7 @@ class mf_webshop
 			}
 		}
 
-		else if(substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
+		else if(isset($this->post_type_document_type) && substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
 		{
 			//$strFilterPlacement = get_or_set_table_filter(array('key' => 'strFilterPlacement', 'save' => true));
 			$strFilterPlacement = check_var('strFilterPlacement');
@@ -7554,7 +7554,7 @@ class mf_webshop
 		{
 			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
 				'images' => $this->slideshow_images,
-				//'settings' => array('image_fit' => 'contain'), // Can't be ovveridden this way since it is set in style.php
+				//'settings' => array('image_fit' => 'contain'), // Can't be overidden this way since it is set in style.php
 			));
 		}
 
@@ -8457,10 +8457,30 @@ class mf_webshop
 							$arr_product = $arr_product['product_response'][0];
 
 							$out .= "<li>
-								<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">
-									<a href='".$arr_product['product_url']."'>"
-										.$arr_product['product_image']
-									."</a>";
+								<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">";
+
+									if(is_user_logged_in() && is_plugin_active("mf_slideshow/index.php"))
+									{
+										global $obj_slideshow;
+
+										if(!isset($obj_slideshow))
+										{
+											$obj_slideshow = new mf_slideshow();
+										}
+
+										$arr_product_image = get_post_meta_file_src(array('post_id' => $post_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => false));
+
+										$out .= "<div class='product_slideshow'>".$obj_slideshow->render_slides(array(
+											'images' => $arr_product_image,
+										))."</div>";
+									}
+
+									else
+									{
+										$out .= "<a href='".$arr_product['product_url']."'>"
+											.$arr_product['product_image']
+										."</a>";
+									}
 
 									if($arr_product['product_data'] != '')
 									{
@@ -9171,14 +9191,14 @@ class widget_webshop_form extends WP_Widget
 							}
 
 							echo "<li class='form_button'>"
-								.show_button(array('text' => ($instance['webshop_form_button_text'] != '' ? $instance['webshop_form_button_text'] : __("Search", 'lang_webshop'))))
+								.show_button(array('text' => ($instance['webshop_form_button_text'] != '' ? str_replace("[product_amount]", "<span class='product_filtered_amount'></span>", $instance['webshop_form_button_text']) : __("Search", 'lang_webshop'))))
 							."</li>
 						</ul>";
 
-						if(get_option('setting_show_all_min') > 0)
+						if(get_option('setting_show_all_min') > 0 && strpos($instance['webshop_form_button_text'], "[product_amount]") === false)
 						{
 							echo "<p class='webshop_form_link'>
-								<a href='".get_permalink($instance['webshop_action'])."'>".__("Show all", 'lang_webshop')."<span></span>".($this->name_products != '' ? " ".strtolower($this->name_products) : "")."</a>
+								<a href='".get_permalink($instance['webshop_action'])."'>".__("Show all", 'lang_webshop')."<span class='product_filtered_amount'></span>".($this->name_products != '' ? " ".strtolower($this->name_products) : "")."</a>
 							</p>";
 						}
 
