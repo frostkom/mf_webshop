@@ -3346,6 +3346,8 @@ class mf_webshop
 
 	function get_page_templates($templates)
 	{
+		do_log("Move Webshop templates to Theme just like on Front End Admin");
+
 		$templates_path = $this->get_template_path();
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
