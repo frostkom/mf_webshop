@@ -20,6 +20,21 @@ var WebshopView = Backbone.View.extend(
 
 	initialize: function()
 	{
+		if(jQuery(".webshop_map.display_on_mobile").length > 0)
+		{
+			var body_obj = jQuery("body");
+
+			if(jQuery(document).width() < script_webshop_views.mobile_breakpoint)
+			{
+				jQuery(".webshop_map.hide_on_mobile .webshop_map_container").attr("id", "webshop_map_hide");
+			}
+
+			else
+			{
+				jQuery(".webshop_map.display_on_mobile .webshop_map_container").attr("id", "webshop_map_hide");
+			}
+		}
+
 		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
@@ -99,7 +114,7 @@ var WebshopView = Backbone.View.extend(
 		"click #product_result_search .products": "products_change",
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
-		"click .widget.webshop_map h2": "toggle_aside",
+		"click .widget .is_map_toggler": "toggle_aside",
 
 		/* Result List */
 		"change #webshop_search input": "search_products_change",
@@ -618,7 +633,7 @@ var WebshopView = Backbone.View.extend(
 		self.model.set('products_total', products_total);
 		self.model.set('products_checked', products_checked);
 
-		jQuery(".product_search .quote_button, .product_search .quote_button .form_button > *").addClass('hide');
+		jQuery(".product_search .quote_button, .product_search .quote_button .form_button > *:not(.is_map_toggler)").addClass('hide');
 
 		jQuery(".quote_button, .show_if_results").removeClass('hide');
 
@@ -884,8 +899,9 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget);
 
-		dom_obj.next(".map_wrapper").toggle();
-		dom_obj.children("span").toggle();
+		/*dom_obj.next(".map_wrapper").toggle();*/
+		jQuery(".map_wrapper").toggle();
+		jQuery(".is_map_toggler").children("span").toggle();
 
 		if(dom_obj.hasClass('is_map_toggler'))
 		{

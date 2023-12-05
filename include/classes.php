@@ -362,6 +362,26 @@ class mf_webshop
 		return $arr_data;
 	}
 
+	function get_map_placement_for_select($data = array())
+	{
+		$arr_data = array(
+			'above_filter' => __("Above Filter", 'lang_webshop'),
+			'below_filter' => __("Below Filter", 'lang_webshop'),
+		);
+
+		return $arr_data;
+	}
+
+	function get_map_button_placement_for_select($data = array())
+	{
+		$arr_data = array(
+			'above_map' => __("Above Map", 'lang_webshop'),
+			'page_bottom' => __("Page Bottom", 'lang_webshop'),
+		);
+
+		return $arr_data;
+	}
+
 	function get_symbols_for_select()
 	{
 		global $obj_font_icons;
@@ -902,6 +922,8 @@ class mf_webshop
 		$arr_settings = array(
 			'setting_map_visibility' => __("Map visibility", 'lang_webshop'),
 			'setting_map_visibility_mobile' => __("Map visibility", 'lang_webshop')." (".__("Mobile", 'lang_webshop').")",
+			'setting_webshop_map_placement' => __("Map Placement", 'lang_webshop'),
+			'setting_webshop_map_button_placement' => __("Map Button Placement", 'lang_webshop'),
 			'setting_webshop_color_info' => __("Info color", 'lang_webshop'),
 			'setting_webshop_text_color_info' => __("Info text color", 'lang_webshop'),
 		);
@@ -1240,6 +1262,22 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_map_placement_callback($args = array())
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_select(array('data' => $this->get_map_placement_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_map_button_placement_callback($args = array())
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_select(array('data' => $this->get_map_button_placement_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_color_info_callback($args = array())
@@ -2373,6 +2411,13 @@ class mf_webshop
 	{
 		global $post;
 
+		if(!isset($obj_theme_core))
+		{
+			$obj_theme_core = new mf_theme_core();
+		}
+
+		$obj_theme_core->get_params();
+
 		$this->combined_head();
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
@@ -2395,6 +2440,7 @@ class mf_webshop
 			'search_max' => get_option_or_default('setting_search_max', 50),
 			'show_all_min' => get_option_or_default('setting_show_all_min', 30),
 			'require_search' => get_option('setting_require_search'),
+			'mobile_breakpoint' => $obj_theme_core->options['mobile_breakpoint'],
 		), $plugin_version);
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js", $plugin_version);
 
@@ -5444,6 +5490,17 @@ class mf_webshop
 
 		$out = "";
 
+		if(get_option('setting_webshop_map_button_placement', 'above_map') == 'page_bottom')
+		{
+			$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
+			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
+
+			$out .= "<h2 class='is_map_toggler button'>
+				<span>".$setting_replace_show_map."</span>
+				<span>".$setting_webshop_replace_hide_map."</span>
+			</h2>";
+		}
+
 		if(get_option('setting_quote_form'.$this->option_type) > 0 && in_array('quote', $data['include']))
 		{
 			$name_quote_request = get_option('setting_replace_quote_request'.$this->option_type);
@@ -5488,27 +5545,34 @@ class mf_webshop
 		}
 	}
 
-	function get_webshop_map()
+	function get_webshop_map($data = array())
 	{
-		$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
+		if(!isset($data['container_class'])){	$data['container_class'] = "";}
 
-		$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
-		$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
+		$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
 
-		$out = "<div class='form_button'>
-			<h2 class='is_map_toggler button'>
-				<span>".$setting_replace_show_map."</span>
-				<span>".$setting_webshop_replace_hide_map."</span>
-			</h2>
-			<div class='map_wrapper'>";
+		$out = "<div class='form_button webshop_map".($data['container_class'] != '' ? " ".$data['container_class'] : '')."'>";
+
+			if(get_option('setting_webshop_map_button_placement', 'above_map') == 'above_map')
+			{
+				$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
+				$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
+
+				$out .= "<h2 class='is_map_toggler button'>
+					<span>".$setting_replace_show_map."</span>
+					<span>".$setting_webshop_replace_hide_map."</span>
+				</h2>";
+			}
+
+			$out .= "<div class='map_wrapper'>";
 
 				if(in_array('search', $setting_maps_controls))
 				{
 					$out .= show_textfield(array('name' => 'webshop_map_input', 'placeholder' => __("Search for an address and find its position", 'lang_webshop'), 'xtra' => "class='webshop_map_input'")); //, 'value' => $data['input']
 				}
 
-				$out .= "<div id='webshop_map'></div>";
+				$out .= "<div id='webshop_map' class='webshop_map_container'></div>";
 
 				if($setting_map_info != '')
 				{
@@ -8915,8 +8979,14 @@ class widget_webshop_search extends WP_Widget
 			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
 				.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
 				.$this->obj_webshop->get_webshop_search()
-				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'))
-				."<ul id='product_result_search' class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'));
+
+				if(get_option('setting_webshop_map_placement', 'above_filter') == 'below_filter')
+				{
+					echo $this->obj_webshop->get_webshop_map(array('container_class' => 'display_on_mobile'));
+				}
+
+				echo "<ul id='product_result_search' class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
 				.$this->obj_webshop->get_quote_button()
 				.$this->obj_webshop->get_form_fields_passthru()
 			."</form>"
@@ -8992,7 +9062,7 @@ class widget_webshop_map extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<div class='section'>".$this->obj_webshop->get_webshop_map()."</div>"
+			echo "<div class='section'>".$this->obj_webshop->get_webshop_map(array('container_class' => 'hide_on_mobile'))."</div>"
 		.$after_widget;
 	}
 

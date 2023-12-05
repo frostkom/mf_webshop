@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.2.4
+Version: 2.2.3.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -204,7 +204,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_option_types = array();
 
-		$arr_options = array('setting_webshop_option_types', 'setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_color_info', 'setting_webshop_text_color_info');
+		$arr_options = array('setting_webshop_option_types', 'setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_map_placement', 'setting_webshop_map_button_placement', 'setting_webshop_color_info', 'setting_webshop_text_color_info');
 
 		if(!is_plugin_active("mf_maps/index.php"))
 		{
