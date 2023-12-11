@@ -19,7 +19,7 @@ get_header();
 
 			echo "<form action='".get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search product_favorites'>
 				<div class='aside'><div>".$obj_webshop->get_webshop_map()."</div></div>
-				<article".(IS_ADMIN ? " class='template_webshop_favorites'" : "").">
+				<article".(IS_ADMINISTRATOR ? " class='template_webshop_favorites'" : "").">
 					<h1>".$post_title."</h1>
 					<section>
 						<div class='favorite_result'>"

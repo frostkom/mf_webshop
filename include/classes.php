@@ -2063,7 +2063,7 @@ class mf_webshop
 											<%= product.post_title %>
 											<div class='row-actions'>"
 												."<a href='#admin/webshop/edit/<%= product.post_id %>'>".__("Edit", 'lang_webshop')."</a>"
-												.(IS_ADMIN ? "<a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
+												.(IS_ADMINISTRATOR ? "<a href='".admin_url("post.php?post=<%= product.post_id %>&action=edit")."'>".__("Edit in Admin", 'lang_webshop')."</a>" : "")
 												."<a href='<%= product.post_url %>'>".__("View", 'lang_webshop')."</a>"
 											."</div>
 										</td>
@@ -2360,7 +2360,7 @@ class mf_webshop
 
 			$arr_items = array();
 
-			if(IS_ADMIN)
+			if(IS_ADMINISTRATOR)
 			{
 				$arr_items[] = array(
 					'id' => 'list',
@@ -2718,7 +2718,7 @@ class mf_webshop
 										}
 
 									$out_left .= "</div>
-									<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">"
+									<div class='product_image_container'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">"
 										.$arr_product['product_image'];
 
 										if($arr_product['product_data'] != '')
@@ -4652,7 +4652,7 @@ class mf_webshop
 
 					foreach($arr_columns as $column)
 					{
-						if(!in_array($column, $arr_columns_admin) || IS_ADMIN)
+						if(!in_array($column, $arr_columns_admin) || IS_ADMINISTRATOR)
 						{
 							$result = $this->get_post_type_info(array('type' => $column));
 
@@ -5376,7 +5376,7 @@ class mf_webshop
 
 	function save_register($user_id, $password = "", $meta = array())
 	{
-		if(IS_ADMIN && get_option('setting_webshop_payment_form') > 0)
+		if(IS_ADMINISTRATOR && get_option('setting_webshop_payment_form') > 0)
 		{
 			$meta_key = 'profile_webshop_payment';
 			$meta_value = check_var($meta_key);
@@ -5387,7 +5387,7 @@ class mf_webshop
 
 	function edit_user_profile($user)
 	{
-		if(IS_ADMIN && get_option('setting_webshop_payment_form') > 0)
+		if(IS_ADMINISTRATOR && get_option('setting_webshop_payment_form') > 0)
 		{
 			$name_products = get_option_or_default('setting_webshop_replace_products', __("Products", 'lang_webshop'));
 
@@ -5954,7 +5954,7 @@ class mf_webshop
 												{ %>"
 													."data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
 												."<% } %>"
-												.(IS_ADMIN ? " data-type='events_coordinates'" : ""),
+												.(IS_ADMINISTRATOR ? " data-type='events_coordinates'" : ""),
 										))
 									."<% } %>
 								</p>
@@ -5972,7 +5972,7 @@ class mf_webshop
 										{ %>"
 											." data-url='<%= event_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
 										."<% } %>"
-										.(IS_ADMIN ? " data-type='events_map'" : ""),
+										.(IS_ADMINISTRATOR ? " data-type='events_map'" : ""),
 								))
 							."<% } %>
 						</li>
@@ -6069,7 +6069,7 @@ class mf_webshop
 										{ %>"
 											." data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
 										."<% } %>"
-										.(IS_ADMIN ? " data-type='products_coordinates'" : ""),
+										.(IS_ADMINISTRATOR ? " data-type='products_coordinates'" : ""),
 								))
 							."<% } %>
 						</li>
@@ -6116,7 +6116,7 @@ class mf_webshop
 								<% } %>
 							</div>
 
-							<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">
+							<div class='product_image_container'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
 								<% if(product_url != '')
 								{ %>
 									<a href='<%= product_url %>'>
@@ -6169,7 +6169,7 @@ class mf_webshop
 										{ %>"
 											." data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
 										."<% } %>"
-										.(IS_ADMIN ? " data-type='products_map'" : ""),
+										.(IS_ADMINISTRATOR ? " data-type='products_map'" : ""),
 								))
 							."<% } %>
 						</li>
@@ -7731,7 +7731,7 @@ class mf_webshop
 
 			$product_xtra = "id='webshop_map_coordinates' class='map_coordinates' data-name='".$this->product_title."'"; // data-url=''
 
-			if(IS_ADMIN)
+			if(IS_ADMINISTRATOR)
 			{
 				$product_xtra .= " data-type='product_single_map'";
 			}
@@ -7747,7 +7747,7 @@ class mf_webshop
 		{
 			$product_xtra = "class='map_coordinates' data-name='".$this->product_title."'"; // data-url=''
 
-			if(IS_ADMIN)
+			if(IS_ADMINISTRATOR)
 			{
 				$product_xtra .= " data-type='product_single_coordinates'";
 			}
@@ -8523,7 +8523,7 @@ class mf_webshop
 							$arr_product = $arr_product['product_response'][0];
 
 							$out .= "<li>
-								<div class='product_image_container'".(IS_ADMIN ? " rel='".__FUNCTION__."'" : "").">";
+								<div class='product_image_container'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">";
 
 									if(is_user_logged_in() && is_plugin_active("mf_slideshow/index.php"))
 									{
@@ -10392,7 +10392,7 @@ class widget_webshop_product_meta extends WP_Widget
 										$event_xtra .= " data-url='".$event_url."' data-link_text='".__("Read More", 'lang_webshop')."'";
 									}
 
-									if(IS_ADMIN)
+									if(IS_ADMINISTRATOR)
 									{
 										$event_xtra .= " data-type='event_meta'";
 									}
@@ -10426,7 +10426,7 @@ class widget_webshop_product_meta extends WP_Widget
 											$product_xtra .= " data-url='".$product_url."' data-link_text='".__("Read More", 'lang_webshop')."'";
 										}
 
-										if(IS_ADMIN)
+										if(IS_ADMINISTRATOR)
 										{
 											$product_xtra .= " data-type='product_meta'";
 										}

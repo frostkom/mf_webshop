@@ -12,7 +12,7 @@ get_header();
 			$obj_theme_core = new mf_theme_core();
 		}
 
-		echo "<article".(IS_ADMIN ? " class='template_webshop'" : "").">";
+		echo "<article".(IS_ADMINISTRATOR ? " class='template_webshop'" : "").">";
 
 			while(have_posts())
 			{

@@ -14,7 +14,7 @@ get_header();
 			$obj_webshop = new mf_webshop();
 		}
 
-		echo "<article".(IS_ADMIN ? " class='single-mf_product'" : "").">";
+		echo "<article".(IS_ADMINISTRATOR ? " class='single-mf_product'" : "").">";
 
 			while(have_posts())
 			{
