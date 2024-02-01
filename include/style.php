@@ -1006,25 +1006,7 @@ echo "@media all
 					opacity: 1;
 				}
 
-	/* Search */";
-	/*.page-template-template_webshop_search #mf-content > div
-	{
-		padding: 0;
-	}
-
-	.page-template-template_webshop_search #mf-content > div, .page-template-template_webshop_search #main, .page-template-template_webshop_search #product_form
-	{
-		overflow: unset;
-	}
-
-	.page-template-template_webshop_search aside > div, .page-template-template_webshop_search .aside > div
-	{
-		position: sticky;
-		top: 0;
-		z-index: 9;
-	}*/
-
-	echo "#main > #product_form
+	#main > #product_form
 	{
 		display: -webkit-box;
 		display: -ms-flexbox;

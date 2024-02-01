@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.3.1
+Version: 2.2.3.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -63,6 +63,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('profile_update', array($obj_webshop, 'profile_update'));
 
 		add_filter('filter_cookie_types', array($obj_webshop, 'filter_cookie_types'));
+
+		add_filter('get_group_sync_type', array($obj_webshop, 'get_group_sync_type'), 10);
 	}
 
 	else
@@ -95,8 +97,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
 
 	add_filter('single_template', array($obj_webshop, 'single_template'));
-	//add_filter('get_page_templates', array($obj_webshop, 'get_page_templates'));
 	add_filter('theme_templates', array($obj_webshop, 'get_page_templates'));
+
+	add_filter('get_group_sync_addresses', array($obj_webshop, 'get_group_sync_addresses'), 10, 2);
 
 	load_plugin_textdomain('lang_webshop', false, dirname(plugin_basename(__FILE__))."/lang/");
 
