@@ -5081,10 +5081,12 @@ class mf_webshop
 					$post_states['template_webshop_favorites'] = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'))." (".__("Favorites", 'lang_webshop').")";
 				break;
 
+				// Can be removed later...
 				case $templates_path.'template_webshop.php':
 					$post_states['template_webshop'] = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 				break;
 
+				// Can be removed later...
 				case $templates_path.'template_webshop_favorites.php':
 					$post_states['template_webshop_favorites'] = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'))." (".__("Favorites", 'lang_webshop').")";
 				break;
