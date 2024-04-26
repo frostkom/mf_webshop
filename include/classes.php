@@ -3709,6 +3709,16 @@ class mf_webshop
 		$this->option_type = '';
 	}
 
+	function filter_sites_table_pages($arr_pages)
+	{
+		$arr_pages[$this->post_type_products] = array(
+			'icon' => "fas fa-shopping-cart",
+			'title' => __("Products", 'lang_webshop'),
+		);
+
+		return $arr_pages;
+	}
+
 	// Same as in MF Health
 	function update_rwmb_post_meta($post_id, $meta_key, $meta_value)
 	{
