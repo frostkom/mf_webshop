@@ -5112,7 +5112,7 @@ class mf_webshop
 
 	function get_template_admin($data)
 	{
-		global $post, $obj_theme_core;
+		global $post, $obj_form, $obj_theme_core;
 
 		switch($data['type'])
 		{
@@ -5175,7 +5175,7 @@ class mf_webshop
 							$post_title = $post->post_title;
 							$post_content = $post->post_content;
 
-							echo "<form action='".get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search product_favorites'>
+							echo "<form action='".$obj_form->get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search product_favorites'>
 								<div class='aside'><div>".$this->get_webshop_map()."</div></div>
 								<article".(IS_ADMINISTRATOR ? " class='".$data['type']."'" : "").">
 									<h1>".$post_title."</h1>
@@ -7324,7 +7324,7 @@ class mf_webshop
 
 	function get_single_info($post)
 	{
-		global $wpdb, $obj_font_icons;
+		global $wpdb, $obj_font_icons, $obj_form;
 
 		$out = "";
 
@@ -7885,7 +7885,7 @@ class mf_webshop
 							{
 								$setting_replace_send_request_for_quote = get_option_or_default('setting_replace_send_request_for_quote'.$this->option_type, __("Send request for quote", 'lang_webshop'));
 
-								$this->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$this->product_id."' form_url='".get_form_url($setting_quote_form_single)."'"));
+								$this->template_shortcodes['form']['html'] .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-envelope'></i> ".$setting_replace_send_request_for_quote, 'class' => "button-primary send_request_for_quote", 'xtra' => "product_id='".$this->product_id."' form_url='".$obj_form->get_form_url($setting_quote_form_single)."'"));
 							}
 
 							if($setting_quote_form > 0)
@@ -8117,6 +8117,8 @@ class mf_webshop
 
 	function get_product_data($data, &$json_output)
 	{
+		global $obj_form;
+
 		$is_single = false;
 
 		$this->product_init(array('post' => $data['product'], 'single' => $is_single, 'single_image' => $data['single_image']));
@@ -8151,7 +8153,7 @@ class mf_webshop
 						if($setting_quote_form > 0)
 						{
 							$post_meta = "<div class='form_button'>
-								<a href='".get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button'>".$this->meta_title."</a>
+								<a href='".$obj_form->get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button'>".$this->meta_title."</a>
 							</div>";
 						}
 					}
@@ -9027,6 +9029,8 @@ class widget_webshop_search extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		global $obj_form;
+
 		extract($args);
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
@@ -9043,7 +9047,7 @@ class widget_webshop_search extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<form action='".get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
+			echo "<form action='".$obj_form->get_form_url(get_option('setting_quote_form'.$this->obj_webshop->option_type))."' method='post' id='product_form' class='mf_form product_search webshop_option_type".$this->obj_webshop->option_type."'>"
 				.$this->obj_webshop->get_search_result_info(array('type' => 'filter'))
 				.$this->obj_webshop->get_webshop_search()
 				.$this->obj_webshop->get_search_result_info(array('type' => 'matches'));
