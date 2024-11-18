@@ -1769,7 +1769,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_quote_form_single_callback($args = array())
@@ -1784,7 +1784,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function setting_webshop_user_updated_notification_callback($args = array())
@@ -1862,7 +1862,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false, 'is_payment' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
+		echo show_select(array('data' => $obj_form->get_for_select(array('force_has_page' => false, 'is_payment' => true)), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
 	function combined_head()
