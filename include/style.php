@@ -1210,12 +1210,12 @@ echo "@media all
 							margin-right: .4em;
 						}
 
-				.form_button .info_text
+				.form_button .info_text, .wp-block-button .info_text
 				{
 					position: relative;
 				}
 
-					.form_button .info_text:before
+					.form_button .info_text:before, .wp-block-button .info_text:before
 					{
 						border: 1em solid transparent;
 						border-bottom: 1em solid #808080;

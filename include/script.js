@@ -276,7 +276,7 @@ function show_list_active_or_not(self)
 
 	if(self.is(":checked"))
 	{
-		jQuery("#product_result_form").siblings(".form_button_container").find(".form_button .show_if_none_checked").remove();
+		jQuery("#product_result_form").siblings(".form_button_container").find(".form_button .show_if_none_checked, .wp-block-button .show_if_none_checked").remove();
 
 		dom_product.addClass('active');
 	}
@@ -330,7 +330,7 @@ jQuery(function($)
 	$(".mf_form > #product_result_form").parents(".mf_form").on('submit', function()
 	{
 		var dom_result = $(this).find("#product_result_form"),
-			dom_buttons = $(this).find(".form_button");
+			dom_buttons = $(this).find(".form_button, .wp-block-button");
 
 		if(dom_result.find(".products:checked").length == 0)
 		{

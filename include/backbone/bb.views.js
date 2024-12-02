@@ -123,7 +123,7 @@ var WebshopView = Backbone.View.extend(
 		"mouseenter #product_result_search > li": "section_hover",
 		"mouseleave #product_result_search > li": "section_unhover",
 		"change .webshop_form form select": "search_product_amount",
-		"click #product_form.form_button_container .form_button button": "product_add_to_search_or_not",
+		"click #product_form.form_button_container .form_button button, #product_form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
 		"click #product_result_search > li": "set_last_product",
 
 		/* Favorites */
@@ -633,7 +633,7 @@ var WebshopView = Backbone.View.extend(
 		self.model.set('products_total', products_total);
 		self.model.set('products_checked', products_checked);
 
-		jQuery(".product_search .quote_button, .product_search .quote_button .form_button > *:not(.is_map_toggler)").addClass('hide');
+		jQuery(".product_search .quote_button, .product_search .quote_button .form_button > *:not(.is_map_toggler), .product_search .quote_button, .product_search .quote_button .wp-block-button > *:not(.is_map_toggler)").addClass('hide');
 
 		jQuery(".quote_button, .show_if_results").removeClass('hide');
 
@@ -648,7 +648,7 @@ var WebshopView = Backbone.View.extend(
 
 	update_quote_amount: function()
 	{
-		jQuery(".form_button .show_if_results span").html(this.model.get('products_checked'));
+		jQuery(".form_button .show_if_results span, .wp-block-button .show_if_results span").html(this.model.get('products_checked'));
 	},
 
 	set_last_product: function(e)

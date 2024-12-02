@@ -2307,7 +2307,7 @@ class mf_webshop
 								</div>
 							<% }
 						}); %>
-						<div class='form_button'>
+						<div".get_form_button_classes().">
 							<button type='submit' class='button-primary'>".__("Save", 'lang_webshop')."</button>
 							<% if(post_id > 0)
 							{ %>"
@@ -3319,7 +3319,7 @@ class mf_webshop
 
 		$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search'.$this->option_type, __("Continue Search", 'lang_webshop'));
 
-		return "<div class='form_button alignleft'>
+		return "<div".get_form_button_classes("alignleft").">
 			<a href='#' id='mf_back_to_search' class='button button-primary hide'><i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search."</a>
 		</div>";
 	}
@@ -5627,7 +5627,7 @@ class mf_webshop
 		if($out != '')
 		{
 			return "<div class='quote_button'>
-				<div class='form_button'>"
+				<div".get_form_button_classes().">"
 					.$out
 				."</div>
 			</div>";
@@ -5641,7 +5641,7 @@ class mf_webshop
 		$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
 		$setting_map_info = get_option('setting_map_info'.$this->option_type);
 
-		$out = "<div class='form_button webshop_map".($data['container_class'] != '' ? " ".$data['container_class'] : '')."'>";
+		$out = "<div".get_form_button_classes("webshop_map".($data['container_class'] != '' ? " ".$data['container_class'] : '')).">";
 
 			if(get_option('setting_webshop_map_button_placement', 'above_map') == 'above_map')
 			{
@@ -6063,7 +6063,7 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_event_load_more'>
-						<li class='widget_load_more form_button'>"
+						<li".get_form_button_classes("widget_load_more").">"
 							.show_button(array('text' => sprintf(__("Display More Events (%s)", 'lang_webshop'), "<%= event_rest %>"), 'class' => "button"))
 						."</li>
 					</script>";
@@ -6160,7 +6160,7 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_filter_products_load_more'>
-						<li class='widget_load_more form_button'>"
+						<li".get_form_button_classes("widget_load_more").">"
 							.show_button(array('text' => $filter_products_load_more_button_text, 'class' => "button"))
 						."</li>
 					</script>";
@@ -7554,7 +7554,7 @@ class mf_webshop
 
 							$this->product_form_buy = "<form method='post' action='' class='mf_form'>"
 								.show_textfield(array('name' => 'intProductAmount', 'value' => ($intProductAmount_saved > 0 ? $intProductAmount_saved : $intProductAmount), 'type' => 'number', 'id' => "product_amount"))
-								."<div class='form_button'>"
+								."<div".get_form_button_classes().">"
 									.show_button(array('name' => 'btnProductBuy', 'text' => ($intProductAmount_saved > 0 ? __("Update Cart", 'lang_webshop') : __("Add to Cart", 'lang_webshop')), 'class' => "button-primary"));
 
 									if($intProductAmount_saved > 0)
@@ -7794,7 +7794,7 @@ class mf_webshop
 			$setting_webshop_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
 			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
 
-			$this->template_shortcodes['map']['html'] = "<div class='form_button'>
+			$this->template_shortcodes['map']['html'] = "<div".get_form_button_classes().">
 				<h2 class='is_map_toggler button'>
 					<span>".$setting_webshop_replace_show_map."</span>
 					<span>".$setting_webshop_replace_hide_map."</span>
@@ -7867,7 +7867,7 @@ class mf_webshop
 			if($setting_quote_form_single > 0 || $setting_quote_form > 0)
 			{
 				$this->template_shortcodes['form']['html'] = "<div id='product_form' class='mf_form form_button_container'>
-					<div class='form_button'>";
+					<div".get_form_button_classes().">";
 
 						if($setting_quote_form > 0)
 						{
@@ -8155,7 +8155,7 @@ class mf_webshop
 
 						if($setting_quote_form > 0)
 						{
-							$post_meta = "<div class='form_button'>
+							$post_meta = "<div".get_form_button_classes().">
 								<a href='".$obj_form->get_form_url($setting_quote_form)."?products=".$this->product_id."' class='button'>".$this->meta_title."</a>
 							</div>";
 						}
@@ -8225,7 +8225,7 @@ class mf_webshop
 					{
 						$this->has_read_more = true;
 
-						$post_meta = "<div class='form_button'>
+						$post_meta = "<div".get_form_button_classes().">
 							<a href='".$this->product_url."' class='button'>".$this->meta_title."</a>
 						</div>";
 					}
@@ -9350,7 +9350,7 @@ class widget_webshop_form extends WP_Widget
 								echo $out_temp;
 							}
 
-							echo "<li class='form_button'>"
+							echo "<li".get_form_button_classes().">"
 								.show_button(array('text' => ($instance['webshop_form_button_text'] != '' ? str_replace("[product_amount]", "<span class='product_filtered_amount'></span>", $instance['webshop_form_button_text']) : __("Search", 'lang_webshop'))))
 							."</li>
 						</ul>";
