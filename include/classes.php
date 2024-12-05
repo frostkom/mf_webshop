@@ -698,6 +698,8 @@ class mf_webshop
 
 	function init()
 	{
+		load_plugin_textdomain('lang_webshop', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
+
 		$this->get_option_types();
 
 		foreach($this->arr_option_types as $option_type)
