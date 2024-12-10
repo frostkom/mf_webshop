@@ -4674,11 +4674,11 @@ class mf_webshop
 		return $cols;
 	}
 
-	function column_cell($col, $id)
+	function column_cell($col, $post_id)
 	{
 		global $wpdb, $obj_font_icons;
 
-		$post_type = get_post_type($id);
+		$post_type = get_post_type($post_id);
 
 		$this->get_option_types();
 
@@ -4692,7 +4692,7 @@ class mf_webshop
 					switch($col)
 					{
 						case 'category_background_color':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							if($post_meta != '')
 							{
@@ -4701,7 +4701,7 @@ class mf_webshop
 						break;
 
 						case 'category_icon':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							if($post_meta != '')
 							{
@@ -4710,24 +4710,24 @@ class mf_webshop
 									$obj_font_icons = new mf_font_icons();
 								}
 
-								echo $obj_font_icons->get_symbol_tag(array('symbol' => $post_meta, 'class' => "category_".$id." fa-lg"));
+								echo $obj_font_icons->get_symbol_tag(array('symbol' => $post_meta, 'class' => "category_".$post_id." fa-lg"));
 							}
 						break;
 
 						case 'products':
-							$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $id));
+							$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $post_id));
 
 							echo $product_amount;
 						break;
 
 						case 'connect_new_products':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							echo "<i class='fa ".($post_meta == 'yes' ? "fa-check green" : "fa-times red")." fa-lg'></i>";
 						break;
 
 						case 'include_on':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, false);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, false);
 
 							if(is_array($post_meta) && count($post_meta) > 0)
 							{
@@ -4750,7 +4750,7 @@ class mf_webshop
 					switch($col)
 					{
 						case 'category':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, false);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, false);
 							$count_temp = count($post_meta);
 
 							if($count_temp > 0)
@@ -4798,7 +4798,7 @@ class mf_webshop
 
 						case 'ghost':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
 
 							if($post_meta == true)
 							{
@@ -4808,7 +4808,7 @@ class mf_webshop
 
 						case 'location':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, false);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, false);
 							$count_temp = count($post_meta);
 
 							if($count_temp > 0)
@@ -4823,28 +4823,28 @@ class mf_webshop
 						case 'address':
 						case 'local_address':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
 
 							echo $post_meta;
 						break;
 
 						case 'email':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
 
 							echo "<a href='mailto:".$post_meta."'>".$post_meta."</a>";
 						break;
 
 						case 'phone':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
 
 							echo "<a href='".format_phone_no($post_meta)."'>".$post_meta."</a>";
 						break;
 
 						case 'event':
 							$post_name = $this->get_post_name_for_type($col);
-							$post_meta = get_post_meta($id, $this->meta_prefix.$post_name, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
 
 							if(is_plugin_active("mf_calendar/index.php"))
 							{
@@ -4861,7 +4861,7 @@ class mf_webshop
 						case 'last_updated':
 							$row_actions = "";
 
-							$result = $wpdb->get_results($wpdb->prepare("SELECT post_author, post_modified FROM ".$wpdb->posts." WHERE ID = '%d' LIMIT 0, 1", $id));
+							$result = $wpdb->get_results($wpdb->prepare("SELECT post_author, post_modified FROM ".$wpdb->posts." WHERE ID = '%d' LIMIT 0, 1", $post_id));
 
 							foreach($result as $r)
 							{
@@ -4915,7 +4915,7 @@ class mf_webshop
 					switch($col)
 					{
 						case 'document_type':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							if($post_meta > 0)
 							{
@@ -4924,7 +4924,7 @@ class mf_webshop
 						break;
 
 						case 'image':
-							$post_meta = get_post_meta_file_src(array('post_id' => $id, 'meta_key' => $this->meta_prefix.$col, 'image_size' => 'thumbnail', 'single' => true));
+							$post_meta = get_post_meta_file_src(array('post_id' => $post_id, 'meta_key' => $this->meta_prefix.$col, 'image_size' => 'thumbnail', 'single' => true));
 
 							if($post_meta != '')
 							{
@@ -4933,7 +4933,7 @@ class mf_webshop
 						break;
 
 						case 'affect_heading':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							if($post_meta != '')
 							{
@@ -4947,7 +4947,7 @@ class mf_webshop
 					switch($col)
 					{
 						case 'type':
-							$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_'.$col, true);
 
 							if($post_meta != '')
 							{
@@ -4987,7 +4987,7 @@ class mf_webshop
 									break;
 								}
 
-								$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$key, true);
+								$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_'.$key, true);
 
 								echo "<span class='fa-stack fa-2x' title='".$value."'>
 									<i class='".$post_icon." grey fa-stack-1x'></i>
@@ -4998,7 +4998,7 @@ class mf_webshop
 								{
 									case 'searchable':
 										$hide = ($post_meta != 'yes');
-										$post_meta = get_post_meta($id, $this->meta_prefix.'document_searchable_required', true);
+										$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_searchable_required', true);
 
 										echo "<span class='fa-stack fa-2x'".($hide ? " style='visibility: hidden'" : "")." title='".__("Required", 'lang_webshop')." (".__("Searchable", 'lang_webshop').")'>
 											<i class='fa fa-asterisk grey fa-stack-1x'></i>
@@ -5007,10 +5007,10 @@ class mf_webshop
 									break;
 
 									case 'property':
-										$post_document_type = get_post_meta($id, $this->meta_prefix.'document_type', true);
+										$post_document_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
 										$hide = (in_array($post_document_type, array('categories_v2', 'description', 'color', 'gps', 'overlay', 'heading', 'categories', 'event', 'container_start', 'container_end', 'read_more_button', 'file_advanced', 'event', 'coordinates', 'divider', 'education')));
-										$post_meta = get_post_meta($id, $this->meta_prefix.'document_input_required', true);
+										$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_input_required', true);
 
 										echo "<span class='fa-stack fa-2x'".($hide ? " style='visibility: hidden'" : "")." title='".__("Required", 'lang_webshop')." (".__("Input", 'lang_webshop').")'>
 											<i class='fa fa-asterisk grey fa-stack-1x'></i>
@@ -5022,7 +5022,7 @@ class mf_webshop
 						break;
 
 						case 'display_on_categories':
-							$post_meta = get_post_meta($id, $this->meta_prefix.'document_'.$col, false);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_'.$col, false);
 
 							if(count($post_meta) > 0)
 							{
@@ -5048,7 +5048,7 @@ class mf_webshop
 					switch($col)
 					{
 						case 'location_hidden':
-							$post_meta = get_post_meta($id, $this->meta_prefix.$col, true);
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$col, true);
 
 							if($post_meta == 'yes')
 							{
@@ -5057,12 +5057,12 @@ class mf_webshop
 						break;
 
 						case 'products':
-							$result = $this->get_products_from_location($id);
+							$result = $this->get_products_from_location($post_id);
 							$count_temp = count($result);
 
 							if($count_temp > 0)
 							{
-								echo "<a href='".admin_url("edit.php?s&post_type=".$this->post_type_products.$this->option_type."&strFilterLocation=".$id)."'>".$count_temp."</a>";
+								echo "<a href='".admin_url("edit.php?s&post_type=".$this->post_type_products.$this->option_type."&strFilterLocation=".$post_id)."'>".$count_temp."</a>";
 							}
 						break;
 					}
