@@ -7,7 +7,6 @@
 
 		#wrapper
 		{
-			-webkit-filter: blur(1em);
 			filter: blur(1em);
 		}
 
