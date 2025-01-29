@@ -1896,8 +1896,8 @@ class mf_webshop
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
-		mf_enqueue_style('style_webshop', $plugin_include_url."style.php", $plugin_version);
-		mf_enqueue_style('style_bb', $plugin_base_url."/mf_base/include/backbone/style.css", $plugin_version);
+		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
+		mf_enqueue_style('style_bb', $plugin_base_url."/mf_base/include/backbone/style.css");
 
 		wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, array(), $plugin_version);
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
@@ -1907,7 +1907,7 @@ class mf_webshop
 			'symbol_active' => trim($symbol_active, "#"),
 			'mobile_breakpoint' => $setting_mobile_breakpoint,
 			'product_missing' => get_option_or_default('setting_webshop_replace_none_checked', __("You have to choose at least one product to proceed", 'lang_webshop')),
-		), $plugin_version);
+		));
 	}
 
 	function admin_init()
@@ -1918,22 +1918,21 @@ class mf_webshop
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
 
 		switch($pagenow)
 		{
 			case 'options-general.php':
 				if(check_var('page') == 'settings_mf_base')
 				{
-					mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
-					mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage")), $plugin_version);
+					mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
+					mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage")));
 				}
 			break;
 
 			case 'admin.php':
 				if(check_var('page') == 'mf_webshop/stats/index.php')
 				{
-					mf_enqueue_script('jquery-flot', $plugin_base_include_url."jquery.flot.min.0.7.js", $plugin_version);
+					mf_enqueue_script('jquery-flot', $plugin_base_include_url."jquery.flot.min.0.7.js");
 				}
 			break;
 		}
@@ -2002,18 +2001,17 @@ class mf_webshop
 			if($is_template_set == false && $data['init'] == true)
 			{
 				$plugin_include_url = plugin_dir_url(__FILE__);
-				$plugin_version = get_plugin_version(__FILE__);
 
 				$obj_calendar = new mf_calendar();
 
-				mf_enqueue_style('style_webshop_admin', $plugin_include_url."style_admin.css", $plugin_version);
-				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js", $plugin_version);
-				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
+				mf_enqueue_style('style_webshop_admin', $plugin_include_url."style_admin.css");
+				mf_enqueue_script('script_webshop_admin_router', $plugin_include_url."backbone/bb.admin.router.js");
+				mf_enqueue_script('script_webshop_admin_models', $plugin_include_url."backbone/bb.admin.models.js", array('plugin_url' => $plugin_include_url));
 				mf_enqueue_script('script_webshop_admin_views', $plugin_include_url."backbone/bb.admin.views.js", array(
 					'event_max_length' => $this->event_max_length,
 					'calendar_meta_prefix' => $obj_calendar->meta_prefix,
 					'confirm_question' => __("Are you sure?", 'lang_webshop'),
-				), $plugin_version);
+				));
 
 				$setting_webshop_title_fields_amount = get_option_or_default('setting_webshop_title_fields_amount'.$this->option_type, 1);
 				$name_title = get_option_or_default('setting_webshop_replace_product_title'.$this->option_type, __("Title", 'lang_webshop'));
@@ -2393,14 +2391,13 @@ class mf_webshop
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
 
 		mf_enqueue_script('underscore');
 		mf_enqueue_script('backbone');
-		mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js", $plugin_version);
-		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js", $plugin_version);
-		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js", $plugin_version);
-		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('plugin_url' => $plugin_include_url), $plugin_version);
+		mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
+		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js");
+		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js");
+		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('plugin_url' => $plugin_include_url));
 		mf_enqueue_script('script_webshop_views', $plugin_include_url."backbone/bb.views.js", array(
 			'site_url' => get_site_url(),
 			'force_individual_contact' => get_option('setting_webshop_force_individual_contact'),
@@ -2412,8 +2409,8 @@ class mf_webshop
 			'show_all_min' => get_option_or_default('setting_show_all_min', 30),
 			'require_search' => get_option('setting_require_search'),
 			'mobile_breakpoint' => $obj_theme_core->options['mobile_breakpoint'],
-		), $plugin_version);
-		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js", $plugin_version);
+		));
+		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js");
 
 		if(isset($post->ID) && $post->ID > 0)
 		{
@@ -2447,9 +2444,8 @@ class mf_webshop
 					if($post_overlay > 0)
 					{
 						$plugin_include_url = plugin_dir_url(__FILE__);
-						$plugin_version = get_plugin_version(__FILE__);
 
-						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css", $plugin_version);
+						mf_enqueue_style('style_webshop_overlay', $plugin_include_url."style_overlay.css");
 
 						$this->footer_output = "<div id='overlay_product' class='overlay_container modal'>
 							<div>".apply_filters('the_content', mf_get_post_content($post_overlay))."</div>
