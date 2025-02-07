@@ -71,6 +71,113 @@ class mf_webshop
 		$this->user_updated_notification_content_placeholder = "[link_start]".sprintf(__("You have not updated your information since %s which is more than %s months ago. Please do so.", 'lang_webshop'), "[post_modified]", "[month_amount]")."[link_end]";
 	}
 
+	function show_flot_graph($data)
+	{
+		global $flot_count;
+
+		if(!isset($data['type'])){				$data['type'] = 'lines';}
+		if(!isset($data['settings'])){			$data['settings'] = '';}
+		if(!isset($data['height'])){			$data['height'] = '';}
+		if(!isset($data['title'])){				$data['title'] = '';}
+
+		if($data['settings'] == '')
+		{
+			$data['settings'] = ($data['settings'] != '' ? "," : "")."legend: {position: 'nw'},
+			xaxis: {mode: 'time'},
+			yaxis: {
+				tickFormatter: function suffixFormatter(val, axis)
+				{
+					return parseInt(val).toLocaleString();
+				}
+			}";
+		}
+
+		switch($data['type'])
+		{
+			case 'lines':
+				$data['settings'] .= ($data['settings'] != '' ? "," : "")."points: {show: true, radius: 0.5}";
+			break;
+		}
+
+		if(!($flot_count > 0))
+		{
+			$flot_count = 0;
+		}
+
+		$out = "";
+
+		if(is_array($data['data']) && count($data['data']) > 0)
+		{
+			$plugin_include_url = plugin_dir_url(__FILE__);
+
+			//Should be moved to admin_init
+			mf_enqueue_style('style_flot', $plugin_include_url."style_flot.css");
+			mf_enqueue_script('jquery-flot', $plugin_include_url."jquery.flot.min.0.7.js");
+			mf_enqueue_script('script_flot', $plugin_include_url."script_flot.js");
+
+			$style_cont = "width: 95%;";
+
+			if($data['height'] > 0)
+			{
+				$style_cont .= "height: ".$data['height']."px;";
+			}
+
+			$out .= "<div id='flot_".$flot_count."' class='flot_graph'".($style_cont != '' ? " style='".$style_cont."'" : "").($data['title'] != '' ? " title='".$data['title']."'" : "")."><i class='fa fa-spinner fa-spin'></i></div>
+			<script defer>
+				function plot_flot_".$flot_count."()
+				{
+					jQuery.plot(jQuery('#flot_".$flot_count."'),
+					[";
+
+						$i = 0;
+
+						foreach($data['data'] as $type_key => $arr_type)
+						{
+							$out .= ($i > 0 ? "," : "")."{label:'".$arr_type['label']."', data:[";
+
+								$j = 0;
+
+								foreach($arr_type['data'] as $point_key => $arr_point)
+								{
+									$data['data'][$type_key][$point_key]['date'] = (strtotime($arr_point['date']." UTC") * 1000);
+
+									$out .= ($j > 0 ? "," : "")."[".(strtotime($arr_point['date']." UTC") * 1000).",".$arr_point['value']."]";
+
+									$j++;
+								}
+
+							$out .= "]";
+
+							if(isset($arr_type['yaxis']))
+							{
+								$out .= ", yaxis: ".$arr_type['yaxis'];
+							}
+
+							$out .= "}";
+
+							$i++;
+						}
+
+					$out .= "],
+					{series: {".$data['type'].": {show: true}},"
+					."grid: {hoverable: true}"
+					.($data['settings'] != '' ? ",".$data['settings'] : "")."});
+				}
+
+				if(typeof arr_flot_functions === 'undefined')
+				{
+					var arr_flot_functions = [];
+				}
+
+				arr_flot_functions.push('plot_flot_".$flot_count."');
+			</script>";
+
+			$flot_count++;
+		}
+
+		return $out;
+	}
+
 	function get_type_id($post)
 	{
 		if(isset($post->ID) && $post->ID > 0 && isset($post->post_type))
@@ -132,7 +239,7 @@ class mf_webshop
 
 		if($post_id > 0)
 		{
-			$post_title = get_post_title($post_id);
+			$post_title = get_the_title($post_id);
 			$post_author = mf_get_post_content($post_id, 'post_author');
 		}
 
@@ -2472,7 +2579,7 @@ class mf_webshop
 
 		if($this->product_id > 0)
 		{
-			$string = str_replace("[product_title]", get_post_title($this->product_id), $string);
+			$string = str_replace("[product_title]", get_the_title($this->product_id), $string);
 		}
 
 		return $string;
@@ -2486,7 +2593,7 @@ class mf_webshop
 
 		if($this->product_id > 0)
 		{
-			$string = str_replace("[product_title]", get_post_title($this->product_id), $string);
+			$string = str_replace("[product_title]", get_the_title($this->product_id), $string);
 		}
 
 		return $string;
@@ -4915,7 +5022,7 @@ class mf_webshop
 
 							if($post_meta > 0)
 							{
-								echo get_post_title($post_meta);
+								echo get_the_title($post_meta);
 							}
 						break;
 
@@ -5026,7 +5133,7 @@ class mf_webshop
 
 								foreach($post_meta as $category_id)
 								{
-									echo ($i > 0 ? ", " : "").get_post_title($category_id);
+									echo ($i > 0 ? ", " : "").get_the_title($category_id);
 
 									$i++;
 								}
@@ -6614,7 +6721,7 @@ class mf_webshop
 				else if(substr($data['order_by'], 0, 8) == 'location')
 				{
 					list($rest, $location_id) = explode("_", $data['order_by']);
-					$location_name = get_post_title($location_id);
+					$location_name = get_the_title($location_id);
 
 					$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_location ON ".$wpdb->posts.".ID = postmeta_location.post_id AND postmeta_location.meta_key = '".$obj_calendar->meta_prefix."location'";
 					$query_where .= " AND postmeta_location.meta_value = '".esc_sql($location_name)."'";
@@ -6667,7 +6774,7 @@ class mf_webshop
 
 					if($post_category > 0)
 					{
-						$product_categories = get_post_title($post_category);
+						$product_categories = get_the_title($post_category);
 
 						$list_class = "event_category_".$post_category;
 					}
@@ -6864,7 +6971,7 @@ class mf_webshop
 
 			if($post_location > 0)
 			{
-				$post_location = get_post_title($post_location);
+				$post_location = get_the_title($post_location);
 			}
 
 			if(is_user_logged_in())
@@ -7228,7 +7335,7 @@ class mf_webshop
 									$category_id = $category_id[0];
 								}
 
-								$category_title = get_post_title($category_id);
+								$category_title = get_the_title($category_id);
 
 								$content .= ($i > 0 ? ", " : "").$category_title;
 
@@ -7470,7 +7577,7 @@ class mf_webshop
 						case 'custom_categories':
 							if($post_meta > 0)
 							{
-								$post_title = get_post_title($post_meta);
+								$post_title = get_the_title($post_meta);
 								$post_image = get_post_meta_file_src(array('post_id' => $post_meta, 'meta_key' => $this->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
 
 								$post_affect_heading = get_post_meta($post_meta, $this->meta_prefix.'affect_heading', true);
@@ -7659,7 +7766,7 @@ class mf_webshop
 
 					foreach($arr_categories as $key => $value)
 					{
-						$this->template_shortcodes['breadcrumbs']['html'] .= ($i > 0 ? ", " : "").get_post_title($value);
+						$this->template_shortcodes['breadcrumbs']['html'] .= ($i > 0 ? ", " : "").get_the_title($value);
 
 						$i++;
 					}
@@ -7962,7 +8069,7 @@ class mf_webshop
 		if($this->product_social > 0 && is_plugin_active("mf_social_feed/index.php"))
 		{
 			$this->template_shortcodes['social']['html'] = "<div class='product_social'>
-				<h3>".get_post_title($this->product_social)."</h3>"
+				<h3>".get_the_title($this->product_social)."</h3>"
 				.apply_filters('the_content', "[mf_social_feed id=".$this->product_social." amount=4 filter=no border=no text=no likes=no]")
 			."</div>";
 		}
@@ -8497,7 +8604,7 @@ class mf_webshop
 					{
 						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 
-						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_post_title($category_id), 'class' => "category_".$category_id));
+						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
 					}
 
 				$product_image .= "</div>";
@@ -8649,7 +8756,7 @@ class mf_webshop
 
 													foreach($arr_categories as $key => $value)
 													{
-														$out .= "<span>".get_post_title($value)."</span>";
+														$out .= "<span>".get_the_title($value)."</span>";
 													}
 
 												$out .= "</div>";
@@ -10033,7 +10140,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 					foreach($instance['webshop_category'] as $webshop_category)
 					{
-						$category_title .= ($category_title != '' ? ", " : "").get_post_title($webshop_category);
+						$category_title .= ($category_title != '' ? ", " : "").get_the_title($webshop_category);
 					}
 
 					echo $before_title
@@ -10260,7 +10367,7 @@ class widget_webshop_product_meta extends WP_Widget
 							{
 								$category_id = $instance['webshop_category'];
 								$category_icon = get_post_meta($category_id, $this->obj_webshop->meta_prefix.'category_icon', true);
-								$category_title = get_post_title($category_id);
+								$category_title = get_the_title($category_id);
 
 								if(!isset($obj_font_icons))
 								{
@@ -10268,7 +10375,7 @@ class widget_webshop_product_meta extends WP_Widget
 								}
 
 								$arr_exclude = array("[category]", "[product]");
-								$arr_include = array($category_title, get_post_title($this->obj_webshop->product_id));
+								$arr_include = array($category_title, get_the_title($this->obj_webshop->product_id));
 
 								$widget_content = "<p class='webshop_category'>"
 									.$obj_font_icons->get_symbol_tag(array(
@@ -10293,10 +10400,10 @@ class widget_webshop_product_meta extends WP_Widget
 
 								if($parent_id > 0)
 								{
-									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_post_title($parent_id)."</a></span>";
+									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_the_title($parent_id)."</a></span>";
 								}
 
-								$widget_content .= "<span>".get_post_title($this->obj_webshop->product_id)."</span>";
+								$widget_content .= "<span>".get_the_title($this->obj_webshop->product_id)."</span>";
 
 							$widget_content .= "</p>";
 						break;
@@ -10347,7 +10454,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 							if($event_category > 0)
 							{
-								$out_temp .= "<strong>".__("Category", 'lang_webshop').":</strong> <span>".get_post_title($event_category)."</span><br>";
+								$out_temp .= "<strong>".__("Category", 'lang_webshop').":</strong> <span>".get_the_title($event_category)."</span><br>";
 							}
 
 							if($event_date != '')
@@ -10367,10 +10474,10 @@ class widget_webshop_product_meta extends WP_Widget
 
 									if($product_id > 0)
 									{
-										$event_name .= get_post_title($product_id)." - ";
+										$event_name .= get_the_title($product_id)." - ";
 									}
 
-									$event_name .= get_post_title($this->obj_webshop->event_id);
+									$event_name .= get_the_title($this->obj_webshop->event_id);
 									$event_url = get_permalink($this->obj_webshop->event_id);
 
 									$event_xtra = "class='map_coordinates' data-id='".$this->obj_webshop->event_id."' data-name='".$event_name."'";
@@ -10394,7 +10501,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 							if($product_id > 0)
 							{
-								$product_title = get_post_title($product_id);
+								$product_title = get_the_title($product_id);
 								$product_url = get_permalink($product_id);
 
 								$out_temp .= "<strong>".get_option_or_default('setting_webshop_replace_product'.$option_type, __("Product", 'lang_webshop')).":</strong> <a href='".$product_url."'>".$product_title."</a><br>";
@@ -10519,15 +10626,15 @@ class widget_webshop_product_meta extends WP_Widget
 
 								if($parent_id > 0)
 								{
-									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_post_title($parent_id)."</a></span>";
+									$widget_content .= "<span><a href='".get_permalink($parent_id)."'>".get_the_title($parent_id)."</a></span>";
 								}
 
 								if($product_id > 0)
 								{
-									$widget_content .= "<span><a href='".get_permalink($product_id)."'>".get_post_title($product_id)."</a></span>";
+									$widget_content .= "<span><a href='".get_permalink($product_id)."'>".get_the_title($product_id)."</a></span>";
 								}
 
-								$widget_content .= "<span>".get_post_title($this->obj_webshop->event_id)."</span>";
+								$widget_content .= "<span>".get_the_title($this->obj_webshop->event_id)."</span>";
 
 							$widget_content .= "</p>";
 						break;

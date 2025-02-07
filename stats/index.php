@@ -113,7 +113,7 @@ echo "<div class='wrap'>
 							);
 						}
 
-						echo show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300))
+						echo $obj_webshop->show_flot_graph(array('data' => $arr_flot_info, 'type' => 'lines', 'height' => 300))
 					."</div>
 				</div>
 			</div>
