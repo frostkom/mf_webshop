@@ -4,9 +4,9 @@ get_header();
 
 	if(have_posts())
 	{
-		if(!isset($obj_theme_core))
+		if(!isset($obj_base))
 		{
-			$obj_theme_core = new mf_theme_core();
+			$obj_base = new mf_base();
 		}
 
 		if(!isset($obj_webshop))
@@ -20,7 +20,7 @@ get_header();
 			{
 				the_post();
 
-				if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($post->ID) == false)
+				if(is_active_sidebar('widget_after_heading') && $obj_base->is_post_password_protected($post->ID) == false)
 				{
 					ob_start();
 

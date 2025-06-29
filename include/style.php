@@ -1329,45 +1329,38 @@ echo "@media all
 
 								// Custom Categories
 								############################
-								$obj_webshop->get_option_types();
+								$custom_categories = $obj_webshop->get_post_name_for_type('custom_categories');
 
-								foreach($obj_webshop->arr_option_types as $option_type)
+								if($custom_categories != '')
 								{
-									$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
+									$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->post_type_products.$option_type, $obj_webshop->meta_prefix.$custom_categories));
 
-									$custom_categories = $obj_webshop->get_post_name_for_type('custom_categories');
-
-									if($custom_categories != '')
+									if($wpdb->num_rows > 0)
 									{
-										$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->post_type_products.$option_type, $obj_webshop->meta_prefix.$custom_categories));
-
-										if($wpdb->num_rows > 0)
+										echo ".webshop_filter_products .list_item .custom_category
 										{
-											echo ".webshop_filter_products .list_item .custom_category
-											{
-												background-size: contain;
-												float: left;
-												height: 2.5em;
-												margin: .2em .5em 0 0;
-												width: 2.5em;
-											}";
+											background-size: contain;
+											float: left;
+											height: 2.5em;
+											margin: .2em .5em 0 0;
+											width: 2.5em;
+										}";
 
-											foreach($result as $r)
-											{
-												$post_id = $r->ID;
-												$custom_category_id = $r->meta_value;
+										foreach($result as $r)
+										{
+											$post_id = $r->ID;
+											$custom_category_id = $r->meta_value;
 
-												if($custom_category_id > 0)
+											if($custom_category_id > 0)
+											{
+												$custom_category_img = get_post_meta_file_src(array('post_id' => $custom_category_id, 'meta_key' => $obj_webshop->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
+
+												if($custom_category_img != '')
 												{
-													$custom_category_img = get_post_meta_file_src(array('post_id' => $custom_category_id, 'meta_key' => $obj_webshop->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
-
-													if($custom_category_img != '')
+													echo ".webshop_filter_products .list_item .custom_category.custom_category_".$custom_category_id."
 													{
-														echo ".webshop_filter_products .list_item .custom_category.custom_category_".$custom_category_id."
-														{
-															background-image: url('".$custom_category_img."');
-														}";
-													}
+														background-image: url('".$custom_category_img."');
+													}";
 												}
 											}
 										}

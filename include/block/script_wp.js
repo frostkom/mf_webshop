@@ -147,7 +147,7 @@
 					el(
 						InspectorControls,
 						'div',
-						el(
+						/*el(
 							SelectControl,
 							{
 								label: script_webshop_block_wp.webshop_option_type_label,
@@ -158,7 +158,7 @@
 									props.setAttributes({webshop_option_type: value});
 								}
 							}
-						)
+						)*/
 					),
 					el(
 						'strong',
