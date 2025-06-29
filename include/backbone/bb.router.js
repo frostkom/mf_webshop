@@ -2,6 +2,7 @@ var WebshopApp = Backbone.Router.extend(
 {
 	routes:
 	{
+		"webshop/": "handle",
 		"webshop/:actions": "handle"
 	},
 

@@ -254,7 +254,7 @@ echo "@media all
 		text-decoration: line-through;
 	}
 
-	content > div > form, #mf-content > div > form
+	content > div > form, > div > form
 	{
 		display: inherit;
 		width: 100%;
@@ -309,18 +309,18 @@ echo "@media all
 		}
 
 	/* Widgets */
-	.is_webshop_search_page #mf-content > div
+	.is_webshop_search_page > div
 	{
 		padding: 0;
 	}
 
-		.is_webshop_search_page #mf-content article h1
+		.is_webshop_search_page article h1
 		{
 			padding-left: .4em;
 			padding-right: .4em;
 		}
 
-		.is_webshop_search_page #mf-content article section
+		.is_webshop_search_page article section
 		{
 			padding-left: 1em;
 			padding-right: 1em;
@@ -1182,6 +1182,7 @@ echo "@media all
 	.product_list
 	{
 		list-style: none;
+		padding: 0;
 	}
 
 		.product_list > li
@@ -1214,21 +1215,23 @@ echo "@media all
 				overflow: hidden;
 			}
 
-				.product_list h2
+				.product_heading strong
 				{
+					font-size: 2rem;
 					margin-bottom: 0 !important;
 					position: relative;
 				}
 
-					.product_list h2 a, .product_list h2 span
+					.product_heading strong a, .product_heading strong span
 					{
-						border: 0 !important;
+						/*border: 0 !important;
 						display: block;
 						max-width: 75%;
 						overflow: hidden;
-						padding: 0;
-						text-overflow: ellipsis;
-						white-space: nowrap;
+						padding: 0;*/
+						text-decoration: none;
+						/*text-overflow: ellipsis;
+						white-space: nowrap;*/
 					}
 
 					.product_list .form_switch label
@@ -1453,7 +1456,7 @@ echo "@media all
 				overflow: hidden;
 			}
 
-				.product_list > li li > span:first-child, .single-mf_product #mf-content li > span:first-child
+				.product_list > li li > span:first-child, .single-mf_product li > span:first-child
 				{
 					margin-right: 2%;
 					overflow: hidden;
@@ -1537,7 +1540,7 @@ echo "@media all
 					text-decoration: none;
 				}
 
-		.single-mf_product #mf-content .mf_share
+		.single-mf_product .mf_share
 		{
 			margin-bottom: .7em;
 		}
@@ -1553,7 +1556,7 @@ echo "@media all
 			margin-top: 1em;
 		}
 
-			.single-mf_product #mf-content li + li, #product_result_form li + li
+			.single-mf_product li + li, #product_result_form li + li
 			{
 				margin-top: 0;
 			}
@@ -1799,10 +1802,10 @@ echo "@media all
 		text-align: center;
 	}
 
-		.webshop_widget ul li > div
+		/*.webshop_widget ul li > div
 		{
 			margin: 0 .4em;
-		}
+		}*/
 
 	.product_list .product_image_container
 	{

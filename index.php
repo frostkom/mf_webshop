@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.3.14
+Version: 2.2.4.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -71,15 +71,15 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	else
 	{
-		add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
-		add_action('wp_footer', array($obj_webshop, 'wp_footer'));
+		//add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
+		//add_action('wp_footer', array($obj_webshop, 'wp_footer'));
 
-		add_filter('get_theme_core_info_title', array($obj_webshop, 'get_theme_core_info_title'));
+		/*add_filter('get_theme_core_info_title', array($obj_webshop, 'get_theme_core_info_title'));
 		add_filter('get_theme_core_info_text', array($obj_webshop, 'get_theme_core_info_text'));
-		add_filter('get_theme_core_info_button_link', array($obj_webshop, 'get_theme_core_info_button_link'));
+		add_filter('get_theme_core_info_button_link', array($obj_webshop, 'get_theme_core_info_button_link'));*/
 	}
 
-	add_filter('init_base_admin', array($obj_webshop, 'init_base_admin'), 10, 2);
+	//add_filter('init_base_admin', array($obj_webshop, 'init_base_admin'), 10, 2);
 
 	add_filter('filter_is_file_used', array($obj_webshop, 'filter_is_file_used'));
 
@@ -106,6 +106,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	add_filter('get_group_sync_addresses', array($obj_webshop, 'get_group_sync_addresses'), 10, 2);
 
+	add_action('wp_ajax_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
+	add_action('wp_ajax_nopriv_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
+
 	function activate_webshop()
 	{
 		global $wpdb;
@@ -113,7 +116,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$obj_webshop = new mf_webshop();
 
 		require_plugin("meta-box/meta-box.php", "Meta Box");
-		require_plugin("mf_maps/index.php", "MF Maps");
+		//require_plugin("mf_maps/index.php", "MF Maps");
 
 		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 

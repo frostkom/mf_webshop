@@ -40,7 +40,7 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:product_amount", this.show_product_amount, this);
 
 		this.is_favorites_view = jQuery(".product_favorites").length > 0;
-		this.has_product_result = jQuery("#product_result_search").length > 0;
+		this.has_product_result = jQuery(".product_list.webshop_item_list").length > 0;
 
 		this.get_products_storage();
 
@@ -51,12 +51,12 @@ var WebshopView = Backbone.View.extend(
 		this.dom_obj_events = jQuery(".webshop_widget.webshop_events");
 		this.dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
 
-		this.is_events_view = this.dom_obj_events.length > 0;
+		this.is_events_view = (this.dom_obj_events.length > 0);
 
 		/* Filter Products */
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
-		this.is_filter_products_view = this.dom_obj_products.length > 0;
+		this.is_filter_products_view = (this.dom_obj_products.length > 0);
 
 		if(this.is_favorites_view)
 		{
@@ -111,7 +111,7 @@ var WebshopView = Backbone.View.extend(
 		"click .webshop_form .webshop_form_link a": "search_all_products",
 
 		/* Template Search */
-		"click #product_result_search .products": "products_change",
+		"click .product_list.webshop_item_list .products": "products_change",
 		"change .product_search input[type=range]": "filter_distance",
 		"submit .product_search": "submit_form",
 		"click .widget .is_map_toggler": "toggle_aside",
@@ -120,11 +120,11 @@ var WebshopView = Backbone.View.extend(
 		"change #webshop_search input": "search_products_change",
 		"change #webshop_search select": "search_products_change",
 		"blur #webshop_search input[type!='checkbox']": "search_products_change",
-		"mouseenter #product_result_search > li": "section_hover",
-		"mouseleave #product_result_search > li": "section_unhover",
+		"mouseenter .product_list.webshop_item_list > li": "section_hover",
+		"mouseleave .product_list.webshop_item_list > li": "section_unhover",
 		"change .webshop_form form select": "search_product_amount",
 		"click #product_form.form_button_container .form_button button, #product_form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
-		"click #product_result_search > li": "set_last_product",
+		"click .product_list.webshop_item_list > li": "set_last_product",
 
 		/* Favorites */
 		"click .quote_button .button_print": "print_favorites",
@@ -307,13 +307,12 @@ var WebshopView = Backbone.View.extend(
 	{
 		if(jQuery("#webshop_search").length > 0)
 		{
-			if(jQuery("#mf-content .widget.webshop_search, #mf-content .widget.webshop_map").length > 0)
+			if(jQuery(".widget.webshop_search, .widget.webshop_map").length > 0)
 			{
 				jQuery("body").addClass('is_webshop_search_page');
 			}
 
 			this.get_hash();
-
 			this.search_products(false);
 
 			var dom_obj_range = jQuery(".product_search input[type=range]");
@@ -554,7 +553,7 @@ var WebshopView = Backbone.View.extend(
 			var self = this,
 				dom_val = jQuery(e.currentTarget).val();
 
-			jQuery("#product_result_search .map_coordinates").each(function()
+			jQuery(".product_list.webshop_item_list .map_coordinates").each(function()
 			{
 				var dom_obj = jQuery(this),
 					dom_parent = dom_obj.parents("li"),
@@ -605,7 +604,7 @@ var WebshopView = Backbone.View.extend(
 			products_total = 0,
 			products_checked = 0;
 
-		jQuery("#product_result_search .products").each(function()
+		jQuery(".product_list.webshop_item_list .products").each(function()
 		{
 			var dom_obj = jQuery(this),
 				dom_parent = dom_obj.parents("li"),
@@ -665,7 +664,7 @@ var WebshopView = Backbone.View.extend(
 		return false;
 	},
 
-	scroll_to_last_product: function()
+	/*scroll_to_last_product: function()
 	{
 		var last_product = jQuery.Storage.get('last_product');
 
@@ -681,7 +680,7 @@ var WebshopView = Backbone.View.extend(
 				}, 800);
 			}
 		}
-	},
+	},*/
 
 	show_products: function()
 	{
@@ -702,16 +701,16 @@ var WebshopView = Backbone.View.extend(
 					html += _.template(dom_template)(response[i]);
 				}
 
-				jQuery("#product_result_search").html(html);
+				jQuery(".product_list.webshop_item_list").html(html);
 
 				this.get_products();
 
 				this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
 
-				if(!this.is_favorites_view)
+				/*if(!this.is_favorites_view)
 				{
 					this.scroll_to_last_product();
-				}
+				}*/
 			}
 
 			else
@@ -727,7 +726,7 @@ var WebshopView = Backbone.View.extend(
 				{
 					html = _.template(jQuery("#template_product_message").html())('');
 
-					jQuery("#product_result_search").html(html);
+					jQuery(".product_list.webshop_item_list").html(html);
 				}
 			}
 
@@ -1020,7 +1019,6 @@ var WebshopView = Backbone.View.extend(
 
 		else
 		{
-			/*console.log("1007");*/
 			this.load_filter_products(dom_list);
 		}
 	},
@@ -1175,7 +1173,7 @@ var WebshopView = Backbone.View.extend(
 		var widget_id = dom_obj.attr('id'),
 			option_type = (dom_obj.attr('data-option_type') || ''),
 			category = dom_obj.attr('data-category'),
-			order_by = (dom_obj.attr('data-order_by') || ''),
+			order_by = (dom_obj.attr('data-order_by') || 'alphabetical'),
 			link_product = (dom_obj.attr('data-link_product') || ''),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount'),
@@ -1251,7 +1249,6 @@ var WebshopView = Backbone.View.extend(
 
 		this.dom_obj_products.each(function()
 		{
-			/*console.log("1241");*/
 			self.load_filter_products(jQuery(this).find(".widget_list"));
 		});
 	},
@@ -1353,7 +1350,6 @@ var WebshopView = Backbone.View.extend(
 
 			default:
 			case 'filter_products':
-				/*console.log("1343");*/
 				this.load_filter_products(dom_list);
 			break;
 		}
