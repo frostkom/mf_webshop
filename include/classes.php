@@ -1032,7 +1032,7 @@ class mf_webshop
 					'name' => $name_categories,
 					'menu_name' => $name_categories,
 				),
-				'public' => false, // Previously true but changed to hide in sitemap.xml
+				'public' => false,
 				'show_ui' => true,
 				'show_in_menu' => false,
 				'show_in_nav_menus' => false,
@@ -1152,7 +1152,7 @@ class mf_webshop
 			));
 		}
 
-		//flush_rewrite_rules();
+		flush_rewrite_rules();
 		#######################
 
 		// Blocks
