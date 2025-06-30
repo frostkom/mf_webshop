@@ -942,6 +942,7 @@ class mf_webshop
 			'public' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
 			'supports' => $arr_supports,
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1179,7 +1180,7 @@ class mf_webshop
 			$arr_settings['setting_webshop_replace_categories_slug'] = sprintf(__("Replace %s slug with", 'lang_webshop'), strtolower($name_categories));
 		}
 
-		if(is_plugin_active("mf_form/index.php") && $option_type == '')
+		if(is_plugin_active("mf_form/index.php"))
 		{
 			$arr_settings['setting_webshop_payment_form'] = __("Payment Form", 'lang_webshop');
 		}
