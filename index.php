@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.4.4
+Version: 2.2.4.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -118,7 +118,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
-		$arr_update_column = array();
+		$arr_update_column = [];
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_order (
 			orderID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -172,10 +172,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		{
 			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
 
-			foreach(array() as $key => $value)
+			/*foreach([] as $key => $value)
 			{
 				$arr_options[] = $value;
-			}
+			}*/
 
 			$arr_option_types[] = $obj_webshop->post_type_categories;
 			$arr_option_types[] = $obj_webshop->post_type_products;

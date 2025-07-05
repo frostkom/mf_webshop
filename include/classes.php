@@ -7,8 +7,8 @@ class mf_webshop
 	var $range_max = "";
 	var $interval_amount = 0;
 	var $interval_count = 0;
-	var $arr_interval_type_data = array();
-	var $post_name_for_type = array();
+	var $arr_interval_type_data = [];
+	var $post_name_for_type = [];
 	var $post_type_categories = 'mf_category';
 	var $post_type_products = 'mf_product';
 	var $post_type_custom_categories = 'mf_cust_cat';
@@ -16,7 +16,7 @@ class mf_webshop
 	var $post_type_location = 'mf_location';
 	var $post_type_customers = 'mf_customer';
 	var $post_type_delivery_type = 'mf_delivery';
-	var $template_used = array();
+	var $template_used = [];
 	var $default_template = "[breadcrumbs]
 	[heading]
 	[after_heading]
@@ -211,13 +211,13 @@ class mf_webshop
 		}
 	}
 
-	function get_category_colors($data = array())
+	function get_category_colors($data = [])
 	{
 		global $wpdb;
 
 		if(!isset($data['type'])){	$data['type'] = 'category_icon_color';}
 
-		$result = array();
+		$result = [];
 
 		$result_temp = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != ''", $this->post_type_categories, $this->meta_prefix.$data['type']));
 
@@ -321,7 +321,7 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_document_types_for_select($data = array())
+	function get_document_types_for_select($data = [])
 	{
 		global $wpdb;
 
@@ -336,7 +336,7 @@ class mf_webshop
 			$query_where_value = $data['include'];
 		}
 
-		$arr_data = array();
+		$arr_data = [];
 
 		if($data['add_choose_here'] == true)
 		{
@@ -358,9 +358,9 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function get_sort_for_select($include = array())
+	function get_sort_for_select($include = [])
 	{
-		$arr_data = array();
+		$arr_data = [];
 
 		if(!is_array($include) || count($include) == 0 || in_array('alphabetical', $include))
 		{
@@ -453,7 +453,7 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function get_map_visibility_for_select($data = array())
+	function get_map_visibility_for_select($data = [])
 	{
 		if(!isset($data['allow_disable'])){		$data['allow_disable'] = false;}
 
@@ -472,7 +472,7 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function get_map_placement_for_select($data = array())
+	function get_map_placement_for_select($data = [])
 	{
 		return array(
 			'above_filter' => __("Above Filter", 'lang_webshop'),
@@ -480,7 +480,7 @@ class mf_webshop
 		);
 	}
 
-	function get_map_button_placement_for_select($data = array())
+	function get_map_button_placement_for_select($data = [])
 	{
 		return array(
 			'above_map' => __("Above Map", 'lang_webshop'),
@@ -517,7 +517,7 @@ class mf_webshop
 		);
 	}
 
-	function get_categories_result($data = array())
+	function get_categories_result($data = [])
 	{
 		global $wpdb;
 
@@ -535,12 +535,12 @@ class mf_webshop
 		return $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
 	}
 
-	function get_categories_for_select($data = array())
+	function get_categories_for_select($data = [])
 	{
 		if(!isset($data['add_choose_here'])){		$data['add_choose_here'] = true;}
 		if(!isset($data['display_icons'])){			$data['display_icons'] = false;}
 
-		$arr_data = array();
+		$arr_data = [];
 
 		if($data['add_choose_here'])
 		{
@@ -586,7 +586,7 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function has_categories($data = array())
+	function has_categories($data = [])
 	{
 		if(!isset($data['include_on'])){		$data['include_on'] = 'products';}
 
@@ -595,7 +595,7 @@ class mf_webshop
 		return count($arr_categories);
 	}
 
-	function get_image_alt_for_select($data = array())
+	function get_image_alt_for_select($data = [])
 	{
 		return array(
 			'yes' => __("Yes", 'lang_webshop'),
@@ -604,11 +604,11 @@ class mf_webshop
 		);
 	}
 
-	function get_doc_types_for_select($data = array())
+	function get_doc_types_for_select($data = [])
 	{
 		if(!isset($data['add_choose_here'])){		$data['add_choose_here'] = true;}
 
-		$arr_data = array();
+		$arr_data = [];
 
 		if($data['add_choose_here'])
 		{
@@ -720,7 +720,7 @@ class mf_webshop
 	function block_render_list_callback($attributes)
 	{
 		/*$attributes['webshop_action'] = sanitize_text_field($new_instance['webshop_action']);
-		$attributes['webshop_locations'] = is_array($new_instance['webshop_locations']) ? $new_instance['webshop_locations'] : array();*/
+		$attributes['webshop_locations'] = is_array($new_instance['webshop_locations']) ? $new_instance['webshop_locations'] : [];*/
 
 		$this->block_resources();
 
@@ -730,7 +730,7 @@ class mf_webshop
 		{*/
 			$out .= "<div".parse_block_attributes(array('class' => "widget webshop_widget webshop_list", 'attributes' => $attributes)).">";
 
-				/*$arr_data = array();
+				/*$arr_data = [];
 				get_post_children(array('post_type' => $this->post_type_location), $arr_data);*/
 
 				$out .= "<div class='section'>
@@ -806,14 +806,14 @@ class mf_webshop
 
 	function block_render_products_callback($attributes)
 	{
-		if(!isset($attributes['webshop_filters'])){					$attributes['webshop_filters'] = array();}
+		if(!isset($attributes['webshop_filters'])){					$attributes['webshop_filters'] = [];}
 		if(!isset($attributes['webshop_filters_order_by'])){		$attributes['webshop_filters_order_by'] = 'alphabetical';}
 		if(!isset($attributes['webshop_filters_order_by_text'])){	$attributes['webshop_filters_order_by_text'] = '';}
 		if(!isset($attributes['webshop_text'])){					$attributes['webshop_text'] = '';}
 		//if(!isset($attributes['webshop_option_type'])){				$attributes['webshop_option_type'] = '';}
 		if(!isset($attributes['webshop_amount'])){					$attributes['webshop_amount'] = 3;}
 		if(!isset($attributes['webshop_link_product'])){			$attributes['webshop_link_product'] = 'yes';}
-		if(!isset($attributes['webshop_category'])){				$attributes['webshop_category'] = array();}
+		if(!isset($attributes['webshop_category'])){				$attributes['webshop_category'] = [];}
 		if(!isset($attributes['webshop_button_text'])){				$attributes['webshop_button_text'] = '';}
 
 		$this->block_resources();
@@ -1042,10 +1042,10 @@ class mf_webshop
 
 		wp_register_script('script_webshop_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version, true);
 
-		/*$arr_data = array();
-		get_post_children(array(), $arr_data);
+		/*$arr_data = [];
+		get_post_children([], $arr_data);
 
-		$arr_data_locations = array();
+		$arr_data_locations = [];
 		get_post_children(array('post_type' => $this->post_type_location), $arr_data_locations);*/
 
 		wp_localize_script('script_webshop_block_wp', 'script_webshop_block_wp', array(
@@ -1194,7 +1194,7 @@ class mf_webshop
 
 		add_settings_section($options_area.'', "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-		$arr_settings = array();
+		$arr_settings = [];
 
 		$arr_settings['setting_show_all_min'] = __("Min results to show number", 'lang_webshop');
 		$arr_settings['setting_webshop_replace_filter_products'] = __("Replace Text", 'lang_webshop');
@@ -1302,7 +1302,7 @@ class mf_webshop
 
 			add_settings_section($options_area.'', "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-			$arr_settings = array();
+			$arr_settings = [];
 
 			$arr_settings['setting_webshop_symbol_inactive_image'] = __("Symbol inactive image", 'lang_webshop');
 			$arr_settings['setting_webshop_symbol_active_image'] = __("Symbol active image", 'lang_webshop');
@@ -1334,7 +1334,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop);
 	}
 
-		function setting_webshop_icon_callback($args = array())
+		function setting_webshop_icon_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1342,7 +1342,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_symbols_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_replace_webshop_callback($args = array())
+		function setting_webshop_replace_webshop_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1356,14 +1356,14 @@ class mf_webshop
 			."<div id='storage_response'></div>";
 		}
 
-	function settings_webshop_parent_search_callback($args = array())
+	function settings_webshop_parent_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'));
 	}
 
-		function setting_webshop_display_sort_callback($args = array())
+		function setting_webshop_display_sort_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1376,7 +1376,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_sort_for_select(), 'name' => $setting_key."[]", 'value' => $option));
 		}
 
-		function setting_webshop_sort_default_callback($args = array())
+		function setting_webshop_sort_default_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option_or_default($setting_key, 'size');
@@ -1384,7 +1384,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_sort_for_select(get_option('setting_webshop_display_sort')), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_display_filter_callback($args = array())
+		function setting_webshop_display_filter_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option_or_default($setting_key, 'yes');
@@ -1398,14 +1398,14 @@ class mf_webshop
 			echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
 		}
 
-	function settings_webshop_parent_map_callback($args = array())
+	function settings_webshop_parent_map_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Map", 'lang_webshop'));
 	}
 
-		function setting_map_visibility_callback($args = array())
+		function setting_map_visibility_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1413,7 +1413,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_map_visibility_mobile_callback($args = array())
+		function setting_map_visibility_mobile_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1421,7 +1421,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_map_placement_callback($args = array())
+		function setting_webshop_map_placement_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1429,7 +1429,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_map_placement_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_map_button_placement_callback($args = array())
+		function setting_webshop_map_button_placement_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key);
@@ -1437,7 +1437,7 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_map_button_placement_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_color_info_callback($args = array())
+		function setting_webshop_color_info_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key, "#eeeeee");
@@ -1445,7 +1445,7 @@ class mf_webshop
 			echo show_textfield(array('name' => $setting_key, 'value' => $option, 'type' => 'color'));
 		}
 
-		function setting_webshop_text_color_info_callback($args = array())
+		function setting_webshop_text_color_info_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key, "#000000");
@@ -1453,7 +1453,7 @@ class mf_webshop
 			echo show_textfield(array('name' => $setting_key, 'value' => $option, 'type' => 'color'));
 		}
 
-	function settings_webshop_callback($args = array())
+	function settings_webshop_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
@@ -1461,7 +1461,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop);
 	}
 
-	function settings_webshop_map_callback($args = array())
+	function settings_webshop_map_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
@@ -1469,7 +1469,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop." - ".__("Map", 'lang_webshop'));
 	}
 
-	function settings_webshop_favorites_callback($args = array())
+	function settings_webshop_favorites_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
@@ -1477,7 +1477,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop." - ".__("Favorites", 'lang_webshop'));
 	}
 
-	function settings_webshop_product_callback($args = array())
+	function settings_webshop_product_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
@@ -1486,7 +1486,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop." - ".$setting_webshop_replace_product);
 	}
 
-	function settings_webshop_search_callback($args = array())
+	function settings_webshop_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$setting_webshop_replace_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
@@ -1494,7 +1494,7 @@ class mf_webshop
 		echo settings_header($setting_key, $setting_webshop_replace_webshop." - ".__("Search", 'lang_webshop'));
 	}
 
-	function setting_webshop_replace_product_callback($args = array())
+	function setting_webshop_replace_product_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1502,7 +1502,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Product", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_products_callback($args = array())
+	function setting_webshop_replace_products_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1510,7 +1510,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Products", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_enter_title_here_callback($args = array())
+	function setting_webshop_replace_enter_title_here_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1518,7 +1518,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Enter title here", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_products_slug_callback($args = array())
+	function setting_webshop_replace_products_slug_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1526,7 +1526,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "w", 'description' => ($option != '' ? get_site_url()."/<strong>".$option."</strong>/abc" : "")));
 	}
 
-	function setting_webshop_replace_categories_slug_callback($args = array())
+	function setting_webshop_replace_categories_slug_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1534,7 +1534,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "c", 'description' => ($option != '' ? get_site_url()."/".$option."/abc" : "")));
 	}
 
-	function setting_webshop_replace_categories_callback($args = array())
+	function setting_webshop_replace_categories_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1542,7 +1542,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Categories", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_doc_types_callback($args = array())
+	function setting_webshop_replace_doc_types_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1550,7 +1550,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Filters", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_filter_products_callback($args = array())
+	function setting_webshop_replace_filter_products_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1558,7 +1558,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Filter amongst %s products", 'lang_webshop'), 'description' => __("Disable by adding any single character", 'lang_webshop')));
 	}
 
-	function setting_replace_search_result_info_callback($args = array())
+	function setting_replace_search_result_info_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1566,7 +1566,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Your search matches %s products", 'lang_webshop'), 'description' => __("Disable by adding any single character", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_favorites_info_callback($args = array())
+	function setting_webshop_replace_favorites_info_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1574,7 +1574,7 @@ class mf_webshop
 		echo show_textarea(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Here are your %s saved products", 'lang_webshop'), 'description' => __("Disable by adding any single character", 'lang_webshop')));
 	}
 
-	function setting_replace_send_request_for_quote_callback($args = array())
+	function setting_replace_send_request_for_quote_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1582,7 +1582,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_choose_product_callback($args = array())
+	function setting_webshop_replace_choose_product_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1590,7 +1590,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Choose", 'lang_webshop')));
 	}
 
-	function setting_webshop_switch_icon_on_callback($args = array())
+	function setting_webshop_switch_icon_on_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1598,7 +1598,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "fa fa-check green"));
 	}
 
-	function setting_webshop_switch_icon_off_callback($args = array())
+	function setting_webshop_switch_icon_off_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1606,7 +1606,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => "fa fa-times red"));
 	}
 
-	function setting_webshop_allow_multiple_categories_callback($args = array())
+	function setting_webshop_allow_multiple_categories_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 'yes');
@@ -1614,7 +1614,7 @@ class mf_webshop
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_replace_add_to_search_callback($args = array())
+	function setting_replace_add_to_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1622,7 +1622,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Add to Search", 'lang_webshop')));
 	}
 
-	function setting_replace_remove_from_search_callback($args = array())
+	function setting_replace_remove_from_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1630,7 +1630,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Remove from Search", 'lang_webshop')));
 	}
 
-	function setting_replace_return_to_search_callback($args = array())
+	function setting_replace_return_to_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1638,7 +1638,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Return to Search", 'lang_webshop')));
 	}
 
-	function setting_replace_search_for_another_callback($args = array())
+	function setting_replace_search_for_another_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1646,7 +1646,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Search for Another", 'lang_webshop')));
 	}
 
-	function setting_replace_quote_request_callback($args = array())
+	function setting_replace_quote_request_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1656,7 +1656,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote to", 'lang_webshop')." %s ".strtolower($name_products)));
 	}
 
-	function setting_webshop_replace_none_checked_callback($args = array())
+	function setting_webshop_replace_none_checked_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1664,7 +1664,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("You have to choose at least one product to proceed", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_email_favorites_callback($args = array())
+	function setting_webshop_replace_email_favorites_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1672,7 +1672,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Email Your Products", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_too_many_callback($args = array())
+	function setting_webshop_replace_too_many_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1680,7 +1680,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("In order to send a quote you have to be specific what you want by filtering", 'lang_webshop')));
 	}
 
-	function setting_webshop_share_email_subject_callback($args = array())
+	function setting_webshop_share_email_subject_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, __("I would like to share these products that I like", 'lang_webshop'));
@@ -1688,7 +1688,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_webshop_share_email_content_callback($args = array())
+	function setting_webshop_share_email_content_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, sprintf(__("Here are my favorites (%s)", 'lang_webshop'), "[url]"));
@@ -1700,7 +1700,7 @@ class mf_webshop
 		));
 	}
 
-	function setting_gmaps_api_callback($args = array())
+	function setting_gmaps_api_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1710,7 +1710,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'suffix' => $suffix));
 	}
 
-	function setting_webshop_replace_show_map_callback($args = array())
+	function setting_webshop_replace_show_map_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1718,7 +1718,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Show Map", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_hide_map_callback($args = array())
+	function setting_webshop_replace_hide_map_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1726,7 +1726,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Hide Map", 'lang_webshop')));
 	}
 
-	function setting_map_info_callback($args = array())
+	function setting_map_info_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1738,7 +1738,7 @@ class mf_webshop
 		));
 	}
 
-	function setting_range_min_default_callback($args = array())
+	function setting_range_min_default_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 10);
@@ -1746,7 +1746,7 @@ class mf_webshop
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='100'", 'suffix' => "%", 'description' => __("If no lower value is entered in a range, this percentage is used to calculate the lower end of the range", 'lang_webshop')));
 	}
 
-	function setting_range_choices_callback($args = array())
+	function setting_range_choices_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1754,7 +1754,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => '1-50,50-100,1000+'));
 	}
 
-	function setting_search_max_callback($args = array())
+	function setting_search_max_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option_or_default($setting_key, 50);
@@ -1762,7 +1762,7 @@ class mf_webshop
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='10' max='100'"));
 	}
 
-	function setting_show_all_min_callback($args = array())
+	function setting_show_all_min_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option_or_default($setting_key, 30);
@@ -1770,7 +1770,7 @@ class mf_webshop
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='100'", 'suffix' => sprintf(__("%d will hide the link in the form", 'lang_webshop'), 0)));
 	}
 
-	function setting_require_search_callback($args = array())
+	function setting_require_search_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option_or_default($setting_key, 'yes');
@@ -1778,7 +1778,7 @@ class mf_webshop
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_webshop_symbol_active_callback($args = array())
+	function setting_webshop_symbol_active_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, "#b8c389");
@@ -1786,7 +1786,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'type' => 'color'));
 	}
 
-	function setting_webshop_symbol_inactive_callback($args = array())
+	function setting_webshop_symbol_inactive_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, "#c78e91");
@@ -1794,7 +1794,7 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'type' => 'color'));
 	}
 
-	function setting_webshop_symbol_inactive_image_callback($args = array())
+	function setting_webshop_symbol_inactive_image_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1802,7 +1802,7 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_webshop_symbol_active_image_callback($args = array())
+	function setting_webshop_symbol_active_image_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1810,7 +1810,7 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_ghost_inactive_image_callback($args = array())
+	function setting_ghost_inactive_image_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1818,7 +1818,7 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_ghost_active_image_callback($args = array())
+	function setting_ghost_active_image_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
@@ -1826,7 +1826,7 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_quote_form_callback($args = array())
+	function setting_quote_form_callback($args = [])
 	{
 		global $obj_form;
 
@@ -1841,7 +1841,7 @@ class mf_webshop
 		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
-	function setting_quote_form_single_callback($args = array())
+	function setting_quote_form_single_callback($args = [])
 	{
 		global $obj_form;
 
@@ -1856,12 +1856,12 @@ class mf_webshop
 		echo show_select(array('data' => $obj_form->get_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => $obj_form->get_option_form_suffix(array('value' => $option))));
 	}
 
-	function setting_webshop_product_template_callback($args = array())
+	function setting_webshop_product_template_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key);
 
-		$arr_data = array();
+		$arr_data = [];
 		get_post_children(array(
 			'add_choose_here' => true,
 			'where' => "(post_parent = '0' OR post_content LIKE '%[%' AND post_content LIKE '%]%')",
@@ -1873,7 +1873,7 @@ class mf_webshop
 		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => get_option_page_suffix(array('value' => $option, 'content' => $post_content))));
 	}
 
-	function setting_webshop_display_breadcrumbs_callback($args = array())
+	function setting_webshop_display_breadcrumbs_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 'no');
@@ -1881,7 +1881,7 @@ class mf_webshop
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_webshop_force_individual_contact_callback($args = array())
+	function setting_webshop_force_individual_contact_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
 		$option = get_option($setting_key, 'yes');
@@ -1889,7 +1889,7 @@ class mf_webshop
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'description' => __("This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option", 'lang_webshop')));
 	}
 
-	function setting_webshop_payment_form_callback($args = array())
+	function setting_webshop_payment_form_callback($args = [])
 	{
 		global $obj_form;
 
@@ -1938,7 +1938,7 @@ class mf_webshop
 
 		if($setting_gmaps_api != '')
 		{
-			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, array(), $plugin_version);
+			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
 		}
 
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
@@ -1997,7 +1997,7 @@ class mf_webshop
 		return "http://googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/";
 	}
 
-	function init_base_admin($arr_views, $data = array())
+	function init_base_admin($arr_views, $data = [])
 	{
 		global $wpdb;
 
@@ -2309,7 +2309,7 @@ class mf_webshop
 
 		$name_webshop = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'));
 
-		$arr_items = array();
+		$arr_items = [];
 
 		if(IS_ADMINISTRATOR)
 		{
@@ -2635,7 +2635,7 @@ class mf_webshop
 					{
 						foreach($result as $r)
 						{
-							$arr_product = array();
+							$arr_product = [];
 
 							$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $arr_product);
 
@@ -2727,7 +2727,7 @@ class mf_webshop
 		$product_id_first = is_array($products) ? $products[0] : $products;
 		$this->get_option_type_from_post_id($product_id_first);
 
-		$arr_product_ids = array();
+		$arr_product_ids = [];
 
 		foreach($_REQUEST as $key => $value)
 		{
@@ -2776,7 +2776,7 @@ class mf_webshop
 
 					if(!isset($data['obj_form']->arr_email_content['doc_types']))
 					{
-						$data['obj_form']->arr_email_content['doc_types'] = array();
+						$data['obj_form']->arr_email_content['doc_types'] = [];
 					}
 
 					$data['obj_form']->arr_email_content['doc_types'][] = array(
@@ -2904,7 +2904,7 @@ class mf_webshop
 		$product_id = 0;
 		$option_type_out = "";
 
-		$debug = array();
+		$debug = [];
 
 		if(is_plugin_active("mf_calendar/index.php"))
 		{
@@ -3028,7 +3028,7 @@ class mf_webshop
 			break;
 
 			case 'location':
-				$arr_locations = array();
+				$arr_locations = [];
 				get_post_children(array('post_type' => $this->post_type_location, 'post_status' => ''), $arr_locations);
 
 				$fields_array['options'] = $arr_locations;
@@ -3128,7 +3128,7 @@ class mf_webshop
 		}
 	}
 
-	function get_events_meta_boxes($data = array(), $arr_fields = array())
+	function get_events_meta_boxes($data = [], $arr_fields = [])
 	{
 		if(!isset($data['ignore'])){		$data['ignore'] = array('heading', 'label', 'categories_v2', 'divider', 'contact_button', 'read_more_button');} //, 'categories', 'container_start', 'container_end'
 
@@ -3165,7 +3165,7 @@ class mf_webshop
 						'type' => $post_custom_type,
 						'class' => $post_custom_class,
 						'std' => $post_document_default,
-						'attributes' => array(),
+						'attributes' => [],
 					);
 
 					$this->filter_fields_array($post_id, $fields_array, 'events');
@@ -3178,7 +3178,7 @@ class mf_webshop
 		return $arr_fields;
 	}
 
-	function get_event_fields($data = array())
+	function get_event_fields($data = [])
 	{
 		if(!isset($data['post_id'])){		$data['post_id'] = 0;}
 
@@ -3202,7 +3202,7 @@ class mf_webshop
 
 					// Just to make sure that the order is preserved for JSON
 					######################
-					$arr_data_temp = array();
+					$arr_data_temp = [];
 
 					foreach($arr_event_fields[$key]['options'] as $option_key => $option_value)
 					{
@@ -3419,7 +3419,7 @@ class mf_webshop
 		}
 	}
 
-	function get_location_order($data = array())
+	function get_location_order($data = [])
 	{
 		global $wpdb;
 
@@ -3444,10 +3444,10 @@ class mf_webshop
 
 	function sort_location($data)
 	{
-		if(!isset($data['array'])){		$data['array'] = array();}
+		if(!isset($data['array'])){		$data['array'] = [];}
 		if(!isset($data['reverse'])){	$data['reverse'] = false;}
 
-		$this->arr_locations = array();
+		$this->arr_locations = [];
 
 		$this->get_location_order($data);
 
@@ -3477,7 +3477,7 @@ class mf_webshop
 		."</div>";
 	}
 
-	function confirm_payment($data = array())
+	function confirm_payment($data = [])
 	{
 		global $obj_form;
 
@@ -3713,7 +3713,7 @@ class mf_webshop
 
 		// Products
 		####################################
-		$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = array();
+		$fields_info = $fields_settings = $fields_quick = $fields_searchable = $fields_public = $fields_single = $fields_properties = [];
 
 		$arr_yes_no = get_yes_no_for_select();
 
@@ -3754,7 +3754,7 @@ class mf_webshop
 				'options' => $arr_categories,
 				'multiple' => false,
 				'desc' => $meta_description,
-				'attributes' => array(),
+				'attributes' => [],
 			);
 
 			if($setting_webshop_allow_multiple_categories == 'yes')
@@ -3809,7 +3809,7 @@ class mf_webshop
 
 			if($post_custom_type != '' && substr($post_custom_type, 0, 6) != 'group_' && !in_array($post_custom_type, $arr_doc_types_ignore))
 			{
-				$arr_attributes = array();
+				$arr_attributes = [];
 
 				if($post_parent > 0)
 				{
@@ -4441,7 +4441,7 @@ class mf_webshop
 			{
 				$strFilterLocation = check_var('strFilterLocation');
 
-				$arr_data = array();
+				$arr_data = [];
 				get_post_children(array('post_type' => $this->post_type_location, 'post_status' => '', 'add_choose_here' => true), $arr_data);
 
 				if(count($arr_data) > 2)
@@ -5159,7 +5159,7 @@ class mf_webshop
 		}
 	}
 
-	function get_list($data = array())
+	function get_list($data = [])
 	{
 		global $wpdb;
 
@@ -5306,7 +5306,7 @@ class mf_webshop
 		return $value;
 	}
 
-	function save_register($user_id, $password = "", $meta = array())
+	function save_register($user_id, $password = "", $meta = [])
 	{
 		if(IS_ADMINISTRATOR && get_option('setting_webshop_payment_form') > 0)
 		{
@@ -5433,7 +5433,7 @@ class mf_webshop
 					switch($type_temp)
 					{
 						case 'webshop/list':
-							$arr_list = array();
+							$arr_list = [];
 
 							$query_where = "";
 
@@ -5469,7 +5469,7 @@ class mf_webshop
 								'post_id' => $post_id,
 								'post_title' => "",
 								'post_name' => "",
-								'meta_boxes' => array(),
+								'meta_boxes' => [],
 								'timestamp' => date("Y-m-d H:i:s"),
 							);
 
@@ -5477,7 +5477,7 @@ class mf_webshop
 							{
 								$this->get_option_type_from_post_id($post_id);
 
-								$arr_meta_boxes = $this->rwmb_meta_boxes(array());
+								$arr_meta_boxes = $this->rwmb_meta_boxes([]);
 
 								$query_where = "";
 
@@ -5507,7 +5507,7 @@ class mf_webshop
 											foreach($arr_meta_box['fields'] as $field_id => $arr_field)
 											{
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = $arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = "";
-												$arr_children_temp = array();
+												$arr_children_temp = [];
 
 												$id_temp = $arr_meta_box['fields'][$field_id]['id'];
 												$value_temp = "";
@@ -5525,7 +5525,7 @@ class mf_webshop
 															$post_name_temp = str_replace($this->meta_prefix, "", $id_temp);
 															$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name_temp));
 
-															$arr_data = array();
+															$arr_data = [];
 															get_post_children(array(
 																'add_choose_here' => true,
 																'post_type' => $this->post_type_custom_categories,
@@ -5542,7 +5542,7 @@ class mf_webshop
 															{
 																$obj_education = new mf_education();
 
-																$arr_data = array();
+																$arr_data = [];
 																get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
 
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
@@ -5564,7 +5564,7 @@ class mf_webshop
 														break;
 
 														case 'page':
-															$arr_data = array();
+															$arr_data = [];
 															get_post_children(array('add_choose_here' => true), $arr_data);
 
 															$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
@@ -5575,7 +5575,7 @@ class mf_webshop
 															{
 																$obj_social_feed = new mf_social_feed();
 
-																$arr_data = array();
+																$arr_data = [];
 																get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
 
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
@@ -5615,7 +5615,7 @@ class mf_webshop
 													switch($type_temp)
 													{
 														case 'file_advanced':
-															$value_temp = array();
+															$value_temp = [];
 
 															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
 
@@ -5767,7 +5767,7 @@ class mf_webshop
 							{
 								$this->get_option_type_from_post_id($post_id);
 
-								$arr_meta_boxes = $this->rwmb_meta_boxes(array());
+								$arr_meta_boxes = $this->rwmb_meta_boxes([]);
 
 								$query_where = "";
 
@@ -5790,7 +5790,7 @@ class mf_webshop
 										'ID' => $post_id,
 										'post_status' => 'publish',
 										'post_modified' => date("Y-m-d H:i:s"),
-										'meta_input' => array(),
+										'meta_input' => [],
 									);
 
 									if($post_title != $post_title_old)
@@ -6160,7 +6160,7 @@ class mf_webshop
 
 				$date_temp = $date_start;
 
-				$arr_days = array();
+				$arr_days = [];
 
 				while($date_temp <= $date_end)
 				{
@@ -6178,7 +6178,7 @@ class mf_webshop
 						$class .= " is_disabled";
 					}
 
-					$arr_events = array();
+					$arr_events = [];
 
 					$result = $this->get_events(array('product_id' => $product_id, 'exact_date' => $date_temp, 'amount' => 5));
 
@@ -6345,7 +6345,7 @@ class mf_webshop
 					}
 				}
 
-				$json_output['product_response'] = array();
+				$json_output['product_response'] = [];
 
 				if($query_group != '')
 				{
@@ -6442,7 +6442,7 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_quote_button($data = array())
+	function get_quote_button($data = [])
 	{
 		if(!isset($data['include'])){	$data['include'] = array('quote');}
 
@@ -6503,7 +6503,7 @@ class mf_webshop
 		}
 	}
 
-	function get_webshop_map($data = array())
+	function get_webshop_map($data = [])
 	{
 		if(!isset($data['container_class'])){	$data['container_class'] = "";}
 
@@ -6598,7 +6598,7 @@ class mf_webshop
 						$post_custom_required = get_post_meta($post_id, $this->meta_prefix.'document_searchable_required', true);
 						$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
 
-						$arr_attributes = array();
+						$arr_attributes = [];
 
 						if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
 						{
@@ -6633,7 +6633,7 @@ class mf_webshop
 							case 'custom_categories':
 								$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name));
 
-								$arr_data = array();
+								$arr_data = [];
 								get_post_children(array(
 									'add_choose_here' => true,
 									'post_type' => $this->post_type_custom_categories,
@@ -7361,7 +7361,7 @@ class mf_webshop
 			}
 		}
 
-		$out = array();
+		$out = [];
 
 		if(isset($data['option_type']))
 		{
@@ -7383,11 +7383,11 @@ class mf_webshop
 				$out['event_hash'] = md5(var_export($data, true).date("YmdHis"));
 			}
 
-			$out['event_response'] = array();
+			$out['event_response'] = [];
 			$out['event_amount_left'] = $out['event_amount'] = 0;
 			$out['event_start_date'] = $out['event_end_date'] = "";
 
-			$arr_product_ids = $arr_product_translate_ids = array();
+			$arr_product_ids = $arr_product_translate_ids = [];
 			$query_where = "";
 
 			$gps_post_name = $this->get_post_name_for_type('gps');
@@ -7639,10 +7639,10 @@ class mf_webshop
 
 		else
 		{
-			$arr_categories = array();
+			$arr_categories = [];
 		}
 
-		$out = array();
+		$out = [];
 
 		if(isset($data['option_type']))
 		{
@@ -7655,7 +7655,7 @@ class mf_webshop
 			$out['filter_products_hash'] = md5(var_export($data, true).date("YmdHis"));
 		}
 
-		$out['filter_products_response'] = array();
+		$out['filter_products_response'] = [];
 
 		$query_select = $query_join = $query_where = $query_order = $query_limit = "";
 
@@ -7898,7 +7898,7 @@ class mf_webshop
 		}
 	}
 
-	function get_search_page_url($data = array())
+	function get_search_page_url($data = [])
 	{
 		global $wpdb;
 
@@ -7949,7 +7949,7 @@ class mf_webshop
 
 		else
 		{
-			$result = array();
+			$result = [];
 		}
 
 		return $result;
@@ -8506,7 +8506,7 @@ class mf_webshop
 
 		if($ghost_post_name != '' && get_post_meta($this->product_id, $this->meta_prefix.$ghost_post_name, true) == true)
 		{
-			$this->product_meta = $this->arr_product_quick = $this->arr_product_property = array();
+			$this->product_meta = $this->arr_product_quick = $this->arr_product_property = [];
 		}
 
 		if(is_plugin_active("mf_slideshow/index.php"))
@@ -8847,7 +8847,7 @@ class mf_webshop
 
 		$this->obj_font_icons = new mf_font_icons();
 
-		$this->product_meta = array();
+		$this->product_meta = [];
 
 		$this->product_id = $post->ID;
 		$this->product_title = $post->post_title;
@@ -8882,7 +8882,7 @@ class mf_webshop
 		if($data['single'] == true)
 		{
 			$this->product_form_buy = "";
-			$this->arr_product_property = $this->arr_product_quick = $this->slideshow_images = array();
+			$this->arr_product_property = $this->arr_product_quick = $this->slideshow_images = [];
 
 			if(is_array($this->product_image) && count($this->product_image) > 0)
 			{
@@ -9452,7 +9452,7 @@ class mf_webshop
 							$post_excerpt = get_post_meta($post_id, $this->meta_prefix.$size_post_name, true);
 						}
 
-						$arr_product = array();
+						$arr_product = [];
 
 						$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => true), $arr_product);
 
@@ -9558,8 +9558,8 @@ if(class_exists('mf_import'))
 		var $prefix;
 		var $table = "posts";
 		var $post_type;
-		var $actions = array('import');
-		var $columns = array();
+		var $arr_actions = array('import');
+		var $columns = [];
 		var $arr_type = array(
 			'ghost',
 			'description',
@@ -9675,7 +9675,7 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 			$post_name = str_replace($obj_webshop->meta_prefix, "", $field['id']);
 			$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $obj_webshop->post_type_document_type, $post_name));
 
-			$arr_data = array();
+			$arr_data = [];
 			get_post_children(array(
 				'add_choose_here' => true,
 				'post_type' => $obj_webshop->post_type_custom_categories,
@@ -9714,7 +9714,7 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 					$obj_calendar = new mf_calendar();
 				}
 
-				$arr_data = array();
+				$arr_data = [];
 				get_post_children(array('add_choose_here' => true, 'post_type' => $obj_calendar->post_type), $arr_data);
 
 				return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_calendar->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes'])));
@@ -9842,7 +9842,7 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 						$obj_social_feed = new mf_social_feed();
 					}
 
-					$arr_data = array();
+					$arr_data = [];
 					get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
 
 					return show_select(array('data' => $arr_data, 'name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-select-wrapper", 'suffix' => get_option_page_suffix(array('post_type' => $obj_social_feed->post_type, 'value' => $meta)), 'xtra' => self::render_attributes($field['attributes'])));
@@ -10028,7 +10028,7 @@ class widget_webshop_form extends WP_Widget
 	var $arr_default = array(
 		'webshop_heading' => '',
 		'webshop_action' => 0,
-		'webshop_doc_type' => array(),
+		'webshop_doc_type' => [],
 		'webshop_doc_type_default' => '',
 		'webshop_form_button_text' => '',
 	);
@@ -10056,7 +10056,7 @@ class widget_webshop_form extends WP_Widget
 
 		if(!isset($data['value'])){		$data['value'] = '';}
 
-		$arr_data = array();
+		$arr_data = [];
 		$out = "";
 
 		$obj_webshop_interval = new mf_webshop();
@@ -10243,7 +10243,7 @@ class widget_webshop_form extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_action'] = sanitize_text_field($new_instance['webshop_action']);
-		$instance['webshop_doc_type'] = (is_array($new_instance['webshop_doc_type']) ? $new_instance['webshop_doc_type'] : array());
+		$instance['webshop_doc_type'] = (is_array($new_instance['webshop_doc_type']) ? $new_instance['webshop_doc_type'] : []);
 		$instance['webshop_doc_type_default'] = sanitize_text_field($new_instance['webshop_doc_type_default']);
 		$instance['webshop_form_button_text'] = sanitize_text_field($new_instance['webshop_form_button_text']);
 
@@ -10256,10 +10256,10 @@ class widget_webshop_form extends WP_Widget
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
-		$arr_data_action = array();
-		get_post_children(array(), $arr_data_action);
+		$arr_data_action = [];
+		get_post_children([], $arr_data_action);
 
-		$arr_data_doc_type = array();
+		$arr_data_doc_type = [];
 
 		$result = $this->obj_webshop->get_document_types(array('select' => "ID, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->obj_webshop->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->obj_webshop->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 
@@ -10341,7 +10341,7 @@ class widget_webshop_list extends WP_Widget
 					.$after_title;
 				}
 
-				$arr_data = array();
+				$arr_data = [];
 				get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data);
 
 				echo "<div class='section'>
@@ -10370,7 +10370,7 @@ class widget_webshop_list extends WP_Widget
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
 		$instance['webshop_action'] = sanitize_text_field($new_instance['webshop_action']);
-		$instance['webshop_locations'] = is_array($new_instance['webshop_locations']) ? $new_instance['webshop_locations'] : array();
+		$instance['webshop_locations'] = is_array($new_instance['webshop_locations']) ? $new_instance['webshop_locations'] : [];
 
 		return $instance;
 	}
@@ -10379,10 +10379,10 @@ class widget_webshop_list extends WP_Widget
 	{
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
-		$arr_data = array();
-		get_post_children(array(), $arr_data);
+		$arr_data = [];
+		get_post_children([], $arr_data);
 
-		$arr_data_locations = array();
+		$arr_data_locations = [];
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data_locations);
 
 		echo "<div class='mf_form'>"
@@ -10399,7 +10399,7 @@ class widget_webshop_favorites extends WP_Widget
 	var $widget_ops;
 	var $arr_default = array(
 		'webshop_heading' => "",
-		'webshop_products' => array(),
+		'webshop_products' => [],
 		'webshop_display_category' => 'no',
 		'webshop_show_info' => 'no',
 		'webshop_display_border' => 'yes',
@@ -10465,7 +10465,7 @@ class widget_webshop_favorites extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
-		$instance['webshop_products'] = is_array($new_instance['webshop_products']) ? $new_instance['webshop_products'] : array();
+		$instance['webshop_products'] = is_array($new_instance['webshop_products']) ? $new_instance['webshop_products'] : [];
 		$instance['webshop_display_category'] = sanitize_text_field($new_instance['webshop_display_category']);
 		$instance['webshop_show_info'] = sanitize_text_field($new_instance['webshop_show_info']);
 		$instance['webshop_display_border'] = sanitize_text_field($new_instance['webshop_display_border']);
@@ -10477,7 +10477,7 @@ class widget_webshop_favorites extends WP_Widget
 	{
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
-		$arr_data = array();
+		$arr_data = [];
 		get_post_children(array('post_type' => $this->obj_webshop->post_type_products, 'order_by' => 'post_title'), $arr_data);
 
 		echo "<div class='mf_form'>"
@@ -10613,7 +10613,7 @@ class widget_webshop_events extends WP_Widget
 	var $widget_ops;
 	var $arr_default = array(
 		'webshop_heading' => '',
-		'webshop_filters' => array(),
+		'webshop_filters' => [],
 		'webshop_filters_order_by' => '',
 		'webshop_filters_order_by_text' => '',
 		'webshop_text' => '',
@@ -10775,7 +10775,7 @@ class widget_webshop_events extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
-		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array();
+		$instance['webshop_filters'] = is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : [];
 		$instance['webshop_filters_order_by'] = sanitize_text_field($new_instance['webshop_filters_order_by']);
 		$instance['webshop_filters_order_by_text'] = sanitize_text_field($new_instance['webshop_filters_order_by_text']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
@@ -10820,14 +10820,14 @@ class widget_webshop_filter_products extends WP_Widget
 	var $widget_ops;
 	var $arr_default = array(
 		'webshop_heading' => '',
-		'webshop_filters' => array(),
+		'webshop_filters' => [],
 		'webshop_filters_order_by' => '',
 		'webshop_filters_order_by_text' => '',
 		'webshop_text' => '',
 		'webshop_option_type' => '',
 		'webshop_amount' => 3,
 		'webshop_link_product' => 'yes',
-		'webshop_category' => array(),
+		'webshop_category' => [],
 		'webshop_button_text' => '',
 	);
 
@@ -10955,7 +10955,7 @@ class widget_webshop_filter_products extends WP_Widget
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['webshop_heading'] = sanitize_text_field($new_instance['webshop_heading']);
-		$instance['webshop_filters'] = (is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : array());
+		$instance['webshop_filters'] = (is_array($new_instance['webshop_filters']) ? $new_instance['webshop_filters'] : []);
 		$instance['webshop_filters_order_by'] = sanitize_text_field($new_instance['webshop_filters_order_by']);
 		$instance['webshop_filters_order_by_text'] = sanitize_text_field($new_instance['webshop_filters_order_by_text']);
 		$instance['webshop_text'] = sanitize_text_field($new_instance['webshop_text']);
@@ -10975,7 +10975,7 @@ class widget_webshop_filter_products extends WP_Widget
 
 		else
 		{
-			$instance['webshop_category'] = array();
+			$instance['webshop_category'] = [];
 		}
 
 		$instance['webshop_button_text'] = sanitize_text_field($new_instance['webshop_button_text']);
@@ -11433,7 +11433,7 @@ class widget_webshop_product_meta extends WP_Widget
 		$instance['webshop_category'] = sanitize_text_field($new_instance['webshop_category']);
 		$instance['webshop_category_text'] = sanitize_text_field($new_instance['webshop_category_text']);
 		$instance['webshop_option_type'] = sanitize_text_field($new_instance['webshop_option_type']);
-		$instance['webshop_event_doc_types'] = is_array($new_instance['webshop_event_doc_types']) ? $new_instance['webshop_event_doc_types'] : array();
+		$instance['webshop_event_doc_types'] = is_array($new_instance['webshop_event_doc_types']) ? $new_instance['webshop_event_doc_types'] : [];
 
 		return $instance;
 	}
@@ -11458,7 +11458,7 @@ class widget_webshop_product_meta extends WP_Widget
 				case 'event_info':
 					//echo show_select(array('data' => $this->obj_webshop->get_option_types_for_select(), 'name' => $this->get_field_name('webshop_option_type'), 'text' => __("Type", 'lang_webshop'), 'value' => $instance['webshop_option_type']));
 
-					$arr_data = array();
+					$arr_data = [];
 
 					$arr_event_fields = $this->obj_webshop->get_events_meta_boxes(array('option_type' => $instance['webshop_option_type']));
 
