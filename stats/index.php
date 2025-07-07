@@ -65,7 +65,7 @@ echo "<div class='wrap'>
 					<h3 class='hndle'><span>".__("Monthly", 'lang_webshop')."</span></h3>
 					<div class='inside'>";
 
-						$arr_flot_info = $arr_flot_data = array();
+						$arr_flot_info = $arr_flot_data = [];
 
 						for($i = $intAnswerMin_year; $i <= $intAnswerMax_year; $i++)
 						{

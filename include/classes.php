@@ -122,7 +122,7 @@ class mf_webshop
 				$style_cont .= "height: ".$data['height']."px;";
 			}
 
-			$out .= "<div id='flot_".$flot_count."' class='flot_graph'".($style_cont != '' ? " style='".$style_cont."'" : "").($data['title'] != '' ? " title='".$data['title']."'" : "")."><i class='fa fa-spinner fa-spin'></i></div>
+			$out .= "<div id='flot_".$flot_count."' class='flot_graph'".($style_cont != '' ? " style='".$style_cont."'" : "").($data['title'] != '' ? " title='".$data['title']."'" : "").">".apply_filters('get_loading_animation', '')."</div>
 			<script defer>
 				function plot_flot_".$flot_count."()
 				{
@@ -775,7 +775,7 @@ class mf_webshop
 					$out .= $this->get_webshop_map(array('container_class' => 'display_on_mobile'));
 				}
 
-				$out .= "<ul class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+				$out .= "<ul class='product_list webshop_item_list'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
 				.$this->get_quote_button()
 				.$this->get_form_fields_passthru()
 			."</form>"
@@ -1966,7 +1966,10 @@ class mf_webshop
 				if(check_var('page') == 'settings_mf_base')
 				{
 					mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
-					mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array('cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage")));
+					mf_enqueue_script('script_webshop_wp', $plugin_include_url."script_wp.js", array(
+						'loading_animation' => apply_filters('get_loading_animation', ''),
+						'cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage"),
+					));
 				}
 			break;
 
@@ -5078,7 +5081,7 @@ class mf_webshop
 										<div class='favorite_result'>"
 											.$this->get_search_result_info(array('type' => 'favorites'))
 											.$this->get_quote_button(array('include' => array('quote', 'print', 'email')))
-											."<ul class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>
+											."<ul class='product_list webshop_item_list'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>
 										</div>
 										<div class='favorite_fallback hide'>".apply_filters('the_content', $post_content)."</div>"
 									."</section>
@@ -5346,6 +5349,7 @@ class mf_webshop
 
 	function filter_cookie_types($array)
 	{
+		//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
 		if(apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
 		{
 			$array['ip']['webshop_get_events'] = array('label' => __("Widget that uses IP address to find out lat/long for visitor but it isn't stored", 'lang_webshop'), 'used' => false, 'lifetime' => "1 second");
@@ -6836,9 +6840,9 @@ class mf_webshop
 
 	function get_spinner_template($data)
 	{
-		return "<".$data['tag']." class='widget_spinner'>
-			<i class='fa fa-spinner fa-spin ".$data['size']."'></i>
-		</".$data['tag'].">";
+		return "<".$data['tag']." class='widget_spinner'>"
+			.apply_filters('get_loading_animation', '', ['class' => $data['size']])
+		."</".$data['tag'].">";
 	}
 
 	function get_templates($data)
@@ -7907,6 +7911,7 @@ class mf_webshop
 		$out = "";
 
 		$post_id = apply_filters('get_widget_search', 'webshop-search-widget');
+		//$post_id = apply_filters('get_block_search', 0, 'mf/webshop...');
 
 		if($post_id > 0)
 		{
@@ -9924,7 +9929,7 @@ class widget_webshop_search extends WP_Widget
 					echo $this->obj_webshop->get_webshop_map(array('container_class' => 'display_on_mobile'));
 				}
 
-				echo "<ul class='product_list webshop_item_list'><li class='loading'><i class='fa fa-spinner fa-spin fa-3x'></i></li></ul>"
+				echo "<ul class='product_list webshop_item_list'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
 				.$this->obj_webshop->get_quote_button()
 				.$this->obj_webshop->get_form_fields_passthru()
 			."</form>"
@@ -11153,6 +11158,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 						case 'breadcrumbs':
 							$parent_id = apply_filters('get_widget_search', 'webshop-filter-products-widget');
+							//$parent_id = apply_filters('get_block_search', 0, 'mf/webshop...');
 
 							$widget_content = "<p class='webshop_breadcrumbs'>";
 
@@ -11379,6 +11385,7 @@ class widget_webshop_product_meta extends WP_Widget
 
 						case 'breadcrumbs':
 							$parent_id = apply_filters('get_widget_search', 'webshop-filter-products-widget');
+							//$parent_id = apply_filters('get_block_search', 0, 'mf/webshop...');
 
 							$widget_content = "<p class='webshop_breadcrumbs'>";
 

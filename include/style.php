@@ -431,6 +431,7 @@ echo "@media all
 		margin: 0;
 	}";
 
+	//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
 	if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
 	{
 		echo ".widget.webshop_filter_products .product_filters
@@ -556,6 +557,7 @@ echo "@media all
 		$obj_base = new mf_base();
 		$setting_calendar_date_text_color = $obj_base->get_text_color_from_background($setting_calendar_date_bg);
 
+		//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
 		if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0)
 		{
 			echo ".webshop_widget .widget_load_more
@@ -830,6 +832,7 @@ echo "@media all
 			}
 		}
 
+		//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
 		if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-product_meta-widget') > 0)
 		{
 			echo ".aside .webshop_product_meta .webshop_category
