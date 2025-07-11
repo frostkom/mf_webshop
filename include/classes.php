@@ -899,6 +899,33 @@ class mf_webshop
 		return $out;
 	}
 
+	function enqueue_block_editor_assets()
+	{
+		$plugin_include_url = plugin_dir_url(__FILE__);
+		$plugin_version = get_plugin_version(__FILE__);
+
+		wp_register_script('script_webshop_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version, true);
+
+		/*$arr_data = [];
+		get_post_children([], $arr_data);
+
+		$arr_data_locations = [];
+		get_post_children(array('post_type' => $this->post_type_location), $arr_data_locations);*/
+
+		wp_localize_script('script_webshop_block_wp', 'script_webshop_block_wp', array(
+			'block_title' => __("Webshop", 'lang_webshop')." - ".__("Locations", 'lang_webshop'),
+			'block_description' => __("Display Locations", 'lang_webshop'),
+			//'webshop_location_label' => __("Select", 'lang_webshop'),
+			//'webshop_location' => $arr_data_locations,
+			'block_title2' => __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'),
+			'block_description2' => __("Display Search", 'lang_webshop'),
+			//'webshop_option_type_label' => __("Type", 'lang_webshop'),
+			//'webshop_option_type' => $this->get_option_types_for_select(),
+			'block_title3' => __("Webshop", 'lang_webshop')." - ".__("Filtered Products", 'lang_webshop'),
+			'block_description3' => __("Display Filtered Products", 'lang_webshop'),
+		));
+	}
+
 	function init()
 	{
 		load_plugin_textdomain('lang_webshop', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
@@ -1035,32 +1062,6 @@ class mf_webshop
 		flush_rewrite_rules();
 		#######################
 
-		// Blocks
-		#######################
-		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
-
-		wp_register_script('script_webshop_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version, true);
-
-		/*$arr_data = [];
-		get_post_children([], $arr_data);
-
-		$arr_data_locations = [];
-		get_post_children(array('post_type' => $this->post_type_location), $arr_data_locations);*/
-
-		wp_localize_script('script_webshop_block_wp', 'script_webshop_block_wp', array(
-			'block_title' => __("Webshop", 'lang_webshop')." - ".__("Locations", 'lang_webshop'),
-			'block_description' => __("Display Locations", 'lang_webshop'),
-			//'webshop_location_label' => __("Select", 'lang_webshop'),
-			//'webshop_location' => $arr_data_locations,
-			'block_title2' => __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'),
-			'block_description2' => __("Display Search", 'lang_webshop'),
-			//'webshop_option_type_label' => __("Type", 'lang_webshop'),
-			//'webshop_option_type' => $this->get_option_types_for_select(),
-			'block_title3' => __("Webshop", 'lang_webshop')." - ".__("Filtered Products", 'lang_webshop'),
-			'block_description3' => __("Display Filtered Products", 'lang_webshop'),
-		));
-
 		/*register_block_type('mf/webshoplist', array(
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
@@ -1081,7 +1082,6 @@ class mf_webshop
 			'render_callback' => array($this, 'block_render_products_callback'),
 			//'style' => 'style_base_block_wp',
 		));*/
-		#######################
 	}
 
 	function settings_webshop()
