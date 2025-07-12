@@ -64,6 +64,7 @@ class mf_webshop
 	var $user_updated_notification_content_placeholder;
 	var $product_id = 0;
 	var $event_id = 0;
+	var $footer_output;
 
 	function __construct()
 	{
@@ -2435,7 +2436,7 @@ class mf_webshop
 
 	function wp_footer()
 	{
-		if(isset($this->footer_output) && $this->footer_output != '')
+		if($this->footer_output != '')
 		{
 			echo $this->footer_output;
 		}
@@ -5607,10 +5608,11 @@ class mf_webshop
 															if($multiple_temp)
 															{
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
-																//$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes'] = " class='multiselect' multiple size='".get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])))."'";
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "multiselect";
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['multiple'] = "";
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['size'] = get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])));
+
+																do_action('init_multiselect');
 															}
 														break;
 													}
@@ -9772,6 +9774,8 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 			$walker = new RWMB_Walker_Select( $field, $meta );
 
 			$attributes['class'] .= " multiselect";
+
+			do_action('init_multiselect');
 
 			$output = sprintf(
 				"<select %s>",
