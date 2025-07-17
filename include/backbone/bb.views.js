@@ -898,7 +898,6 @@ var WebshopView = Backbone.View.extend(
 	{
 		var dom_obj = jQuery(e.currentTarget);
 
-		/*dom_obj.next(".map_wrapper").toggle();*/
 		jQuery(".map_wrapper").toggle();
 		jQuery(".is_map_toggler").children("span").toggle();
 
