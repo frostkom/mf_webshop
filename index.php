@@ -3,12 +3,14 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.5.3
+Version: 2.2.5.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
 Text Domain: lang_webshop
 Domain Path: /lang
+
+Requires Plugins: meta-box
 */
 
 if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
@@ -110,9 +112,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		global $wpdb;
 
 		$obj_webshop = new mf_webshop();
-
-		require_plugin("meta-box/meta-box.php", "Meta Box");
-		//require_plugin("mf_maps/index.php", "MF Maps");
 
 		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
