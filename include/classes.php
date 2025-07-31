@@ -944,7 +944,6 @@ class mf_webshop
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title', 'editor', 'excerpt', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -986,11 +985,10 @@ class mf_webshop
 				'name' => $name_custom_categories,
 				'menu_name' => $name_custom_categories,
 			),
-			'public' => false, // Previously true but changed to hide in sitemap.xml
+			'public' => false,
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1003,11 +1001,10 @@ class mf_webshop
 				'name' => $name_doc_types,
 				'menu_name' => $name_doc_types,
 			),
-			'public' => false, // Previously true but changed to hide in sitemap.xml
+			'public' => false,
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1020,11 +1017,10 @@ class mf_webshop
 				'name' => $name_location,
 				'menu_name' => $name_location,
 			),
-			'public' => false, // Previously true but changed to hide in sitemap.xml
+			'public' => false,
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1039,7 +1035,6 @@ class mf_webshop
 			),
 			'public' => false,
 			'show_in_menu' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1054,7 +1049,6 @@ class mf_webshop
 			),
 			'public' => false,
 			'show_in_menu' => false,
-			'exclude_from_search' => true,
 			'supports' => array('title'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -1067,21 +1061,18 @@ class mf_webshop
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_list_callback'),
-			//'style' => 'style_base_block_wp',
 		));*/
 
 		register_block_type('mf/webshopsearch', array(
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_search_callback'),
-			//'style' => 'style_base_block_wp',
 		));
 
 		/*register_block_type('mf/webshopproducts', array(
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_products_callback'),
-			//'style' => 'style_base_block_wp',
 		));*/
 	}
 
