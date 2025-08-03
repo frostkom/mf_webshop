@@ -1933,6 +1933,10 @@ class mf_webshop
 			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
 		}
 
+		global $obj_maps;
+
+		$obj_maps->init_maps();
+
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
 			'plugins_url' => $plugin_base_url,
 			//'read_more' => __("Read More", 'lang_webshop'),
@@ -2352,7 +2356,7 @@ class mf_webshop
 		return $arr_views;
 	}
 
-	function wp_head()
+	/*function wp_head()
 	{
 		global $post;
 
@@ -2431,7 +2435,7 @@ class mf_webshop
 		{
 			echo $this->footer_output;
 		}
-	}
+	}*/
 
 	function get_theme_core_info_title($string)
 	{
@@ -6574,7 +6578,7 @@ class mf_webshop
 			{
 				if($setting_webshop_display_filter == 'button')
 				{
-					$out .= get_toggler_container(array('type' => 'start', 'text' => __("Filter", 'lang_webshop'), 'rel' => 'webshop_filter'));
+					$out .= get_toggler_container(array('type' => 'start', 'text' => __("Filter", 'lang_webshop')));
 				}
 
 					$obj_webshop_interval = new mf_webshop();
@@ -6812,7 +6816,7 @@ class mf_webshop
 
 			$obj_form->id = $setting_quote_form;
 
-			$query_prefix = $obj_form->get_post_info()."_";
+			$query_prefix = $obj_form->get_post_info(array('select' => 'post_name'))."_";
 
 			$count_prefix_length = strlen($query_prefix);
 
@@ -8562,10 +8566,9 @@ class mf_webshop
 
 		if(isset($obj_slideshow) && count($this->slideshow_images) > 0)
 		{
-			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
+			/*$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
 				'images' => $this->slideshow_images,
-				//'settings' => array('image_fit' => 'contain'), // Can't be overidden this way since it is set in style.php
-			));
+			));*/
 		}
 
 		if($post_content != '')
@@ -9472,9 +9475,11 @@ class mf_webshop
 
 										$arr_product_image = get_post_meta_file_src(array('post_id' => $post_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => false));
 
-										$out .= "<div class='product_slideshow'>".$obj_slideshow->render_slides(array(
-											'images' => $arr_product_image,
-										))."</div>";
+										$out .= "<div class='product_slideshow'>"
+											/*.$obj_slideshow->render_slides(array(
+												'images' => $arr_product_image,
+											))*/
+										."</div>";
 									}
 
 									else
@@ -9877,7 +9882,6 @@ class widget_webshop_search extends WP_Widget
 	var $widget_ops;
 	var $arr_default = array(
 		'webshop_heading' => '',
-		//'webshop_option_type' => '',
 	);
 
 	function __construct()
@@ -9895,6 +9899,8 @@ class widget_webshop_search extends WP_Widget
 	function widget($args, $instance)
 	{
 		global $obj_form;
+
+		$this->obj_webshop->combined_head();
 
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
@@ -9977,6 +9983,8 @@ class widget_webshop_map extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		$this->obj_webshop->combined_head();
+
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
 		extract($args);
@@ -10184,6 +10192,8 @@ class widget_webshop_form extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		$this->obj_webshop->combined_head();
+
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
 		extract($args);
@@ -10323,6 +10333,8 @@ class widget_webshop_list extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		$this->obj_webshop->combined_head();
+
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
 		extract($args);
@@ -10423,6 +10435,8 @@ class widget_webshop_favorites extends WP_Widget
 	function widget($args, $instance)
 	{
 		global $wpdb;
+
+		$this->obj_webshop->combined_head();
 
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
@@ -10527,6 +10541,8 @@ class widget_webshop_recent extends WP_Widget
 	function widget($args, $instance)
 	{
 		global $wpdb;
+
+		$this->obj_webshop->combined_head();
 
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
@@ -10667,6 +10683,8 @@ class widget_webshop_events extends WP_Widget
 	function widget($args, $instance)
 	{
 		global $post;
+
+		$this->obj_webshop->combined_head();
 
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
@@ -10869,6 +10887,8 @@ class widget_webshop_filter_products extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		$this->obj_webshop->combined_head();
+
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
 		extract($args);
@@ -11068,6 +11088,8 @@ class widget_webshop_product_meta extends WP_Widget
 	{
 		global $post, $obj_font_icons;
 
+		$this->obj_webshop->combined_head();
+
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
 		extract($args);
@@ -11106,14 +11128,14 @@ class widget_webshop_product_meta extends WP_Widget
 								{
 									$obj_slideshow = new mf_slideshow();
 
-									$html = $obj_slideshow->render_slides(array(
+									/*$html = $obj_slideshow->render_slides(array(
 										'images' => $arr_product_image,
 										'settings' => array(
 											'slideshow_style' => 'original',
 											'slideshow_height_ratio' => .5,
 											'slideshow_height_ratio_mobile' => .5,
 										),
-									));
+									));*/
 								}
 							}
 						break;
