@@ -1933,9 +1933,12 @@ class mf_webshop
 			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
 		}
 
-		global $obj_maps;
+		if(is_plugin_active('mf_maps/index.php'))
+		{
+			global $obj_maps;
 
-		$obj_maps->init_maps();
+			$obj_maps->init_maps();
+		}
 
 		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
 			'plugins_url' => $plugin_base_url,
@@ -4425,7 +4428,7 @@ class mf_webshop
 	{
 		$setting_range_min_default = get_option_or_default('setting_range_min_default', 10);
 
-		mf_enqueue_script('script_webshop_meta', plugin_dir_url(__FILE__)."script_meta.js", array('range_min_default' => $setting_range_min_default), get_plugin_version(__FILE__));
+		mf_enqueue_script('script_webshop_meta', plugin_dir_url(__FILE__)."script_meta.js", array('range_min_default' => $setting_range_min_default));
 	}
 
 	function restrict_manage_posts()
