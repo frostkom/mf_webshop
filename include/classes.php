@@ -1923,13 +1923,14 @@ class mf_webshop
 
 		$plugin_base_url = plugins_url();
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
 
 		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
 		mf_enqueue_style('style_bb', $plugin_base_url."/mf_base/include/backbone/style.css");
 
 		if($setting_gmaps_api != '')
 		{
+			$plugin_version = get_plugin_version(__FILE__);
+
 			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
 		}
 
