@@ -734,8 +734,8 @@ class mf_webshop
 				/*$arr_data = [];
 				get_post_children(array('post_type' => $this->post_type_location), $arr_data);*/
 
-				$out .= "<div class='section'>
-					<ul class='text_columns columns_3'>";
+				$out .= "<div>" // class='section'
+					."<ul class='text_columns columns_3'>";
 
 						/*foreach($arr_data as $key => $value)
 						{
@@ -9440,8 +9440,8 @@ class mf_webshop
 
 	function get_widget_list($instance, $result, $rows)
 	{
-		$out = "<div class='section'>
-			<ul class='webshop_item_list".($instance['webshop_show_info'] == 'yes' ? "" : " expand_image_container")." text_columns ".($rows % 3 == 0 || $rows > 4 ? "columns_3" : "columns_2")."'>";
+		$out = "<div>" // class='section'
+			."<ul class='webshop_item_list".($instance['webshop_show_info'] == 'yes' ? "" : " expand_image_container")." text_columns ".($rows % 3 == 0 || $rows > 4 ? "columns_3" : "columns_2")."'>";
 
 				if($rows > 0)
 				{
@@ -10007,7 +10007,7 @@ class widget_webshop_map extends WP_Widget
 				.$after_title;
 			}
 
-			echo "<div class='section'>".$this->obj_webshop->get_webshop_map(array('container_class' => 'hide_on_mobile'))."</div>"
+			echo "<div>".$this->obj_webshop->get_webshop_map(array('container_class' => 'hide_on_mobile'))."</div>" // class='section'
 		.$after_widget;
 	}
 
@@ -10360,8 +10360,8 @@ class widget_webshop_list extends WP_Widget
 				$arr_data = [];
 				get_post_children(array('post_type' => $this->obj_webshop->post_type_location), $arr_data);
 
-				echo "<div class='section'>
-					<ul class='text_columns columns_3'>";
+				echo "<div>" // class='section'
+					."<ul class='text_columns columns_3'>";
 
 						foreach($arr_data as $key => $value)
 						{
@@ -11209,7 +11209,7 @@ class widget_webshop_product_meta extends WP_Widget
 							case 'slideshow':
 							case 'quick':
 							case 'property':
-								$widget_content = "<div class='section'>"
+								$widget_content = "<div>" // class='section'
 									.str_replace("[html]", $html, $formatting)
 								."</div>";
 							break;
