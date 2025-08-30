@@ -39,8 +39,8 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
 
-		this.is_favorites_view = jQuery(".product_favorites").length > 0;
-		this.has_product_result = jQuery(".product_list.webshop_item_list").length > 0;
+		this.is_favorites_view = (jQuery(".product_favorites").length > 0);
+		this.has_product_result = (jQuery(".product_list.webshop_item_list").length > 0);
 
 		this.get_products_storage();
 

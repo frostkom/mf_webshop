@@ -14,7 +14,46 @@ else
 	global $wpdb;
 }
 
-if(class_exists('mf_theme_core'))
+// Same as in Navigation
+##########################
+$setting_breakpoint_tablet = apply_filters('get_styles_content', '', 'max_width');
+
+if($setting_breakpoint_tablet != '')
+{
+	preg_match('/^([0-9]*\.?[0-9]+)([a-zA-Z%]+)$/', $setting_breakpoint_tablet, $matches);
+
+	$setting_breakpoint_tablet = $matches[1];
+	$setting_breakpoint_suffix = $matches[2];
+
+	$setting_breakpoint_mobile = ($setting_breakpoint_tablet * .775);
+}
+
+else
+{
+	$setting_breakpoint_tablet = get_option_or_default('setting_navigation_breakpoint_tablet', 1200);
+	$setting_breakpoint_mobile = get_option_or_default('setting_navigation_breakpoint_mobile', 930);
+
+	$setting_breakpoint_suffix = "px";
+}
+##########################
+
+$setting_social_desktop_columns = 3;
+$setting_social_tablet_columns = 2;
+$setting_social_mobile_columns = 1;
+
+if(!function_exists('calc_width'))
+{
+	function calc_width($columns)
+	{
+		return (100 / $columns) - ($columns > 1 ? 1 : 0);
+	}
+}
+
+$column_width_desktop = calc_width($setting_social_desktop_columns);
+$column_width_tablet = calc_width($setting_social_tablet_columns);
+$column_width_mobile = calc_width($setting_social_mobile_columns);
+
+/*if(class_exists('mf_theme_core'))
 {
 	if(!isset($obj_theme_core))
 	{
@@ -22,13 +61,13 @@ if(class_exists('mf_theme_core'))
 	}
 
 	$obj_theme_core->get_params();
-	$setting_mobile_breakpoint = $obj_theme_core->options['mobile_breakpoint'];
+	$setting_breakpoint_mobile = $obj_theme_core->options['mobile_breakpoint'];
 }
 
 else
 {
-	$setting_mobile_breakpoint = 600;
-}
+	$setting_breakpoint_mobile = 600;
+}*/
 
 if(!isset($obj_webshop))
 {
@@ -279,7 +318,7 @@ echo "@media all
 				display: inline;
 			}
 
-	#wrapper h1 a
+	/*#wrapper h1 a
 	{
 		color: inherit;
 		text-decoration: none;
@@ -306,7 +345,7 @@ echo "@media all
 		section p .fa
 		{
 			margin-right: .5em;
-		}
+		}*/
 
 	/* Widgets */
 	.is_webshop_search_page > div
@@ -331,45 +370,25 @@ echo "@media all
 			padding: 0;
 		}
 
-		body:not(.is_mobile).is_webshop_search_page .aside.left, body:not(.is_mobile).is_webshop_search_page .aside.right
-		{
-			flex: 0 0 40%;
-			margin-left: 0;
-			max-width: 40%;
-		}
-
-			body:not(.is_mobile) .widget.webshop_map > div
-			{
-				padding: 0 !important;
-			}
-
-	#mf-after-header .webshop_form form, #mf-pre-content .webshop_form form
+	.webshop_form ul
 	{
-		font-size: 1.6em;
-		margin: 0 auto;
-		max-width: 80%;
-		width: 500px;
+		list-style: none;
+		padding: 1.5em 0 0;
 	}
 
-		.webshop_form ul
+		.webshop_form li select, .webshop_form li button
 		{
-			list-style: none;
-			padding: 1.5em 0 0;
+			border: 0;
+			font-size: inherit;
+			font-weight: normal;
+			height: 3em;
+			padding: .8em 1em;
 		}
 
-			.webshop_form li select, .webshop_form li button
+			.webshop_form li button
 			{
-				border: 0;
-				font-size: inherit;
-				font-weight: normal;
-				height: 3em;
-				padding: .8em 1em;
+				width: 100%;
 			}
-
-				.webshop_form li button
-				{
-					width: 100%;
-				}
 
 		.webshop_list ul
 		{
@@ -388,37 +407,20 @@ echo "@media all
 				position: relative;
 			}
 
-	.widget .webshop_item_list .product_border
+	.widget.webshop_widget .product_description
 	{
-		border: 1px solid #ccc;
-		border-radius: .2em;
-		bottom: 0;
-		left: 0;
-		position: absolute;
-		right: 0;
-		top: 0;
+		margin: 0;
 	}
 
-	.widget .webshop_item_list .product_description
-	{
-		padding: 1em 0;
-		position: relative;
-		z-index 1;
-	}
-
-		.widget .webshop_item_list .product_border + .product_description
+		.widget.webshop_widget .content .wp-block-button
 		{
-			padding: 1em;
+			text-align: right;
 		}
 
-			.widget .webshop_item_list .product_description h4
+			.widget.webshop_widget .content .wp-block-button__link
 			{
-				margin-bottom: .2em;
-			}
-
-			.widget .webshop_item_list .product_description p
-			{
-				margin-top: .5em;
+				font-size: .9em;
+				padding: .5em 1em;
 			}
 
 	.webshop_widget .widget_spinner
@@ -426,10 +428,10 @@ echo "@media all
 		text-align: center;
 	}
 
-	#wrapper .widget.webshop_widget .widget_text
+	/*#wrapper .widget.webshop_widget .widget_text
 	{
 		margin: 0;
-	}";
+	}*/";
 
 	//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
 	if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
@@ -483,9 +485,9 @@ echo "@media all
 					.webshop_filter_products .list_item h2
 					{
 						cursor: pointer;
-					}
+					}";
 
-			#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
+			/*#wrapper .webshop_filter_products li > div, #wrapper .webshop_events li > div
 			{
 				flex: 1 1 auto;
 				max-width: 60%;
@@ -547,7 +549,7 @@ echo "@media all
 							{
 								opacity: 1;
 								transform: translate(0%, -50%);
-							}";
+							}";*/
 	}
 
 	if(is_plugin_active("mf_calendar/index.php"))
@@ -741,9 +743,9 @@ echo "@media all
 				{
 					background: #e9e9e9;
 					border-left-width: .6em;
-				}
+				}";
 
-					#wrapper .webshop_events li .event_date
+					/*#wrapper .webshop_events li .event_date
 					{
 						flex: 0 0 4em;
 					}
@@ -778,7 +780,7 @@ echo "@media all
 						{
 							clear: both;
 							text-transform: uppercase;
-						}";
+						}";*/
 
 			if(is_plugin_active("mf_calendar/index.php"))
 			{
@@ -796,10 +798,10 @@ echo "@media all
 						border-left-color: ".$post_color.";
 					}
 
-						#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
+						/*#wrapper .webshop_events li.calendar_feed_".$post_id." h2 a
 						{
 							color: ".$post_color.";
-						}
+						}*/
 
 					.webshop_events .calendar_days .day li.calendar_feed_".$post_id."
 					{
@@ -820,10 +822,10 @@ echo "@media all
 					border-left-color: ".$post_color.";
 				}
 
-					#wrapper .webshop_events li.event_category_".$post_id." h2 a
+					/*#wrapper .webshop_events li.event_category_".$post_id." h2 a
 					{
 						color: ".$post_color.";
-					}
+					}*/
 
 				.webshop_events .calendar_days .day li.event_category_".$post_id."
 				{
@@ -1091,21 +1093,16 @@ echo "@media all
 							}";
 				}
 
-				echo ".is_mobile #webshop_search .flex_flow
+				echo "#webshop_search .flex_flow > *
 				{
-					display: flex;
+					margin-right: 1em;
+					margin-bottom: 0;
 				}
 
-					#webshop_search .flex_flow > *
+					#webshop_search .flex_flow > *:last-child
 					{
-						margin-right: 1em;
-						margin-bottom: 0;
+						margin-right: 0;
 					}
-
-						#webshop_search .flex_flow > *:last-child
-						{
-							margin-right: 0;
-						}
 
 				#webshop_search .form_checkbox
 				{
@@ -1184,23 +1181,33 @@ echo "@media all
 	/* Result List */
 	.product_list
 	{
+		display: flex;
+	    flex-wrap: wrap;
+		gap: 1%;
 		list-style: none;
 		padding: 0;
 	}
 
-		.product_list > li
+		.product_list > li:not(.loading)
 		{
-			background: #f8f8f8;
+			/*background: #f8f8f8;
 			clear: both;
 			overflow: hidden;
 			padding: 2em .8em;
+			position: relative;*/
+			background: #fff;
+			box-shadow: 0 .5rem .75rem rgba(0, 0, 0, .15);
+			flex: 0 1 auto;
+			margin: 0 0 .6em;
+			overflow: hidden;
 			position: relative;
+		    width: ".$column_width_desktop."%;
 		}
 
-			.product_list > li:nth-child(2n + 1)
+			/*.product_list > li:nth-child(2n + 1)
 			{
 				background: #f1f1f1;
-			}
+			}*/
 
 			.product_list > li.loading
 			{
@@ -1213,29 +1220,11 @@ echo "@media all
 				background: #efefef;
 			}
 
-			.product_heading
-			{
-				overflow: hidden;
-			}
-
-				.product_heading strong
+				.product_heading a, .product_heading span
 				{
-					font-size: 2rem;
-					margin-bottom: 0 !important;
-					position: relative;
+					font-weight: bold;
+					text-decoration: none;
 				}
-
-					.product_heading strong a, .product_heading strong span
-					{
-						/*border: 0 !important;
-						display: block;
-						max-width: 75%;
-						overflow: hidden;
-						padding: 0;*/
-						text-decoration: none;
-						/*text-overflow: ellipsis;
-						white-space: nowrap;*/
-					}
 
 					.product_list .form_switch label
 					{
@@ -1259,130 +1248,113 @@ echo "@media all
 						margin-right: .3em;
 					}
 
-			.webshop_item_list .product_image_container
+			.webshop_item_list li .image
 			{
-				background: rgba(0, 0, 0, .1);
-				color: #fff;
+				background: rgba(0, 0, 0, .03);
 				overflow: hidden;
-				position: relative;
-				z-index: 1;
 			}
 
-				.webshop_item_list.expand_image_container .product_image_container
+				.webshop_item_list li .image img
 				{
-					height: 100%;
+					display: block;
+					object-fit: cover;
+					transition: all 1s ease;
+					width: 100%;
 				}
+
+					.webshop_item_list li:hover .image img
+					{
+						transform: scale(1.1);
+					}
+
+			.webshop_item_list .content
+			{
+				padding: 1em;
+			}
 
 				.webshop_item_list > li > ul
 				{
 					margin-top: .5em;
 				}
 
-					.product_image_container
+					.webshop_item_list .image .category_icon i:first-of-type
 					{
-						text-align: center;
+						display: block;
+						font-size: 5em;
+						margin: 5% 0;
 					}
 
-						.product_image_container a
+						.webshop_item_list .image .category_icon i + i
 						{
-							color: inherit;
-							padding: 0;
+							display: inline-block;
+							font-size: 1.1em;
+							margin-right: .3em;
 						}
 
-							.is_mobile .product_image_container .category_icon
+						.webshop_item_list .image .category_icon i:last-of-type
+						{
+							margin-right: 0;
+							margin-bottom: 5%;
+						}";
+
+						// Categories
+						############################
+						$result = $obj_webshop->get_category_colors();
+
+						foreach($result as $r)
+						{
+							$post_id = $r->ID;
+							$post_color = $r->meta_value;
+
+							echo ".category_icon .category_".$post_id.", .webshop_filter_products .list_item.category_".$post_id." h2 > i
 							{
-								max-width: 35%;
-							}
+								color: ".$post_color." !important;
+							}";
+						}
+						############################
 
-								.product_image_container .category_icon i:first-of-type
+						// Custom Categories
+						############################
+						$custom_categories = $obj_webshop->get_post_name_for_type('custom_categories');
+
+						if($custom_categories != '')
+						{
+							$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->post_type_products.$option_type, $obj_webshop->meta_prefix.$custom_categories));
+
+							if($wpdb->num_rows > 0)
+							{
+								echo ".webshop_filter_products .list_item .custom_category
 								{
-									display: block;
-									font-size: 5em;
-									margin: 5% 0;
-								}
-
-									.product_image_container .category_icon i + i
-									{
-										display: inline-block;
-										font-size: 1.1em;
-										margin-right: .3em;
-									}
-
-									.product_image_container .category_icon i:last-of-type
-									{
-										margin-right: 0;
-										margin-bottom: 5%;
-									}";
-
-								// Categories
-								############################
-								$result = $obj_webshop->get_category_colors();
+									background-size: contain;
+									float: left;
+									height: 2.5em;
+									margin: .2em .5em 0 0;
+									width: 2.5em;
+								}";
 
 								foreach($result as $r)
 								{
 									$post_id = $r->ID;
-									$post_color = $r->meta_value;
+									$custom_category_id = $r->meta_value;
 
-									echo ".category_icon .category_".$post_id.", .webshop_filter_products .list_item.category_".$post_id." h2 > i
+									if($custom_category_id > 0)
 									{
-										color: ".$post_color." !important;
-									}";
-								}
-								############################
+										$custom_category_img = get_post_meta_file_src(array('post_id' => $custom_category_id, 'meta_key' => $obj_webshop->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
 
-								// Custom Categories
-								############################
-								$custom_categories = $obj_webshop->get_post_name_for_type('custom_categories');
-
-								if($custom_categories != '')
-								{
-									$result = $wpdb->get_results($wpdb->prepare("SELECT ID, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value != '' GROUP BY meta_value", $obj_webshop->post_type_products.$option_type, $obj_webshop->meta_prefix.$custom_categories));
-
-									if($wpdb->num_rows > 0)
-									{
-										echo ".webshop_filter_products .list_item .custom_category
+										if($custom_category_img != '')
 										{
-											background-size: contain;
-											float: left;
-											height: 2.5em;
-											margin: .2em .5em 0 0;
-											width: 2.5em;
-										}";
-
-										foreach($result as $r)
-										{
-											$post_id = $r->ID;
-											$custom_category_id = $r->meta_value;
-
-											if($custom_category_id > 0)
+											echo ".webshop_filter_products .list_item .custom_category.custom_category_".$custom_category_id."
 											{
-												$custom_category_img = get_post_meta_file_src(array('post_id' => $custom_category_id, 'meta_key' => $obj_webshop->meta_prefix.'image', 'image_size' => 'thumbnail', 'single' => true));
-
-												if($custom_category_img != '')
-												{
-													echo ".webshop_filter_products .list_item .custom_category.custom_category_".$custom_category_id."
-													{
-														background-image: url('".$custom_category_img."');
-													}";
-												}
-											}
+												background-image: url('".$custom_category_img."');
+											}";
 										}
 									}
 								}
-								############################
-
-							echo ".product_image_container img
-							{
-								margin-bottom: -6px;
-								width: 100%;
 							}
-
-						.product_image_container > p
-						{
-							display: none;
 						}
+						############################
 
-					.product_data
+					echo ".product_data
 					{
 						bottom: 0;
 						left: 0;
@@ -1563,16 +1535,6 @@ echo "@media all
 				width: 100%;
 			}
 
-			.single-mf_product .product_description
-			{
-				margin-bottom: .5em;
-			}
-
-				.single-mf_product .product_slideshow + .product_description
-				{
-					margin-top: 2em;
-				}
-
 			.product_meta .contact_button, .product_meta .read_more_button
 			{
 				margin-top: .5em;
@@ -1728,7 +1690,7 @@ echo "@media all
 						}
 }
 
-@media (max-width: ".($setting_mobile_breakpoint - 1)."px)
+@media (max-width: ".($setting_breakpoint_mobile - 1)."px)
 {
 	#product_form
 	{
@@ -1779,7 +1741,7 @@ echo "@media all
 	}
 }
 
-@media (min-width: ".$setting_mobile_breakpoint."px)
+@media (min-width: ".$setting_breakpoint_mobile."px)
 {"
 	.$map_visibility_desktop
 
@@ -1797,29 +1759,6 @@ echo "@media all
 	{
 		text-align: center;
 	}
-
-		/*.webshop_widget ul li > div
-		{
-			margin: 0 .4em;
-		}*/
-
-	.product_list .product_image_container
-	{
-		float: left;
-		width: 35%;
-	}
-
-	.product_list .product_column
-	{
-		clear: right;
-		float: right;
-		width: 62.5%;
-	}
-
-		.product_list .product_location, .product_list .product_meta, .product_list .product_description
-		{
-			margin-bottom: 0;
-		}
 
 	.product_list .form_switch
 	{
