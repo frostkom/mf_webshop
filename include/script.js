@@ -62,8 +62,6 @@ function add_map_location(data)
 
 function fitIcons()
 {
-	/*console.log("65");*/
-
 	if(map_bounds_obj.length > 0 && map_bounds_obj.val() != '')
 	{
 		var coordinates_temp = map_bounds_obj.val().split("), (");
@@ -163,17 +161,6 @@ function reorder_products(map_object)
 			'data-map-latitude': map_lat,
 			'data-map-longitude': map_lng
 		});
-
-		/*if(typeof myWebshopView !== 'undefined' && dom_list.attr('data-order_by') == 'map_center')
-		{
-			clearTimeout(filter_products_timeout);
-			filter_products_timeout = setTimeout(function()
-			{
-				console.log("172");
-				dom_list.empty();
-				myWebshopView.load_filter_products(dom_list);
-			}, 1000);
-		}*/
 	}
 }
 
@@ -251,7 +238,6 @@ function init_maps()
 
 		else
 		{
-			/*google.maps.event.addListener(map_object, 'zoom_changed', hide_products);*/
 			google.maps.event.addListener(map_object, 'dragend', do_dragend);
 			google.maps.event.addListener(map_object, 'bounds_changed', function()
 			{
@@ -341,17 +327,6 @@ jQuery(function($)
 
 			return false;
 		}
-	});
-
-	$(document).on('click', "#product_delete", function()
-	{
-		$("#product_amount").val('0');
-	});
-
-	$(document).on('click', "#order_proceed button", function()
-	{
-		$("#order_confirm").show();
-		$("#order_proceed").hide();
 	});
 
 	$(document).on('change', ".mf_form > #product_result_form .form_switch input", function()

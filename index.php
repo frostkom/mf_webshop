@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.0
+Version: 2.2.6.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -20,7 +20,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	$obj_webshop = new mf_webshop();
 
-	add_action('cron_base', 'activate_webshop', mt_rand(1, 10));
+	//add_action('cron_base', 'activate_webshop', mt_rand(1, 10));
 	add_action('cron_base', array($obj_webshop, 'cron_base'), mt_rand(1, 10));
 
 	add_action('enqueue_block_editor_assets', array($obj_webshop, 'enqueue_block_editor_assets'));
@@ -105,7 +105,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_update_column = [];
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_order (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_order (
 			orderID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			orderInvoice DATETIME NOT NULL,
 			orderDelivery DATETIME NOT NULL,
@@ -131,16 +131,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			KEY userID (userID)
 		) DEFAULT CHARSET=".$default_charset);
 
-		$arr_update_column[$wpdb->prefix."webshop_product2user"] = array(
-			'webshopAmount' => "ALTER TABLE [table] CHANGE [column] productAmount INT UNSIGNED",
-		);
-
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_sent (
 			productID INT UNSIGNED DEFAULT NULL,
 			answerID INT UNSIGNED DEFAULT NULL,
 			KEY productID (productID),
 			KEY answerID (answerID)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		update_columns($arr_update_column);
 	}
@@ -177,7 +173,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'options' => $arr_options,
 			'meta' => array('meta_orders_viewed', 'meta_webshop_session', 'meta_webshop_reminder_sent'),
 			'post_types' => $arr_option_types,
-			'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 		));
 	}
 }

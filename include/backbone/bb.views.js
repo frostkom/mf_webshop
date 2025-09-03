@@ -393,7 +393,7 @@ var WebshopView = Backbone.View.extend(
 					{
 						for(var j = 1; (i - j) >= 0; j++)
 						{
-							if(response[(i - j)]['product_url'] != '')
+							if(response[(i - j)]['product_url'] != '#')
 							{
 								html += "<a href='" + response[(i - j)]['product_url'] + "' class='product_previous'><i class='fa fa-chevron-left'></i><span>" + response[(i - j)]['product_title'] + "</span></a>";
 
@@ -403,7 +403,7 @@ var WebshopView = Backbone.View.extend(
 
 						for(var j = 1; (i + j) < products_amount; j++)
 						{
-							if(response[(i + j)]['product_url'] != '')
+							if(response[(i + j)]['product_url'] != '#')
 							{
 								html += "<a href='" + response[(i + j)]['product_url'] + "' class='product_next'><span>" + response[(i + j)]['product_title'] + "</span><i class='fa fa-chevron-right'></i></a>";
 
