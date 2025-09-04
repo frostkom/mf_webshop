@@ -38,6 +38,7 @@ var WebshopView = Backbone.View.extend(
 		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
+		this.model.on("change:response_add_to_cart", this.show_add_to_cart, this);
 
 		this.is_favorites_view = (jQuery(".product_favorites").length > 0);
 		this.has_product_result = (jQuery(".product_list.webshop_item_list").length > 0);
@@ -125,6 +126,7 @@ var WebshopView = Backbone.View.extend(
 		"change .webshop_form form select": "search_product_amount",
 		"click #product_form.form_button_container .form_button button, #product_form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
 		"click .product_list.webshop_item_list > li": "set_last_product",
+		"click .product_list.webshop_item_list > li .add_to_cart": "add_to_cart",
 
 		/* Favorites */
 		"click .quote_button .button_print": "print_favorites",
@@ -657,30 +659,28 @@ var WebshopView = Backbone.View.extend(
 		jQuery.Storage.set({'last_product': last_product});
 	},
 
+	add_to_cart: function(e)
+	{
+		var product_id = jQuery(e.currentTarget).parents("li").attr('id').replace('product_', '');
+
+		this.model.getPage("type=add_to_cart&product_id=" + product_id);
+
+		return false;
+	},
+
+	show_add_to_cart: function()
+	{
+		var response = this.model.get('response_add_to_cart');
+
+		jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").text(response.text);
+	},
+
 	print_favorites: function()
 	{
 		window.print();
 
 		return false;
 	},
-
-	/*scroll_to_last_product: function()
-	{
-		var last_product = jQuery.Storage.get('last_product');
-
-		if(typeof last_product !== 'undefined' && last_product > 0)
-		{
-			var dom_obj = jQuery("#product_" + last_product);
-
-			if(dom_obj.length > 0)
-			{
-				jQuery("html, body").animate(
-				{
-					scrollTop: dom_obj.offset().top
-				}, 800);
-			}
-		}
-	},*/
 
 	show_products: function()
 	{
@@ -706,11 +706,6 @@ var WebshopView = Backbone.View.extend(
 				this.get_products();
 
 				this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
-
-				/*if(!this.is_favorites_view)
-				{
-					this.scroll_to_last_product();
-				}*/
 			}
 
 			else

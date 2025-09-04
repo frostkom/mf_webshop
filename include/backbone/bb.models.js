@@ -10,17 +10,6 @@ var WebshopModel = Backbone.Model.extend(
 		var self = this,
 			url = (dom_href ? '?' + dom_href.replace('#', '') : "");
 
-		/*jQuery().callAPI(
-		{
-			base_url: script_webshop_models.plugin_url + 'api/',
-			url: url,
-			send_type: 'get',
-			onSuccess: function(data)
-			{
-				self.set(data);
-			}
-		});*/
-
 		jQuery.ajax(
 		{
 			url: script_webshop_models.ajax_url,

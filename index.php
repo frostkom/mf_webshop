@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.1
+Version: 2.2.6.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -20,7 +20,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	$obj_webshop = new mf_webshop();
 
-	//add_action('cron_base', 'activate_webshop', mt_rand(1, 10));
 	add_action('cron_base', array($obj_webshop, 'cron_base'), mt_rand(1, 10));
 
 	add_action('enqueue_block_editor_assets', array($obj_webshop, 'enqueue_block_editor_assets'));
@@ -28,7 +27,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	if(is_admin())
 	{
-		register_activation_hook(__FILE__, 'activate_webshop');
 		register_uninstall_hook(__FILE__, 'uninstall_webshop');
 
 		add_action('admin_init', array($obj_webshop, 'settings_webshop'));
@@ -41,8 +39,11 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
 		add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
 
-		add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5, 2);
+		add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5);
 		add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
+
+		//add_filter('manage_'.$obj_webshop->post_type_orders.'_posts_columns', array($obj_webshop, 'column_header'), 5);
+		add_action('manage_'.$obj_webshop->post_type_orders.'_posts_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
 
 		add_filter('display_post_states', array($obj_webshop, 'display_post_states'), 10, 2);
 
@@ -94,52 +95,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	add_action('wp_ajax_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
 	add_action('wp_ajax_nopriv_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
-
-	function activate_webshop()
-	{
-		global $wpdb;
-
-		$obj_webshop = new mf_webshop();
-
-		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
-
-		$arr_update_column = [];
-
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_order (
-			orderID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			orderInvoice DATETIME NOT NULL,
-			orderDelivery DATETIME NOT NULL,
-			customerID INT UNSIGNED NOT NULL,
-			orderName VARCHAR(60) NOT NULL,
-			orderEmail VARCHAR(100) NOT NULL,
-			orderText TEXT NOT NULL,
-			deliveryTypeID INT UNSIGNED NOT NULL,
-			userID INT UNSIGNED DEFAULT NULL,
-			orderCreated DATETIME NOT NULL,
-			PRIMARY KEY (orderID)
-		) DEFAULT CHARSET=".$default_charset);
-
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_product2user (
-			productID INT UNSIGNED DEFAULT NULL,
-			userID INT UNSIGNED DEFAULT NULL,
-			orderID INT UNSIGNED NOT NULL,
-			webshopCookie VARCHAR(50) DEFAULT NULL,
-			productAmount INT UNSIGNED,
-			webshopDone ENUM('0','1') DEFAULT '0',
-			webshopCreated DATETIME DEFAULT NULL,
-			KEY productID (productID),
-			KEY userID (userID)
-		) DEFAULT CHARSET=".$default_charset);
-
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."webshop_sent (
-			productID INT UNSIGNED DEFAULT NULL,
-			answerID INT UNSIGNED DEFAULT NULL,
-			KEY productID (productID),
-			KEY answerID (answerID)
-		) DEFAULT CHARSET=".$default_charset);*/
-
-		update_columns($arr_update_column);
-	}
 
 	function uninstall_webshop()
 	{
