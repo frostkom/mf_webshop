@@ -701,12 +701,14 @@ class mf_webshop
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
+		$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
+
 		mf_enqueue_script('underscore');
 		mf_enqueue_script('backbone');
 		mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
 		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js");
 		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js");
-		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugin_url' => $plugin_include_url));
+		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('ajax_url' => admin_url('admin-ajax.php')));
 		mf_enqueue_script('script_webshop_views', $plugin_include_url."backbone/bb.views.js", array(
 			'site_url' => get_site_url(),
 			'force_individual_contact' => get_option('setting_webshop_force_individual_contact'),
@@ -717,7 +719,7 @@ class mf_webshop
 			'search_max' => get_option_or_default('setting_search_max', 50),
 			'show_all_min' => get_option_or_default('setting_show_all_min', 30),
 			'require_search' => get_option('setting_require_search'),
-			'mobile_breakpoint' => 900,
+			'mobile_breakpoint' => $arr_breakpoints['mobile'],
 		));
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js");
 	}
@@ -738,8 +740,9 @@ class mf_webshop
 				/*$arr_data = [];
 				get_post_children(array('post_type' => $this->post_type_location), $arr_data);*/
 
-				$out .= "<div>" // class='section'
-					."<ul class='text_columns columns_3'>";
+				//$out .= "<div>"; // class='section'
+
+					$out .= "<ul class='grid_columns'>"; //text_columns columns_3
 
 						/*foreach($arr_data as $key => $value)
 						{
@@ -751,8 +754,9 @@ class mf_webshop
 							}
 						}*/
 
-					$out .= "</ul>
-				</div>";
+					$out .= "</ul>";
+
+				//$out .= "</div>";
 
 			$out .= "</div>";
 		//}
@@ -765,7 +769,7 @@ class mf_webshop
 		$this->block_resources();
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
-			<form action='' method='post' id='product_form' class='mf_form product_search webshop_option_type"."'>";
+			<form action='' method='post' id='product_form' class='mf_form product_search webshop_option_type'>";
 
 				//$out .= $this->get_search_result_info(array('type' => 'filter'));
 				$out .= $this->get_webshop_search();
@@ -781,6 +785,34 @@ class mf_webshop
 				//.$this->get_form_fields_passthru()
 			."</form>"
 			.$this->get_templates(array('type' => 'products'))
+		."</div>";
+
+		return $out;
+	}
+
+	function block_render_cart_callback($attributes)
+	{
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
+		mf_enqueue_script('underscore');
+		//mf_enqueue_script('backbone');
+		mf_enqueue_script('script_webshop_cart', $plugin_include_url."script_cart.js", array('ajax_url' => admin_url('admin-ajax.php')));
+
+		$arr_header[] = __("Product", 'lang_webshop');
+		$arr_header[] = __("Price", 'lang_webshop');
+		$arr_header[] = __("Amount", 'lang_webshop');
+		$arr_header[] = __("Total", 'lang_webshop');
+
+		$out = "<div".parse_block_attributes(array('class' => "widget webshop_cart mf_form", 'attributes' => $attributes)).">
+			<table class='widefat striped'>"
+				.show_table_header($arr_header)
+				."<tbody>
+					<tr>
+						<td colspan='".count($arr_header)."' class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</td>
+					</tr>
+				</tbody>
+			</table>"
+			.$this->get_templates(array('type' => 'webshop_cart'))
 		."</div>";
 
 		return $out;
@@ -914,16 +946,18 @@ class mf_webshop
 		get_post_children(array('post_type' => $this->post_type_location), $arr_data_locations);*/
 
 		wp_localize_script('script_webshop_block_wp', 'script_webshop_block_wp', array(
-			'block_title' => __("Webshop", 'lang_webshop')." - ".__("Locations", 'lang_webshop'),
-			'block_description' => __("Display Locations", 'lang_webshop'),
+			//'block_title' => __("Webshop", 'lang_webshop')." - ".__("Locations", 'lang_webshop'),
+			//'block_description' => __("Display Locations", 'lang_webshop'),
 			//'webshop_location_label' => __("Select", 'lang_webshop'),
 			//'webshop_location' => $arr_data_locations,
 			'block_title2' => __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'),
 			'block_description2' => __("Display Search", 'lang_webshop'),
 			//'webshop_option_type_label' => __("Type", 'lang_webshop'),
 			//'webshop_option_type' => $this->get_option_types_for_select(),
-			'block_title3' => __("Webshop", 'lang_webshop')." - ".__("Filtered Products", 'lang_webshop'),
-			'block_description3' => __("Display Filtered Products", 'lang_webshop'),
+			//'block_title3' => __("Webshop", 'lang_webshop')." - ".__("Filtered Products", 'lang_webshop'),
+			//'block_description3' => __("Display Filtered Products", 'lang_webshop'),
+			'block_title4' => __("Webshop", 'lang_webshop')." - ".__("Cart", 'lang_webshop'),
+			'block_description4' => __("Display Cart", 'lang_webshop'),
 		));
 	}
 
@@ -1081,6 +1115,12 @@ class mf_webshop
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_search_callback'),
+		));
+
+		register_block_type('mf/webshopcart', array(
+			'editor_script' => 'script_webshop_block_wp',
+			'editor_style' => 'style_base_block_wp',
+			'render_callback' => array($this, 'block_render_cart_callback'),
 		));
 
 		/*register_block_type('mf/webshopproducts', array(
@@ -1912,25 +1952,6 @@ class mf_webshop
 
 	function combined_head()
 	{
-		/*if(class_exists('mf_theme_core'))
-		{
-			global $obj_theme_core;
-
-			if(!isset($obj_theme_core))
-			{
-				$obj_theme_core = new mf_theme_core();
-			}
-
-			$obj_theme_core->get_params();
-
-			$setting_mobile_breakpoint = (isset($obj_theme_core->options['mobile_breakpoint']) ? $obj_theme_core->options['mobile_breakpoint'] : 600);
-		}
-
-		else
-		{
-			$setting_mobile_breakpoint = 600;
-		}*/
-
 		$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
 
 		$setting_gmaps_api = get_option('setting_gmaps_api');
@@ -2070,12 +2091,12 @@ class mf_webshop
 		register_widget('widget_webshop_product_meta');
 	}
 
-	function uninit()
+	/*function uninit()
 	{
 		@session_destroy();
-	}
+	}*/
 
-	function default_content($post_content)
+	/*function default_content($post_content)
 	{
 		if($post_content == "[product_default]")
 		{
@@ -2083,7 +2104,7 @@ class mf_webshop
 		}
 
 		return $post_content;
-	}
+	}*/
 
 	function is_a_webshop_meta_value($data)
 	{
@@ -3127,6 +3148,28 @@ class mf_webshop
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_webshop"));
 		}
 	}
+
+	/*function display_post_states($post_states, $post)
+	{
+		global $wpdb;
+
+		$arr_page_types = array(
+			'mf/webshopsearch' => __("Shop", 'lang_login'),
+			'mf/webshopcart' => __("Cart", 'lang_login'),
+		);
+
+		foreach($arr_page_types as $handle => $label)
+		{
+			if(has_block($handle, $post))
+			{
+				list($prefix, $type) = explode("/", $handle);
+
+				$post_states[$this->meta_prefix.$type] = $label;
+			}
+		}
+
+		return $post_states;
+	}*/
 
 	function filter_sites_table_pages($arr_pages)
 	{
@@ -4438,7 +4481,7 @@ class mf_webshop
 
 	function display_post_states($post_states, $post)
 	{
-		$page_template = $this->get_page_template($post->ID);
+		/*$page_template = $this->get_page_template($post->ID);
 
 		if($page_template != '')
 		{
@@ -4464,9 +4507,28 @@ class mf_webshop
 					$post_states['template_webshop_favorites'] = get_option_or_default('setting_webshop_replace_webshop', __("Webshop", 'lang_webshop'))." (".__("Favorites", 'lang_webshop').")";
 				break;
 
-				/*default:
-					$post_states['default'] = $page_template;
-				break;*/
+				default:
+					//$post_states['default'] = $page_template;
+				break;
+			}
+		}
+
+		return $post_states;*/
+
+		global $wpdb;
+
+		$arr_page_types = array(
+			'mf/webshopsearch' => __("Shop", 'lang_login'),
+			'mf/webshopcart' => __("Cart", 'lang_login'),
+		);
+
+		foreach($arr_page_types as $handle => $label)
+		{
+			if(has_block($handle, $post))
+			{
+				list($prefix, $type) = explode("/", $handle);
+
+				$post_states[$this->meta_prefix.$type] = $label;
 			}
 		}
 
@@ -5827,8 +5889,6 @@ class mf_webshop
 								$arr_products = [];
 							}
 
-							//do_log(__FUNCTION__." - Get: ".var_export($arr_products, true));
-
 							$was_in_array = false;
 
 							foreach($arr_products as $key => $arr_value)
@@ -5846,8 +5906,6 @@ class mf_webshop
 							{
 								$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
 							}
-
-							//do_log(__FUNCTION__." - Updated: ".var_export($arr_products, true));
 
 							$post_data['ID'] = $r->ID;
 							$post_data['meta_input'] = array($this->meta_prefix.'products' => $arr_products);
@@ -5904,6 +5962,42 @@ class mf_webshop
 				}
 			break;
 
+			case 'webshop_cart':
+				$arr_products = [];
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s", $this->post_type_orders, 'draft', $this->cart_hash));
+
+				foreach($result as $r)
+				{
+					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+					if(is_array($arr_products))
+					{
+						foreach($arr_products as $key => $arr_value)
+						{
+							$arr_products[$key]['post_title'] = get_the_title($arr_products[$key]['id']);
+							$arr_products[$key]['post_url'] = get_the_permalink($arr_products[$key]['id']);
+						}
+					}
+				}
+
+				if(IS_SUPER_ADMIN)
+				{
+					$json_output['debug'] .= " (".$wpdb->last_query.")";
+				}
+
+				if(is_array($arr_products))
+				{
+					$json_output['success'] = true;
+					$json_output['response_webshop_cart'] = $arr_products;
+				}
+
+				else
+				{
+					$json_output['error'] = __("Error", 'lang_webshop');
+				}
+			break;
+
 			case 'amount':
 			default:
 				$this->option_type = check_var('option_type', 'char');
@@ -5938,7 +6032,7 @@ class mf_webshop
 						if($size_post_name != '')
 						{
 							$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS meta_size ON ".$wpdb->posts.".ID = meta_size.post_id AND meta_size.meta_key = '".esc_sql($this->meta_prefix.$size_post_name)."'";
-							$query_order .= ($query_order != '' ? ", " : "")."meta_size.meta_value + 0"." ASC";
+							$query_order .= ($query_order != '' ? ", " : "")."(meta_size.meta_value + 0) ASC";
 						}
 					break;
 				}
@@ -6724,7 +6818,23 @@ class mf_webshop
 					</script>";
 				break;
 
-				/*<div class=" wp-block-button"><button type="submit" name="btnLawCreate" class="button-primary wp-block-button__link" rel="confirm" confirm_text="Är du säker på att du vill uppdatera denna? Det kommer att uppdateras i de listor där den redan är publicerad">Uppdatera</button><div class=""><button type="submit" name="btnLawRevision" class="button wp-block-button__link" rel="confirm" confirm_text="Är du säker på att du vill spara en ny version? Detta kommer att ersätta den gamla så snart du publicerar nya ändringar till en lista">Spara ny version</button><input type="hidden" name="intLawID" value="5242"></div><p class="italic">Skapad 2024-04-15 av Anna Andersson</p><input type="hidden" id="_wpnonce_law_create" name="_wpnonce_law_create" value="421af116bf"><input type="hidden" name="_wp_http_referer" value="/lagg-till-forfattning/?intLawID=5242&amp;intListID=55"></div>*/
+				case 'webshop_cart':
+					$out .= "<script type='text/template' id='template_webshop_cart_empty'>"
+						.__("You don't have any products in your cart yet", 'lang_webshop')
+						.(IS_SUPER_ADMIN ? " (".$this->cart_hash.")" : "")
+					."</script>
+
+					<script type='text/template' id='template_webshop_cart_item'>
+						<tr id='product_<%= id %>'>
+							<td>
+								<a href='<%= post_url %>'><%= post_title %></a>
+							</td>
+							<td><%= price %></td>
+							<td><%= amount %></td>
+							<td><%= (price * amount) %></td>
+						</tr>
+					</script>";
+				break;
 			}
 
 			$this->template_used[$data['type']] = true;
