@@ -1247,12 +1247,12 @@ echo "@media all
 				width: 100%;
 			}
 
-			.product_meta .contact_button, .product_meta .read_more_button
+			.product_meta .read_more_button
 			{
 				margin-top: .5em;
 			}
 
-				#product_result_form .contact_button, #product_result_form .read_more_button
+				#product_result_form .read_more_button
 				{
 					display: none;
 				}

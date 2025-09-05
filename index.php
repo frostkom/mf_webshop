@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.3
+Version: 2.2.6.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -49,21 +49,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_filter('display_post_states', array($obj_webshop, 'display_post_states'), 10, 2);
 
-		add_filter('enter_title_here', array($obj_webshop, 'enter_title_here'));
-
 		add_action('save_post', array($obj_webshop, 'save_post'), 10, 3);
 		add_action('wp_trash_post', array($obj_webshop, 'wp_trash_post'));
 
 		add_action('rwmb_meta_boxes', array($obj_webshop, 'rwmb_meta_boxes'));
 		add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 		add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
-
-		add_action('manage_users_columns', array($obj_webshop, 'manage_users_columns'));
-		add_action('manage_users_custom_column', array($obj_webshop, 'manage_users_custom_column'), 10, 3);
-
-		add_action('show_user_profile', array($obj_webshop, 'edit_user_profile'));
-		add_action('edit_user_profile', array($obj_webshop, 'edit_user_profile'));
-		add_action('profile_update', array($obj_webshop, 'profile_update'));
 
 		add_filter('filter_cookie_types', array($obj_webshop, 'filter_cookie_types'));
 
@@ -104,16 +95,11 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$obj_webshop = new mf_webshop();
 
-		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_map_placement', 'setting_webshop_map_button_placement', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_webshop_replace_show_map', 'setting_webshop_replace_hide_map', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_quote_form_popup', 'setting_quote_form', 'setting_quote_form_single', 'setting_webshop_force_individual_contact', 'setting_webshop_payment_form', 'setting_webshop_replace_webshop', 'setting_webshop_icon', 'setting_webshop_replace_product', 'setting_webshop_replace_products', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_categories', 'setting_webshop_replace_doc_types', 'setting_replace_send_request_for_quote', 'setting_webshop_display_breadcrumbs', 'setting_webshop_allow_multiple_categories', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_map_info', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_categories_slug', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_filter_products', 'setting_replace_search_result_info', 'setting_webshop_replace_favorites_info');
+		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_map_placement', 'setting_webshop_map_button_placement', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_webshop_replace_show_map', 'setting_webshop_replace_hide_map', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_quote_form_popup', 'setting_webshop_force_individual_contact', 'setting_webshop_icon', 'setting_replace_send_request_for_quote', 'setting_webshop_allow_multiple_categories', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_return_to_search', 'setting_replace_search_for_another', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_webshop_replace_too_many', 'setting_map_info', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_favorites_info', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display');
 
 		foreach($obj_webshop->arr_option_types as $option_type)
 		{
 			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
-
-			/*foreach([] as $key => $value)
-			{
-				$arr_options[] = $value;
-			}*/
 
 			$arr_option_types[] = $obj_webshop->post_type_categories;
 			$arr_option_types[] = $obj_webshop->post_type_products;

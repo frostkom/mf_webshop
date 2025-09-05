@@ -38,17 +38,7 @@ get_header();
 
 				echo $obj_webshop->get_single_info($post);
 
-				$setting_webshop_product_template = get_option('setting_webshop_product_template'.$obj_webshop->option_type);
-
-				if($setting_webshop_product_template > 0)
-				{
-					$template = mf_get_post_content($setting_webshop_product_template);
-				}
-
-				else
-				{
-					$template = $obj_webshop->default_template;
-				}
+				$template = $obj_webshop->default_template;
 
 				//This adds a bunch of empty p tags
 				//$template = apply_filters('the_content', $template);

@@ -672,7 +672,15 @@ var WebshopView = Backbone.View.extend(
 	{
 		var response = this.model.get('response_add_to_cart');
 
-		jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").text(response.text);
+		if(response.html)
+		{
+			jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").parent("div").html(response.html);
+		}
+
+		else
+		{
+			jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").text(response.text);
+		}
 	},
 
 	print_favorites: function()
