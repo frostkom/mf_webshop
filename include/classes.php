@@ -799,17 +799,39 @@ class mf_webshop
 		$arr_header[] = __("Price", 'lang_webshop');
 		$arr_header[] = __("Tax", 'lang_webshop');
 		$arr_header[] = __("Amount", 'lang_webshop');
-		$arr_header[] = __("Total", 'lang_webshop');
+		$arr_header[] = __("Subtotal", 'lang_webshop');
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_cart mf_form", 'attributes' => $attributes)).">
-			<table class='widefat striped'>"
+			<table class='cart_products widefat striped'>"
 				.show_table_header($arr_header)
 				."<tbody>
 					<tr>
 						<td colspan='".count($arr_header)."' class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</td>
 					</tr>
 				</tbody>
-			</table>"
+			</table>
+			<br>
+			<div class='cart_totals flex_flow hide'>
+				<div>";
+
+					// Payment here...
+
+				$out .= "</div>
+				<div>
+					<table class='widefat striped'>
+						<tbody>
+							<tr>
+								<td>".__("Total", 'lang_webshop')."</td>
+								<td class='total_sum'></td>
+							</tr>
+							<tr>
+								<td>".__("Tax", 'lang_webshop')."</td>
+								<td class='total_tax'></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>"
 			.$this->get_templates(array('type' => 'webshop_cart'))
 		."</div>";
 
@@ -1134,7 +1156,7 @@ class mf_webshop
 			'setting_webshop_currency' => __("Currency", 'lang_webshop'),
 			'setting_webshop_tax_rate' => __("Tax Rate", 'lang_webshop'),
 			'setting_webshop_tax_enter' => __("Enter Price Incl. Tax", 'lang_webshop'),
-			'setting_webshop_tax_display' => __("Display Tax", 'lang_webshop'),
+			'setting_webshop_tax_display' => __("Excl. Tax", 'lang_webshop'),
 			'setting_webshop_local_storage' => __("Local Storage", 'lang_webshop'),
 		);
 
@@ -4640,7 +4662,6 @@ class mf_webshop
 
 	function get_tax($data)
 	{
-		$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
 		$setting_webshop_tax_enter = get_option('setting_webshop_tax_enter', 'yes');
 		$setting_webshop_tax_rate = get_option('setting_webshop_tax_rate', 25);
 
@@ -4654,25 +4675,54 @@ class mf_webshop
 			$data['price'] = ($data['price'] - ($data['price'] / (1 + ($setting_webshop_tax_rate / 100))));
 		}
 
-		$data['price'] .= "&nbsp;".$setting_webshop_currency;
+		if($data['suffix'] == true)
+		{
+			$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
+
+			$data['price'] .= "&nbsp;".$setting_webshop_currency;
+		}
 
 		return $data['price'];
 	}
 
 	function display_price($data)
 	{
-		$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
-		$setting_webshop_tax_enter = get_option('setting_webshop_tax_enter', 'yes');
-		$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+		if(!isset($data['calculate'])){	$data['calculate'] = true;}
+		if(!isset($data['suffix'])){	$data['suffix'] = 'all';}
 
-		if($setting_webshop_tax_enter == 'no')
+		if($data['calculate'] == true)
 		{
+			$setting_webshop_tax_enter = get_option('setting_webshop_tax_enter', 'yes');
+			$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
 			$setting_webshop_tax_rate = get_option('setting_webshop_tax_rate', 25);
 
-			$data['price'] += ($data['price'] * ($setting_webshop_tax_rate / 100));
+			if($setting_webshop_tax_enter == 'no')
+			{
+				$data['price'] += ($data['price'] * ($setting_webshop_tax_rate / 100));
+			}
+
+			if($setting_webshop_tax_display == 'yes')
+			{
+				$data['price'] -= ($data['price'] - ($data['price'] / (1 + ($setting_webshop_tax_rate / 100))));
+			}
 		}
 
-		$data['price'] .= "&nbsp;".$setting_webshop_currency."&nbsp;".($setting_webshop_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+		if($data['suffix'] == true)
+		{
+			if($data['suffix'] == 'currency' || $data['suffix'] == 'all')
+			{
+				$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
+
+				$data['price'] .= "&nbsp;".$setting_webshop_currency;
+			}
+
+			if($data['suffix'] == 'tax' || $data['suffix'] == 'all')
+			{
+				$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+
+				$data['price'] .= "&nbsp;".($setting_webshop_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+			}
+		}
 
 		return $data['price'];
 	}
@@ -5741,6 +5791,8 @@ class mf_webshop
 				{
 					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
 
+					$total_sum = $total_tax = 0;
+
 					if(is_array($arr_products))
 					{
 						foreach($arr_products as $key => $arr_value)
@@ -5748,7 +5800,10 @@ class mf_webshop
 							$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
 							$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
 
-							$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price']));
+							$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
+							$total_sum += $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount'], 'suffix' => false));
+
+							$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => true));
 							$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
 							$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_products[$key]['price']));
 						}
@@ -5763,7 +5818,11 @@ class mf_webshop
 				if(is_array($arr_products))
 				{
 					$json_output['success'] = true;
-					$json_output['response_webshop_cart'] = $arr_products;
+					$json_output['response_webshop_cart'] = array(
+						'products' => $arr_products,
+						'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
+						'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
+					);
 				}
 
 				else

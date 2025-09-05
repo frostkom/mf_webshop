@@ -1,5 +1,7 @@
 jQuery(function($)
 {
+	var dom_obj = $(".widget.webshop_cart");
+
 	$.ajax(
 	{
 		url: script_webshop_cart.ajax_url,
@@ -14,7 +16,7 @@ jQuery(function($)
 			if(data.success)
 			{
 				var response = data.response_webshop_cart,
-					count_temp = response.length,
+					count_temp = response.products.length,
 					html = "";
 
 				if(count_temp > 0)
@@ -23,16 +25,20 @@ jQuery(function($)
 
 					for(var i = 0; i < count_temp; i++)
 					{
-						html += response[i];
-						html += _.template(dom_template)(response[i]);
+						/*html += response[i];*/
+						html += _.template(dom_template)(response.products[i]);
 					}
 
-					$(".widget.webshop_cart table tbody").html(html);
+					dom_obj.find(".cart_products tbody").html(html);
+
+					dom_obj.find(".cart_totals .total_sum").html(response.total_sum);
+					dom_obj.find(".cart_totals .total_tax").html(response.total_tax);
+					dom_obj.find(".cart_totals").removeClass('hide');
 				}
 
 				else
 				{
-					$(".widget.webshop_cart table tbody td").html(_.template($("#template_webshop_cart_empty").html())());
+					dom_obj.find(".cart_products tbody td").html(_.template($("#template_webshop_cart_empty").html())());
 				}
 			}
 
