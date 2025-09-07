@@ -19,7 +19,7 @@ class mf_webshop
 	var $post_type_customers = 'mf_customer';
 	var $post_type_delivery_type = 'mf_delivery';
 	var $template_used = [];
-	var $default_template = "[breadcrumbs]
+	/*var $default_template = "[breadcrumbs]
 	[heading]
 	[after_heading]
 	<section>
@@ -59,130 +59,20 @@ class mf_webshop
 		'property' => array('html' => "", 'formatting' => "<ul class='product_property'>[html]</ul>"),
 		'social' => array('html' => "", 'formatting' => "[html]"),
 		'previous_next' => array('html' => "", 'formatting' => "[html]"),
-	);
+	);*/
 	var $option_type = '';
 	var $event_max_length = 10;
-	var $user_updated_notification_subject_placeholder;
-	var $user_updated_notification_content_placeholder;
 	var $product_id = 0;
 	var $event_id = 0;
 
 	function __construct()
 	{
-		$this->user_updated_notification_subject_placeholder = __("A reminder to update your information", 'lang_webshop');
-		$this->user_updated_notification_content_placeholder = "[link_start]".sprintf(__("You have not updated your information since %s which is more than %s months ago. Please do so.", 'lang_webshop'), "[post_modified]", "[month_amount]")."[link_end]";
+		//$this->user_updated_notification_content_placeholder = "[link_start]".sprintf(__("You have not updated your information since %s which is more than %s months ago. Please do so.", 'lang_webshop'), "[post_modified]", "[month_amount]")."[link_end]";
 
 		$this->cart_hash = md5((defined('AUTH_SALT') ? AUTH_SALT : '').'cart_'.apply_filters('get_current_visitor_ip', ""));
 	}
 
-	function show_flot_graph($data)
-	{
-		global $flot_count;
-
-		if(!isset($data['type'])){				$data['type'] = 'lines';}
-		if(!isset($data['settings'])){			$data['settings'] = '';}
-		if(!isset($data['height'])){			$data['height'] = '';}
-		if(!isset($data['title'])){				$data['title'] = '';}
-
-		if($data['settings'] == '')
-		{
-			$data['settings'] = ($data['settings'] != '' ? "," : "")."legend: {position: 'nw'},
-			xaxis: {mode: 'time'},
-			yaxis: {
-				tickFormatter: function suffixFormatter(val, axis)
-				{
-					return parseInt(val).toLocaleString();
-				}
-			}";
-		}
-
-		switch($data['type'])
-		{
-			case 'lines':
-				$data['settings'] .= ($data['settings'] != '' ? "," : "")."points: {show: true, radius: 0.5}";
-			break;
-		}
-
-		if(!($flot_count > 0))
-		{
-			$flot_count = 0;
-		}
-
-		$out = "";
-
-		if(is_array($data['data']) && count($data['data']) > 0)
-		{
-			$plugin_include_url = plugin_dir_url(__FILE__);
-
-			//Should be moved to admin_init
-			mf_enqueue_style('style_flot', $plugin_include_url."style_flot.css");
-			mf_enqueue_script('jquery-flot', $plugin_include_url."jquery.flot.min.0.7.js");
-			mf_enqueue_script('script_flot', $plugin_include_url."script_flot.js");
-
-			$style_cont = "width: 95%;";
-
-			if($data['height'] > 0)
-			{
-				$style_cont .= "height: ".$data['height']."px;";
-			}
-
-			$out .= "<div id='flot_".$flot_count."' class='flot_graph'".($style_cont != '' ? " style='".$style_cont."'" : "").($data['title'] != '' ? " title='".$data['title']."'" : "").">".apply_filters('get_loading_animation', '')."</div>
-			<script defer>
-				function plot_flot_".$flot_count."()
-				{
-					jQuery.plot(jQuery('#flot_".$flot_count."'),
-					[";
-
-						$i = 0;
-
-						foreach($data['data'] as $type_key => $arr_type)
-						{
-							$out .= ($i > 0 ? "," : "")."{label:'".$arr_type['label']."', data:[";
-
-								$j = 0;
-
-								foreach($arr_type['data'] as $point_key => $arr_point)
-								{
-									$data['data'][$type_key][$point_key]['date'] = (strtotime($arr_point['date']." UTC") * 1000);
-
-									$out .= ($j > 0 ? "," : "")."[".(strtotime($arr_point['date']." UTC") * 1000).",".$arr_point['value']."]";
-
-									$j++;
-								}
-
-							$out .= "]";
-
-							if(isset($arr_type['yaxis']))
-							{
-								$out .= ", yaxis: ".$arr_type['yaxis'];
-							}
-
-							$out .= "}";
-
-							$i++;
-						}
-
-					$out .= "],
-					{series: {".$data['type'].": {show: true}},"
-					."grid: {hoverable: true}"
-					.($data['settings'] != '' ? ",".$data['settings'] : "")."});
-				}
-
-				if(typeof arr_flot_functions === 'undefined')
-				{
-					var arr_flot_functions = [];
-				}
-
-				arr_flot_functions.push('plot_flot_".$flot_count."');
-			</script>";
-
-			$flot_count++;
-		}
-
-		return $out;
-	}
-
-	function get_type_id($post)
+	/*function get_type_id($post)
 	{
 		if(isset($post->ID) && $post->ID > 0 && isset($post->post_type))
 		{
@@ -213,7 +103,7 @@ class mf_webshop
 				}
 			}
 		}
-	}
+	}*/
 
 	function get_category_colors($data = [])
 	{
@@ -2970,28 +2860,6 @@ class mf_webshop
 		}
 	}
 
-	/*function display_post_states($post_states, $post)
-	{
-		global $wpdb;
-
-		$arr_page_types = array(
-			'mf/webshopsearch' => __("Shop", 'lang_webshop'),
-			'mf/webshopcart' => __("Cart", 'lang_webshop'),
-		);
-
-		foreach($arr_page_types as $handle => $label)
-		{
-			if(has_block($handle, $post))
-			{
-				list($prefix, $type) = explode("/", $handle);
-
-				$post_states[$this->meta_prefix.$type] = $label;
-			}
-		}
-
-		return $post_states;
-	}*/
-
 	function filter_sites_table_pages($arr_pages)
 	{
 		$arr_pages[$this->post_type_products] = array(
@@ -4354,7 +4222,7 @@ class mf_webshop
 		return $post_states;
 	}
 
-	function get_template_admin($data)
+	/*function get_template_admin($data)
 	{
 		global $post, $obj_form, $obj_theme_core;
 
@@ -4406,7 +4274,7 @@ class mf_webshop
 				get_footer();
 			break;
 
-			/*case 'template_webshop_favorites':
+			case 'template_webshop_favorites':
 				get_header();
 
 					if(have_posts())
@@ -4438,9 +4306,9 @@ class mf_webshop
 					}
 
 				get_footer();
-			break;*/
+			break;
 		}
-	}
+	}*/
 
 	function save_post($post_id, $post, $update)
 	{
@@ -5659,16 +5527,12 @@ class mf_webshop
 			case 'add_to_cart':
 				$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-				$post_data = array(
-					'post_type' => $this->post_type_orders,
-					'post_title' => $this->cart_hash,
-					'post_status' => 'draft',
-				);
-
 				$price_post_name = $this->get_post_name_for_type('price');
 				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s", $this->post_type_orders, 'draft', $this->cart_hash));
+				do_log($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->cart_hash, $this->post_type_orders, 'draft'));
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -5703,8 +5567,12 @@ class mf_webshop
 								$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
 							}
 
-							$post_data['ID'] = $r->ID;
-							$post_data['meta_input'] = array($this->meta_prefix.'products' => $arr_products);
+							$post_data = array(
+								'ID' => $r->ID,
+								'meta_input' => apply_filters('filter_meta_input', array(
+									$this->meta_prefix.'products' => $arr_products,
+								)),
+							);
 
 							if(wp_update_post($post_data) > 0)
 							{
@@ -5714,7 +5582,7 @@ class mf_webshop
 								{
 									$json_output['response_add_to_cart'] = array(
 										'product_id' => $product_id,
-										'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("Go to your cart", 'lang_webshop')."</a>",
+										'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("Go to Cart", 'lang_webshop')."</a>",
 									);
 								}
 
@@ -5748,7 +5616,18 @@ class mf_webshop
 
 				else
 				{
-					$post_data['meta_input'] = array($this->meta_prefix.'products' => array(array('id' => $product_id, 'price' => $product_price, 'amount' => 1)));
+					$arr_products = [];
+					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+
+					$post_data = array(
+						'post_type' => $this->post_type_orders,
+						'post_status' => 'draft',
+						'post_title' => $this->cart_hash,
+						'meta_input' => apply_filters('filter_meta_input', array(
+							$this->meta_prefix.'cart_hash' => $this->cart_hash,
+							$this->meta_prefix.'products' => $arr_products,
+						)),
+					);
 
 					if(wp_insert_post($post_data) > 0)
 					{
@@ -5758,7 +5637,7 @@ class mf_webshop
 						{
 							$json_output['response_add_to_cart'] = array(
 								'product_id' => $product_id,
-								'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("Go to your cart", 'lang_webshop')."</a>",
+								'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("Go to Cart", 'lang_webshop')."</a>",
 							);
 						}
 
@@ -5785,7 +5664,7 @@ class mf_webshop
 			case 'webshop_cart':
 				$arr_products = [];
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s", $this->post_type_orders, 'draft', $this->cart_hash));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->cart_hash, $this->post_type_orders, 'draft'));
 
 				foreach($result as $r)
 				{
@@ -7674,7 +7553,7 @@ class mf_webshop
 		}
 	}
 
-	function get_single_info($post)
+	/*function get_single_info($post)
 	{
 		global $wpdb, $obj_font_icons, $obj_form;
 
@@ -7862,7 +7741,7 @@ class mf_webshop
 						break;
 
 						case 'event':
-							/*if(is_plugin_active("mf_calendar/index.php"))
+							if(is_plugin_active("mf_calendar/index.php"))
 							{
 								global $obj_calendar;
 
@@ -7874,7 +7753,7 @@ class mf_webshop
 								$obj_calendar->get_events(array('feeds' => array($post_meta), 'limit' => 1));
 
 								$post_meta = $obj_calendar->arr_events;
-							}*/
+							}
 						break;
 
 						case 'gps':
@@ -8033,13 +7912,6 @@ class mf_webshop
 				$this->template_shortcodes['share']['html'] = apply_filters('the_content', "[mf_share type='options']");
 			}
 		}
-
-		/*if(isset($obj_slideshow) && count($this->slideshow_images) > 0)
-		{
-			$this->template_shortcodes['slideshow']['html'] = $obj_slideshow->render_slides(array(
-				'images' => $this->slideshow_images,
-			));
-		}*/
 
 		if($post_content != '')
 		{
@@ -8263,7 +8135,7 @@ class mf_webshop
 		$this->template_shortcodes['previous_next']['html'] = "<div class='product_previous_next flex_flow hide'></div>";
 
 		return $out;
-	}
+	}*/
 
 	function product_init($data)
 	{

@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.6
+Version: 2.2.6.7
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -33,8 +33,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('admin_init', array($obj_webshop, 'admin_init'), 0);
 
 		add_action('admin_menu', array($obj_webshop, 'admin_menu'));
-
-		//add_filter('display_post_states', array($obj_webshop, 'display_post_states'), 10, 2);
 
 		add_filter('filter_sites_table_pages', array($obj_webshop, 'filter_sites_table_pages'));
 
