@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.7
+Version: 2.2.6.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -54,17 +54,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 		add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
 
-		add_filter('filter_cookie_types', array($obj_webshop, 'filter_cookie_types'));
+		//add_filter('filter_cookie_types', array($obj_webshop, 'filter_cookie_types'));
 
 		add_filter('get_group_sync_type', array($obj_webshop, 'get_group_sync_type'), 10);
 	}
 
 	add_filter('filter_is_file_used', array($obj_webshop, 'filter_is_file_used'));
-
-	if(wp_is_block_theme() == false)
-	{
-		add_action('widgets_init', array($obj_webshop, 'widgets_init'));
-	}
 
 	//add_action('wp_login', array($obj_webshop, 'uninit'));
 	//add_action('wp_logout', array($obj_webshop, 'uninit'));
@@ -74,10 +69,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
 	add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
 
-	add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields'));
+	//add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields'));
 	add_action('rwmb_after_save_post', array($obj_webshop, 'rwmb_after_save_post'));
 
-	add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
+	//add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
 
 	//add_filter('single_template', array($obj_webshop, 'single_template'));
 	//add_filter('theme_templates', array($obj_webshop, 'get_page_templates'));
