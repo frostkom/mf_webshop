@@ -5594,14 +5594,13 @@ class mf_webshop
 
 			case 'webshop_cart':
 				$arr_products = [];
+				$total_sum = $total_tax = 0;
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft')); //$this->cart_hash
 
 				foreach($result as $r)
 				{
 					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-					$total_sum = $total_tax = 0;
 
 					if(is_array($arr_products))
 					{
@@ -5617,6 +5616,11 @@ class mf_webshop
 							$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
 							$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_products[$key]['price']));
 						}
+					}
+
+					else
+					{
+						$arr_products = [];
 					}
 				}
 
