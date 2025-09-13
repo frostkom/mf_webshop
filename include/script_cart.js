@@ -21,11 +21,12 @@ jQuery(function($)
 
 				if(count_temp > 0)
 				{
+					dom_obj.find("#proceed_to_checkout input[name='order_id']").val(response.order_id);
+
 					var dom_template = $("#template_webshop_cart_item").html();
 
 					for(var i = 0; i < count_temp; i++)
 					{
-						/*html += response[i];*/
 						html += _.template(dom_template)(response.products[i]);
 					}
 
@@ -47,5 +48,38 @@ jQuery(function($)
 				console.log("Error...");
 			}
 		}
+	});
+
+	/*$(document).on('click', ".proceed_to_checkout", function()
+	{
+		$("#proceed_to_checkout").removeClass('hide');
+		$(this).addClass('hide');
+
+		return false;
+	});*/
+
+	$(document).on('blur', "#proceed_to_checkout", function()
+	{
+		var form_data = $(this).serialize();
+
+		$.ajax(
+		{
+			url: script_webshop_cart.ajax_url,
+			type: 'post',
+			dataType: 'json',
+			data: form_data,
+			success: function(data)
+			{
+				if(data.success)
+				{
+					
+				}
+
+				else
+				{
+					console.log("Error...");
+				}
+			}
+		});
 	});
 });
