@@ -3,7 +3,6 @@
 class mf_webshop
 {
 	var $meta_prefix = 'mf_ws_';
-	//var $cart_hash;
 	var $cookie_name;
 	var $cookie_value;
 	var $range_min = "";
@@ -27,33 +26,26 @@ class mf_webshop
 	var $event_id = 0;
 
 	var $order_id;
-	var $first_name;
-	var $last_name;
-	var $contact_phone;
-	var $contact_email;
-	var $address_street;
-	var $address_co;
-	var $address_zip;
-	var $address_city;
-	//var $address_country;
+	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_co', 'address_zip', 'address_city']; //'address_country'
+	var $order_details;
 
 	function __construct()
 	{
-		//$this->cart_hash = md5((defined('AUTH_SALT') ? AUTH_SALT : '').'cart_'.apply_filters('get_current_visitor_ip', ""));
-
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
-		$this->cookie_value = md5($this->meta_prefix.'cart'); //.'_'.apply_filters('get_current_visitor_ip', "")
+		$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_current_visitor_ip', ""));
 	}
 
 	function set_cookie()
 	{
 		setcookie($this->cookie_name, $this->cookie_value, strtotime("+1 month"), COOKIEPATH);
 		$_COOKIE[$this->cookie_name] = $this->cookie_value;
+
+		return $_COOKIE[$this->cookie_name];
 	}
 
 	function get_cookie()
 	{
-		return (isset($_COOKIE[$this->cookie_name]) ? $_COOKIE[$this->cookie_name] : '');
+		return (isset($_COOKIE[$this->cookie_name]) ? $_COOKIE[$this->cookie_name] : $this->set_cookie());
 	}
 
 	function get_category_colors($data = [])
@@ -655,39 +647,40 @@ class mf_webshop
 		$arr_header[] = __("Amount", 'lang_webshop');
 		$arr_header[] = __("Subtotal", 'lang_webshop');
 
+		$obj_encryption = new mf_encryption(__CLASS__);
+		$this->order_details = [];
+
+		foreach($this->arr_meta_keys as $meta_key)
+		{
+			$this->order_details[$meta_key] = check_var($meta_key);
+		}
+
 		if(isset($_POST['btnWebshopPay']))
 		{
 			$this->order_id = check_var('order_id');
-			$this->first_name = check_var('first_name');
-			$this->last_name = check_var('last_name');
-			$this->contact_phone = check_var('contact_phone');
-			$this->contact_email = check_var('contact_email');
-			$this->address_street = check_var('address_street');
-			$this->address_co = check_var('address_co');
-			$this->address_zip = check_var('address_zip');
-			$this->address_city = check_var('address_city');
-			//$this->address_country = check_var('address_country');
 
-			// Do something
+			// Send payment
+			// Collect answer
+			// Set order to published
 		}
 
 		else
 		{
 			$this->order_id = $this->get_cookie();
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
-				$this->first_name = get_post_meta($r->ID, $this->meta_prefix.'first_name', true);
-				$this->last_name = get_post_meta($r->ID, $this->meta_prefix.'last_name', true);
-				$this->contact_phone = get_post_meta($r->ID, $this->meta_prefix.'contact_phone', true);
-				$this->contact_email = get_post_meta($r->ID, $this->meta_prefix.'contact_email', true);
-				$this->address_street = get_post_meta($r->ID, $this->meta_prefix.'address_street', true);
-				$this->address_co = get_post_meta($r->ID, $this->meta_prefix.'address_co', true);
-				$this->address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
-				$this->address_city = get_post_meta($r->ID, $this->meta_prefix.'address_city', true);
-				//$this->address_country = get_post_meta($r->ID, $this->meta_prefix.'address_country', true);
+				foreach($this->arr_meta_keys as $meta_key)
+				{
+					$this->order_details[$meta_key] = get_post_meta($r->ID, $this->meta_prefix.$meta_key, true);
+
+					if($this->order_details[$meta_key] != '')
+					{
+						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
+					}
+				}
 			}
 		}
 
@@ -737,20 +730,20 @@ class mf_webshop
 					<form action='#' method='post' id='proceed_to_checkout' class='mf_form'>" // class='hide'
 						."<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='flex_flow'>"
-							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->first_name))
-							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->last_name))
+							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name']))
+							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name']))
 						."</div>"
 						."<div class='flex_flow'>"
-							.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->contact_phone))
-							.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->contact_email))
+							.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->order_details['contact_phone']))
+							.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->order_details['contact_email']))
 						."</div>"
-						.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_address'), 'value' => $this->address_street))
-						.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_address'), 'value' => $this->address_co))
+						.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_address'), 'value' => $this->order_details['address_street']))
+						.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_address'), 'value' => $this->order_details['address_co']))
 						."<div class='flex_flow'>"
-							.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_address'), 'value' => $this->address_zip))
-							.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_address'), 'value' => $this->address_city))
+							.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_address'), 'value' => $this->order_details['address_zip']))
+							.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_address'), 'value' => $this->order_details['address_city']))
 						."</div>"
-						//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_address'), 'value' => $this->address_country))
+						//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_address'), 'value' => $this->order_details['address_country']))
 						."<div".get_form_button_classes().">"
 							.show_button(array('name' => 'btnWebshopPay', 'text' => __("Pay Now", 'lang_webshop')))
 							.input_hidden(array('name' => 'action', 'value' => 'api_webshop_order_update'))
@@ -4133,24 +4126,44 @@ class mf_webshop
 						{
 							foreach($arr_post_meta as $arr_product)
 							{
-								echo "<p>".get_the_title($arr_product['id']).": ".$arr_product['amount']."</p>";
+								if(isset($arr_product['id']) && $arr_product['id'] > 0)
+								{
+									echo "<p>".get_the_title($arr_product['id']).": ".$arr_product['amount']."</p>";
+								}
+
+								else
+								{
+									echo "<p>".__("Nothing in the cart so far", 'lang_webshop')."</p>";
+								}
 							}
 						}
 					break;
 
 					case 'details':
-						$first_name = get_post_meta($post_id, $this->meta_prefix.'first_name', true);
-						$last_name = get_post_meta($post_id, $this->meta_prefix.'last_name', true);
-						$contact_phone = get_post_meta($post_id, $this->meta_prefix.'contact_phone', true);
-						$contact_email = get_post_meta($post_id, $this->meta_prefix.'contact_email', true);
-						$address_street = get_post_meta($post_id, $this->meta_prefix.'address_street', true);
-						$address_co = get_post_meta($post_id, $this->meta_prefix.'address_co', true);
-						$address_zip = get_post_meta($post_id, $this->meta_prefix.'address_zip', true);
-						$address_city = get_post_meta($post_id, $this->meta_prefix.'address_city', true);
-						//$address_country = get_post_meta($post_id, $this->meta_prefix.'address_country', true);
+						$obj_encryption = new mf_encryption(__CLASS__);
+						$this->order_details = [];
 
-						echo "<p>".$first_name." ".$last_name."</p>";
-						echo "<p>".$address_street.", ".$address_zip." ".$address_city."</p>";
+						$this->order_id = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+
+						foreach($this->arr_meta_keys as $meta_key)
+						{
+							$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+							if($this->order_details[$meta_key] != '')
+							{
+								$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
+							}
+						}
+
+						if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+						{
+							echo "<p>".$this->order_details['first_name']." ".$this->order_details['last_name']."</p>";
+						}
+
+						if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
+						{
+							echo "<p>".$this->order_details['address_street'].", ".$this->order_details['address_zip']." ".$this->order_details['address_city']."</p>";
+						}
 					break;
 
 					default:
@@ -4623,14 +4636,14 @@ class mf_webshop
 
 		if(IS_SUPER_ADMIN)
 		{
-			$json_output['debug'] = $type;
+			//$json_output['debug'] = $type;
 		}
 
 		if(substr($type, 0, 1) == "?")
 		{
 			if(IS_SUPER_ADMIN)
 			{
-				$json_output['debug'] .= " has_question_mark";
+				//$json_output['debug'] .= " has_question_mark";
 			}
 
 			$arr_type = explode("&amp;", substr($type, 1));
@@ -4641,7 +4654,7 @@ class mf_webshop
 
 				if(IS_SUPER_ADMIN)
 				{
-					$json_output['debug'] .= " ".$key." = ".$value;
+					//$json_output['debug'] .= " ".$key." = ".$value;
 				}
 
 				if($key == 'type')
@@ -4660,7 +4673,7 @@ class mf_webshop
 		{
 			if(IS_SUPER_ADMIN)
 			{
-				$json_output['debug'] .= " has_no_question_mark";
+				//$json_output['debug'] .= " has_no_question_mark";
 			}
 
 			$arr_type = explode("/", $type);
@@ -5373,7 +5386,7 @@ class mf_webshop
 										$json_output['success'] = true;
 										$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
 										$json_output['next_request'] = "admin/webshop/edit/".$post_id;
-										//$json_output['debug'] = "Created: ".$wpdb->last_query;
+										////$json_output['debug'] = "Created: ".$wpdb->last_query;
 									}
 
 									else
@@ -5540,9 +5553,9 @@ class mf_webshop
 				$price_post_name = $this->get_post_name_for_type('price');
 				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
-				//do_log($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft')); //$this->cart_hash
+				//$json_output['debug'] = "Select: ".$wpdb->last_query." (".$wpdb->num_rows.")";
 
 				if($wpdb->num_rows > 0)
 				{
@@ -5587,6 +5600,7 @@ class mf_webshop
 							if(wp_update_post($post_data) > 0)
 							{
 								$json_output['success'] = true;
+								//$json_output['debug'] .= "Update: ".var_export($post_data, true);
 
 								if($cart_post_id > 0)
 								{
@@ -5617,7 +5631,7 @@ class mf_webshop
 
 						else
 						{
-							do_log("Remove the order ".$r->ID." because there are duplicates for ".$this->get_cookie()); //$this->cart_hash
+							do_log("Remove the order ".$r->ID." because there are duplicates for ".$this->get_cookie());
 						}
 
 						$i++;
@@ -5626,7 +5640,7 @@ class mf_webshop
 
 				else
 				{
-					$this->set_cookie();
+					//$this->set_cookie();
 
 					$arr_products = [];
 					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
@@ -5634,9 +5648,9 @@ class mf_webshop
 					$post_data = array(
 						'post_type' => $this->post_type_orders,
 						'post_status' => 'draft',
-						'post_title' => $this->get_cookie(), //$this->cart_hash
+						'post_title' => $this->get_cookie(),
 						'meta_input' => apply_filters('filter_meta_input', array(
-							$this->meta_prefix.'cart_hash' => $this->get_cookie(), //$this->cart_hash
+							$this->meta_prefix.'cart_hash' => $this->get_cookie(),
 							$this->meta_prefix.'products' => $arr_products,
 						)),
 					);
@@ -5644,6 +5658,7 @@ class mf_webshop
 					if(wp_insert_post($post_data) > 0)
 					{
 						$json_output['success'] = true;
+						//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 
 						if($cart_post_id > 0)
 						{
@@ -5674,11 +5689,11 @@ class mf_webshop
 			break;
 
 			case 'webshop_cart':
-				$order_id = $this->get_cookie(); //$this->cart_hash
+				$order_id = $this->get_cookie();
 				$arr_products = [];
 				$total_sum = $total_tax = 0;
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
 
 				foreach($result as $r)
 				{
@@ -5708,7 +5723,7 @@ class mf_webshop
 
 				if(IS_SUPER_ADMIN)
 				{
-					$json_output['debug'] .= " (".$wpdb->last_query.")";
+					//$json_output['debug'] .= " (".$wpdb->last_query.")";
 				}
 
 				if(is_array($arr_products))
@@ -5821,37 +5836,33 @@ class mf_webshop
 		);
 
 		$this->order_id = check_var('order_id');
-		$this->first_name = check_var('first_name');
-		$this->last_name = check_var('last_name');
-		$this->contact_phone = check_var('contact_phone');
-		$this->contact_email = check_var('contact_email');
-		$this->address_street = check_var('address_street');
-		$this->address_co = check_var('address_co');
-		$this->address_zip = check_var('address_zip');
-		$this->address_city = check_var('address_city');
-		//$this->address_country = check_var('address_country');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		foreach($this->arr_meta_keys as $meta_key)
+		{
+			$this->order_details[$meta_key] = check_var($meta_key);
+		}
+		
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
+			$obj_encryption = new mf_encryption(__CLASS__);
+
 			foreach($result as $r)
 			{
 				$post_id = $r->ID;
 
-				$post_data = array(
-					'meta_input' => array(
-						$this->meta_prefix.'first_name' => $this->first_name,
-						$this->meta_prefix.'last_name' => $this->last_name,
-						$this->meta_prefix.'contact_phone' => $this->contact_phone,
-						$this->meta_prefix.'contact_email' => $this->contact_email,
-						$this->meta_prefix.'address_street' => $this->address_street,
-						$this->meta_prefix.'address_co' => $this->address_co,
-						$this->meta_prefix.'address_zip' => $this->address_zip,
-						$this->meta_prefix.'address_city' => $this->address_city,
-						//$this->meta_prefix.'address_country' => $this->address_country,
-					),
-				);
+				$post_data = array('meta_input' => array());
+
+				foreach($this->arr_meta_keys as $meta_key)
+				{
+					if($this->order_details[$meta_key] != '')
+					{
+						$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
+					}
+
+					$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
+				}
 
 				$post_data['ID'] = $post_id;
 				$post_data['meta_input'] = apply_filters('filter_meta_input', $post_data['meta_input'], $post_data['ID']);
@@ -5859,6 +5870,7 @@ class mf_webshop
 				if(wp_update_post($post_data))
 				{
 					$json_output['success'] = true;
+					//$json_output['debug'] = "Update: ".var_export($this->arr_meta_keys, true)." -> ".var_export($post_data, true);
 				}
 
 				else
@@ -7789,7 +7801,7 @@ class mf_webshop
 
 		if($this->product_id > 0 && $this->get_cookie() != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{

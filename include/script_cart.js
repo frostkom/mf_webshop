@@ -70,10 +70,7 @@ jQuery(function($)
 			data: form_data,
 			success: function(data)
 			{
-				if(data.success)
-				{
-					
-				}
+				if(data.success){}
 
 				else
 				{
