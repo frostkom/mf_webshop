@@ -799,7 +799,7 @@ echo "@media all
 				padding: 1.5em 0 0;
 			}";
 
-				if($setting_webshop_display_sort == 'yes' || is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
+				/*if($setting_webshop_display_sort == 'yes' || is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
 				{
 					echo "#webshop_search .form_radio_multiple
 					{
@@ -831,7 +831,7 @@ echo "@media all
 									{
 										margin-right: .5em;
 									}";
-				}
+				}*/
 
 				if($setting_webshop_display_filter == 'button')
 				{
