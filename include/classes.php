@@ -4875,7 +4875,7 @@ class mf_webshop
 															if($multiple_temp)
 															{
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "multiselect";
+																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "mf_form_field multiselect";
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['multiple'] = "";
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['size'] = get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])));
 
@@ -5769,14 +5769,14 @@ class mf_webshop
 						$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
 					}
 				break;
-				
+
 				case 'city':
 					if(is_user_logged_in())
 					{
 						$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
 					}
 				break;
-				
+
 				case 'country':
 					if(is_user_logged_in())
 					{
@@ -5879,7 +5879,7 @@ class mf_webshop
 		{
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}
-		
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
@@ -8728,7 +8728,7 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 			$attributes['data-selected'] = $meta;
 			$walker = new RWMB_Walker_Select( $field, $meta );
 
-			$attributes['class'] .= " multiselect";
+			$attributes['class'] .= " mf_form_field multiselect";
 
 			do_action('init_multiselect');
 
