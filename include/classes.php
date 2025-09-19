@@ -735,7 +735,7 @@ class mf_webshop
 							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name'], 'xtra' => " data-fetch_info='last_name'"))
 						."</div>"
 						."<div class='flex_flow'>"
-							.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->order_details['contact_phone'], 'xtra' => " data-fetch_info='tel_no'"))
+							.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->order_details['contact_phone'], 'xtra' => " data-fetch_info='telno'"))
 							.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->order_details['contact_email'], 'xtra' => " data-fetch_info='email'"))
 						."</div>"
 						.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_address'), 'value' => $this->order_details['address_street'], 'xtra' => " data-fetch_info='address'"))
@@ -924,7 +924,7 @@ class mf_webshop
 			'has_archive' => false,
 		));
 
-		$arr_supports = array('title', 'excerpt', 'revisions', 'author');
+		$arr_supports = array('title', 'thumbnail', 'excerpt', 'revisions', 'author');
 
 		if($this->get_post_name_for_type('content') == '')
 		{
@@ -6609,7 +6609,9 @@ class mf_webshop
 					<script type='text/template' id='template_product_item'>
 						<li id='product_<%= product_id %>'<%= (product_url != '#' ? '' : ' class=ghost') %>>
 							<div class='image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
-								<%= product_image %>
+								<a href='<%= product_url %>'>
+									<%= product_image %>
+								</a>
 							</div>
 							<div class='content'>
 								<% if(product_category != '' || product_data != '')
@@ -7791,8 +7793,7 @@ class mf_webshop
 		}
 
 		$this->product_has_content = $this->product_has_read_more = false;
-		$this->product_price = "";
-		$this->product_image = $this->arr_category_id = '';
+		$this->product_price = $this->product_image = $this->arr_category_id = '';
 		$this->product_url = "#";
 
 		if($data['single'] == true)
@@ -7807,7 +7808,12 @@ class mf_webshop
 			$this->product_url = get_permalink($this->product_id);
 		}
 
-		$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
+		$this->product_image = get_the_post_thumbnail_url($this->product_id, 'large'); // medium / large / full
+
+		if($this->product_image == '')
+		{
+			$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
+		}
 
 		$this->show_in_result = true;
 		$this->product_has_email = false;
@@ -7818,15 +7824,7 @@ class mf_webshop
 		if($data['single'] == true)
 		{
 			$this->product_form_buy = "";
-			$this->arr_product_property = $this->arr_product_quick = $this->slideshow_images = [];
-
-			if(is_array($this->product_image) && count($this->product_image) > 0)
-			{
-				foreach($this->product_image as $product_image)
-				{
-					$this->slideshow_images[] = $product_image;
-				}
-			}
+			$this->arr_product_property = $this->arr_product_quick = [];
 		}
 
 		else
@@ -8306,7 +8304,7 @@ class mf_webshop
 				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
 			}
 
-			else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
+			/*else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
 			{
 				$product_image = "<div class='category_icon'>";
 
@@ -8318,7 +8316,7 @@ class mf_webshop
 					}
 
 				$product_image .= "</div>";
-			}
+			}*/
 
 			else
 			{
