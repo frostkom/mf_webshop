@@ -799,40 +799,6 @@ echo "@media all
 				padding: 1.5em 0 0;
 			}";
 
-				/*if($setting_webshop_display_sort == 'yes' || is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
-				{
-					echo "#webshop_search .form_radio_multiple
-					{
-						float: left;
-						width: 70%;
-					}
-
-						#webshop_search .form_radio_multiple label, #webshop_search .form_radio_multiple ul, #webshop_search .form_radio_multiple li, #webshop_search .form_radio_multiple input
-						{
-							display: inline-block;
-						}
-
-							#webshop_search .form_radio_multiple label
-							{
-								margin-right: 1em;
-							}
-
-							#webshop_search .form_radio_multiple ul
-							{
-								list-style: none;
-							}
-
-								#webshop_search .form_radio_multiple li + li
-								{
-									margin: 0 0 1em 1em;
-								}
-
-									#webshop_search .form_radio_multiple input
-									{
-										margin-right: .5em;
-									}";
-				}*/
-
 				if($setting_webshop_display_filter == 'button')
 				{
 					echo "#webshop_search > .toggler
