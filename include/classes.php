@@ -528,7 +528,7 @@ class mf_webshop
 			replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search'),
+				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request'),
 				'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 			));
 		}
@@ -1101,10 +1101,12 @@ class mf_webshop
 
 		$arr_settings = array(
 			'setting_webshop_currency' => __("Currency", 'lang_webshop'),
-			'setting_webshop_tax_rate' => __("Tax Rate", 'lang_webshop'),
-			'setting_webshop_tax_enter' => __("Enter Price Incl. Tax", 'lang_webshop'),
-			'setting_webshop_tax_display' => __("Excl. Tax", 'lang_webshop'),
-			'setting_webshop_local_storage' => __("Local Storage", 'lang_webshop'),
+			'setting_webshop_tax_rate' => __("VAT", 'lang_webshop'),
+			'setting_webshop_tax_enter' => __("Enter Price", 'lang_webshop'),
+			'setting_webshop_tax_display' => __("Display Price", 'lang_webshop'),
+			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
+			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
+			//'setting_webshop_local_storage' => __("Local Storage", 'lang_webshop'),
 		);
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
@@ -1188,19 +1190,11 @@ class mf_webshop
 			if(get_option('setting_quote_form') > 0)
 			{
 				$arr_settings['setting_search_max'] = __("Max results to send quote", 'lang_webshop');
-				$arr_settings['setting_webshop_replace_choose_product'] = __("Replace Text", 'lang_webshop');
 				$arr_settings['setting_webshop_switch_icon_on'] = __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")";
 				$arr_settings['setting_webshop_switch_icon_off'] = __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")";
 
 				$arr_settings['setting_require_search'] = __("Require user to make some kind of search", 'lang_webshop');
-
-				if(get_option('setting_require_search') == 'yes')
-				{
-					$arr_settings['setting_webshop_replace_too_many'] = __("Replace Text", 'lang_webshop');
-				}
-
 				$arr_settings['setting_webshop_replace_none_checked'] = __("Replace Text", 'lang_webshop');
-				$arr_settings['setting_replace_quote_request'] = __("Replace Text", 'lang_webshop');
 			}
 		}
 
@@ -1294,6 +1288,19 @@ class mf_webshop
 		############################
 	}
 
+	function pre_update_option($new_value, $old_value)
+	{
+		$out = "";
+
+		if($new_value != '')
+		{
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$out = $obj_encryption->encrypt($new_value, md5(AUTH_KEY));
+		}
+
+		return $out;
+	}
+
 	function settings_webshop_parent_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
@@ -1342,7 +1349,7 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key, 'yes');
 
-			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+			echo show_select(array('data' => array('yes' => __("Incl. Tax", 'lang_webshop'), 'no' => __("Excl. Tax", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_tax_display_callback($args = [])
@@ -1350,14 +1357,33 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__, $args);
 			$option = get_option($setting_key, 'yes');
 
-			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+			echo show_select(array('data' => array('yes' => __("Excl. Tax", 'lang_webshop'), 'no' => __("Incl. Tax", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_local_storage_callback()
+		function setting_webshop_stripe_secret_key_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
+
+			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+		}
+
+		function setting_webshop_swish_merchant_number_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
+		}
+
+		/*function setting_webshop_local_storage_callback()
 		{
 			echo show_button(array('type' => 'button', 'name' => 'btnLocalStorageClear', 'text' => __("Clear", 'lang_webshop'), 'class' => 'button'))
 			."<div id='storage_response'></div>";
-		}
+		}*/
 
 	function settings_webshop_parent_search_callback($args = [])
 	{
@@ -1507,14 +1533,6 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote", 'lang_webshop')));
 	}
 
-	function setting_webshop_replace_choose_product_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Choose", 'lang_webshop')));
-	}
-
 	function setting_webshop_switch_icon_on_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1571,14 +1589,6 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Search for Another", 'lang_webshop')));
 	}
 
-	function setting_replace_quote_request_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote to", 'lang_webshop')." %s ".__("products", 'lang_webshop')));
-	}
-
 	function setting_webshop_replace_none_checked_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1593,14 +1603,6 @@ class mf_webshop
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Email Your Products", 'lang_webshop')));
-	}
-
-	function setting_webshop_replace_too_many_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("In order to send a quote you have to be specific what you want by filtering", 'lang_webshop')));
 	}
 
 	function setting_webshop_share_email_subject_callback($args = [])
