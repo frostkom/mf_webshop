@@ -699,10 +699,15 @@ class mf_webshop
 				</tbody>
 			</table>
 			<br>
-			<div class='cart_totals flex_flow hide'>
+			<div class='flex_flow hide'>
 				<div>
-					<table class='widefat striped'>
+					<h3>".__("Summary", 'lang_webshop')."</h3>
+					<table class='cart_totals widefat striped'>
 						<tbody>
+							<tr>
+								<td>".__("Shipping Cost", 'lang_webshop')."</td>
+								<td class='shipping_cost'></td>
+							</tr>
 							<tr>
 								<td>".__("Total", 'lang_webshop')."</td>
 								<td class='total_sum'></td>
@@ -728,8 +733,8 @@ class mf_webshop
 					$out .= "</div>
 				</div>
 				<div>
-					<form action='#' method='post' class='proceed_to_checkout mf_form'>"
-						."<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
+					<form action='#' method='post' class='proceed_to_checkout mf_form'>
+						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='flex_flow'>"
 							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name'], 'xtra' => " data-fetch_info='first_name'"))
 							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name'], 'xtra' => " data-fetch_info='last_name'"))
@@ -1104,6 +1109,8 @@ class mf_webshop
 			'setting_webshop_tax_rate' => __("VAT", 'lang_webshop'),
 			'setting_webshop_tax_enter' => __("Enter Price", 'lang_webshop'),
 			'setting_webshop_tax_display' => __("Display Price", 'lang_webshop'),
+			'setting_webshop_shipping_cost' => __("Shipping Cost", 'lang_webshop'),
+			'setting_webshop_shipping_free_limit' => __("Limit for Free Shipping", 'lang_webshop'),
 			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
 			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 			//'setting_webshop_local_storage' => __("Local Storage", 'lang_webshop'),
@@ -1358,6 +1365,22 @@ class mf_webshop
 			$option = get_option($setting_key, 'yes');
 
 			echo show_select(array('data' => array('yes' => __("Excl. Tax", 'lang_webshop'), 'no' => __("Incl. Tax", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_shipping_cost_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_shipping_free_limit_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_stripe_secret_key_callback($args = [])
@@ -5016,7 +5039,6 @@ class mf_webshop
 								foreach($result as $r)
 								{
 									$post_title_old = $r->post_title;
-									//$post_name_old = $r->post_name;
 									$post_type = $r->post_type;
 
 									$error = $reload = $updated = false;
@@ -5031,20 +5053,9 @@ class mf_webshop
 									if($post_title != $post_title_old)
 									{
 										$post_data['post_title'] = $post_title;
-										//do_log(sprintf("Changed from %s to %s for %s", $post_title_old, $post_title, 'post_title'));
 
 										$updated = true;
 									}
-
-									/*$post_name_new = check_var('post_name');
-
-									if($post_name_new != $post_name_old)
-									{
-										$post_data['post_name'] = $post_name_new;
-										//do_log(sprintf("Changed from %s to %s for %s in %s", $post_name_old, $post_name_new, 'post_name'));
-
-										$updated = true;
-									}*/
 
 									foreach($arr_meta_boxes as $box_id => $arr_meta_box)
 									{
@@ -5511,130 +5522,7 @@ class mf_webshop
 			break;
 
 			case 'add_to_cart':
-				$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
-
-				$price_post_name = $this->get_post_name_for_type('price');
-				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
-
-				if($wpdb->num_rows > 0)
-				{
-					foreach($result as $r)
-					{
-						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-						if(!is_array($arr_products))
-						{
-							$arr_products = [];
-						}
-
-						$was_in_array = false;
-
-						foreach($arr_products as $key => $arr_value)
-						{
-							if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
-							{
-								$amount_temp = ++$arr_products[$key]['amount'];
-
-								$was_in_array = true;
-								break;
-							}
-						}
-
-						if($was_in_array == false)
-						{
-							$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
-						}
-
-						$post_data = array(
-							'ID' => $r->ID,
-							'meta_input' => apply_filters('filter_meta_input', array(
-								$this->meta_prefix.'products' => $arr_products,
-							)),
-						);
-
-						if(wp_update_post($post_data) > 0)
-						{
-							$json_output['success'] = true;
-							//$json_output['debug'] .= "Update: ".var_export($post_data, true);
-
-							if($cart_post_id > 0)
-							{
-								$json_output['response_add_to_cart'] = array(
-									'product_id' => $product_id,
-									'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
-								);
-							}
-
-							else
-							{
-								$json_output['response_add_to_cart'] = array(
-									'product_id' => $product_id,
-									'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
-								);
-							}
-						}
-
-						else
-						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'text' => __("Try Again", 'lang_webshop'),
-								'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
-							);
-						}
-					}
-				}
-
-				else
-				{
-					//$this->set_cookie();
-
-					$arr_products = [];
-					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
-
-					$post_data = array(
-						'post_type' => $this->post_type_orders,
-						'post_status' => 'draft',
-						'post_title' => $this->get_cookie(),
-						'meta_input' => apply_filters('filter_meta_input', array(
-							$this->meta_prefix.'cart_hash' => $this->get_cookie(),
-							$this->meta_prefix.'products' => $arr_products,
-						)),
-					);
-
-					if(wp_insert_post($post_data) > 0)
-					{
-						$json_output['success'] = true;
-						//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
-
-						if($cart_post_id > 0)
-						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
-							);
-						}
-
-						else
-						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
-							);
-						}
-					}
-
-					else
-					{
-						$json_output['response_add_to_cart'] = array(
-							'product_id' => $product_id,
-							'text' => __("Try Again", 'lang_webshop'),
-							'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
-						);
-					}
-				}
+				$json_output = $this->add_to_cart($json_output, $product_id);
 			break;
 
 			case 'webshop_cart':
@@ -5655,8 +5543,8 @@ class mf_webshop
 							$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
 							$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
 
+							$total_sum += $this->display_price(array('price' => ($arr_products[$key]['price'] * $arr_products[$key]['amount']), 'suffix' => false));
 							$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
-							$total_sum += $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount'], 'suffix' => false));
 
 							$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => true));
 							$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
@@ -5677,10 +5565,25 @@ class mf_webshop
 
 				if(is_array($arr_products))
 				{
+					$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
+					$shipping_cost = 0;
+					$shipping_comment = "";
+
+					if(!($setting_webshop_shipping_free_limit > 0) || $total_sum < $setting_webshop_shipping_free_limit)
+					{
+						$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
+						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+
+						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => ($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+					}
+
 					$json_output['success'] = true;
 					$json_output['response_webshop_cart'] = array(
 						'order_id' => $order_id,
 						'products' => $arr_products,
+						'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
 						'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
 						'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
 					);
@@ -6054,6 +5957,151 @@ class mf_webshop
 		}
 
 		$json_output['success'] = true;
+
+		header('Content-Type: application/json');
+		echo json_encode($json_output);
+		die();
+	}
+
+	function add_to_cart($json_output, $product_id)
+	{
+		global $wpdb;
+
+		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+
+		$price_post_name = $this->get_post_name_for_type('price');
+		$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
+
+		if($wpdb->num_rows > 0)
+		{
+			foreach($result as $r)
+			{
+				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+				if(!is_array($arr_products))
+				{
+					$arr_products = [];
+				}
+
+				$was_in_array = false;
+
+				foreach($arr_products as $key => $arr_value)
+				{
+					if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+					{
+						$amount_temp = ++$arr_products[$key]['amount'];
+
+						$was_in_array = true;
+						break;
+					}
+				}
+
+				if($was_in_array == false)
+				{
+					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+				}
+
+				$post_data = array(
+					'ID' => $r->ID,
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'products' => $arr_products,
+					)),
+				);
+
+				if(wp_update_post($post_data) > 0)
+				{
+					$json_output['success'] = true;
+					//$json_output['debug'] .= "Update: ".var_export($post_data, true);
+
+					if($cart_post_id > 0)
+					{
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
+						);
+					}
+
+					else
+					{
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
+						);
+					}
+				}
+
+				else
+				{
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'text' => __("Try Again", 'lang_webshop'),
+						'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
+					);
+				}
+			}
+		}
+
+		else
+		{
+			$arr_products = [];
+			$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+
+			$post_data = array(
+				'post_type' => $this->post_type_orders,
+				'post_status' => 'draft',
+				'post_title' => $this->get_cookie(),
+				'meta_input' => apply_filters('filter_meta_input', array(
+					$this->meta_prefix.'cart_hash' => $this->get_cookie(),
+					$this->meta_prefix.'products' => $arr_products,
+				)),
+			);
+
+			if(wp_insert_post($post_data) > 0)
+			{
+				$json_output['success'] = true;
+				//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
+
+				if($cart_post_id > 0)
+				{
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
+					);
+				}
+
+				else
+				{
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
+					);
+				}
+			}
+
+			else
+			{
+				$json_output['response_add_to_cart'] = array(
+					'product_id' => $product_id,
+					'text' => __("Try Again", 'lang_webshop'),
+					'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
+				);
+			}
+		}
+
+		return $json_output;
+	}
+
+	function api_webshop_add_to_cart()
+	{
+		$json_output = array(
+			'success' => false,
+		);
+
+		$product_id = check_var('product_id');
+
+		$json_output = $this->add_to_cart($json_output, $product_id);
 
 		header('Content-Type: application/json');
 		echo json_encode($json_output);

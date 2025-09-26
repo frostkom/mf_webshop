@@ -32,9 +32,10 @@ jQuery(function($)
 
 					dom_obj_widget.find(".cart_products tbody").html(html);
 
+					dom_obj_widget.find(".cart_totals .shipping_cost").html(response.shipping_cost);
 					dom_obj_widget.find(".cart_totals .total_sum").html(response.total_sum);
 					dom_obj_widget.find(".cart_totals .total_tax").html(response.total_tax);
-					dom_obj_widget.find(".cart_totals").removeClass('hide');
+					dom_obj_widget.find(".cart_products").siblings(".flex_flow.hide").removeClass('hide');
 				}
 
 				else
