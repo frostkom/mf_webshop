@@ -35,6 +35,9 @@ jQuery(function($)
 					dom_obj_widget.find(".cart_totals .shipping_cost").html(response.shipping_cost);
 					dom_obj_widget.find(".cart_totals .total_sum").html(response.total_sum);
 					dom_obj_widget.find(".cart_totals .total_tax").html(response.total_tax);
+
+					dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
+
 					dom_obj_widget.find(".cart_products").siblings(".flex_flow.hide").removeClass('hide');
 				}
 
@@ -126,6 +129,31 @@ jQuery(function($)
 			});
 		}
 	}
+
+	$(document).on('input', ".proceed_to_checkout #payment_card_no", function()
+	{
+		let value = $(this).val();
+
+		// Remove all non-digit characters
+		value = value.replace(/\D/g, '');
+
+		// Insert space after every 4 digits
+		value = value.replace(/(.{4})/g, '$1 ').trim();
+
+		$(this).val(value);
+	});
+
+	$(document).on('input', ".proceed_to_checkout #payment_card_expires", function()
+	{
+		let input = $(this).val().replace(/\D/g, '').slice(0, 4);
+
+		if(input.length >= 3)
+		{
+			input = input.slice(0, 2) + '/' + input.slice(2);
+		}
+
+		$(this).val(input);
+	});
 
 	dom_obj_widget.on('blur', ".proceed_to_checkout", function()
 	{

@@ -736,22 +736,38 @@ class mf_webshop
 					<form action='#' method='post' class='proceed_to_checkout mf_form'>
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='flex_flow'>"
-							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name'], 'xtra' => " data-fetch_info='first_name'"))
-							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name'], 'xtra' => " data-fetch_info='last_name'"))
+							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name'], 'xtra' => " data-fetch_info='first_name'", 'required' => true))
+							.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name'], 'xtra' => " data-fetch_info='last_name'", 'required' => true))
 						."</div>"
+						//."<strong>".__("Contact", 'lang_webshop')."</strong>"
 						."<div class='flex_flow'>"
+							.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->order_details['contact_email'], 'xtra' => " data-fetch_info='email'", 'required' => true))
 							.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->order_details['contact_phone'], 'xtra' => " data-fetch_info='telno'"))
-							.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->order_details['contact_email'], 'xtra' => " data-fetch_info='email'"))
 						."</div>"
-						.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_address'), 'value' => $this->order_details['address_street'], 'xtra' => " data-fetch_info='address'"))
-						.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_address'), 'value' => $this->order_details['address_co']))
+						//."<strong>".__("Address", 'lang_webshop')."</strong>"
+						.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_webshop'), 'value' => $this->order_details['address_street'], 'xtra' => " data-fetch_info='address'", 'required' => true))
+						.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'value' => $this->order_details['address_co'], 'required' => true))
 						."<div class='flex_flow'>"
-							.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_address'), 'value' => $this->order_details['address_zip'], 'xtra' => " data-fetch_info='zip'"))
-							.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_address'), 'value' => $this->order_details['address_city'], 'xtra' => " data-fetch_info='city'"))
-						."</div>"
-						//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_address'), 'value' => $this->order_details['address_country'], 'xtra' => " data-fetch_info='country'"))
-						."<div".get_form_button_classes().">"
-							.show_button(array('name' => 'btnWebshopPay', 'text' => __("Pay Now", 'lang_webshop')))
+							.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_webshop'), 'value' => $this->order_details['address_zip'], 'xtra' => " data-fetch_info='zip'", 'required' => true))
+							.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_webshop'), 'value' => $this->order_details['address_city'], 'xtra' => " data-fetch_info='city'"))
+						."</div>";
+
+						//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_webshop'), 'value' => $this->order_details['address_country'], 'xtra' => " data-fetch_info='country'"))
+
+						$setting_webshop_stripe_secret_key = get_option('setting_webshop_stripe_secret_key');
+
+						if($setting_webshop_stripe_secret_key != '')
+						{
+							$out .= "<p>".__("Card Details", 'lang_webshop')."</p>"
+							.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19, 'required' => true))
+							."<div class='flex_flow'>"
+								.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5, 'required' => true))
+								.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3, 'required' => true))
+							."</div>";
+						}
+
+						$out .= "<div".get_form_button_classes().">"
+							.show_button(array('name' => 'btnWebshopPay', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
 							.input_hidden(array('name' => 'action', 'value' => 'api_webshop_order_update'))
 							//.input_hidden(array('name' => 'order_id', 'value' => $this->order_id, 'allow_empty' => true))
 						."</div>"
