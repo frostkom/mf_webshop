@@ -949,12 +949,15 @@ class mf_webshop
 
 		// Post types
 		#######################
-		$name_categories = __("Categories", 'lang_webshop');
-
 		register_post_type($this->post_type_categories, $args = array(
 			'labels' => array(
-				'name' => $name_categories,
-				'menu_name' => $name_categories,
+				'name' => __("Categories", 'lang_webshop'),
+				'singular_name' => __("Category", 'lang_webshop'),
+				'menu_name' => __("Categories", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_ui' => true,
@@ -975,7 +978,12 @@ class mf_webshop
 		register_post_type($this->post_type_products, array(
 			'labels' => array(
 				'name' => __("Products", 'lang_webshop'),
+				'singular_name' => __("Product", 'lang_webshop'),
 				'menu_name' => __("Products", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => true,
 			'show_in_menu' => false,
@@ -986,12 +994,15 @@ class mf_webshop
 			'has_archive' => false,
 		));
 
-		$name_custom_categories = __("Custom Categories", 'lang_webshop');
-
 		register_post_type($this->post_type_custom_categories, array(
 			'labels' => array(
-				'name' => $name_custom_categories,
-				'menu_name' => $name_custom_categories,
+				'name' => __("Custom Categories", 'lang_webshop'),
+				'singular_name' => __("Custom Category", 'lang_webshop'),
+				'menu_name' => __("Custom Categories", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_ui' => true,
@@ -1001,13 +1012,16 @@ class mf_webshop
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
-
-		$name_doc_types = __("Filters", 'lang_webshop');
 
 		register_post_type($this->post_type_document_type, array(
 			'labels' => array(
-				'name' => $name_doc_types,
-				'menu_name' => $name_doc_types,
+				'name' => __("Filters", 'lang_webshop'),
+				'singular_name' => __("Filter", 'lang_webshop'),
+				'menu_name' => __("Filters", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_ui' => true,
@@ -1017,13 +1031,16 @@ class mf_webshop
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
-
-		$name_location = __("Location", 'lang_webshop');
 
 		register_post_type($this->post_type_location, array(
 			'labels' => array(
-				'name' => $name_location,
-				'menu_name' => $name_location,
+				'name' => __("Locations", 'lang_webshop'),
+				'singular_name' => __("Location", 'lang_webshop'),
+				'menu_name' => __("Locations", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_ui' => true,
@@ -1034,12 +1051,15 @@ class mf_webshop
 			'has_archive' => false,
 		));
 
-		$name_customers = __("Customers", 'lang_webshop');
-
 		register_post_type($this->post_type_customers, array(
 			'labels' => array(
-				'name' => $name_customers,
-				'menu_name' => $name_customers,
+				'name' => __("Customers", 'lang_webshop'),
+				'singular_name' => __("Customer", 'lang_webshop'),
+				'menu_name' => __("Customers", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_in_menu' => false,
@@ -1048,12 +1068,15 @@ class mf_webshop
 			'has_archive' => false,
 		));
 
-		$name_delivery_type = __("Delivery Type", 'lang_webshop');
-
 		register_post_type($this->post_type_delivery_type, array(
 			'labels' => array(
-				'name' => $name_delivery_type,
-				'menu_name' => $name_delivery_type,
+				'name' => __("Delivery Types", 'lang_webshop'),
+				'singular_name' => __("Delivery Type", 'lang_webshop'),
+				'menu_name' => __("Delivery Types", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => false,
 			'show_in_menu' => false,
@@ -1065,7 +1088,12 @@ class mf_webshop
 		register_post_type($this->post_type_orders, array(
 			'labels' => array(
 				'name' => __("Orders", 'lang_webshop'),
+				'singular_name' => __("Order", 'lang_webshop'),
 				'menu_name' => __("Orders", 'lang_webshop'),
+				'all_items' => __('List', 'lang_webshop'),
+				'edit_item' => __('Edit', 'lang_webshop'),
+				'view_item' => __('View', 'lang_webshop'),
+				'add_new_item' => __('Add New', 'lang_webshop'),
 			),
 			'public' => true,
 			'show_in_menu' => false,
@@ -2081,7 +2109,7 @@ class mf_webshop
 		return apply_filters('the_content', $out);
 	}
 
-	function filter_form_on_submit($data)
+	/*function filter_form_on_submit($data)
 	{
 		global $wpdb, $error_text, $obj_form;
 
@@ -2160,12 +2188,12 @@ class mf_webshop
 
 		if(count($arr_product_ids) > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id)); //, formEmailNotifyFrom
 
 			foreach($result as $r)
 			{
 				$data['obj_form']->email_admin = $r->formEmail;
-				$data['obj_form']->email_notify_from = $r->formEmailNotifyFrom;
+				//$data['obj_form']->email_notify_from = $r->formEmailNotifyFrom;
 				$data['obj_form']->email_notify_page = $r->formEmailNotifyPage;
 				$data['obj_form']->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $data['obj_form']->form_name);
 			}
@@ -2261,7 +2289,7 @@ class mf_webshop
 		$data['obj_form']->arr_email_content = $arr_mail_content_temp;
 
 		return $data;
-	}
+	}*/
 
 	function get_product_id_from_calendar($post_id)
 	{
