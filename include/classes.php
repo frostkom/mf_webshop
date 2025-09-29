@@ -528,7 +528,7 @@ class mf_webshop
 			replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request'),
+				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search'),
 				'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 			));
 		}
@@ -553,14 +553,12 @@ class mf_webshop
 		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('ajax_url' => admin_url('admin-ajax.php')));
 		mf_enqueue_script('script_webshop_views', $plugin_include_url."backbone/bb.views.js", array(
 			'site_url' => get_site_url(),
-			'force_individual_contact' => get_option('setting_webshop_force_individual_contact'),
 			'symbol_inactive' => get_option_or_default('setting_webshop_symbol_inactive_image', $this->get_map_marker_url('setting_webshop_symbol_inactive')),
 			'symbol_active' => get_option_or_default('setting_webshop_symbol_active_image', $this->get_map_marker_url('setting_webshop_symbol_active')),
 			'ghost_inactive' => get_option('setting_ghost_inactive_image'),
 			'ghost_active' => get_option('setting_ghost_active_image'),
 			'search_max' => get_option_or_default('setting_search_max', 50),
 			'show_all_min' => get_option_or_default('setting_show_all_min', 30),
-			'require_search' => get_option('setting_require_search'),
 			'mobile_breakpoint' => $arr_breakpoints['mobile'],
 		));
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js");
@@ -664,8 +662,6 @@ class mf_webshop
 
 		if(isset($_POST['btnWebshopPay']))
 		{
-			//$this->order_id = check_var('order_id');
-
 			// Send payment
 			// Collect answer
 			// Set order to published
@@ -732,8 +728,8 @@ class mf_webshop
 
 					$out .= "</div>
 				</div>
-				<div>
-					<form action='#' method='post' class='proceed_to_checkout mf_form'>
+				<div class='proceed_to_checkout'>
+					<form action='#' method='post' class='order_details mf_form'>
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='flex_flow'>"
 							.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name'], 'xtra' => " data-fetch_info='first_name'", 'required' => true))
@@ -764,15 +760,278 @@ class mf_webshop
 								.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5, 'required' => true))
 								.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3, 'required' => true))
 							."</div>";
+								
+							$out .= "<div".get_form_button_classes().">"
+								.show_button(array('name' => 'btnWebshopPay', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+								.input_hidden(array('name' => 'action', 'value' => 'api_webshop_order_update'))
+								//.input_hidden(array('name' => 'order_id', 'value' => $this->order_id, 'allow_empty' => true))
+							."</div>";
 						}
 
-						$out .= "<div".get_form_button_classes().">"
-							.show_button(array('name' => 'btnWebshopPay', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
-							.input_hidden(array('name' => 'action', 'value' => 'api_webshop_order_update'))
-							//.input_hidden(array('name' => 'order_id', 'value' => $this->order_id, 'allow_empty' => true))
-						."</div>"
-					."</form>
-				</div>
+					$out .= "</form>";
+
+					$setting_webshop_swish_merchant_number = get_option('setting_webshop_swish_merchant_number');
+
+					if($setting_webshop_swish_merchant_number != '')
+					{
+						$out .= "<p>".__("Swish", 'lang_webshop')."</p>";
+
+						if(isset($_POST['btnPaymentSwish']))
+						{
+							$base_callback_url = $_SERVER['HTTP_REFERER'];
+
+							/*$paymentRequest = [
+								"payeePaymentReference" => "unique_reference_123",
+								"callbackUrl" => "https://yourdomain.com/swish_callback",
+								"payeeAlias" => "1231181189",          // your Swish merchant number
+								"payerAlias" => "46701234567",         // customer's phone number
+								"amount" => "100",                     // amount in SEK as string
+								"currency" => "SEK",
+								"message" => "Order #1234"
+							];
+
+							$payload = json_encode($paymentRequest);
+
+							// Paths to your client certificate and private key (PEM or P12 with passphrase)
+							$certFile = "/path/to/Swish_Merchant_TestCertificate_1234679304.p12";
+							$certPassword = "your_cert_password";
+							$keyFile = "/path/to/Swish_Merchant_TestCertificate_1234679304.key";
+
+							// Swish API endpoint for payment requests
+							$url = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
+
+							// Initialize cURL
+							$ch = curl_init();
+
+							curl_setopt($ch, CURLOPT_URL, $url);
+							curl_setopt($ch, CURLOPT_PORT, 443);
+							curl_setopt($ch, CURLOPT_SSLCERT, $certFile);
+							curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $certPassword);
+							curl_setopt($ch, CURLOPT_SSLKEY, $keyFile);
+							curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $certPassword);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_POST, true);
+							curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+							curl_setopt($ch, CURLOPT_HTTPHEADER, [
+								'Content-Type: application/json',
+							]);
+
+							// Execute request
+							$response = curl_exec($ch);
+							$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+							if (curl_errno($ch)) {
+								echo 'Curl error: ' . curl_error($ch);
+							} else {
+								echo 'HTTP status: ' . $httpCode . "n";
+								echo 'Response: ' . $response . "n";
+							}
+
+							curl_close($ch);
+
+							Callback:
+							{
+							  "id": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
+							  "paymentRequestId": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
+							  "status": "PAID",
+							  "amount": "100",
+							  "currency": "SEK",
+							  "payeeAlias": "1231181189",
+							  "payerAlias": "46701234567",
+							  "message": "Order #1234",
+							  "created": "2025-08-29T10:00:00.000Z",
+							  "updated": "2025-08-29T10:01:00.000Z",
+							  "payeePaymentReference": "unique_reference_123",
+							  "errorCode": null
+							}*/
+
+							$setting_webshop_swish_certificate_root_file = get_option('setting_webshop_swish_certificate_root_file');
+							$setting_webshop_swish_certificate_file = get_option('setting_webshop_swish_certificate_file');
+							$setting_webshop_swish_certificate_password = get_option('setting_webshop_swish_certificate_password');
+							$setting_webshop_swish_key_file = get_option('setting_webshop_swish_key_file');
+
+							$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+							$total_sum = 0; // get total sum like in webshop_cart
+							$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
+
+							//$action = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/";
+							$action = "https://cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
+
+							$post_data = array(
+								'payeePaymentReference' => $this->order_id,
+								'callbackUrl' => $base_callback_url."&callback",
+								//'payerAlias' => $telno, // This will only return Location and thus we can't send the mobile user to swish://...
+								'payeeAlias' => $setting_webshop_swish_merchant_number,
+								'amount' => $total_sum,
+								'currency' => $setting_webshop_currency,
+								'message' => "Order #".$post_id,
+							);
+
+							$data = array(
+								'url' => $action,
+								'content_type' => "application/json",
+								'catch_head' => true,
+								'include_head_in_output' => true,
+								//'debug' => true,
+								'post_data' => json_encode($post_data),
+								'ca_path' => $setting_webshop_swish_certificate_root_file,
+								'ssl_cert_path' => $setting_webshop_swish_certificate_file,
+								'ssl_key_path' => $setting_webshop_swish_key_file,
+							);
+
+							list($url_content, $headers) = get_url_content($data);
+
+							//do_log("Swish: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($url_content, true)));
+
+							switch($headers['http_code'])
+							{
+								case 200:
+								case 201:
+									//$json = json_decode($url_content, true);
+
+									$json = array();
+
+									foreach(explode("\n", $url_content) as $row)
+									{
+										@list($row_key, $row_value) = explode(":", $row, 2);
+
+										$json[trim($row_key)] = trim($row_value);
+									}
+
+									//$out .= "Successful: ".var_export($json, true)." (".var_export($headers, true).")";
+
+									if(isset($json['PaymentRequestToken']))
+									{
+										$token = $json['PaymentRequestToken'];
+										$callback = $base_callback_url."&accept";
+
+										$action = "swish://paymentrequest?token=".$token."&callbackurl=".urlencode($callback);
+
+										$out .= "<form method='post' action='".$action."'>
+											<div".get_form_button_classes().">"
+												//."<p>".$action."</p>"
+												.show_button(array('text' => __("Open the App", 'lang_webshop'))) //'name' => 'btnPaymentSwish', 
+											."</div>
+										</form>";
+									}
+
+									else
+									{
+										$error_text = __("I could not find a token in the answer", 'lang_webshop')." (".htmlspecialchars($url_content).")";
+
+										$out .= get_notification();
+									}
+								break;
+
+								default:
+									$error_text = sprintf(__("I am sorry, but I did not get the correct answer from %s to proceed to payment. An admin has been notified about this.", 'lang_webshop'), "Swish")." (".var_export($headers, true)." -> ".$headers['http_code'].")";
+
+									$out .= get_notification();
+
+									do_log("Unsuccessful Swish payment: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($url_content, true)));
+								break;
+							}
+						}
+
+						else if(isset($_GET['accept']))
+						{
+							$strPaymentStatus = ''; //$total_sum, $this->order_id
+
+							switch($strPaymentStatus)
+							{
+								case 'paid':
+									$done_text = __("Thank you for ordering!", 'lang_webshop');
+								break;
+
+								case 'cancelled':
+									$error_text = __("You seam to have cancelled the order...", 'lang_webshop');
+								break;
+
+								case 'failed':
+									$error_text = __("Something went wrong with the payment. An admin has been notified about this.", 'lang_webshop');
+								break;
+
+								default:
+									$notice_text = __("There is not yet a status on your payment. Wait a moment...", 'lang_webshop');
+								break;
+							}
+
+							$out .= get_notification();
+						}
+
+						else if(isset($_GET['callback']))
+						{
+							$response_request = $_REQUEST;
+							$response_body = file_get_contents('php://input');
+
+							$json = json_decode($response_body, true);
+
+							switch($json['status'])
+							{
+								case 'DECLINED':
+									if($this->order_id == $json['payeePaymentReference'])
+									{
+										// The payment was cancelled. Save it in the order
+										//$this->order_id
+									}
+
+									else
+									{
+										do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+									}
+								break;
+
+								case 'ERROR':
+									if($this->order_id == $json['payeePaymentReference'])
+									{
+										// The payment failed. Save it in the order
+										//$this->order_id
+									}
+
+									else
+									{
+										do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+									}
+								break;
+
+								case 'PAID':
+									if($this->order_id == $json['payeePaymentReference'])
+									{
+										if((int)$json['amount'] == (int)$total_sum)
+										{
+											// The paid amount is correct. Save it in the order
+											//$this->order_id
+										}
+
+										else
+										{
+											do_log("Swish Incorrect Amount: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+										}
+									}
+
+									else
+									{
+										do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+									}
+								break;
+
+								default:
+									do_log("Swish Status Unknown (".$json['status']."): ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+								break;
+							}
+						}
+
+						else
+						{
+							$out .= "<form method='post' action=''>"
+								."<div".get_form_button_classes().">"
+									.show_button(array('name' => 'btnPaymentSwish', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+								."</div>"
+							."</form>";
+						}
+					}
+
+				$out .= "</div>
 			</div>"
 			.$this->get_templates(array('type' => 'webshop_cart'))
 		."</div>";
@@ -1160,6 +1419,14 @@ class mf_webshop
 			//'setting_webshop_local_storage' => __("Local Storage", 'lang_webshop'),
 		);
 
+		if(get_option('setting_webshop_swish_merchant_number') != '')
+		{
+			$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
+			$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
+			$arr_settings['setting_webshop_swish_certificate_password'] = " - ".__("Certificate Password", 'lang_webshop');
+			$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
+		}
+
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
 
@@ -1215,17 +1482,6 @@ class mf_webshop
 		}*/
 		############################
 
-		// Generic
-		############################
-		/*$options_area = $options_area_orig;
-
-		add_settings_section($options_area.'', "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
-
-		$arr_settings = [];
-
-		show_settings_fields(array('area' => $options_area.'', 'object' => $this, 'settings' => $arr_settings));*/
-		############################
-
 		//Search
 		############################
 		/*$options_area = $options_area_orig."_search";
@@ -1243,9 +1499,6 @@ class mf_webshop
 				$arr_settings['setting_search_max'] = __("Max results to send quote", 'lang_webshop');
 				$arr_settings['setting_webshop_switch_icon_on'] = __("Switch Icon", 'lang_webshop')." (".__("On", 'lang_webshop').")";
 				$arr_settings['setting_webshop_switch_icon_off'] = __("Switch Icon", 'lang_webshop')." (".__("Off", 'lang_webshop').")";
-
-				$arr_settings['setting_require_search'] = __("Require user to make some kind of search", 'lang_webshop');
-				$arr_settings['setting_webshop_replace_none_checked'] = __("Replace Text", 'lang_webshop');
 			}
 		}
 
@@ -1285,21 +1538,6 @@ class mf_webshop
 			{
 				$arr_settings['setting_webshop_allow_multiple_categories'] = __("Allow Multiple Categories", 'lang_webshop');
 			}
-
-			/*if(get_option('setting_quote_form') > 0)
-			{
-				$arr_settings['setting_replace_add_to_search'] = __("Replace Text", 'lang_webshop');
-				$arr_settings['setting_replace_remove_from_search'] = __("Replace Text", 'lang_webshop');
-				//$arr_settings['setting_replace_return_to_search'] = __("Replace Text", 'lang_webshop');
-				$arr_settings['setting_replace_search_for_another'] = __("Replace Text", 'lang_webshop');
-			}*/
-
-			/*if(get_option('setting_quote_form_single') > 0)
-			{
-				$arr_settings['setting_replace_send_request_for_quote'] = __("Replace Text", 'lang_webshop');
-
-				$arr_settings['setting_webshop_force_individual_contact'] = __("Force Individual Contact", 'lang_webshop');
-			}*/
 		}
 
 		show_settings_fields(array('area' => $options_area.'', 'object' => $this, 'settings' => $arr_settings));
@@ -1444,6 +1682,59 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_swish_certificate_root_file_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$description = '';
+
+			if($option == '')
+			{
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".pem")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>";
+			}
+
+			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
+		}
+
+		function setting_webshop_swish_certificate_file_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$description = '';
+
+			if($option == '')
+			{
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".p12")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>"; // cert / pem / p12
+			}
+
+			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
+		}
+
+		function setting_webshop_swish_certificate_password_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+		}
+
+		function setting_webshop_swish_key_file_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$description = '';
+
+			if($option == '')
+			{
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".key")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>";
+			}
+
+			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
 		/*function setting_webshop_local_storage_callback()
@@ -1592,14 +1883,6 @@ class mf_webshop
 		echo show_textarea(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Here are your %s saved products", 'lang_webshop'), 'description' => __("Disable by adding any single character", 'lang_webshop')));
 	}
 
-	function setting_replace_send_request_for_quote_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Send request for quote", 'lang_webshop')));
-	}
-
 	function setting_webshop_switch_icon_on_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1622,46 +1905,6 @@ class mf_webshop
 		$option = get_option($setting_key, 'yes');
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}
-
-	function setting_replace_add_to_search_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Add to Search", 'lang_webshop')));
-	}
-
-	function setting_replace_remove_from_search_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Remove from Search", 'lang_webshop')));
-	}
-
-	/*function setting_replace_return_to_search_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Return to Search", 'lang_webshop')));
-	}*/
-
-	function setting_replace_search_for_another_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Search for Another", 'lang_webshop')));
-	}
-
-	function setting_webshop_replace_none_checked_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key);
-
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("You have to choose at least one product to proceed", 'lang_webshop')));
 	}
 
 	function setting_webshop_replace_email_favorites_callback($args = [])
@@ -1762,14 +2005,6 @@ class mf_webshop
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='100'", 'suffix' => sprintf(__("%d will hide the link in the form", 'lang_webshop'), 0)));
 	}
 
-	function setting_require_search_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option_or_default($setting_key, 'yes');
-
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}
-
 	function setting_webshop_symbol_active_callback($args = [])
 	{
 		$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -1818,14 +2053,6 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_webshop_force_individual_contact_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
-		$option = get_option($setting_key, 'yes');
-
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'description' => __("This will allow visitors to send individual quote requests all the time, otherwise it is only for first time visitors coming directly to the page that have this option", 'lang_webshop')));
-	}
-
 	function combined_head()
 	{
 		$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
@@ -1860,7 +2087,7 @@ class mf_webshop
 			'symbol_active_image' => $symbol_active_image,
 			'symbol_active' => trim($symbol_active, "#"),
 			'mobile_breakpoint' => $arr_breakpoints['mobile'],
-			'product_missing' => get_option_or_default('setting_webshop_replace_none_checked', __("You have to choose at least one product to proceed", 'lang_webshop')),
+			'product_missing' => __("You have to choose at least one product to proceed", 'lang_webshop'),
 		));
 	}
 
@@ -2660,22 +2887,6 @@ class mf_webshop
 		}
 
 		return $arr_fields;
-	}*/
-
-	/*function shortcode_back_to_search()
-	{
-		global $post;
-
-		if(isset($post->ID) && $post->ID > 0)
-		{
-			$this->get_option_type_from_post_id($post->ID);
-		}
-
-		$setting_replace_return_to_search = get_option_or_default('setting_replace_return_to_search', __("Continue Search", 'lang_webshop'));
-
-		return "<div".get_form_button_classes("alignleft").">
-			<a href='#' id='mf_back_to_search' class='button button-primary hide'><i class='fa fa-chevron-left'></i> ".$setting_replace_return_to_search."</a>
-		</div>";
 	}*/
 
 	/*function single_template($single_template)
@@ -5625,7 +5836,7 @@ class mf_webshop
 
 					$json_output['success'] = true;
 					$json_output['response_webshop_cart'] = array(
-						'order_id' => $order_id,
+						//'order_id' => $order_id,
 						'products' => $arr_products,
 						'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
 						'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
@@ -5907,7 +6118,6 @@ class mf_webshop
 			'success' => false,
 		);
 
-		//$this->order_id = check_var('order_id');
 		$this->order_id = $this->get_cookie();
 
 		$product_name = check_var('product_name');

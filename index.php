@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.19
+Version: 2.2.6.20
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -71,8 +71,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	//add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields'));
 	add_action('rwmb_after_save_post', array($obj_webshop, 'rwmb_after_save_post'));
 
-	//add_shortcode('mf_back_to_search', array($obj_webshop, 'shortcode_back_to_search'));
-
 	//add_filter('single_template', array($obj_webshop, 'single_template'));
 	//add_filter('theme_templates', array($obj_webshop, 'get_page_templates'));
 
@@ -102,7 +100,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$obj_webshop = new mf_webshop();
 
-		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_map_placement', 'setting_webshop_map_button_placement', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_webshop_replace_show_map', 'setting_webshop_replace_hide_map', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_require_search', 'setting_quote_form_popup', 'setting_webshop_force_individual_contact', 'setting_webshop_icon', 'setting_replace_send_request_for_quote', 'setting_webshop_allow_multiple_categories', 'setting_replace_add_to_search', 'setting_replace_remove_from_search', 'setting_replace_search_for_another', 'setting_webshop_replace_none_checked', 'setting_map_info', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_favorites_info', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number');
+		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_map_placement', 'setting_webshop_map_button_placement', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_webshop_replace_show_map', 'setting_webshop_replace_hide_map', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_quote_form_popup', 'setting_webshop_icon', 'setting_webshop_allow_multiple_categories', 'setting_map_info', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_active', 'setting_webshop_replace_favorites_info', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_certificate_password', 'setting_webshop_swish_key_file');
 
 		foreach($obj_webshop->arr_option_types as $option_type)
 		{

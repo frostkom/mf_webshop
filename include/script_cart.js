@@ -21,7 +21,7 @@ jQuery(function($)
 
 				if(count_temp > 0)
 				{
-					dom_obj_widget.find(".proceed_to_checkout input[name='order_id']").val(response.order_id);
+					/*dom_obj_widget.find(".proceed_to_checkout input[name='order_id']").val(response.order_id);*/
 
 					var dom_template = $("#template_webshop_cart_item").html();
 
@@ -155,7 +155,7 @@ jQuery(function($)
 		$(this).val(input);
 	});
 
-	dom_obj_widget.on('blur', ".proceed_to_checkout", function()
+	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
 	{
 		var form_data = $(this).serialize();
 

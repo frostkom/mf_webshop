@@ -352,7 +352,7 @@ var WebshopView = Backbone.View.extend(
 
 			this.get_products_storage();
 
-			if(script_webshop_views.force_individual_contact == 'no' && (typeof form_serialized != 'undefined' || typeof this.form_products != 'undefined'))
+			if(typeof form_serialized != 'undefined' || typeof this.form_products != 'undefined')
 			{
 				dom_product_buttons.find(".has_not_searched").addClass('hide');
 				dom_product_buttons.find(".has_searched").removeClass('hide');
@@ -597,7 +597,7 @@ var WebshopView = Backbone.View.extend(
 
 	product_form_has_changed: function()
 	{
-		return (script_webshop_views.require_search == 'no' || jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '');
+		return (jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '');
 	},
 
 	show_quote_request_button: function()
