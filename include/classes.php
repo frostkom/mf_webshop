@@ -871,8 +871,6 @@ class mf_webshop
 								'url' => $action,
 								'content_type' => "application/json",
 								'catch_head' => true,
-								'include_head_in_output' => true,
-								//'debug' => true,
 								'post_data' => json_encode($post_data),
 								'ca_path' => $setting_webshop_swish_certificate_root_file,
 								'ssl_cert_path' => $setting_webshop_swish_certificate_file,
