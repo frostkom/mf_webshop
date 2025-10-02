@@ -5829,7 +5829,7 @@ class mf_webshop
 						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
 						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
 
-						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => ($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 					}
 
 					$json_output['success'] = true;
