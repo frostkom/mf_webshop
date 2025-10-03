@@ -342,7 +342,7 @@ echo "@media all
 	}";
 
 	//apply_filters('get_block_search', 0, 'mf/webshop...') > 0
-	if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
+	/*if(!is_plugin_active("mf_widget_logic_select/index.php") || apply_filters('get_widget_search', 'webshop-events-widget') > 0 || apply_filters('get_widget_search', 'webshop-filter-products-widget') > 0)
 	{
 		echo ".widget.webshop_filter_products .product_filters
 		{
@@ -692,8 +692,8 @@ echo "@media all
 
 	$setting_webshop_search_page_map_height = 754;
 
-	echo "/* Map */
-	.map_wrapper
+	// Map
+	echo ".map_wrapper
 	{
 		position: relative;
 	}
@@ -747,9 +747,9 @@ echo "@media all
 				#webshop_map_input:hover
 				{
 					opacity: 1;
-				}
+				}";*/
 
-	#main > #product_form
+	echo "#main > #product_form
 	{
 		display: flex;
 	}

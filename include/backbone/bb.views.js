@@ -20,7 +20,7 @@ var WebshopView = Backbone.View.extend(
 
 	initialize: function()
 	{
-		if(jQuery(".webshop_map.display_on_mobile").length > 0)
+		/*if(jQuery(".webshop_map.display_on_mobile").length > 0)
 		{
 			var body_obj = jQuery("body");
 
@@ -33,7 +33,7 @@ var WebshopView = Backbone.View.extend(
 			{
 				jQuery(".webshop_map.display_on_mobile .webshop_map_container").attr("id", "webshop_map_hide");
 			}
-		}
+		}*/
 
 		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
@@ -43,16 +43,16 @@ var WebshopView = Backbone.View.extend(
 		this.is_favorites_view = (jQuery(".product_favorites").length > 0);
 		this.has_product_result = (jQuery(".product_list.webshop_item_list").length > 0);
 
-		this.get_products_storage();
+		/*this.get_products_storage();*/
 
 		/* Events */
-		this.model.on("change:calendar_response", this.show_calendars, this);
+		/*this.model.on("change:calendar_response", this.show_calendars, this);*/
 		this.model.on("change:event_hash", this.show_events, this);
 
-		this.dom_obj_events = jQuery(".webshop_widget.webshop_events");
+		/*this.dom_obj_events = jQuery(".webshop_widget.webshop_events");*/
 		this.dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
 
-		this.is_events_view = (this.dom_obj_events.length > 0);
+		/*this.is_events_view = (this.dom_obj_events.length > 0);*/
 
 		/* Filter Products */
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
@@ -71,7 +71,7 @@ var WebshopView = Backbone.View.extend(
 				this.form_products = location.hash.replace('#', '');
 				this.form_products = this.form_products.replace('webshop/', '');
 
-				this.set_products_storage();
+				/*this.set_products_storage();*/
 			}
 
 			if(typeof this.form_products != 'undefined' && this.form_products != '')
@@ -85,12 +85,12 @@ var WebshopView = Backbone.View.extend(
 			}
 		}
 
-		else if(this.is_events_view || this.is_filter_products_view)
+		else if(this.is_filter_products_view) /*this.is_events_view || */
 		{
-			if(this.is_events_view)
+			/*if(this.is_events_view)
 			{
 				this.process_events_view();
-			}
+			}*/
 
 			if(this.is_filter_products_view)
 			{
@@ -129,20 +129,20 @@ var WebshopView = Backbone.View.extend(
 		"click .product_list.webshop_item_list > li .add_to_cart": "add_to_cart",
 
 		/* Favorites */
-		"click .quote_button .button_print": "print_favorites",
+		/*"click .quote_button .button_print": "print_favorites",*/
 
 		/* Events */
 		"click .webshop_widget .calendar_header button": "change_month",
 		"click .event_calendar .day a": "change_date",
-		"change .webshop_events .event_filters .event_filter_category": "change_category",
-		"change .webshop_events .event_filters .event_filter_order_by": "change_order_by",
+		/*"change .webshop_events .event_filters .event_filter_category": "change_category",
+		"change .webshop_events .event_filters .event_filter_order_by": "change_order_by",*/
 		"click .webshop_widget .widget_load_more button": "load_more_button",
 
 		/* Products */
 		"change .webshop_filter_products .product_filters .product_filter_order_by": "change_order_by"
 	},
 
-	process_events_view: function()
+	/*process_events_view: function()
 	{
 		this.dom_calendar = this.dom_obj_events.find(".event_calendar");
 		this.has_calendar = this.dom_calendar.length > 0;
@@ -213,7 +213,7 @@ var WebshopView = Backbone.View.extend(
 		{
 			this.load_all_events();
 		}
-	},
+	},*/
 
 	process_filter_products_view: function()
 	{
@@ -350,7 +350,7 @@ var WebshopView = Backbone.View.extend(
 		{
 			var form_serialized = jQuery.Storage.get('form_serialized');
 
-			this.get_products_storage();
+			/*this.get_products_storage();*/
 
 			if(typeof form_serialized != 'undefined' || typeof this.form_products != 'undefined')
 			{
@@ -495,10 +495,10 @@ var WebshopView = Backbone.View.extend(
 		});
 
 		this.form_products = form_products;
-		this.set_products_storage();
+		/*this.set_products_storage();*/
 	},
 
-	get_products_storage: function()
+	/*get_products_storage: function()
 	{
 		this.form_products = jQuery.Storage.get('form_products');
 	},
@@ -506,7 +506,7 @@ var WebshopView = Backbone.View.extend(
 	set_products_storage: function()
 	{
 		jQuery.Storage.set({'form_products': this.form_products});
-	},
+	},*/
 
 	get_products: function()
 	{
@@ -683,12 +683,12 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	print_favorites: function()
+	/*print_favorites: function()
 	{
 		window.print();
 
 		return false;
-	},
+	},*/
 
 	show_products: function()
 	{
@@ -797,7 +797,7 @@ var WebshopView = Backbone.View.extend(
 
 			else
 			{
-				this.get_products_storage();
+				/*this.get_products_storage();*/
 
 				var form_products = this.form_products;
 
@@ -822,7 +822,7 @@ var WebshopView = Backbone.View.extend(
 				}
 
 				this.form_products = form_products;
-				this.set_products_storage();
+				/*this.set_products_storage();*/
 			}
 		}
 
@@ -935,7 +935,7 @@ var WebshopView = Backbone.View.extend(
 		this.model.getPage(get_vars);
 	},
 
-	show_calendars: function()
+	/*show_calendars: function()
 	{
 		var response = this.model.get('calendar_response'),
 			html = '',
@@ -944,7 +944,7 @@ var WebshopView = Backbone.View.extend(
 		this.dom_calendar.children(".widget_spinner").remove();
 
 		this.dom_calendar.html(_.template(dom_template)(response));
-	},
+	},*/
 
 	change_month: function(e)
 	{
