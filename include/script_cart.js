@@ -10,8 +10,6 @@ jQuery(function($)
 
 		if(count_temp > 0)
 		{
-			/*dom_obj_widget.find(".proceed_to_checkout input[name='order_id']").val(response.order_id);*/
-
 			var dom_template = $("#template_webshop_cart_item").html();
 
 			for(var i = 0; i < count_temp; i++)
@@ -54,11 +52,6 @@ jQuery(function($)
 				{
 					render_cart(data);
 				}
-
-				else
-				{
-					console.log("Error...");
-				}
 			}
 		});
 	}
@@ -78,14 +71,11 @@ jQuery(function($)
 			{
 				render_cart(data);
 			}
-
-			else
-			{
-				console.log("Error...");
-			}
 		}
 	});
 
+	/* Update cart */
+	/* ##################### */
 	dom_obj_widget.on('change', ".cart_products .mf_form_field[type='number']", function()
 	{
 		var dom_obj = $(this);
@@ -99,7 +89,9 @@ jQuery(function($)
 
 		update_product_amount(dom_obj.parents("tr").attr('id'), 0);
 	});
+	/* ##################### */
 
+	/* Fetch user details if logged in */
 	if($.isArray(script_webshop_cart.arr_webshop_input_type))
 	{
 		var arr_fields = [];
@@ -116,11 +108,6 @@ jQuery(function($)
 				{
 					arr_fields.push([dom_obj.attr('id'), value]);
 				}
-
-				/*else
-				{
-					console.log("Val already set (" , dom_obj.val() , ")");
-				}*/
 			});
 		});
 
@@ -150,6 +137,32 @@ jQuery(function($)
 		}
 	}
 
+	/* Update order details */
+	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
+	{
+		var form_data = $(this).serialize();
+
+		$.ajax(
+		{
+			url: script_webshop_cart.ajax_url,
+			type: 'post',
+			dataType: 'json',
+			data: form_data,
+			success: function(data)
+			{
+				if(data.success)
+				{
+					/*$.each(data.response_fields, function(key, value)
+					{
+						dom_obj_widget.find("#" + value.id).val(value.value);
+					});*/
+				}
+			}
+		});
+	});
+
+	/* Validate card details & activate buy button */
+	/* ##################### */
 	$(document).on('input', ".proceed_to_checkout #payment_card_no", function()
 	{
 		let value = $(this).val();
@@ -181,7 +194,7 @@ jQuery(function($)
 
 		$(".proceed_to_checkout .card_details input").each(function()
 		{
-			if (!$(this).val())
+			if(!$(this).val())
 			{
 				anyEmpty = true;
 				return false;
@@ -198,26 +211,5 @@ jQuery(function($)
 			$(".proceed_to_checkout button[name='btnWebshopPay']").removeAttr('disabled');
 		}
 	});
-
-	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
-	{
-		var form_data = $(this).serialize();
-
-		$.ajax(
-		{
-			url: script_webshop_cart.ajax_url,
-			type: 'post',
-			dataType: 'json',
-			data: form_data,
-			success: function(data)
-			{
-				if(data.success){}
-
-				else
-				{
-					console.log("Error...");
-				}
-			}
-		});
-	});
+	/* ##################### */
 });

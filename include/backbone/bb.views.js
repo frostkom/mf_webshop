@@ -510,7 +510,7 @@ var WebshopView = Backbone.View.extend(
 
 	get_products: function()
 	{
-		this.get_products_storage();
+		/*this.get_products_storage();*/
 
 		if(typeof this.form_products !== 'undefined')
 		{
@@ -672,15 +672,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var response = this.model.get('response_add_to_cart');
 
-		if(response.html)
-		{
-			jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").parent("div").html(response.html);
-		}
-
-		else
-		{
-			jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .add_to_cart").text(response.text);
-		}
+		jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .in_cart").removeClass('hide').find("span span").text(response.product_amount);
 	},
 
 	/*print_favorites: function()

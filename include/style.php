@@ -325,17 +325,6 @@ echo "@media all
 				position: relative;
 			}
 
-		.widget.webshop_widget .content .wp-block-button
-		{
-			text-align: right;
-		}
-
-			.widget.webshop_widget .content .wp-block-button__link
-			{
-				font-size: .9em;
-				padding: .5em 1em;
-			}
-
 	.webshop_widget .widget_spinner
 	{
 		text-align: center;

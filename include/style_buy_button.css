@@ -1,0 +1,34 @@
+@media all
+{
+	.widget .cart_buttons a > span
+	{
+		margin-right: .5em;
+	}
+
+		.widget.webshop_search .cart_buttons a > span
+		{
+			display: none;
+		}
+
+			.widget.webshop_search .cart_buttons a:hover > span
+			{
+				display: inline-block;
+			}
+
+	.widget .cart_buttons a.in_cart
+	{
+		background: #0a0;
+		color: #fff;
+	}
+
+		.widget .cart_buttons a.in_cart:hover
+		{
+			background: #fff;
+			color: #0a0;
+		}
+
+	.widget .cart_buttons a + a
+	{
+		margin-left: .5em;
+	}
+}

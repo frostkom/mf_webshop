@@ -19,15 +19,7 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					if(data.html && data.html != '')
-					{
-						dom_obj.parent("div").html(data.html);
-					}
-				}
-
-				else
-				{
-					console.log("Error...");
+					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.product_amount);
 				}
 			}
 		});
@@ -50,15 +42,7 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					if(data.response_add_to_cart.html && data.response_add_to_cart.html != '')
-					{
-						dom_obj.parent("div").html(data.response_add_to_cart.html);
-					}
-				}
-
-				else
-				{
-					console.log("Error...");
+					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.response_add_to_cart.product_amount);
 				}
 			}
 		});

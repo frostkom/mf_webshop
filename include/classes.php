@@ -1053,6 +1053,7 @@ class mf_webshop
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
+		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
 		mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 		));
@@ -1064,8 +1065,9 @@ class mf_webshop
 			if($cart_post_id > 0)
 			{
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
-					<div class='wp-block-button'>
-						<a href='#' class='wp-block-button__link add_to_cart' rel='".$post->ID."'>".__("Add to Cart", 'lang_webshop')." <i class='fa fa-plus'></i></a>
+					<div class='wp-block-button cart_buttons'>
+						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span></span>")."</span><i class='fa fa-check'></i></a>
+						<a href='#' class='wp-block-button__link add_to_cart' rel='".$post->ID."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 					</div>
 				</div>";
 			}
@@ -2073,6 +2075,7 @@ class mf_webshop
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
 		mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
+		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
 		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
 		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
 
@@ -5646,7 +5649,25 @@ class mf_webshop
 				if(wp_update_post($post_data))
 				{
 					$json_output['success'] = true;
-					//$json_output['debug'] = "Update: ".var_export($this->arr_meta_keys, true)." -> ".var_export($post_data, true);
+					$json_output['response_fields'] = [];
+
+					/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
+					/*if($this->order_details['address_street'] != '')
+					{
+						$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
+
+						foreach($result_address as $r)
+						{
+							$cart_hash = get_post_meta($r->ID, $this->meta_prefix.'cart_hash', true);
+
+							$order_address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
+
+							if($order_address_zip != '')
+							{
+								$json_output['response_fields']['address_zip'] = $obj_encryption->decrypt($order_address_zip, md5($cart_hash));
+							}
+						}
+					}*/
 				}
 
 				else
@@ -5760,14 +5781,11 @@ class mf_webshop
 			{
 				if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
 				{
-					$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
-
-					$json_output['html'] = "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>";
+					$json_output['success'] = true;
+					$json_output['product_amount'] = $arr_products[$key]['amount'];
 				}
 			}
 		}
-
-		$json_output['success'] = true;
 
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
@@ -5796,6 +5814,7 @@ class mf_webshop
 					$arr_products = [];
 				}
 
+				$amount_temp = 1;
 				$was_in_array = false;
 
 				foreach($arr_products as $key => $arr_value)
@@ -5811,7 +5830,7 @@ class mf_webshop
 
 				if($was_in_array == false)
 				{
-					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $amount_temp);
 				}
 
 				$post_data = array(
@@ -5830,7 +5849,8 @@ class mf_webshop
 					{
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
-							'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
+							'product_amount' => $amount_temp,
+							//'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
 						);
 					}
 
@@ -5838,7 +5858,8 @@ class mf_webshop
 					{
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
-							'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
+							'product_amount' => $amount_temp,
+							//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
 						);
 					}
 				}
@@ -5878,7 +5899,8 @@ class mf_webshop
 				{
 					$json_output['response_add_to_cart'] = array(
 						'product_id' => $product_id,
-						'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
+						'product_amount' => $amount_temp,
+						//'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
 					);
 				}
 
@@ -5886,7 +5908,8 @@ class mf_webshop
 				{
 					$json_output['response_add_to_cart'] = array(
 						'product_id' => $product_id,
-						'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
+						'product_amount' => $amount_temp,
+						//'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
 					);
 				}
 			}
@@ -6494,29 +6517,23 @@ class mf_webshop
 								<% } %>
 								<% if(product_price != '' || product_has_read_more == true)
 								{ %>
-									<div class='is-layout-flex wp-block-buttons-is-layout-flex'>";
+									<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
+										<% if(product_price != '')
+										{ %>";
 
-										$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+											$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-										if($cart_post_id > 0)
-										{
-											$out .= "<% if(product_price != '')
-											{ %>
-												<div class='wp-block-button'>
-													<% if(product_in_cart > 0)
-													{ %>
-														<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>
-													<% }
+											if($cart_post_id > 0)
+											{
+												$out .= "<div class='wp-block-button cart_buttons'>
+													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span><%= product_in_cart %></span>")."</span><i class='fa fa-check'></i></a>
+													<a href='#' class='wp-block-button__link add_to_cart'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+												</div>";
+											}
 
-													else
-													{ %>
-														<a href='#' class='wp-block-button__link add_to_cart'>".__("Add to Cart", 'lang_webshop')." <i class='fa fa-plus'></i></a>
-													<% } %>
-												</div>
-											<% } %>";
-										}
+										$out .= "<% }
 
-										$out .= "<% if(product_has_read_more == true)
+										if(product_has_read_more == true)
 										{ %>
 											<div class='is-style-outline wp-block-button'>
 												<a href='<%= product_url %>' class='wp-block-button__link'>".__("Read More", 'lang_webshop')."</a>
