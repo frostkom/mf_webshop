@@ -1,17 +1,3 @@
-if(typeof script_webshop_views != 'undefined')
-{
-	function preload(url)
-	{
-		var img = new Image();
-		img.src = url;
-	}
-
-	if(script_webshop_views.symbol_active){		preload(script_webshop_views.symbol_active);}
-	if(script_webshop_views.symbol_inactive){	preload(script_webshop_views.symbol_inactive);}
-	if(script_webshop_views.ghost_active){		preload(script_webshop_views.ghost_active);}
-	if(script_webshop_views.ghost_inactive){	preload(script_webshop_views.ghost_inactive);}
-}
-
 var my_lat, my_lon;
 
 var WebshopView = Backbone.View.extend(
@@ -20,21 +6,6 @@ var WebshopView = Backbone.View.extend(
 
 	initialize: function()
 	{
-		/*if(jQuery(".webshop_map.display_on_mobile").length > 0)
-		{
-			var body_obj = jQuery("body");
-
-			if(jQuery(document).width() < script_webshop_views.mobile_breakpoint)
-			{
-				jQuery(".webshop_map.hide_on_mobile .webshop_map_container").attr("id", "webshop_map_hide");
-			}
-
-			else
-			{
-				jQuery(".webshop_map.display_on_mobile .webshop_map_container").attr("id", "webshop_map_hide");
-			}
-		}*/
-
 		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
 		this.model.on("change:product_amount", this.show_product_amount, this);
@@ -43,16 +14,9 @@ var WebshopView = Backbone.View.extend(
 		this.is_favorites_view = (jQuery(".product_favorites").length > 0);
 		this.has_product_result = (jQuery(".product_list.webshop_item_list").length > 0);
 
-		/*this.get_products_storage();*/
-
-		/* Events */
-		this.model.on("change:event_hash", this.show_events, this);
-
+		/* Filter Products */
 		this.dom_obj_products = jQuery(".webshop_widget.webshop_filter_products");
 
-		/*this.is_events_view = (this.dom_obj_events.length > 0);*/
-
-		/* Filter Products */
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
 		this.is_filter_products_view = (this.dom_obj_products.length > 0);
@@ -68,8 +32,6 @@ var WebshopView = Backbone.View.extend(
 			{
 				this.form_products = location.hash.replace('#', '');
 				this.form_products = this.form_products.replace('webshop/', '');
-
-				/*this.set_products_storage();*/
 			}
 
 			if(typeof this.form_products != 'undefined' && this.form_products != '')
@@ -83,7 +45,7 @@ var WebshopView = Backbone.View.extend(
 			}
 		}
 
-		else if(this.is_filter_products_view) /*this.is_events_view || */
+		else if(this.is_filter_products_view)
 		{
 			if(this.is_filter_products_view)
 			{
@@ -101,22 +63,20 @@ var WebshopView = Backbone.View.extend(
 
 	events:
 	{
-		/* Widget Search */
-		"click .webshop_form .webshop_form_link a": "search_all_products",
-
 		/* Template Search */
 		"click .product_list.webshop_item_list .products": "products_change",
-		"change .product_search input[type=range]": "filter_distance",
-		"submit .product_search": "submit_form",
+		"change .widget.webshop_search form input[type=range]": "filter_distance",
+		"submit .widget.webshop_search form": "submit_form",
 
 		/* Result List */
-		"change #webshop_search input": "search_products_change",
-		"change #webshop_search select": "search_products_change",
-		"blur #webshop_search input[type!='checkbox']": "search_products_change",
+		"keyup .widget.webshop_search form input": "search_products",
+		"change .widget.webshop_search form input": "search_products",
+		"change .widget.webshop_search form select": "search_products",
+		"blur .widget.webshop_search form input[type!='checkbox']": "search_products",
 		"mouseenter .product_list.webshop_item_list > li": "section_hover",
 		"mouseleave .product_list.webshop_item_list > li": "section_unhover",
 		"change .webshop_form form select": "search_product_amount",
-		"click #product_form.form_button_container .form_button button, #product_form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
+		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
 		"click .product_list.webshop_item_list > li": "set_last_product",
 		"click .product_list.webshop_item_list > li .add_to_cart": "add_to_cart",
 
@@ -176,13 +136,6 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	search_all_products: function(e)
-	{
-		jQuery(e.currentTarget).parents("form").submit();
-
-		return false;
-	},
-
 	loadPage: function(tab_active)
 	{
 		if(this.has_product_result)
@@ -215,17 +168,12 @@ var WebshopView = Backbone.View.extend(
 
 	if_search_view: function()
 	{
-		if(jQuery("#webshop_search").length > 0)
+		if(jQuery(".widget.webshop_search form").length > 0)
 		{
-			if(jQuery(".widget.webshop_search, .widget.webshop_map").length > 0)
-			{
-				jQuery("body").addClass('is_webshop_search_page');
-			}
-
 			this.get_hash();
-			this.search_products(false);
+			this.search_products();
 
-			var dom_obj_range = jQuery(".product_search input[type=range]");
+			var dom_obj_range = jQuery(".widget.webshop_search form input[type=range]");
 
 			if(dom_obj_range.length > 0)
 			{
@@ -252,7 +200,7 @@ var WebshopView = Backbone.View.extend(
 
 	if_product_view: function()
 	{
-		var dom_product_buttons = jQuery("#product_form.form_button_container");
+		var dom_product_buttons = jQuery(".widget.webshop_search form.form_button_container");
 
 		if(dom_product_buttons.length > 0)
 		{
@@ -386,7 +334,7 @@ var WebshopView = Backbone.View.extend(
 
 	set_hash: function()
 	{
-		var form_serialized = jQuery("#product_form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+		var form_serialized = jQuery(".widget.webshop_search form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
 		location.hash = "webshop/" + form_serialized;
 
@@ -505,7 +453,7 @@ var WebshopView = Backbone.View.extend(
 
 	product_form_has_changed: function()
 	{
-		return (jQuery("#webshop_search .form_select:first-of-type select").val() != '' || jQuery("#webshop_search .form_checkbox input").is(":checked") || jQuery("#webshop_map_bounds").val() != '');
+		return (jQuery(".widget.webshop_search form .form_select:first-of-type select").val() != '' || jQuery(".widget.webshop_search form .form_checkbox input").is(":checked"));
 	},
 
 	show_quote_request_button: function()
@@ -541,8 +489,6 @@ var WebshopView = Backbone.View.extend(
 
 		self.model.set('products_total', products_total);
 		self.model.set('products_checked', products_checked);
-
-		jQuery(".product_search .quote_button .form_button > *, .product_search .quote_button, .product_search .quote_button .wp-block-button > *").addClass('hide');
 
 		jQuery(".show_if_results").removeClass('hide');
 
@@ -648,20 +594,8 @@ var WebshopView = Backbone.View.extend(
 		jQuery(".webshop_form .product_filtered_amount").html(html);
 	},
 
-	search_products_change: function()
+	search_products: function()
 	{
-		jQuery.Storage.remove('last_product');
-
-		this.search_products(true);
-	},
-
-	search_products: function(empty_bounds)
-	{
-		if(empty_bounds == true)
-		{
-			map_bounds_obj.val('');
-		}
-
 		this.set_hash();
 	},
 
@@ -923,42 +857,6 @@ var WebshopView = Backbone.View.extend(
 		{
 			self.load_events(jQuery(this).find(".widget_list"));
 		});
-	},
-
-	show_events: function()
-	{
-		var widget_id = this.model.get('widget_id'),
-			dom_widget = jQuery("#" + widget_id),
-			response = this.model.get('event_response'),
-			amount = response.length,
-			html = '';
-
-		dom_widget.children(".widget_spinner").remove();
-
-		if(amount > 0)
-		{
-			var dom_template = jQuery("#template_event_item").html();
-
-			for(var i = 0; i < amount; i++)
-			{
-				html += _.template(dom_template)(response[i]);
-			}
-
-			dom_widget.append(html);
-
-			/*this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});*/
-		}
-
-		else
-		{
-			html = _.template(jQuery("#template_event_message").html())({'start_date': this.model.get('event_start_date'), 'end_date': this.model.get('event_end_date')});
-
-			dom_widget.html(html);
-		}
-
-		this.show_or_hide_load_more(widget_id, amount);
-
-		this.add_my_location_to_filter(this.dom_obj_events.find(".event_filter_order_by"));
 	},
 
 	add_my_location_to_filter: function(dom_obj)
