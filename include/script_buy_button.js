@@ -29,7 +29,7 @@ jQuery(function($)
 
 	dom_obj_widget.on('click', ".add_to_cart", function()
 	{
-		var dom_obj = $(this);
+		var dom_obj = $(this).addClass('loading');
 
 		$.ajax(
 		{
@@ -44,7 +44,7 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.response_add_to_cart.product_amount);
+					dom_obj.removeClass('loading').siblings(".in_cart").removeClass('hide').find("span span").text(data.response_add_to_cart.product_amount);
 
 					$(".icon-cart").removeClass('hide');
 				}

@@ -530,7 +530,7 @@ class mf_webshop
 			replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search'),
+				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search', 'setting_webshop_map_placement'),
 				'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 			));
 		}
@@ -656,13 +656,7 @@ class mf_webshop
 				$out .= $this->get_webshop_search();
 				//$out .= $this->get_search_result_info(array('type' => 'matches'));
 
-				/*if(get_option('setting_webshop_map_placement', 'above_filter') == 'below_filter')
-				{
-					$out .= $this->get_webshop_map(array('container_class' => 'display_on_mobile'));
-				}*/
-
 				$out .= "<ul class='product_list webshop_item_list grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
-				//.$this->get_quote_button()
 			."</form>"
 			.$this->get_templates(array('type' => 'products'))
 		."</div>";
@@ -1514,7 +1508,6 @@ class mf_webshop
 			$arr_settings = array(
 				'setting_map_visibility' => __("Map visibility", 'lang_webshop'),
 				'setting_map_visibility_mobile' => __("Map visibility", 'lang_webshop')." (".__("Mobile", 'lang_webshop').")",
-				'setting_webshop_map_placement' => __("Map Placement", 'lang_webshop'),
 				'setting_webshop_map_button_placement' => __("Map Button Placement", 'lang_webshop'),
 				'setting_webshop_color_info' => __("Info color", 'lang_webshop'),
 				'setting_webshop_text_color_info' => __("Info text color", 'lang_webshop'),
@@ -1856,14 +1849,6 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
-		}
-
-		function setting_webshop_map_placement_callback($args = [])
-		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
-			$option = get_option($setting_key);
-
-			echo show_select(array('data' => $this->get_map_placement_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_map_button_placement_callback($args = [])
@@ -3966,94 +3951,6 @@ class mf_webshop
 		return $post_states;
 	}
 
-	/*function get_template_admin($data)
-	{
-		global $post, $obj_form, $obj_theme_core;
-
-		switch($data['type'])
-		{
-			case 'template_webshop':
-				get_header();
-
-					if(have_posts())
-					{
-						if(!isset($obj_theme_core))
-						{
-							$obj_theme_core = new mf_theme_core();
-						}
-
-						echo "<article".(IS_ADMINISTRATOR ? " class='".$data['type']."'" : "").">";
-
-							while(have_posts())
-							{
-								the_post();
-
-								$post_title = $post->post_title;
-								$post_content = apply_filters('the_content', $post->post_content);
-
-								echo "<h1>".$post_title."</h1>";
-
-								if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($post->ID) == false)
-								{
-									ob_start();
-
-									dynamic_sidebar('widget_after_heading');
-
-									$widget_content = ob_get_clean();
-
-									if($widget_content != '')
-									{
-										echo "<div class='aside after_heading'>"
-											.$widget_content
-										."</div>";
-									}
-								}
-
-								echo "<section>".$post_content."</section>";
-							}
-
-						echo "</article>";
-					}
-
-				get_footer();
-			break;
-
-			case 'template_webshop_favorites':
-				get_header();
-
-					if(have_posts())
-					{
-						while(have_posts())
-						{
-							the_post();
-
-							$post_id = $post->ID;
-							$post_title = $post->post_title;
-							$post_content = $post->post_content;
-
-							echo "<form action='".$obj_form->get_form_url(get_option('setting_quote_form'))."' method='post' id='product_form' class='mf_form product_search product_favorites'>
-								<div class='aside'><div>".$this->get_webshop_map()."</div></div>
-								<article".(IS_ADMINISTRATOR ? " class='".$data['type']."'" : "").">
-									<h1>".$post_title."</h1>
-									<section>
-										<div class='favorite_result'>"
-											.$this->get_search_result_info(array('type' => 'favorites'))
-											.$this->get_quote_button(array('include' => array('quote', 'print', 'email')))
-											."<ul class='product_list webshop_item_list'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>
-										</div>
-										<div class='favorite_fallback hide'>".apply_filters('the_content', $post_content)."</div>"
-									."</section>
-								</article>
-							</form>"
-							.$this->get_templates(array('type' => 'products'));
-						}
-					}
-
-				get_footer();
-			break;
-		}
-	}*/
-
 	function save_post($post_id, $post, $update)
 	{
 		global $wpdb;
@@ -5675,89 +5572,6 @@ class mf_webshop
 		return $out;
 	}
 
-	/*function get_quote_button($data = [])
-	{
-		if(!isset($data['include'])){	$data['include'] = array('quote');}
-
-		$out = "";
-
-		if(get_option('setting_webshop_map_button_placement', 'above_map') == 'page_bottom')
-		{
-			$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
-			$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
-
-			$out .= "<h2 class='is_map_toggler button'>
-				<span>".$setting_replace_show_map."</span>
-				<span>".$setting_webshop_replace_hide_map."</span>
-			</h2>";
-		}
-
-		if(in_array('print', $data['include']))
-		{
-			$out .= show_button(array('type' => 'button', 'text' => "<i class='fa fa-print'></i>".__("Print List", 'lang_webshop'), 'class' => "show_if_results button-primary hide button_print"));
-		}
-
-		if(in_array('email', $data['include']))
-		{
-			$setting_webshop_replace_email_favorites = get_option_or_default('setting_webshop_replace_email_favorites', __("Email Your Products", 'lang_webshop'));
-			$setting_webshop_share_email_subject = get_option('setting_webshop_share_email_subject');
-			$setting_webshop_share_email_content = get_option('setting_webshop_share_email_content');
-
-			$out .= "<a href='mailto:?subject=".$setting_webshop_share_email_subject."&body=".$setting_webshop_share_email_content."' class='show_if_results button'><i class='fa fa-envelope'></i>".$setting_webshop_replace_email_favorites."</a>";
-		}
-
-		if($out != '')
-		{
-			return "<div class='quote_button'>
-				<div".get_form_button_classes().">"
-					.$out
-				."</div>
-			</div>";
-		}
-	}*/
-
-	function get_webshop_map($data = [])
-	{
-		if(!isset($data['container_class'])){	$data['container_class'] = "";}
-
-		$setting_maps_controls = get_option_or_default('setting_maps_controls', array('search', 'fullscreen', 'zoom'));
-		$setting_map_info = get_option('setting_map_info');
-
-		$out = "<div".get_form_button_classes("webshop_map".($data['container_class'] != '' ? " ".$data['container_class'] : '')).">";
-
-			if(get_option('setting_webshop_map_button_placement', 'above_map') == 'above_map')
-			{
-				$setting_replace_show_map = get_option_or_default('setting_webshop_replace_show_map', __("Show Map", 'lang_webshop'));
-				$setting_webshop_replace_hide_map = get_option_or_default('setting_webshop_replace_hide_map', __("Hide Map", 'lang_webshop'));
-
-				$out .= "<h2 class='is_map_toggler button'>
-					<span>".$setting_replace_show_map."</span>
-					<span>".$setting_webshop_replace_hide_map."</span>
-				</h2>";
-			}
-
-			$out .= "<div class='map_wrapper'>";
-
-				if(in_array('search', $setting_maps_controls))
-				{
-					$out .= show_textfield(array('name' => 'webshop_map_input', 'placeholder' => __("Search for an address and find its position", 'lang_webshop'), 'xtra' => "class='webshop_map_input'")); //, 'value' => $data['input']
-				}
-
-				$out .= "<div id='webshop_map' class='webshop_map_container'></div>";
-
-				if($setting_map_info != '')
-				{
-					$out .= "<div class='webshop_map_info'>".nl2br($setting_map_info)."</div>";
-				}
-
-				$out .= input_hidden(array('name' => 'webshop_map_coordinates', 'allow_empty' => true))
-				.input_hidden(array('name' => 'webshop_map_bounds', 'allow_empty' => true))
-			."</div>
-		</div>";
-
-		return $out;
-	}
-
 	function get_webshop_search()
 	{
 		global $wpdb, $obj_font_icons;
@@ -6260,49 +6074,6 @@ class mf_webshop
 
 			$this->template_used[$data['type']] = true;
 		}
-
-		return $out;
-	}
-
-	function get_event_calendar()
-	{
-		$out = "<div class='calendar_container'>
-			<div class='calendar_header'>
-				<button data-month='<%= last_month %>'>&laquo;</button>
-				<span><%= nice_month %></span>
-				<button data-month='<%= next_month %>'>&raquo;</button>
-			</div>
-			<div class='calendar_days'>";
-
-				for($i = 0; $i < 7; $i++)
-				{
-					$out .= "<span class='day_name'>".day_name(array('number' => ($i < 6 ? $i + 1 : 0), 'short' => true))."</span>";
-				}
-
-				$out .= "<% _.each(days, function(day)
-				{ %>
-					<div class='day<%= day.class %>'>
-						<% if(day.event_amount > 0)
-						{ %>
-							<a href='#' data-date='<%= day.date %>'>
-								<%= day.number %>
-								<ul>
-									<% _.each(day.events, function(event)
-									{ %>
-										<li class='<%= event.class %>'></li>
-									<% }); %>
-								</ul>
-							</a>
-						<% }
-
-						else
-						{ %>
-							<span><%= day.number %></span>
-						<% } %>
-					</div>
-				<% }); %>
-			</div>
-		</div>";
 
 		return $out;
 	}
