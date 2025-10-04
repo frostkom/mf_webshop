@@ -20,6 +20,8 @@ jQuery(function($)
 				if(data.success)
 				{
 					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.product_amount);
+
+					$(".icon-cart").removeClass('hide');
 				}
 			}
 		});
@@ -43,6 +45,8 @@ jQuery(function($)
 				if(data.success)
 				{
 					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.response_add_to_cart.product_amount);
+
+					$(".icon-cart").removeClass('hide');
 				}
 			}
 		});

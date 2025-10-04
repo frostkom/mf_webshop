@@ -102,7 +102,7 @@ var WebshopView = Backbone.View.extend(
 		{
 			this.if_search_view();
 			this.if_product_view();
-			this.if_thanks_view();
+			/*this.if_thanks_view();*/
 		}
 	},
 
@@ -428,7 +428,7 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	if_thanks_view: function()
+	/*if_thanks_view: function()
 	{
 		var dom_obj = jQuery("#mf_back_to_search");
 
@@ -444,7 +444,7 @@ var WebshopView = Backbone.View.extend(
 			jQuery.Storage.remove('form_products');
 			jQuery.Storage.remove('last_product');
 		}
-	},
+	},*/
 
 	get_hash: function()
 	{
@@ -673,6 +673,8 @@ var WebshopView = Backbone.View.extend(
 		var response = this.model.get('response_add_to_cart');
 
 		jQuery(".product_list.webshop_item_list > li#product_" + response.product_id + " .in_cart").removeClass('hide').find("span span").text(response.product_amount);
+
+		jQuery(".icon-cart").removeClass('hide');
 	},
 
 	/*print_favorites: function()
@@ -705,7 +707,7 @@ var WebshopView = Backbone.View.extend(
 
 				this.get_products();
 
-				this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
+				/*this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});*/
 			}
 
 			else
@@ -844,7 +846,7 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	show_map_coordinates: function(data)
+	/*show_map_coordinates: function(data)
 	{
 		if(search_map_obj.length > 0 && search_map_obj.is(":visible"))
 		{
@@ -873,20 +875,20 @@ var WebshopView = Backbone.View.extend(
 				fitIcons();
 			}
 		}
-	},
+	},*/
 
 	section_hover: function(e)
 	{
 		jQuery(e.currentTarget).addClass('hover');
 
-		this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});
+		/*this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});*/
 	},
 
 	section_unhover: function(e)
 	{
 		jQuery(e.currentTarget).removeClass('hover');
 
-		this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});
+		/*this.show_map_coordinates({'fit_icons': false, 'remove_markers': true});*/
 	},
 
 	toggle_aside: function(e)
@@ -896,7 +898,7 @@ var WebshopView = Backbone.View.extend(
 		jQuery(".map_wrapper").toggle();
 		jQuery(".is_map_toggler").children("span").toggle();
 
-		if(dom_obj.hasClass('is_map_toggler'))
+		/*if(dom_obj.hasClass('is_map_toggler'))
 		{
 			if(map_initialized == false)
 			{
@@ -904,7 +906,7 @@ var WebshopView = Backbone.View.extend(
 			}
 
 			this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
-		}
+		}*/
 	},
 
 	load_calendar: function()
@@ -1130,7 +1132,7 @@ var WebshopView = Backbone.View.extend(
 
 			dom_widget.append(html);
 
-			this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});
+			/*this.show_map_coordinates({'fit_icons': true, 'remove_markers': false});*/
 		}
 
 		else
@@ -1269,7 +1271,7 @@ var WebshopView = Backbone.View.extend(
 
 			dom_widget.append(html);
 
-			this.show_map_coordinates({'fit_icons': true, 'remove_markers': true});
+			/*this.show_map_coordinates({'fit_icons': true, 'remove_markers': true});*/
 		}
 
 		else

@@ -9,7 +9,7 @@ var map_initialized = false,
 	map_bounds_obj = "",
 	filter_products_timeout;
 
-function remove_markers()
+/*function remove_markers()
 {
 	if(markers)
 	{
@@ -126,7 +126,6 @@ function hide_products()
 		{
 			if(dom_parent.hasClass('hide'))
 			{
-				/*dom_obj.prop("checked", true);*/
 				dom_parent.removeClass('hide');
 			}
 		}
@@ -246,7 +245,7 @@ function init_maps()
 			});
 		}
 
-		var symbol_active_image = (script_webshop.symbol_active_image != '' ? script_webshop.symbol_active_image : ""); /*"http://googlemapsmarkers.com/v1/" + script_webshop.symbol_active + "/"*/
+		var symbol_active_image = (script_webshop.symbol_active_image != '' ? script_webshop.symbol_active_image : "");
 
 		add_map_location({'dom_obj': search_coordinates_obj, 'icon': symbol_active_image});
 
@@ -334,7 +333,6 @@ jQuery(function($)
 		show_list_active_or_not($(this));
 	});
 
-	/* Inactivate enter/submit when webshop_map_input is in focus */
 	search_input_obj.on('keydown', function(event)
 	{
 		if(event.key == 'Enter')
@@ -342,4 +340,4 @@ jQuery(function($)
 			return false;
 		}
 	});
-});
+});*/

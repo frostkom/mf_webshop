@@ -25,12 +25,15 @@ jQuery(function($)
 
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
 
-			dom_obj_widget.find(".cart_products").siblings(".flex_flow.hide").removeClass('hide');
+			dom_obj_widget.find(".cart_summary").removeClass('hide');
 		}
 
 		else
 		{
-			dom_obj_widget.find(".cart_products tbody td").html(_.template($("#template_webshop_cart_empty").html())());
+			dom_obj_widget.find(".cart_products tbody tr").html(_.template($("#template_webshop_cart_empty").html())());
+
+			dom_obj_widget.find(".cart_summary").addClass('hide');
+			$(".icon-cart").addClass('hide');
 		}
 	}
 

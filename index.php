@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.6.24
+Version: 2.2.7.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -55,26 +55,23 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('rwmb_enqueue_scripts', array($obj_webshop, 'rwmb_enqueue_scripts'));
 		add_action('rwmb_before_save_post', array($obj_webshop, 'rwmb_before_save_post'));
 
-		add_filter('get_group_sync_type', array($obj_webshop, 'get_group_sync_type'), 10);
+		//add_filter('get_group_sync_type', array($obj_webshop, 'get_group_sync_type'), 10);
+	}
+
+	else
+	{
+		add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
+		add_action('wp_footer', array($obj_webshop, 'wp_footer'));
 	}
 
 	add_filter('filter_is_file_used', array($obj_webshop, 'filter_is_file_used'));
 
-	//add_action('wp_login', array($obj_webshop, 'uninit'));
-	//add_action('wp_logout', array($obj_webshop, 'uninit'));
-
-	//add_filter('default_content', array($obj_webshop, 'default_content'));
-
-	//add_filter('filter_form_after_fields', array($obj_webshop, 'filter_form_after_fields'));
-	//add_filter('filter_form_on_submit', array($obj_webshop, 'filter_form_on_submit'));
-
-	//add_filter('before_meta_box_fields', array($obj_webshop, 'before_meta_box_fields'));
 	add_action('rwmb_after_save_post', array($obj_webshop, 'rwmb_after_save_post'));
 
-	//add_filter('single_template', array($obj_webshop, 'single_template'));
-	//add_filter('theme_templates', array($obj_webshop, 'get_page_templates'));
-
 	add_filter('get_group_sync_addresses', array($obj_webshop, 'get_group_sync_addresses'), 10, 2);
+
+	add_action('wp_ajax_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
+	add_action('wp_ajax_nopriv_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
 
 	add_action('wp_ajax_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
 	add_action('wp_ajax_nopriv_api_webshop_call', array($obj_webshop, 'api_webshop_call'));

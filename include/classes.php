@@ -29,6 +29,8 @@ class mf_webshop
 	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_co', 'address_zip', 'address_city']; //'address_country'
 	var $order_details;
 
+	var $footer_output;
+
 	function __construct()
 	{
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
@@ -536,6 +538,45 @@ class mf_webshop
 		$obj_cron->end();
 	}
 
+	function combined_head()
+	{
+		//$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
+
+		//$setting_gmaps_api = get_option('setting_gmaps_api');
+		//$symbol_active_image = get_option('setting_webshop_symbol_active_image');
+		//$symbol_active = get_option('setting_webshop_symbol_active');
+
+		$plugin_base_include_url = plugins_url()."/mf_base/include/";
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
+		mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
+		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
+		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
+		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
+
+		/*if($setting_gmaps_api != '')
+		{
+			$plugin_version = get_plugin_version(__FILE__);
+
+			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
+		}
+
+		if(is_plugin_active('mf_maps/index.php'))
+		{
+			global $obj_maps;
+
+			$obj_maps->init_maps();
+		}
+
+		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
+			'plugins_url' => plugins_url(),
+			'symbol_active_image' => $symbol_active_image,
+			'symbol_active' => trim($symbol_active, "#"),
+			'mobile_breakpoint' => $arr_breakpoints['mobile'],
+			'product_missing' => __("You have to choose at least one product to proceed", 'lang_webshop'),
+		));*/
+	}
+
 	function block_resources()
 	{
 		$this->combined_head();
@@ -702,8 +743,7 @@ class mf_webshop
 					</tr>
 				</tbody>
 			</table>
-			<br>
-			<div class='flex_flow hide'>
+			<div class='cart_summary flex_flow hide'>
 				<div>
 					<h3>".__("Summary", 'lang_webshop')."</h3>
 					<table class='cart_totals widefat striped'>
@@ -2063,45 +2103,6 @@ class mf_webshop
 		echo get_media_library(array('type' => 'image', 'name' => $setting_key, 'value' => $option));
 	}
 
-	function combined_head()
-	{
-		$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
-
-		$setting_gmaps_api = get_option('setting_gmaps_api');
-		$symbol_active_image = get_option('setting_webshop_symbol_active_image');
-		$symbol_active = get_option('setting_webshop_symbol_active');
-
-		$plugin_base_include_url = plugins_url()."/mf_base/include/";
-		$plugin_include_url = plugin_dir_url(__FILE__);
-
-		mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
-		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
-		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
-		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
-
-		if($setting_gmaps_api != '')
-		{
-			$plugin_version = get_plugin_version(__FILE__);
-
-			wp_enqueue_script('script_gmaps_api', "//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=".$setting_gmaps_api, [], $plugin_version);
-		}
-
-		if(is_plugin_active('mf_maps/index.php'))
-		{
-			global $obj_maps;
-
-			$obj_maps->init_maps();
-		}
-
-		mf_enqueue_script('script_webshop', $plugin_include_url."script.js", array(
-			'plugins_url' => plugins_url(),
-			'symbol_active_image' => $symbol_active_image,
-			'symbol_active' => trim($symbol_active, "#"),
-			'mobile_breakpoint' => $arr_breakpoints['mobile'],
-			'product_missing' => __("You have to choose at least one product to proceed", 'lang_webshop'),
-		));
-	}
-
 	function admin_init()
 	{
 		global $pagenow;
@@ -2181,21 +2182,6 @@ class mf_webshop
 		return $arr_used;
 	}
 
-	/*function uninit()
-	{
-		@session_destroy();
-	}*/
-
-	/*function default_content($post_content)
-	{
-		if($post_content == "[product_default]")
-		{
-			$post_content = $this->default_template;
-		}
-
-		return $post_content;
-	}*/
-
 	function is_a_webshop_meta_value($data)
 	{
 		if($data['value'] != '')
@@ -2219,404 +2205,6 @@ class mf_webshop
 		return false;
 	}
 
-	/*function filter_form_after_fields($out)
-	{
-		global $wpdb;
-
-		$out_left = $out_right = "";
-
-		$products = check_var('products');
-		$product_id_first = is_array($products) ? $products[0] : $products;
-		$this->get_option_type_from_post_id($product_id_first);
-
-		$setting_search_max = get_option_or_default('setting_search_max', 50);
-		$setting_webshop_switch_icon_on = get_option('setting_webshop_switch_icon_on');
-		$setting_webshop_switch_icon_off = get_option('setting_webshop_switch_icon_off');
-
-		$address_post_name = $this->get_post_name_for_type('address');
-
-		foreach($_REQUEST as $key => $value)
-		{
-			$key = check_var($key, 'char', false);
-			$value = check_var($value, 'char', false);
-
-			if($key == "interval_range" && $value != '')
-			{
-				$key = $_POST['interval_type'];
-			}
-
-			if($key == 'products')
-			{
-				if(!is_array($value))
-				{
-					$value = array($value);
-				}
-
-				$count_temp = count($value);
-
-				for($i = 0; $i < $count_temp && $i < $setting_search_max; $i++)
-				{
-					$product_id = $value[$i];
-
-					$query_join = "";
-
-					if($address_post_name != '')
-					{
-						$query_join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix.$address_post_name."'";
-					}
-
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND ID = '%d'", $this->post_type_products, 'publish', $product_id));
-
-					if($wpdb->num_rows > 0)
-					{
-						foreach($result as $r)
-						{
-							$arr_product = [];
-
-							$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $arr_product);
-
-							// If the user for some reason succeeds in requesting all the products but still having a filter on to prevent all products to show this is neccesary
-							if(isset($arr_product['product_response'][0]))
-							{
-								$arr_product = $arr_product['product_response'][0];
-
-								$out_left .= "<li>
-									<div class='image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">"
-										.$arr_product['product_image'];
-
-										if($arr_product['product_data'] != '')
-										{
-											$out_left .= "<div class='product_data'>".$arr_product['product_data']."</div>";
-										}
-
-									$out_left .= "</div>
-									<div class='product_heading'>"
-										.$arr_product['product_title'];
-
-										if($arr_product['product_location'] != '')
-										{
-											$out_left .= "<p class='product_location'>".$arr_product['product_location']."</p>";
-										}
-
-									$out_left .= "</div>
-									<ul class='product_meta'>";
-
-										foreach($arr_product['product_meta'] as $product_meta)
-										{
-											$out_left .= "<li class='".$product_meta['class']."'>"
-												.$product_meta['content']
-											."</li>";
-										}
-
-									$out_left .= "</ul>
-								</li>";
-							}
-						}
-					}
-
-					else
-					{
-						do_log("No product found (".$wpdb->last_query.")");
-					}
-				}
-			}
-
-			else if($this->is_a_webshop_meta_value(array('key' => $key, 'value' => $value)))
-			{
-				$out_right .= input_hidden(array('name' => $key, 'value' => $value));
-			}
-		}
-
-		if($out_left != '' || $out_right != '')
-		{
-			$out = "<ul id='product_result_form' class='product_list webshop_item_list'>";
-
-				if($out_left != '')
-				{
-					$out .= $out_left;
-				}
-
-			$out .= "</ul>";
-
-			if($out_right != '')
-			{
-				$out .= $out_right;
-			}
-		}
-
-		return apply_filters('the_content', $out);
-	}*/
-
-	/*function filter_form_on_submit($data)
-	{
-		global $wpdb, $error_text, $obj_form;
-
-		if(!isset($obj_form))
-		{
-			$obj_form = new mf_form();
-		}
-
-		$answer_text = "";
-
-		$products = check_var('products');
-		$product_id_first = is_array($products) ? $products[0] : $products;
-		$this->get_option_type_from_post_id($product_id_first);
-
-		$arr_product_ids = [];
-
-		foreach($_REQUEST as $key => $value)
-		{
-			$key = check_var($key, 'char', false);
-			$value = check_var($value, 'char', false);
-
-			if($this->is_a_webshop_meta_value(array('key' => $key, 'value' => $value)))
-			{
-				if($key == 'products')
-				{
-					if(is_array($value) && count($value) > 0)
-					{
-						$arr_product_ids = $value;
-					}
-
-					else if($value > 0)
-					{
-						$arr_product_ids[] = $value;
-					}
-				}
-
-				else
-				{
-					$answer_text .= $key." -> ".$value.", ";
-
-					$result = $this->get_document_types(array('select' => "ID, post_title", 'where_key' => "post_name = %s", 'where_value' => $key));
-
-					foreach($result as $r)
-					{
-						$post_id = $r->ID;
-						$key = $r->post_title;
-
-						$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
-
-						switch($post_custom_type)
-						{
-							case 'checkbox':
-								$value = ($value == 1 ? __("Yes", 'lang_webshop') : __("No", 'lang_webshop'));
-							break;
-
-							case 'location':
-								$value = get_the_title($value);
-							break;
-						}
-					}
-
-					if(!isset($data['obj_form']->arr_email_content['doc_types']))
-					{
-						$data['obj_form']->arr_email_content['doc_types'] = [];
-					}
-
-					$data['obj_form']->arr_email_content['doc_types'][] = array(
-						'label' => $key,
-						'value' => $value,
-					);
-				}
-			}
-		}
-
-		$arr_mail_content_temp = $data['obj_form']->arr_email_content;
-
-		if(count($arr_product_ids) > 0)
-		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['obj_form']->id)); //, formEmailNotifyFrom
-
-			foreach($result as $r)
-			{
-				$data['obj_form']->email_admin = $r->formEmail;
-				//$data['obj_form']->email_notify_from = $r->formEmailNotifyFrom;
-				$data['obj_form']->email_notify_page = $r->formEmailNotifyPage;
-				$data['obj_form']->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $data['obj_form']->form_name);
-			}
-
-			$i = 0;
-
-			$arr_mail_content_temp['products'][$i] = array(
-				'label' => __("Products", 'lang_webshop'),
-				'id' => 0,
-				'value' => "",
-			);
-
-			foreach($arr_product_ids as $product_id)
-			{
-				$email_post_name = $this->get_post_name_for_type('email');
-
-				$product_email = get_post_meta($product_id, $this->meta_prefix.$email_post_name, true);
-
-				if($product_email != '')
-				{
-					$product_title = get_the_title($product_id);
-
-					$arr_mail_content_this = $data['obj_form']->arr_email_content;
-					$arr_mail_content_this['products'][0] = array(
-						'label' => __("Product", 'lang_webshop'),
-						'id' => $product_id,
-						'value' => $product_title,
-					);
-
-					$obj_form->answer_id = $data['obj_form']->answer_id;
-
-					$obj_form->page_content_data = array(
-						'page_id' => $data['obj_form']->email_notify_page,
-						'mail_to' => $product_email,
-						'subject' => $data['obj_form']->email_subject,
-						'content' => $arr_mail_content_this,
-					);
-
-					$obj_form->mail_data = array(
-						'to' => $product_email,
-						'type' => "product",
-						'subject' => $obj_form->page_content_data['subject'],
-						'content' => '',
-					);
-
-					$obj_form->mail_data['content'] = $obj_form->get_page_content_for_email();
-
-					if(isset($data['obj_form']->answer_data['email']) && $data['obj_form']->answer_data['email'] != '')
-					{
-						if(isset($data['obj_form']->answer_data['name']) && $data['obj_form']->answer_data['name'] != '')
-						{
-							$name_temp = $data['obj_form']->answer_data['name'];
-						}
-
-						else if($data['obj_form']->email_admin != '' && strpos($data['obj_form']->email_admin, "<"))
-						{
-							$arr_mail_from = explode("<", $data['obj_form']->email_admin);
-
-							$name_temp = $arr_mail_from[0];
-						}
-
-						else
-						{
-							$name_temp = get_bloginfo('name');
-						}
-
-						$obj_form->mail_data['from'] = $data['obj_form']->answer_data['email'];
-						$obj_form->mail_data['headers'] = "From: ".$name_temp." <".$data['obj_form']->answer_data['email'].">\r\n";
-					}
-
-					$obj_form->send_transactional_email();
-
-					$arr_mail_content_temp['products'][$i]['id'] = $product_id;
-					$arr_mail_content_temp['products'][$i]['value'] = $product_title;
-
-					$i++;
-				}
-
-				if(!isset($obj_form->answer_id))
-				{
-					do_log("AnswerID not set: ".var_export($obj_form, true));
-				}
-
-				//$this->insert_sent(array('product_id' => $product_id, 'answer_id' => $obj_form->answer_id));
-			}
-		}
-
-		if($answer_text != '')
-		{
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $data['obj_form']->answer_id, $answer_text));
-		}
-
-		$data['obj_form']->arr_email_content = $arr_mail_content_temp;
-
-		return $data;
-	}*/
-
-	/*function get_product_id_from_calendar($post_id)
-	{
-		global $wpdb;
-
-		$product_id = 0;
-		$option_type_out = "";
-
-		$debug = [];
-
-		if(is_plugin_active("mf_calendar/index.php"))
-		{
-			global $obj_calendar;
-
-			if(!isset($obj_calendar))
-			{
-				$obj_calendar = new mf_calendar();
-			}
-
-			$post_type = get_post_type($post_id);
-
-			switch($post_type)
-			{
-				case $obj_calendar->post_type_event:
-					$post_parent = get_post_meta($post_id, $obj_calendar->meta_prefix.'calendar', true);
-
-					if($post_parent > 0)
-					{
-						if(!($product_id > 0))
-						{
-							$debug[] = "Option Type: ";
-
-							$event_post_name = $this->get_post_name_for_type('event');
-
-							$debug[] = "Event Post Name: ".$event_post_name;
-
-							if($event_post_name != '')
-							{
-								$product_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = '%d' GROUP BY ID", $this->post_type_products, 'publish', $this->meta_prefix.$event_post_name, $post_parent));
-
-								if($product_id > 0)
-								{
-									$option_type_out = $this->option_type;
-
-									$debug[] = "Product: ".$product_id;
-								}
-
-								else
-								{
-									$debug[] = "No Product: ".$wpdb->last_query;
-								}
-							}
-
-							else
-							{
-								$debug[] = "No Events: ";
-							}
-						}
-
-						else
-						{
-							$debug[] = "Already set: ".$product_id;
-						}
-					}
-
-					else
-					{
-						$debug[] = "No Parent: ".$post_id;
-					}
-				break;
-
-				default:
-					$debug[] = "Incorrect Post Type: ".$post_type." == ".$obj_calendar->post_type_event;
-				break;
-			}
-		}
-
-		else
-		{
-			$debug[] = "Not active: MF Calendar";
-		}
-
-		$debug[] = "Returning: ".$product_id;
-
-		//do_log("get_product_id_from_calendar: ".var_export($debug, true));
-
-		return array($product_id, $option_type_out);
-	}*/
-
 	function filter_fields_array($post_id, &$fields_array, $type)
 	{
 		switch($fields_array['type'])
@@ -2626,11 +2214,6 @@ class mf_webshop
 
 				switch($type)
 				{
-					/*case 'events':
-						$fields_array['type'] = 'select';
-						$fields_array['multiple'] = false;
-					break;*/
-
 					case 'products':
 						if(get_option('setting_webshop_allow_multiple_categories', 'yes') == 'yes')
 						{
@@ -4636,7 +4219,7 @@ class mf_webshop
 		}
 	}
 
-	function get_group_sync_type($arr_data)
+	/*function get_group_sync_type($arr_data)
 	{
 		$email_post_name = $this->get_post_name_for_type('email');
 
@@ -4646,6 +4229,46 @@ class mf_webshop
 		}
 
 		return $arr_data;
+	}*/
+
+	function wp_head()
+	{
+		global $post;
+
+		$this->order_id = $this->get_cookie();
+
+		if($this->order_id != '')
+		{
+			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+
+			if($cart_post_id > 0 && $cart_post_id != $post->ID)
+			{
+				$plugin_include_url = plugin_dir_url(__FILE__);
+
+				mf_enqueue_style('style_webshop_cart_icon', $plugin_include_url."style_cart_icon.css");
+				mf_enqueue_script('script_webshop_cart_icon', $plugin_include_url."script_cart_icon.js", array(
+					'ajax_url' => admin_url('admin-ajax.php'),
+				));
+
+				/*$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='icon-cart hide'>
+					<div>
+						<div class='cart-line-1'></div>
+						<div class='cart-line-2'></div>
+						<div class='cart-line-3'></div>
+						<div class='cart-wheel'></div>
+					</div>
+				</a>";*/
+				$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='icon-cart hide'><i class='fa fa-shopping-cart fa-lg'></i></a>";
+			}
+		}
+	}
+
+	function wp_footer()
+	{
+		if($this->footer_output != '')
+		{
+			echo $this->footer_output;
+		}
 	}
 
 	function get_group_sync_addresses($arr_addresses, $sync_type)
@@ -4663,8 +4286,6 @@ class mf_webshop
 
 					foreach($result as $r)
 					{
-						//$product_id = $r->ID;
-
 						$arr_addresses[] = array(
 							'email' => $r->meta_value,
 							'first_name' => $r->post_title,
@@ -4749,75 +4370,112 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$order_id = $this->get_cookie();
-		$arr_products = [];
-		$total_sum = $total_tax = 0;
+		$this->order_id = $this->get_cookie();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
-
-		foreach($result as $r)
+		if($this->order_id != '')
 		{
-			$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+			$arr_products = [];
+			$total_sum = $total_tax = 0;
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			foreach($result as $r)
+			{
+				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+				if(is_array($arr_products))
+				{
+					foreach($arr_products as $key => $arr_value)
+					{
+						$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
+						$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
+
+						$total_sum += $this->display_price(array('price' => ($arr_products[$key]['price'] * $arr_products[$key]['amount']), 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
+
+						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => true));
+						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
+						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_products[$key]['price']));
+					}
+				}
+
+				else
+				{
+					$arr_products = [];
+				}
+			}
+
+			if(IS_SUPER_ADMIN)
+			{
+				//$json_output['debug'] .= " (".$wpdb->last_query.")";
+			}
 
 			if(is_array($arr_products))
 			{
-				foreach($arr_products as $key => $arr_value)
+				$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
+				$shipping_cost = 0;
+				$shipping_comment = "";
+
+				if(!($setting_webshop_shipping_free_limit > 0) || $total_sum < $setting_webshop_shipping_free_limit)
 				{
-					$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
-					$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
+					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
-					$total_sum += $this->display_price(array('price' => ($arr_products[$key]['price'] * $arr_products[$key]['amount']), 'suffix' => false));
-					$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
+					$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+					$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
 
-					$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => true));
-					$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
-					$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_products[$key]['price']));
+					$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 				}
+
+				$json_output['success'] = true;
+				$json_output['response_webshop_cart'] = array(
+					//'order_id' => $this->order_id,
+					'products' => $arr_products,
+					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
+					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
+					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
+				);
 			}
 
 			else
 			{
-				$arr_products = [];
+				$json_output['error'] = __("Error", 'lang_webshop');
 			}
-		}
-
-		if(IS_SUPER_ADMIN)
-		{
-			//$json_output['debug'] .= " (".$wpdb->last_query.")";
-		}
-
-		if(is_array($arr_products))
-		{
-			$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
-			$shipping_cost = 0;
-			$shipping_comment = "";
-
-			if(!($setting_webshop_shipping_free_limit > 0) || $total_sum < $setting_webshop_shipping_free_limit)
-			{
-				$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
-
-				$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
-				$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
-
-				$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
-			}
-
-			$json_output['success'] = true;
-			$json_output['response_webshop_cart'] = array(
-				//'order_id' => $order_id,
-				'products' => $arr_products,
-				'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
-				'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
-				'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
-			);
-		}
-
-		else
-		{
-			$json_output['error'] = __("Error", 'lang_webshop');
 		}
 
 		return $json_output;
+	}
+
+	function api_webshop_cart_icon()
+	{
+		global $wpdb;
+
+		$json_output = array(
+			'success' => false,
+		);
+
+		$this->order_id = $this->get_cookie();
+
+		if($this->order_id != '')
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			if($wpdb->num_rows > 0)
+			{
+				foreach($result as $r)
+				{
+					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+					if(is_array($arr_products) && count($arr_products) > 0)
+					{
+						$json_output['success'] = true;
+					}
+				}
+			}
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($json_output);
+		die();
 	}
 
 	function api_webshop_call()
@@ -5616,70 +5274,73 @@ class mf_webshop
 
 		$this->order_id = $this->get_cookie();
 
-		foreach($this->arr_meta_keys as $meta_key)
+		if($this->order_id != '')
 		{
-			$this->order_details[$meta_key] = check_var($meta_key);
-		}
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-		if($wpdb->num_rows > 0)
-		{
-			$obj_encryption = new mf_encryption(__CLASS__);
-
-			foreach($result as $r)
+			foreach($this->arr_meta_keys as $meta_key)
 			{
-				$post_id = $r->ID;
+				$this->order_details[$meta_key] = check_var($meta_key);
+			}
 
-				$post_data = array('meta_input' => array());
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
-				foreach($this->arr_meta_keys as $meta_key)
+			if($wpdb->num_rows > 0)
+			{
+				$obj_encryption = new mf_encryption(__CLASS__);
+
+				foreach($result as $r)
 				{
-					if($this->order_details[$meta_key] != '')
+					$post_id = $r->ID;
+
+					$post_data = array('meta_input' => array());
+
+					foreach($this->arr_meta_keys as $meta_key)
 					{
-						$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
+						if($this->order_details[$meta_key] != '')
+						{
+							$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
+						}
+
+						$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
 					}
 
-					$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
-				}
+					$post_data['ID'] = $post_id;
+					$post_data['meta_input'] = apply_filters('filter_meta_input', $post_data['meta_input'], $post_data['ID']);
 
-				$post_data['ID'] = $post_id;
-				$post_data['meta_input'] = apply_filters('filter_meta_input', $post_data['meta_input'], $post_data['ID']);
-
-				if(wp_update_post($post_data))
-				{
-					$json_output['success'] = true;
-					$json_output['response_fields'] = [];
-
-					/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
-					/*if($this->order_details['address_street'] != '')
+					if(wp_update_post($post_data))
 					{
-						$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
+						$json_output['success'] = true;
+						$json_output['response_fields'] = [];
 
-						foreach($result_address as $r)
+						/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
+						/*if($this->order_details['address_street'] != '')
 						{
-							$cart_hash = get_post_meta($r->ID, $this->meta_prefix.'cart_hash', true);
+							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
 
-							$order_address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
-
-							if($order_address_zip != '')
+							foreach($result_address as $r)
 							{
-								$json_output['response_fields']['address_zip'] = $obj_encryption->decrypt($order_address_zip, md5($cart_hash));
-							}
-						}
-					}*/
-				}
+								$cart_hash = get_post_meta($r->ID, $this->meta_prefix.'cart_hash', true);
 
-				else
-				{
-					$json_output['error'] = "Not updated";
+								$order_address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
+
+								if($order_address_zip != '')
+								{
+									$json_output['response_fields']['address_zip'] = $obj_encryption->decrypt($order_address_zip, md5($cart_hash));
+								}
+							}
+						}*/
+					}
+
+					else
+					{
+						$json_output['error'] = "Not updated";
+					}
 				}
 			}
-		}
 
-		else
-		{
-			$json_output['error'] = "No order found (".$wpdb->last_query.")";
+			else
+			{
+				$json_output['error'] = "No order found (".$wpdb->last_query.")";
+			}
 		}
 
 		header('Content-Type: application/json');
@@ -5697,62 +5358,65 @@ class mf_webshop
 
 		$this->order_id = $this->get_cookie();
 
-		$product_name = check_var('product_name');
-		$product_amount = check_var('product_amount');
-
-		list($product_rest, $product_id) = explode("_", $product_name);
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-		if($wpdb->num_rows > 0)
+		if($this->order_id != '')
 		{
-			foreach($result as $r)
+			$product_name = check_var('product_name');
+			$product_amount = check_var('product_amount');
+
+			list($product_rest, $product_id) = explode("_", $product_name);
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			if($wpdb->num_rows > 0)
 			{
-				$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
-
-				foreach($arr_products as $key => $arr_value)
+				foreach($result as $r)
 				{
-					if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+					$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+
+					foreach($arr_products as $key => $arr_value)
 					{
-						if($product_amount > 0)
+						if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
 						{
-							$arr_products[$key]['amount'] = $product_amount;
-						}
+							if($product_amount > 0)
+							{
+								$arr_products[$key]['amount'] = $product_amount;
+							}
 
-						else
-						{
-							unset($arr_products[$key]);
-						}
+							else
+							{
+								unset($arr_products[$key]);
+							}
 
-						break;
+							break;
+						}
+					}
+
+					$arr_products = array_values($arr_products);
+
+					$post_data = array(
+						'ID' => $r->ID,
+						'meta_input' => apply_filters('filter_meta_input', array(
+							$this->meta_prefix.'products' => $arr_products,
+						)),
+					);
+
+					if(wp_update_post($post_data) > 0)
+					{
+						$json_output['success'] = true;
+						$json_output = $this->get_webshop_cart($json_output);
+					}
+
+					else
+					{
+						$json_output['error'] = "I could not update (".$wpdb->last_query.")";
 					}
 				}
-
-				$arr_products = array_values($arr_products);
-
-				$post_data = array(
-					'ID' => $r->ID,
-					'meta_input' => apply_filters('filter_meta_input', array(
-						$this->meta_prefix.'products' => $arr_products,
-					)),
-				);
-
-				if(wp_update_post($post_data) > 0)
-				{
-					$json_output['success'] = true;
-					$json_output = $this->get_webshop_cart($json_output);
-				}
-
-				else
-				{
-					$json_output['error'] = "I could not update (".$wpdb->last_query.")";
-				}
 			}
-		}
 
-		else
-		{
-			$json_output['error'] = "No order found (".$wpdb->last_query.")";
+			else
+			{
+				$json_output['error'] = "No order found (".$wpdb->last_query.")";
+			}
 		}
 
 		header('Content-Type: application/json');
@@ -5769,20 +5433,24 @@ class mf_webshop
 		);
 
 		$this->order_id = $this->get_cookie();
-		$product_id = check_var('product_id');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-		foreach($result as $r)
+		if($this->order_id != '')
 		{
-			$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+			$product_id = check_var('product_id');
 
-			foreach($arr_products as $key => $arr_value)
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			foreach($result as $r)
 			{
-				if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+				$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+
+				foreach($arr_products as $key => $arr_value)
 				{
-					$json_output['success'] = true;
-					$json_output['product_amount'] = $arr_products[$key]['amount'];
+					if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+					{
+						$json_output['success'] = true;
+						$json_output['product_amount'] = $arr_products[$key]['amount'];
+					}
 				}
 			}
 		}
@@ -5796,61 +5464,113 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+		$this->order_id = $this->get_cookie();
 
-		$price_post_name = $this->get_post_name_for_type('price');
-		$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
-
-		if($wpdb->num_rows > 0)
+		if($this->order_id != '')
 		{
-			foreach($result as $r)
+			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+
+			$price_post_name = $this->get_post_name_for_type('price');
+			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			if($wpdb->num_rows > 0)
 			{
-				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-				if(!is_array($arr_products))
+				foreach($result as $r)
 				{
-					$arr_products = [];
-				}
+					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
 
-				$amount_temp = 1;
-				$was_in_array = false;
-
-				foreach($arr_products as $key => $arr_value)
-				{
-					if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+					if(!is_array($arr_products))
 					{
-						$amount_temp = ++$arr_products[$key]['amount'];
+						$arr_products = [];
+					}
 
-						$was_in_array = true;
-						break;
+					$amount_temp = 1;
+					$was_in_array = false;
+
+					foreach($arr_products as $key => $arr_value)
+					{
+						if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+						{
+							$amount_temp = ++$arr_products[$key]['amount'];
+
+							$was_in_array = true;
+							break;
+						}
+					}
+
+					if($was_in_array == false)
+					{
+						$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $amount_temp);
+					}
+
+					$post_data = array(
+						'ID' => $r->ID,
+						'meta_input' => apply_filters('filter_meta_input', array(
+							$this->meta_prefix.'products' => $arr_products,
+						)),
+					);
+
+					if(wp_update_post($post_data) > 0)
+					{
+						$json_output['success'] = true;
+						//$json_output['debug'] .= "Update: ".var_export($post_data, true);
+
+						if($cart_post_id > 0)
+						{
+							$json_output['response_add_to_cart'] = array(
+								'product_id' => $product_id,
+								'product_amount' => $amount_temp,
+							);
+						}
+
+						else
+						{
+							$json_output['response_add_to_cart'] = array(
+								'product_id' => $product_id,
+								'product_amount' => $amount_temp,
+								//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
+							);
+						}
+					}
+
+					else
+					{
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'text' => __("Try Again", 'lang_webshop'),
+							'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
+						);
 					}
 				}
+			}
 
-				if($was_in_array == false)
-				{
-					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $amount_temp);
-				}
+			else
+			{
+				$arr_products = [];
+				$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
 
 				$post_data = array(
-					'ID' => $r->ID,
+					'post_type' => $this->post_type_orders,
+					'post_status' => 'draft',
+					'post_title' => $this->order_id,
 					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'cart_hash' => $this->order_id,
 						$this->meta_prefix.'products' => $arr_products,
 					)),
 				);
 
-				if(wp_update_post($post_data) > 0)
+				if(wp_insert_post($post_data) > 0)
 				{
 					$json_output['success'] = true;
-					//$json_output['debug'] .= "Update: ".var_export($post_data, true);
+					//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 
 					if($cart_post_id > 0)
 					{
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
 							'product_amount' => $amount_temp,
-							//'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
 						);
 					}
 
@@ -5859,7 +5579,7 @@ class mf_webshop
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
 							'product_amount' => $amount_temp,
-							//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
+							//'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
 						);
 					}
 				}
@@ -5869,58 +5589,9 @@ class mf_webshop
 					$json_output['response_add_to_cart'] = array(
 						'product_id' => $product_id,
 						'text' => __("Try Again", 'lang_webshop'),
-						'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
+						'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
 					);
 				}
-			}
-		}
-
-		else
-		{
-			$arr_products = [];
-			$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
-
-			$post_data = array(
-				'post_type' => $this->post_type_orders,
-				'post_status' => 'draft',
-				'post_title' => $this->get_cookie(),
-				'meta_input' => apply_filters('filter_meta_input', array(
-					$this->meta_prefix.'cart_hash' => $this->get_cookie(),
-					$this->meta_prefix.'products' => $arr_products,
-				)),
-			);
-
-			if(wp_insert_post($post_data) > 0)
-			{
-				$json_output['success'] = true;
-				//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
-
-				if($cart_post_id > 0)
-				{
-					$json_output['response_add_to_cart'] = array(
-						'product_id' => $product_id,
-						'product_amount' => $amount_temp,
-						//'html' => "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link'>".__("In your Cart", 'lang_webshop')." <i class='fa fa-check'></i></a>",
-					);
-				}
-
-				else
-				{
-					$json_output['response_add_to_cart'] = array(
-						'product_id' => $product_id,
-						'product_amount' => $amount_temp,
-						//'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
-					);
-				}
-			}
-
-			else
-			{
-				$json_output['response_add_to_cart'] = array(
-					'product_id' => $product_id,
-					'text' => __("Try Again", 'lang_webshop'),
-					'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
-				);
 			}
 		}
 
@@ -6551,19 +6222,21 @@ class mf_webshop
 
 					$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
 
-					$out .= "<script type='text/template' id='template_webshop_cart_empty'>";
+					$out .= "<script type='text/template' id='template_webshop_cart_empty'>
+						<td colspan='".($setting_webshop_tax_display == 'yes' ? 6 : 5)."'>";
 
-						if($search_post_id > 0)
-						{
-							$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($search_post_id)."'>", "</a>");
-						}
+							if($search_post_id > 0)
+							{
+								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($search_post_id)."'>", "</a>");
+							}
 
-						else
-						{
-							$out .= sprintf(__("You don't have any products in your cart yet", 'lang_webshop'));
-						}
+							else
+							{
+								$out .= sprintf(__("You don't have any products in your cart yet", 'lang_webshop'));
+							}
 
-					$out .= "</script>
+						$out .= "</td>
+					</script>
 
 					<script type='text/template' id='template_webshop_cart_item'>
 						<tr id='product_<%= id %>'>
@@ -7495,9 +7168,11 @@ class mf_webshop
 
 		$out = 0;
 
-		if($this->product_id > 0 && $this->get_cookie() != '')
+		$this->order_id = $this->get_cookie();
+
+		if($this->product_id > 0 && $this->order_id != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->get_cookie(), $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
