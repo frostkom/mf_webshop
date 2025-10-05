@@ -933,7 +933,7 @@ class mf_webshop
 						if($search_post_id > 0)
 						{
 							$out .= "<div class='wp-block-button'>
-								<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+								<a href='".get_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
 							</div>";
 						}
 
@@ -1269,7 +1269,7 @@ class mf_webshop
 			{
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 					<div class='wp-block-button cart_buttons'>
-						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span></span>")."</span><i class='fa fa-check'></i></a>
+						<a href='".get_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span></span>")."</span><i class='fa fa-check'></i></a>
 						<a href='#' class='wp-block-button__link add_to_cart' rel='".$post->ID."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 					</div>
 				</div>";
@@ -1648,19 +1648,19 @@ class mf_webshop
 		{
 			return array(
 				'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-				//'DKK' => __("Danish Krone", 'lang_form')." (DKK)",
-				'EUR' => __("Euro", 'lang_form')." (EUR)",
-				'USD' => __("US Dollar", 'lang_form')." (USD)",
-				//'GBP' => __("English Pound", 'lang_form')." (GBP)",
-				'SEK' => __("Swedish Krona", 'lang_form')." (SEK)",
-				//'AUD' => __("Australian Dollar", 'lang_form')." (AUD)",
-				//'CAD' => __("Canadian Dollar", 'lang_form')." (CAD)",
-				//'ISK' => __("Icelandic Krona", 'lang_form')." (ISK)",
-				//'JPY' => __("Japanese Yen", 'lang_form')." (JPY)",
-				//'NZD' => __("New Zealand Dollar", 'lang_form')." (NZD)",
-				//'NOK' => __("Norwegian Krone", 'lang_form')." (NOK)",
-				//'CHF' => __("Swiss Franc", 'lang_form')." (CHF)",
-				//'TRY' => __("Turkish Lira", 'lang_form')." (TRY)",
+				//'DKK' => __("Danish Krone", 'lang_webshop')." (DKK)",
+				'EUR' => __("Euro", 'lang_webshop')." (EUR)",
+				'USD' => __("US Dollar", 'lang_webshop')." (USD)",
+				//'GBP' => __("English Pound", 'lang_webshop')." (GBP)",
+				'SEK' => __("Swedish Krona", 'lang_webshop')." (SEK)",
+				//'AUD' => __("Australian Dollar", 'lang_webshop')." (AUD)",
+				//'CAD' => __("Canadian Dollar", 'lang_webshop')." (CAD)",
+				//'ISK' => __("Icelandic Krona", 'lang_webshop')." (ISK)",
+				//'JPY' => __("Japanese Yen", 'lang_webshop')." (JPY)",
+				//'NZD' => __("New Zealand Dollar", 'lang_webshop')." (NZD)",
+				//'NOK' => __("Norwegian Krone", 'lang_webshop')." (NOK)",
+				//'CHF' => __("Swiss Franc", 'lang_webshop')." (CHF)",
+				//'TRY' => __("Turkish Lira", 'lang_webshop')." (TRY)",
 			);
 		}
 
@@ -4068,7 +4068,7 @@ class mf_webshop
 					'ajax_url' => admin_url('admin-ajax.php'),
 				));
 
-				$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='icon-cart hide'><i class='fa fa-shopping-cart fa-lg'></i></a>";
+				$this->footer_output .= "<a href='".get_permalink($cart_post_id)."' class='icon-cart hide'><i class='fa fa-shopping-cart fa-lg'></i></a>";
 			}
 		}
 	}
@@ -4198,7 +4198,7 @@ class mf_webshop
 					foreach($arr_products as $key => $arr_value)
 					{
 						$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
-						$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
+						$arr_products[$key]['product_url'] = get_permalink($arr_products[$key]['id']);
 
 						$total_sum += $this->display_price(array('price' => ($arr_products[$key]['price'] * $arr_products[$key]['amount']), 'suffix' => false));
 						$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
@@ -5684,7 +5684,7 @@ class mf_webshop
 											if($cart_post_id > 0)
 											{
 												$out .= "<div class='wp-block-button cart_buttons'>
-													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span><%= product_in_cart %></span>")."</span><i class='fa fa-check'></i></a>
+													<a href='".get_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span><%= product_in_cart %></span>")."</span><i class='fa fa-check'></i></a>
 													<a href='#' class='wp-block-button__link add_to_cart'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 												</div>";
 											}
@@ -5714,7 +5714,7 @@ class mf_webshop
 
 							if($search_post_id > 0)
 							{
-								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($search_post_id)."'>", "</a>");
+								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_permalink($search_post_id)."'>", "</a>");
 							}
 
 							else
