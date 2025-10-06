@@ -208,7 +208,7 @@ jQuery(function($)
 		{
 			$(".proceed_to_checkout button[name='btnWebshopPay']").attr('disabled', true);
 		}
-		
+
 		else
 		{
 			$(".proceed_to_checkout button[name='btnWebshopPay']").removeAttr('disabled');
