@@ -1346,6 +1346,7 @@ class mf_webshop
 			'supports' => $arr_supports,
 			'hierarchical' => true,
 			'has_archive' => false,
+			'rewrite' => array('slug' => 'product'),
 		));
 
 		register_post_type($this->post_type_custom_categories, array(
