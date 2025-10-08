@@ -21,9 +21,37 @@ class mf_webshop
 	var $post_type_delivery_type = 'mf_delivery';
 	var $template_used = [];
 	var $option_type = '';
-	var $event_max_length = 10;
 	var $product_id = 0;
-	var $event_id = 0;
+	var $product_meta;
+	var $product_title;
+	var $product_description;
+	var $product_has_read_more;
+	var $product_has_content;
+	var $arr_category_id;
+	var $product_image;
+	var $product_price;
+	var $product_url;
+	var $show_in_result;
+	var $product_has_email;
+	var $size_amount;
+	var $price_amount;
+	var $number_amount;
+	var $search_url;
+	var $product_social;
+	var $product_coordinates;
+	var $product_map;
+	var $product_categories;
+	var $product_address;
+	var $product_location;
+	var $product_data;
+	var $product_clock;
+	var $result;
+	var $meta_id;
+	var $meta_title;
+	var $meta_name;
+	var $meta_type;
+	var $meta_public;
+	var $meta_symbol;
 
 	var $order_id;
 	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_co', 'address_zip', 'address_city']; //'address_country'
@@ -569,17 +597,17 @@ class mf_webshop
 	{
 		global $wpdb, $obj_font_icons;
 
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
+
 		$this->block_resources();
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
 			<form action='' method='post' class='mf_form'>";
 
 				//.$this->get_search_result_info(array('type' => 'filter'))
-
-				if(!isset($obj_font_icons))
-				{
-					$obj_font_icons = new mf_font_icons();
-				}
 
 				$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
@@ -6317,6 +6345,11 @@ class mf_webshop
 
 		if($data['public'] == 'yes' && (is_array($data['meta']) && count($data['meta']) > 0 || $data['meta'] != '' || in_array($data['type'], array('divider', 'heading'))))
 		{
+			if(!isset($obj_font_icons))
+			{
+				$obj_font_icons = new mf_font_icons();
+			}
+
 			$class = $data['type'];
 			$content = "";
 
@@ -6336,7 +6369,7 @@ class mf_webshop
 				break;
 			}
 
-			$symbol_code = (isset($data['symbol']) ? $this->obj_font_icons->get_symbol_tag(array('symbol' => $data['symbol'])) : "");
+			$symbol_code = (isset($data['symbol']) ? $obj_font_icons->get_symbol_tag(array('symbol' => $data['symbol'])) : "");
 
 			switch($data['type'])
 			{
@@ -6368,10 +6401,7 @@ class mf_webshop
 				case 'categories':
 					if(is_array($data['meta']))
 					{
-						if(!isset($obj_font_icons))
-						{
-							$obj_font_icons = new mf_font_icons();
-						}
+						
 
 						$content = "<span title='".$data['title']."'>";
 
@@ -6464,11 +6494,14 @@ class mf_webshop
 
 	function product_init($data)
 	{
-		global $wpdb;
+		global $wpdb, $obj_font_icons;
+
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$post = $data['post'];
-
-		$this->obj_font_icons = new mf_font_icons();
 
 		$this->product_meta = [];
 
@@ -6642,7 +6675,12 @@ class mf_webshop
 
 	function get_product_data($data, &$json_output)
 	{
-		global $obj_form;
+		global $obj_form, $obj_font_icons;
+
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$is_single = false;
 
@@ -6791,7 +6829,7 @@ class mf_webshop
 								{
 									if($this->meta_symbol != '')
 									{
-										$this->meta_symbol = $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
+										$this->meta_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
 									}
 
 									$this->product_clock .= $this->meta_symbol.$post_meta;
@@ -6900,7 +6938,7 @@ class mf_webshop
 
 										if($this->meta_symbol != '')
 										{
-											$this->product_data .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
+											$this->product_data .= $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
 										}
 
 										else
@@ -7007,7 +7045,7 @@ class mf_webshop
 					{
 						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
 
-						$product_image .= $this->obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
+						$product_image .= $obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
 					}
 
 				$product_image .= "</div>";

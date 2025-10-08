@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.7.4
+Version: 2.2.7.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -99,7 +99,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_webshop_color_info', 'setting_webshop_text_color_info', 'setting_gmaps_api', 'setting_webshop_replace_show_map', 'setting_webshop_replace_hide_map', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_quote_form_popup', 'setting_webshop_icon', 'setting_webshop_allow_multiple_categories', 'setting_webshop_replace_favorites_info', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_certificate_password', 'setting_webshop_swish_key_file');
 
-		foreach($obj_webshop->arr_option_types as $option_type)
+		/*foreach($obj_webshop->arr_option_types as $option_type)
 		{
 			$obj_webshop->option_type = ($option_type != '' ? "_".$option_type : '');
 
@@ -112,12 +112,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			$arr_option_types[] = $obj_webshop->post_type_delivery_type;
 		}
 
-		$obj_webshop->option_type = '';
+		$obj_webshop->option_type = '';*/
 
 		mf_uninstall_plugin(array(
 			'options' => $arr_options,
 			'user_meta' => array('meta_orders_viewed', 'meta_webshop_session', 'meta_webshop_reminder_sent'),
-			'post_types' => $arr_option_types,
+			//'post_types' => $arr_option_types,
 		));
 	}
 }
