@@ -277,7 +277,7 @@ var WebshopView = Backbone.View.extend(
 		{
 			jQuery(e.currentTarget).find(".show_if_too_many").removeClass('hide');
 
-			scroll_to_top();
+			jQuery("html, body").animate({scrollTop: 0}, 800);
 
 			return false;
 		}

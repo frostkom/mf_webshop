@@ -1,3 +1,30 @@
+function select_option()
+{
+	jQuery(".mf_form .form_select select[data-value!='']").each(function()
+	{
+		var dom_obj = jQuery(this),
+			dom_value = (dom_obj.attr('data-value') || '');
+
+		if(dom_value != '')
+		{
+			if(dom_value.match(/,/))
+			{
+				var arr_values = dom_value.split(',');
+
+				_.each(arr_values, function(value, key)
+				{
+					dom_obj.find("option[value='" + value + "']").prop('selected', true);
+				});
+			}
+
+			else
+			{
+				dom_obj.find("option[value='" + dom_value + "']").prop('selected', true);
+			}
+		}
+	});
+}
+
 var WebshopAdminView = Backbone.View.extend(
 {
 	el: jQuery("#admin_webshop_edit"),
