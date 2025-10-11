@@ -19,7 +19,7 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					dom_obj.siblings(".in_cart").removeClass('hide').find("span span").text(data.product_amount);
+					dom_obj.siblings(".in_cart").removeClass('hide').find("span:first-of-type").text(data.product_amount).removeClass('hide');
 
 					$(".icon-cart").removeClass('hide');
 				}
@@ -44,7 +44,12 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					dom_obj.removeClass('loading').siblings(".in_cart").removeClass('hide').find("span span").text(data.response_add_to_cart.product_amount);
+					dom_obj.removeClass('loading').siblings(".in_cart").removeClass('hide').find("span:first-of-type").addClass('updating');
+
+					setTimeout(function()
+					{
+						dom_obj.siblings(".in_cart").find("span:first-of-type").text(data.response_add_to_cart.product_amount).removeClass('updating');
+					}, 250);
 
 					$(".icon-cart").removeClass('hide');
 				}

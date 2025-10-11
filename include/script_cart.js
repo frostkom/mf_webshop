@@ -79,11 +79,18 @@ jQuery(function($)
 
 	/* Update cart */
 	/* ##################### */
+	var update_timeout;
+
 	dom_obj_widget.on('change', ".cart_products .mf_form_field[type='number']", function()
 	{
 		var dom_obj = $(this);
 
-		update_product_amount(dom_obj.parents("tr").attr('id'), dom_obj.val());
+		clearTimeout(update_timeout);
+
+		update_timeout = setTimeout(function()
+		{
+			update_product_amount(dom_obj.parents("tr").attr('id'), dom_obj.val());
+		}, 500);
 	});
 
 	dom_obj_widget.on('click', ".cart_products .fa-trash.red", function()

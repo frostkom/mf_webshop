@@ -359,7 +359,13 @@ var WebshopView = Backbone.View.extend(
 		var dom_obj_parent = jQuery(".product_list.webshop_item_list > li#product_" + response.product_id);
 
 		dom_obj_parent.find(".add_to_cart").removeClass('loading');
-		dom_obj_parent.find(".in_cart").removeClass('hide').find("span span").text(response.product_amount);
+
+		dom_obj_parent.find(".in_cart").removeClass('hide').find("span:first-of-type").addClass('updating');
+
+		setTimeout(function()
+		{
+			dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
+		}, 250);
 
 		jQuery(".icon-cart").removeClass('hide');
 	},

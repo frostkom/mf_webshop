@@ -100,7 +100,7 @@ class mf_webshop
 		if($post_id > 0)
 		{
 			$post_title = get_the_title($post_id);
-			$post_author = mf_get_post_content($post_id, 'post_author');
+			$post_author = get_post_field('post_author', $post_id);
 		}
 
 		else
@@ -1297,7 +1297,7 @@ class mf_webshop
 			{
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 					<div class='wp-block-button cart_buttons'>
-						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span></span>")."</span><i class='fa fa-check'></i></a>
+						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
 						<a href='#' class='wp-block-button__link add_to_cart' rel='".$post->ID."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 					</div>
 				</div>";
@@ -1668,19 +1668,6 @@ class mf_webshop
 
 		return $new_value;
 	}
-
-	/*function pre_update_option($new_value, $old_value)
-	{
-		$out = "";
-
-		if($new_value != '')
-		{
-			$obj_encryption = new mf_encryption(__CLASS__);
-			$out = $obj_encryption->encrypt($new_value, md5(AUTH_KEY));
-		}
-
-		return $out;
-	}*/
 
 	function settings_webshop_parent_callback()
 	{
@@ -5729,7 +5716,7 @@ class mf_webshop
 											if($cart_post_id > 0)
 											{
 												$out .= "<div class='wp-block-button cart_buttons'>
-													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>'><span>".sprintf(__("%s in Cart", 'lang_webshop'), "<span><%= product_in_cart %></span>")."</span><i class='fa fa-check'></i></a>
+													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
 													<a href='#' class='wp-block-button__link add_to_cart'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 												</div>";
 											}
