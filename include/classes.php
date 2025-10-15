@@ -5907,7 +5907,7 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_town_from_coordinates($data, $out)
+	/*function get_town_from_coordinates($data, $out)
 	{
 		if($data['initial'] != false)
 		{
@@ -5936,7 +5936,7 @@ class mf_webshop
 		}
 
 		return $out;
-	}
+	}*/
 
 	function get_filter_products($data)
 	{
@@ -6150,7 +6150,7 @@ class mf_webshop
 			$i++;
 		}
 
-		$out = $this->get_town_from_coordinates($data, $out);
+		//$out = $this->get_town_from_coordinates($data, $out);
 
 		$out['success'] = true;
 
@@ -6404,8 +6404,6 @@ class mf_webshop
 				case 'categories':
 					if(is_array($data['meta']))
 					{
-						
-
 						$content = "<span title='".$data['title']."'>";
 
 							$i = 0;
