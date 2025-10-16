@@ -150,7 +150,7 @@ jQuery(function($)
 	/* Update order details */
 	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
 	{
-		var form_data = $(this).serialize();
+		var form_data = $(this).parents("form").serialize();
 
 		$.ajax(
 		{
@@ -171,9 +171,46 @@ jQuery(function($)
 		});
 	});
 
+	/* Check if orgno is entered */
+	/* ##################### */
+	$(document).on('input', ".toggle_invoice #payment_ssn", function()
+	{
+		let value = $(this).val();
+
+		/* Remove all non-digit characters */
+		value = value.replace(/\D/g, '');
+
+		$(this).val(value);
+	});
+
+	$(document).on('input', ".toggle_invoice input", function()
+	{
+		let anyEmpty = false;
+
+		$(".toggle_invoice input").each(function()
+		{
+			if(!$(this).val())
+			{
+				anyEmpty = true;
+				return false;
+			}
+		});
+
+		if(anyEmpty)
+		{
+			$(".toggle_invoice button[name='btnWebshopPayInvoice']").attr('disabled', true);
+		}
+
+		else
+		{
+			$(".toggle_invoice button[name='btnWebshopPayInvoice']").removeAttr('disabled');
+		}
+	});
+	/* ##################### */
+
 	/* Validate card details & activate buy button */
 	/* ##################### */
-	$(document).on('input', ".proceed_to_checkout #payment_card_no", function()
+	$(document).on('input', ".toggle_card #payment_card_no", function()
 	{
 		let value = $(this).val();
 
@@ -186,7 +223,7 @@ jQuery(function($)
 		$(this).val(value);
 	});
 
-	$(document).on('input', ".proceed_to_checkout #payment_card_expires", function()
+	$(document).on('input', ".toggle_card #payment_card_expires", function()
 	{
 		let input = $(this).val().replace(/\D/g, '').slice(0, 4);
 
@@ -198,11 +235,11 @@ jQuery(function($)
 		$(this).val(input);
 	});
 
-	$(document).on('input', '.proceed_to_checkout .card_details input', function()
+	$(document).on('input', ".toggle_card input", function()
 	{
 		let anyEmpty = false;
 
-		$(".proceed_to_checkout .card_details input").each(function()
+		$(".toggle_card input").each(function()
 		{
 			if(!$(this).val())
 			{
@@ -213,12 +250,12 @@ jQuery(function($)
 
 		if(anyEmpty)
 		{
-			$(".proceed_to_checkout button[name='btnWebshopPay']").attr('disabled', true);
+			$(".toggle_card button[name='btnWebshopPayCard']").attr('disabled', true);
 		}
 
 		else
 		{
-			$(".proceed_to_checkout button[name='btnWebshopPay']").removeAttr('disabled');
+			$(".toggle_card button[name='btnWebshopPayCard']").removeAttr('disabled');
 		}
 	});
 	/* ##################### */
