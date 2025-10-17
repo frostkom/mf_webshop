@@ -1491,6 +1491,47 @@ class mf_webshop
 		return $out;
 	}
 
+	function block_render_more_images_callback($attributes)
+	{
+		global $post;
+
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
+		mf_enqueue_style('style_webshop_more_images', $plugin_include_url."style_more_images.css");
+		/*mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+		));*/
+
+		$arr_product_images = get_post_meta($post->ID, $this->meta_prefix.'product_image', false);
+
+		if(is_array($arr_product_images) && count($arr_product_images) > 0)
+		{
+			$out = "<div".parse_block_attributes(array('class' => "widget webshop_more_images", 'attributes' => $attributes)).">";
+
+				foreach($arr_product_images as $image_id)
+				{
+					$image_url = $image_tag = "";
+
+					$arr_image = wp_get_attachment_image_src($image_id, 'full');
+
+					if(is_array($arr_image))
+					{
+						$image_url = $arr_image[0];
+					}
+
+					$image_tag = render_image_tag(array('id' => $image_id, 'size' => 'medium'));
+
+					$out .= "<div class='image'>
+						<a href='".$image_url."'>".$image_tag."</a>
+					</div>";
+				}
+
+			$out .= "</div>";
+		}
+
+		return $out;
+	}
+
 	function block_render_buy_button_callback($attributes)
 	{
 		global $post;
@@ -1533,6 +1574,8 @@ class mf_webshop
 			'block_description2' => __("Display Search", 'lang_webshop'),
 			'block_title4' => __("Webshop", 'lang_webshop')." - ".__("Cart", 'lang_webshop'),
 			'block_description4' => __("Display Cart", 'lang_webshop'),
+			'block_title6' => __("Webshop", 'lang_webshop')." - ".__("More Images", 'lang_webshop'),
+			'block_description6' => __("Display More Images", 'lang_webshop'),
 			'block_title5' => __("Webshop", 'lang_webshop')." - ".__("Buy Button", 'lang_webshop'),
 			'block_description5' => __("Display Buy Button", 'lang_webshop'),
 		));
@@ -1713,6 +1756,12 @@ class mf_webshop
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_cart_callback'),
+		));
+
+		register_block_type('mf/webshopmoreimages', array(
+			'editor_script' => 'script_webshop_block_wp',
+			'editor_style' => 'style_base_block_wp',
+			'render_callback' => array($this, 'block_render_more_images_callback'),
 		));
 
 		register_block_type('mf/webshopbuybutton', array(

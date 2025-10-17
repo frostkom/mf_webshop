@@ -22,6 +22,8 @@ get_header();
 			$cat_title = $post->post_title;
 			$cat_content = $post->post_content;
 
+			do_log("single-mf_category.php: Add a block instead (<a href='".admin_url("post.php?post=".$cat_id."&action=edit")."'>#".$cat_id."</a>)", 'publish', false);
+
 			$after_heading = "";
 
 			if(is_active_sidebar('widget_after_heading') && $obj_theme_core->is_post_password_protected($cat_id) == false)
@@ -61,7 +63,7 @@ get_header();
 
 						$post_url = get_permalink($r);
 
-						$post_product_image_id = get_post_meta($post_id, $obj_webshop->meta_prefix.'product_image_image', true);
+						$post_product_image_id = get_post_meta($post_id, $obj_webshop->meta_prefix.'product_image', true);
 
 						echo "<h1><a href='".$post_url."'>".$post_title."</a></h1>"
 						.$after_heading

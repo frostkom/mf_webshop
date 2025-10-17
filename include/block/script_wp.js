@@ -132,6 +132,67 @@
 		}
 	});
 
+	registerBlockType('mf/webshopmoreimages',
+	{
+		title: script_webshop_block_wp.block_title6,
+		description: script_webshop_block_wp.block_description6,
+		icon: 'format-gallery',
+		category: 'widgets',
+		'attributes':
+		{
+			'align':
+			{
+				'type': 'string',
+				'default': ''
+			}
+		},
+		'supports':
+		{
+			'html': false,
+			'multiple': false,
+			'align': true,
+			'spacing':
+			{
+				'margin': true,
+				'padding': true
+			},
+			'color':
+			{
+				'background': true,
+				'gradients': false,
+				'text': true
+			},
+			'defaultStylePicker': true,
+			'typography':
+			{
+				'fontSize': true,
+				'lineHeight': true
+			},
+			"__experimentalBorder":
+			{
+				"radius": true
+			}
+		},
+		edit: function(props)
+		{
+			return el(
+				'div',
+				{className: 'wp_mf_block_container'},
+				[
+					el(
+						'strong',
+						{className: props.className},
+						script_webshop_block_wp.block_title6
+					)
+				]
+			);
+		},
+		save: function()
+		{
+			return null;
+		}
+	});
+
 	registerBlockType('mf/webshopbuybutton',
 	{
 		title: script_webshop_block_wp.block_title5,
