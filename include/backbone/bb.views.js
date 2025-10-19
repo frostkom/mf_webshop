@@ -517,7 +517,7 @@ var WebshopView = Backbone.View.extend(
 	load_filter_products: function(dom_obj)
 	{
 		var widget_id = dom_obj.attr('id'),
-			option_type = (dom_obj.attr('data-option_type') || ''),
+			/*option_type = (dom_obj.attr('data-option_type') || ''),*/
 			category = dom_obj.attr('data-category'),
 			order_by = (dom_obj.attr('data-order_by') || 'alphabetical'),
 			link_product = (dom_obj.attr('data-link_product') || ''),
@@ -532,10 +532,10 @@ var WebshopView = Backbone.View.extend(
 
 		if(order_by != '')
 		{
-			if(option_type != '')
+			/*if(option_type != '')
 			{
 				get_vars += "&option_type=" + option_type;
-			}
+			}*/
 
 			get_vars += "&order_by=" + order_by;
 

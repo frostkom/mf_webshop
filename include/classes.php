@@ -20,7 +20,7 @@ class mf_webshop
 	var $post_type_customers = 'mf_customer';
 	var $post_type_delivery_type = 'mf_delivery';
 	var $template_used = [];
-	var $option_type = '';
+	//var $option_type = '';
 	var $product_id = 0;
 	var $product_meta;
 	var $product_title;
@@ -91,6 +91,18 @@ class mf_webshop
 		$result = array_merge($result, $result_temp);
 
 		return $result;
+	}
+
+	function get_post_name_for_type($type)
+	{
+		global $wpdb;
+
+		if(!isset($this->post_name_for_type[$type])) //[$this->option_type]
+		{
+			$this->post_name_for_type[$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type)); //[$this->option_type]
+		}
+
+		return $this->post_name_for_type[$type]; //[$this->option_type]
 	}
 
 	function create_product_event_connection($post_id = 0)
@@ -1534,7 +1546,7 @@ class mf_webshop
 
 	function block_render_buy_button_callback($attributes)
 	{
-		global $post;
+		global $wpdb, $post;
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -1545,6 +1557,25 @@ class mf_webshop
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_buy_button", 'attributes' => $attributes)).">";
 
+			$product_id = $post->ID;
+
+			if(IS_SUPER_ADMIN)
+			{
+				$price_post_name = $this->get_post_name_for_type('price');
+
+				if($price_post_name != '')
+				{
+					$price_post_title = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', 'price'));
+
+					$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
+
+					if($product_price > 0)
+					{
+						$out .= "<p><strong>".$price_post_title.":</strong> ".$this->display_price(array('price' => $product_price, 'suffix' => true))."</p>";
+					}
+				}
+			}
+
 			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
 			if($cart_post_id > 0)
@@ -1552,7 +1583,7 @@ class mf_webshop
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 					<div class='wp-block-button cart_buttons'>
 						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide'><span></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
-						<a href='#' class='wp-block-button__link add_to_cart' rel='".$post->ID."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+						<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 					</div>
 				</div>";
 			}
@@ -2320,10 +2351,10 @@ class mf_webshop
 		return ""; //"http://googlemapsmarkers.com/v1/".trim(get_option($option_key), "#")."/"
 	}
 
-	function get_option_type_from_post_id($post_id)
+	/*function get_option_type_from_post_id($post_id)
 	{
 		$this->option_type = str_replace($this->post_type_products, "", get_post_type($post_id));
-	}
+	}*/
 
 	function filter_is_file_used($arr_used)
 	{
@@ -2614,23 +2645,6 @@ class mf_webshop
 
 			$this->get_location_order(array('parent' => $location_id, 'array' => $data['array']));
 		}
-	}
-
-	function sort_location($data)
-	{
-		if(!isset($data['array'])){		$data['array'] = [];}
-		if(!isset($data['reverse'])){	$data['reverse'] = false;}
-
-		$this->arr_locations = [];
-
-		$this->get_location_order($data);
-
-		if($data['reverse'] == true)
-		{
-			$this->arr_locations = array_reverse($this->arr_locations);
-		}
-
-		return $this->arr_locations;
 	}
 
 	/* Admin */
@@ -4138,7 +4152,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$this->get_option_type_from_post_id($post_id);
+		//$this->get_option_type_from_post_id($post_id);
 
 		if($post->post_type == $this->post_type_products)
 		{
@@ -4165,7 +4179,7 @@ class mf_webshop
 	{
 		$post_type = get_post_type($post_id);
 
-		$this->get_option_type_from_post_id($post_id);
+		//$this->get_option_type_from_post_id($post_id);
 
 		if($post_type == $this->post_type_products)
 		{
@@ -4210,7 +4224,7 @@ class mf_webshop
 	{
 		global $post;
 
-		$this->get_option_type_from_post_id($post_id);
+		//$this->get_option_type_from_post_id($post_id);
 
 		if($post->post_type == $this->post_type_categories)
 		{
@@ -4253,7 +4267,7 @@ class mf_webshop
 
 	function rwmb_after_save_post($post_id)
 	{
-		$this->get_option_type_from_post_id($post_id);
+		//$this->get_option_type_from_post_id($post_id);
 
 		if(get_post_type($post_id) == $this->post_type_products)
 		{
@@ -4617,13 +4631,13 @@ class mf_webshop
 				{
 					if(isset($arr_type[3]) && in_array($arr_type[3], array('list', 'edit', 'save')))
 					{
-						$this->option_type = "_".$arr_type[2];
+						//$this->option_type = "_".$arr_type[2];
 						$arr_type[2] = $arr_type[3];
 					}
 
 					else // Just to make sure that option_type isn't carried forward from another loop earlier in the code
 					{
-						$this->option_type = "";
+						//$this->option_type = "";
 					}
 
 					$type_temp = $arr_type[1]."/".$arr_type[2];
@@ -4673,7 +4687,7 @@ class mf_webshop
 
 							if($post_id > 0)
 							{
-								$this->get_option_type_from_post_id($post_id);
+								//$this->get_option_type_from_post_id($post_id);
 
 								$arr_meta_boxes = $this->rwmb_meta_boxes([]);
 
@@ -4885,7 +4899,7 @@ class mf_webshop
 								$json_output['admin_webshop_response']['post_title'] = get_user_info();
 							}
 
-							$json_output['admin_webshop_response']['option_type'] = $this->option_type;
+							//$json_output['admin_webshop_response']['option_type'] = $this->option_type;
 							$json_output['admin_webshop_response']['name_product'] = __("Product", 'lang_webshop');
 						break;
 
@@ -4901,7 +4915,7 @@ class mf_webshop
 
 							if($post_id > 0)
 							{
-								$this->get_option_type_from_post_id($post_id);
+								//$this->get_option_type_from_post_id($post_id);
 
 								$arr_meta_boxes = $this->rwmb_meta_boxes([]);
 
@@ -5060,7 +5074,7 @@ class mf_webshop
 
 							else
 							{
-								$this->option_type = check_var('option_type');
+								//$this->option_type = check_var('option_type');
 
 								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
 
@@ -5107,7 +5121,7 @@ class mf_webshop
 
 			case 'filter_products':
 				$id = check_var('id', 'char');
-				$option_type = check_var('option_type', 'char');
+				//$option_type = check_var('option_type', 'char');
 				$category = check_var('category', 'char');
 				$order_by = check_var('order_by');
 				$link_product = check_var('link_product');
@@ -5119,7 +5133,7 @@ class mf_webshop
 
 				$json_output = $this->get_filter_products(array(
 					'id' => $id,
-					'option_type' => $option_type,
+					//'option_type' => $option_type,
 					'category' => $category,
 					'link_product' => $link_product,
 					'order_by' => $order_by,
@@ -5141,7 +5155,7 @@ class mf_webshop
 
 			case 'amount':
 			default:
-				$this->option_type = check_var('option_type');
+				//$this->option_type = check_var('option_type');
 
 				//$search_text = check_var('search_text');
 
@@ -5892,15 +5906,8 @@ class mf_webshop
 								<% if(product_category != '' || product_data != '')
 								{ %>
 									<div class='meta'>
-										<% if(product_category != '')
-										{ %>
-											<span class='category'><%= product_category %></span>
-										<% } %>
-
-										<% if(product_data != '')
-										{ %>
-											<%= product_data %>
-										<% } %>
+										<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
+										<% if(product_data != ''){ %><%= product_data %><% } %>
 									</div>
 								<% } %>
 								<a href='<%= product_url %>'><%= product_title %></a>
@@ -6189,10 +6196,10 @@ class mf_webshop
 
 		$out = [];
 
-		if(isset($data['option_type']))
+		/*if(isset($data['option_type']))
 		{
 			$this->option_type = ($data['option_type'] != '' ? "_".$data['option_type'] : '');
-		}
+		}*/
 
 		if($data['id'] != '')
 		{
@@ -6526,25 +6533,6 @@ class mf_webshop
 		{
 			return $result;
 		}
-	}
-
-	function get_post_name_for_type($type)
-	{
-		global $wpdb;
-
-		if(!isset($this->post_name_for_type[$this->option_type][$type]))
-		{
-			$this->post_name_for_type[$this->option_type][$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type));
-		}
-
-		return $this->post_name_for_type[$this->option_type][$type];
-	}
-
-	function get_post_name_from_id($id)
-	{
-		global $wpdb;
-
-		return $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_id = '%d' AND meta_key = %s GROUP BY ID LIMIT 0, 1", $id, $this->meta_prefix.'document_type'));
 	}
 
 	function get_product_name($data)
@@ -6963,7 +6951,7 @@ class mf_webshop
 
 						$str_locations = "";
 
-						foreach($post_meta as $location_id) //$this->sort_location(array('array' => $post_meta, 'reverse' => true))
+						foreach($post_meta as $location_id)
 						{
 							$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
 						}
@@ -6997,10 +6985,6 @@ class mf_webshop
 					if($this->product_has_content && $this->product_url != "#")
 					{
 						$this->product_has_read_more = true;
-
-						/*$post_meta = "<div".get_form_button_classes().">
-							<a href='".$this->product_url."' class='button'>".$this->meta_title."</a>
-						</div>";*/
 					}
 				break;
 
@@ -7170,10 +7154,8 @@ class mf_webshop
 
 										else
 										{
-											$this->product_data .= $this->meta_title;
+											$this->product_data .= $this->meta_title.": ";
 										}
-
-										$this->product_data .= "&nbsp;";
 
 										if($this->meta_type == 'price')
 										{
