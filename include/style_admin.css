@@ -1,34 +1,31 @@
-@media all
+.admin_container .meta_box .form_children > ul > li
 {
-	.admin_container .meta_box .form_children > ul > li
+	list-style: none;
+	margin: 0 -.5em;
+	padding: .8em .5em;
+}
+
+	.admin_container .meta_box .form_children > ul > li > h3
 	{
-		list-style: none;
-		margin: 0 -.5em;
-		padding: .8em .5em;
+		display: none;
 	}
 
-		.admin_container .meta_box .form_children > ul > li > h3
+	.admin_container .meta_box .form_children > ul > li:nth-child(2n + 1)
+	{
+		background: #f3f3f3;
+	}
+
+	.admin_container .meta_box .form_children > ul > li:last-of-type
+	{
+		background: #fff8df;
+	}
+
+		.admin_container .meta_box .form_children > ul > li:last-of-type h3
 		{
-			display: none;
+			display: block;
 		}
 
-		.admin_container .meta_box .form_children > ul > li:nth-child(2n + 1)
-		{
-			background: #f3f3f3;
-		}
-
-		.admin_container .meta_box .form_children > ul > li:last-of-type
-		{
-			background: #fff8df;
-		}
-
-			.admin_container .meta_box .form_children > ul > li:last-of-type h3
-			{
-				display: block;
-			}
-
-		.admin_container .meta_box .form_children > ul > li > div:last-of-type textarea
-		{
-			margin-bottom: 0;
-		}
-}
+	.admin_container .meta_box .form_children > ul > li > div:last-of-type textarea
+	{
+		margin-bottom: 0;
+	}

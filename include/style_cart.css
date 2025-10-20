@@ -1,7 +1,4 @@
-@media all
+.widget.webshop_cart .cart_products .mf_form_field[type='number']
 {
-	.widget.webshop_cart .cart_products .mf_form_field[type='number']
-	{
-		max-width: 4em;
-	}
+	max-width: 4em;
 }

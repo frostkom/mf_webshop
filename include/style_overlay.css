@@ -1,29 +1,26 @@
-@media all
+html
 {
-	html
+	overflow-y: hidden !important;
+}
+
+	#wrapper
 	{
-		overflow-y: hidden !important;
+		filter: blur(1em);
 	}
 
-		#wrapper
+		#overlay_product > div
 		{
-			filter: blur(1em);
+			padding: 3em;
+			text-align: center;
+			min-width: 400px;
 		}
 
-			#overlay_product > div
+			#overlay_product > div > *:not(:last-child)
 			{
-				padding: 3em;
-				text-align: center;
-				min-width: 400px;
+				margin-bottom: 2rem;
 			}
 
-				#overlay_product > div > *:not(:last-child)
+				#overlay_product > div > *:not(:last-child) a.button
 				{
-					margin-bottom: 2rem;
+					margin: 0;
 				}
-
-					#overlay_product > div > *:not(:last-child) a.button
-					{
-						margin: 0;
-					}
-}

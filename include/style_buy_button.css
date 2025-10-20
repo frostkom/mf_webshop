@@ -1,81 +1,78 @@
-@media all
+.widget .cart_buttons a > span
 {
-	.widget .cart_buttons a > span
+	margin-right: .5em;
+}
+
+	.widget .cart_buttons a.in_cart > span:first-of-type
 	{
-		margin-right: .5em;
+		display: inline-block;
+		transition: all .25s ease;
 	}
 
-		.widget .cart_buttons a.in_cart > span:first-of-type
+		.widget .cart_buttons a.in_cart > span.updating
+		{
+			transform: rotate(1440deg);
+		}
+
+	.widget.webshop_search .cart_buttons a > span:last-of-type
+	{
+		display: none;
+	}
+
+		.widget.webshop_search .cart_buttons a:hover > span:last-of-type
 		{
 			display: inline-block;
-			transition: all .25s ease;
 		}
 
-			.widget .cart_buttons a.in_cart > span.updating
-			{
-				transform: rotate(1440deg);
-			}
-
-		.widget.webshop_search .cart_buttons a > span:last-of-type
-		{
-			display: none;
-		}
-
-			.widget.webshop_search .cart_buttons a:hover > span:last-of-type
-			{
-				display: inline-block;
-			}
-
-	.widget .cart_buttons a, .widget .cart_buttons a i
-	{
-		transition: all .5s ease;
-	}
-
-	.widget .cart_buttons a.in_cart
-	{
-		background: #0a0;
-		color: #fff;
-	}
-
-		.widget .cart_buttons a.in_cart:hover
-		{
-			background: #fff;
-			color: #0a0;
-		}
-
-		.widget .cart_buttons a.in_cart:hover i
-		{
-			transform: rotate(-405deg);
-		}
-
-			.widget .cart_buttons a.in_cart:hover i::before
-			{
-				content: "\f061";
-			}
-
-	.widget .cart_buttons a + a
-	{
-		margin-left: .5em;
-	}
-
-		.widget .cart_buttons a.add_to_cart:hover i
-		{
-			transform: rotate(360deg);
-		}
-
-			.widget .cart_buttons a.add_to_cart.loading i
-			{
-				animation: spin 2s linear infinite;
-			}
-
-				@keyframes spin
-				{
-					0% { transform: rotate(0deg);}
-					100% { transform: rotate(360deg);}
-				}
-
-				.widget .cart_buttons a.add_to_cart.loading i::before
-				{
-					content: "\f110";
-				}
+.widget .cart_buttons a, .widget .cart_buttons a i
+{
+	transition: all .5s ease;
 }
+
+.widget .cart_buttons a.in_cart
+{
+	background: #0a0;
+	color: #fff;
+}
+
+	.widget .cart_buttons a.in_cart:hover
+	{
+		background: #fff;
+		color: #0a0;
+	}
+
+	.widget .cart_buttons a.in_cart:hover i
+	{
+		transform: rotate(-405deg);
+	}
+
+		.widget .cart_buttons a.in_cart:hover i::before
+		{
+			content: "\f061";
+		}
+
+.widget .cart_buttons a + a
+{
+	margin-left: .5em;
+}
+
+	.widget .cart_buttons a.add_to_cart:hover i
+	{
+		transform: rotate(360deg);
+	}
+
+		.widget .cart_buttons a.add_to_cart.loading i
+		{
+			animation: spin 2s linear infinite;
+		}
+
+			@keyframes spin
+			{
+				0% { transform: rotate(0deg);}
+				100% { transform: rotate(360deg);}
+			}
+
+			.widget .cart_buttons a.add_to_cart.loading i::before
+			{
+				content: "\f110";
+			}
