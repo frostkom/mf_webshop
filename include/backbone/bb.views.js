@@ -367,7 +367,7 @@ var WebshopView = Backbone.View.extend(
 			dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
 		}, 250);
 
-		jQuery(".icon-cart").removeClass('hide');
+		jQuery(".webshop_cart_icon").removeClass('hide');
 	},
 
 	show_products: function()

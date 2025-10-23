@@ -13,7 +13,7 @@ jQuery(function($)
 		{
 			if(data.success)
 			{
-				$(".icon-cart").removeClass('hide');
+				$(".webshop_cart_icon").removeClass('hide');
 			}
 		}
 	});

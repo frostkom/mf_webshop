@@ -33,7 +33,7 @@ jQuery(function($)
 			dom_obj_widget.find(".cart_products tbody tr").html(_.template($("#template_webshop_cart_empty").html())());
 
 			dom_obj_widget.find(".cart_summary").addClass('hide');
-			$(".icon-cart").addClass('hide');
+			$(".webshop_cart_icon").addClass('hide');
 		}
 	}
 

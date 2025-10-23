@@ -1,11 +1,16 @@
 .mf_product-template-default .wp-block-post-featured-image
 {
+	background: #fff;
+	border-radius: .5em;
+	box-shadow: 0 .2em .4em rgba(0, 0, 0, .15);
 	margin-bottom: -2em !important;
+	overflow: hidden;
+	padding: .2em;
 }
 
 	.mf_product-template-default .wp-block-post-featured-image .wp-post-image
 	{
-		border-radius: .5em;
+		border-radius: .3em;
 	}
 
 .webshop_more_images
@@ -13,22 +18,24 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: .5em;
-	margin: 0 .5em;
-	overflow: hidden;
+	margin: 0 1em;
 	position: relative;
 }
 
 	.webshop_more_images .image
 	{
-		border: .15em solid #ccc;
-		border-radius: .5em;
+		background: #fff;
+		border-radius: .3em;
+		box-shadow: 0 .2em .4em rgba(0, 0, 0, .15);
 		flex: 1 0 33.33%;
 		min-width: 33.33%;
+		padding: .15em;
 		overflow: hidden;
 	}
 
 		.webshop_more_images img
 		{
+			border-radius: .15em;
 			display: block;
 			height: 100%;
 			width: 100%;
