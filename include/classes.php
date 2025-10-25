@@ -621,7 +621,7 @@ class mf_webshop
 		$this->block_resources();
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
-			<form action='' method='post' class='mf_form'>";
+			<form".apply_filters('get_form_attr', "").">";
 
 				//.$this->get_search_result_info(array('type' => 'filter'))
 
@@ -1103,7 +1103,7 @@ class mf_webshop
 		}
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_cart", 'attributes' => $attributes)).">
-			<table class='cart_products widefat striped mf_form'>"
+			<table".apply_filters('get_table_attr', "", ['class' => ["cart_products", "mf_form"]]).">"
 				.show_table_header($arr_header)
 				."<tbody>
 					<tr>
@@ -1114,7 +1114,7 @@ class mf_webshop
 			<div class='cart_summary flex_flow hide'>
 				<div>
 					<h3>".__("Summary", 'lang_webshop')."</h3>
-					<table class='cart_totals widefat striped'>
+					<table".apply_filters('get_table_attr', "", ['class' => ["cart_totals"]]).">
 						<tbody>
 							<tr>
 								<td>".__("Shipping Cost", 'lang_webshop')."</td>
@@ -1146,7 +1146,7 @@ class mf_webshop
 				</div>
 				<div class='proceed_to_checkout'>"
 					.get_notification()
-					."<form action='#' method='post' class='mf_form'>
+					."<form".apply_filters('get_form_attr', " action='#'").">
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='order_details'>
 							<div class='flex_flow'>"
