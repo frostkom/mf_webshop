@@ -5687,7 +5687,7 @@ class mf_webshop
 					{
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
-							'product_amount' => $amount_temp,
+							'product_amount' => 1,
 						);
 					}
 
@@ -5695,7 +5695,7 @@ class mf_webshop
 					{
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
-							'product_amount' => $amount_temp,
+							'product_amount' => 1,
 							//'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
 						);
 					}
