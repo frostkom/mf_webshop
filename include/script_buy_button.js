@@ -20,8 +20,6 @@ jQuery(function($)
 				if(data.success)
 				{
 					dom_obj.siblings(".in_cart").removeClass('hide').find("span:first-of-type").text(data.product_amount).removeClass('hide');
-
-					update_cart_icon();
 				}
 			}
 		});
