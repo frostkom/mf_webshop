@@ -1072,6 +1072,7 @@ class mf_webshop
 			else
 			{
 				// Save all data
+				// Save price with $setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
 				// Set order to published
 			}
 		}
@@ -1192,7 +1193,7 @@ class mf_webshop
 								$out .= get_toggler_container(array('type' => 'start', 'id' => 'invoice', 'text' => __("Invoice", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'invoice')))
 									.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
 									."<div".get_form_button_classes().">"
-										.show_button(array('name' => 'btnWebshopPayInvoice', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+										.show_button(array('name' => 'btnWebshopPayInvoice', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum_invoice'></span>"), 'xtra' => "disabled"))
 									."</div>"
 								.get_toggler_container(array('type' => 'end'));
 							}
@@ -1867,6 +1868,7 @@ class mf_webshop
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 		$arr_settings = array(
+			'setting_webshop_invoice_cost' => __("Invoice Cost", 'lang_webshop'),
 			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
 			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 		);
@@ -2101,6 +2103,14 @@ class mf_webshop
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Payment", 'lang_webshop'));
 	}
+
+		function setting_webshop_invoice_cost_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
+		}
 
 		function setting_webshop_stripe_secret_key_callback($args = [])
 		{
@@ -4515,11 +4525,14 @@ class mf_webshop
 					$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 				}
 
+				$setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
+
 				$json_output['success'] = true;
 				$json_output['response_webshop_cart'] = array(
 					//'order_id' => $this->order_id,
 					'products' => $arr_products,
 					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
+					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
 					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
 				);
