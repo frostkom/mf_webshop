@@ -33,7 +33,10 @@ jQuery(function($)
 			dom_obj_widget.find(".cart_products tbody tr").html(_.template($("#template_webshop_cart_empty").html())());
 
 			dom_obj_widget.find(".cart_summary").addClass('hide');
-			$(".webshop_cart_icon").addClass('hide');
+
+			var cart_amount = parseInt(jQuery(".webshop_cart_icon div").text());
+
+			jQuery(".webshop_cart_icon").removeClass('hide').children("div").text(cart_amount + 1);
 		}
 	}
 

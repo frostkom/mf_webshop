@@ -11,9 +11,9 @@ jQuery(function($)
 		},
 		success: function(data)
 		{
-			if(data.success)
+			if(data.success && data.product_amount > 0)
 			{
-				$(".webshop_cart_icon").removeClass('hide');
+				$(".webshop_cart_icon").removeClass('hide').children("div").text(data.product_amount);
 			}
 		}
 	});

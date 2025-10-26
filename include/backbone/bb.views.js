@@ -354,9 +354,8 @@ var WebshopView = Backbone.View.extend(
 
 	show_add_to_cart: function()
 	{
-		var response = this.model.get('response_add_to_cart');
-
-		var dom_obj_parent = jQuery(".product_list.webshop_item_list > li#product_" + response.product_id);
+		var response = this.model.get('response_add_to_cart'),
+			dom_obj_parent = jQuery(".product_list.webshop_item_list > li#product_" + response.product_id);
 
 		dom_obj_parent.find(".add_to_cart").removeClass('loading');
 
@@ -367,7 +366,9 @@ var WebshopView = Backbone.View.extend(
 			dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
 		}, 250);
 
-		jQuery(".webshop_cart_icon").removeClass('hide');
+		var cart_amount = parseInt(jQuery(".webshop_cart_icon div").text());
+
+		jQuery(".webshop_cart_icon").removeClass('hide').children("div").text(cart_amount + 1);
 	},
 
 	show_products: function()
