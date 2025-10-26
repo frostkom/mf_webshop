@@ -31,5 +31,11 @@
 		top: -0.6em;
 		right: 1.3em;
 		text-align: center;
+		transition: all .25s ease;
 		width: 1.5em;
+	}
+
+	.webshop_cart_icon.updating div
+	{
+		transform: rotate(1440deg);
 	}

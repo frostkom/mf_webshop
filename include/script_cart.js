@@ -34,9 +34,7 @@ jQuery(function($)
 
 			dom_obj_widget.find(".cart_summary").addClass('hide');
 
-			var cart_amount = parseInt(jQuery(".webshop_cart_icon div").text());
-
-			jQuery(".webshop_cart_icon").removeClass('hide').children("div").text(cart_amount + 1);
+			update_cart_icon();
 		}
 	}
 

@@ -21,9 +21,7 @@ jQuery(function($)
 				{
 					dom_obj.siblings(".in_cart").removeClass('hide').find("span:first-of-type").text(data.product_amount).removeClass('hide');
 
-					var cart_amount = parseInt(jQuery(".webshop_cart_icon div").text());
-
-					jQuery(".webshop_cart_icon").removeClass('hide').children("div").text(cart_amount + 1);
+					update_cart_icon();
 				}
 			}
 		});
@@ -53,9 +51,7 @@ jQuery(function($)
 						dom_obj.siblings(".in_cart").find("span:first-of-type").text(data.response_add_to_cart.product_amount).removeClass('updating');
 					}, 250);
 
-					var cart_amount = parseInt(jQuery(".webshop_cart_icon div").text());
-
-					jQuery(".webshop_cart_icon").removeClass('hide').children("div").text(cart_amount + 1);
+					update_cart_icon();
 				}
 			}
 		});
