@@ -346,6 +346,11 @@ class mf_webshop
 			'invoice' => __("Invoice", 'lang_webshop'),
 		];
 
+		if(get_option('setting_webshop_stripe_secret_key_test') != '')
+		{
+			$arr_data['stripe_test'] = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
+		}
+
 		if(get_option('setting_webshop_stripe_secret_key') != '')
 		{
 			$arr_data['stripe'] = __("Card", 'lang_webshop');
@@ -1021,7 +1026,7 @@ class mf_webshop
 
 	function block_render_cart_callback($attributes)
 	{
-		global $wpdb;
+		global $wpdb, $error_text, $done_text;
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -1080,9 +1085,161 @@ class mf_webshop
 		else if(isset($_POST['btnWebshopPayCard']))
 		{
 			// Save all data
-			// Send payment
+
+			if(IS_SUPER_ADMIN && in_array('stripe_test', $setting_webshop_payment_alternatives))
+			{
+				$setting_key = 'setting_webshop_stripe_secret_key_test';
+			}
+
+			else
+			{
+				$setting_key = 'setting_webshop_stripe_secret_key';
+			}
+
+			$secret_key = get_option($setting_key);
+
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$secret_key = $obj_encryption->decrypt($option, md5(AUTH_KEY));
+
+			$arr_cart_data = $this->get_webshop_cart([]);
+
+			// Get Payment Method ID
+			######################################
+			$payment_card_no = check_var('payment_card_no');
+			$payment_card_expires = check_var('payment_card_expires');
+			$payment_card_cvc = check_var('payment_card_cvc');
+
+			list($exp_month, $exp_year) = explode("/", $payment_card_expires);
+
+			$ch = curl_init();
+
+			curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_methods');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+				'type' => 'card',
+				'card[number]' => str_replace(" ", "", $payment_card_no),
+				'card[exp_month]' => $exp_month,
+				'card[exp_year]' => $exp_year,
+				'card[cvc]' => $payment_card_cvc,
+			]));
+
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Authorization: Bearer '.$secret_key,
+			]);
+
+			$result = curl_exec($ch);
+			curl_close($ch);
+
+			$arr_response = json_decode($result, true);
+
+			if(isset($arr_response['id']) && $arr_response['id'] != '')
+			{
+				$paymentMethodId = $arr_response['id'];
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+					'amount' => ($arr_cart_data['response_webshop_cart']['total_sum'] * 100),
+					'currency' => get_option('setting_webshop_currency'),
+					'payment_method' => $paymentMethodId,
+					'confirmation_method' => 'automatic',
+					'confirm' => true,
+				]));
+
+				curl_setopt($ch, CURLOPT_HTTPHEADER, [
+					'Authorization: Bearer '.$secret_key,
+				]);
+
+				$result = curl_exec($ch);
+				curl_close($ch);
+
+				$arr_response = json_decode($result, true);
+
+				if(isset($arr_response['error']))
+				{
+					$error_text = $arr_response['error']['message'];
+				}
+
+				else
+				{
+					switch($arr_response['status'])
+					{
+						case 'succeeded':
+							if(1 == 2)
+							{
+								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+								foreach($result as $r)
+								{
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->posts." SET post_status = %s WHERE ID = '%d' AND post_type = %s AND post_status = %s", 'publish', $r->ID, $this->post_type_orders, 'draft'));
+
+									// Save payment method
+									// Save payment date
+									// Save payment card, only with last 4 digits
+								}
+							}
+						break;
+
+						/*case 'requires_action':
+							// Handle next actions like authentication
+						break;
+
+						case 'requires_payment_method':
+							// Payment failed; prompt for new payment method
+							$errorMessage = $arr_response['last_payment_error']['message'] ?? 'Payment failed';
+						break;*/
+
+						default:
+							$error_text = "Other error: ".var_export($arr_response, true);
+						break;
+					}
+				}
+			}
+
+			else
+			{
+				$error_text = $arr_response['error']['message'];
+			}
+			######################################
+
+			// Make the purchase with Stripe.js
+			######################################
+			/*$url = "https://api.stripe.com/v1/payment_intents";
+
+			$data = http_build_query([
+				'amount' => ($arr_cart_data['response_webshop_cart']['total_sum'] * 100),
+				'currency' => get_option('setting_webshop_currency'),
+				'payment_method_types[]' => 'card',
+			]);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_USERPWD, $secret_key . ':');
+			curl_setopt($ch, CURLOPT_POST, 1);
+
+			$result = curl_exec($ch);
+			curl_close($ch);
+
+			$arr_response = json_decode($result, true);
+
 			// Collect answer
-			// Set order to published
+			if(isset($arr_response['client_secret']))
+			{
+				//echo json_encode(['clientSecret' => $arr_response['client_secret']]);
+
+				// Set order to published
+			}
+
+			else
+			{
+				$error_text = $arr_response;
+			}*/
+			######################################
 		}
 
 		else
@@ -1198,7 +1355,29 @@ class mf_webshop
 								.get_toggler_container(array('type' => 'end'));
 							}
 
-							if(in_array('stripe', $setting_webshop_payment_alternatives))
+							if(IS_SUPER_ADMIN && in_array('stripe_test', $setting_webshop_payment_alternatives))
+							{
+								$setting_webshop_stripe_secret_key_test = get_option('setting_webshop_stripe_secret_key_test');
+
+								if($setting_webshop_stripe_secret_key_test != '')
+								{
+									$out .= get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe_test')))
+										."<div class='card_details'>"
+											.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
+											."<div class='flex_flow'>"
+												.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
+												.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
+											."</div>
+										</div>
+										<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayCard', 'text' => sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+										."</div>
+										<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>"
+									.get_toggler_container(array('type' => 'end'));
+								}
+							}
+
+							else if(in_array('stripe', $setting_webshop_payment_alternatives))
 							{
 								$setting_webshop_stripe_secret_key = get_option('setting_webshop_stripe_secret_key');
 
@@ -1514,6 +1693,8 @@ class mf_webshop
 		/*mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 		));*/
+
+		$out = "";
 
 		$arr_product_images = get_post_meta($post->ID, $this->meta_prefix.'product_image', false);
 
@@ -1869,6 +2050,7 @@ class mf_webshop
 
 		$arr_settings = array(
 			'setting_webshop_invoice_cost' => __("Invoice Cost", 'lang_webshop'),
+			'setting_webshop_stripe_secret_key_test' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
 			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
 			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 		);
@@ -1957,6 +2139,7 @@ class mf_webshop
 		{
 			switch($option_key)
 			{
+				case 'setting_webshop_stripe_secret_key_test':
 				case 'setting_webshop_stripe_secret_key':
 					$obj_encryption = new mf_encryption(__CLASS__);
 					$new_value = $obj_encryption->encrypt($new_value, md5(AUTH_KEY));
@@ -2123,6 +2306,17 @@ class mf_webshop
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
+		function setting_webshop_stripe_secret_key_test_callback($args = [])
+		{
+			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$option = get_option($setting_key);
+
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
+
+			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+		}
+
 		function setting_webshop_swish_merchant_number_callback($args = [])
 		{
 			$setting_key = get_setting_key(__FUNCTION__, $args);
@@ -2199,45 +2393,6 @@ class mf_webshop
 
 			echo show_select(array('data' => $this->get_prefered_payment_alternative_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
-
-	/*function settings_webshop_parent_map_callback($args = [])
-	{
-		$setting_key = get_setting_key(__FUNCTION__);
-
-		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Map", 'lang_webshop'));
-	}
-
-		function setting_map_visibility_callback($args = [])
-		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
-			$option = get_option($setting_key);
-
-			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
-		}
-
-		function setting_map_visibility_mobile_callback($args = [])
-		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
-			$option = get_option($setting_key);
-
-			echo show_select(array('data' => $this->get_map_visibility_for_select(), 'name' => $setting_key, 'value' => $option));
-		}
-
-		function setting_webshop_color_info_callback($args = [])
-		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
-			$option = get_option($setting_key, "#eeeeee");
-
-			echo show_textfield(array('type' => 'color', 'name' => $setting_key, 'value' => $option));
-		}
-
-		function setting_webshop_text_color_info_callback($args = [])
-		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
-			$option = get_option($setting_key, "#000000");
-
-			echo show_textfield(array('type' => 'color', 'name' => $setting_key, 'value' => $option));
-		}*/
 
 	function settings_webshop_product_callback($args = [])
 	{
