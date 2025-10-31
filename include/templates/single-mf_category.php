@@ -75,7 +75,7 @@ get_header();
 							}
 
 							echo "<p>".$post_excerpt."</p>
-							<p><a href='".$post_url."'>".__("Read More", 'lang_webshop')."&hellip;</a></p>
+							<p><a href='".$post_url."' title='".$post_title."'>".__("Read More", 'lang_webshop')."&hellip;</a></p>
 						</section>";
 					}
 				}

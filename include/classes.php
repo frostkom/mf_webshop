@@ -1764,8 +1764,8 @@ class mf_webshop
 			{
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 					<div class='wp-block-button cart_buttons'>
-						<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
-						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide' rel='nofollow'><span></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+						<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+						<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart hide' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
 					</div>
 				</div>";
 			}
@@ -6032,7 +6032,7 @@ class mf_webshop
 							<% if(product_url != '#')
 							{ %>
 								<div class='list_url'>
-									<a href='<%= product_url %>'>".__("Read More", 'lang_webshop')."</a>
+									<a href='<%= product_url %>' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
 								</div>
 							<% }
 
@@ -6123,8 +6123,8 @@ class mf_webshop
 											if($cart_post_id > 0)
 											{
 												$out .= "<div class='wp-block-button cart_buttons'>
-													<a href='#' class='wp-block-button__link add_to_cart'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
-													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
 												</div>";
 											}
 
@@ -6133,7 +6133,7 @@ class mf_webshop
 										if(product_has_read_more == true)
 										{ %>
 											<div class='is-style-outline wp-block-button'>
-												<a href='<%= product_url %>' class='wp-block-button__link'>".__("Read More", 'lang_webshop')."</a>
+												<a href='<%= product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
 											</div>
 										<% } %>
 									</div>
@@ -6923,11 +6923,14 @@ class mf_webshop
 			$this->product_url = get_permalink($this->product_id);
 		}
 
-		$this->product_image = get_the_post_thumbnail_url($this->product_id, 'large'); // medium / large / full
+		// We want it to work on all screen sizes
+		$product_image_size = 'large'; // medium / large / full
+
+		$this->product_image = get_the_post_thumbnail_url($this->product_id, $product_image_size);
 
 		if($this->product_image == '')
 		{
-			$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => 'large', 'single' => $data['single_image']));
+			$this->product_image = get_post_meta_file_src(array('post_id' => $this->product_id, 'meta_key' => $this->meta_prefix.'product_image', 'image_size' => $product_image_size, 'single' => $data['single_image']));
 		}
 
 		$this->show_in_result = true;
