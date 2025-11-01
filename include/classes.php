@@ -590,9 +590,18 @@ class mf_webshop
 		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
 	}
 
-	function block_resources()
+	function block_render_search_callback($attributes)
 	{
+		global $wpdb, $obj_font_icons;
+
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
+
 		$this->combined_head();
+
+		do_action('load_font_awesome');
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -612,18 +621,6 @@ class mf_webshop
 			'mobile_breakpoint' => $arr_breakpoints['mobile'],
 		));
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js");
-	}
-
-	function block_render_search_callback($attributes)
-	{
-		global $wpdb, $obj_font_icons;
-
-		if(!isset($obj_font_icons))
-		{
-			$obj_font_icons = new mf_font_icons();
-		}
-
-		$this->block_resources();
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
 			<form".apply_filters('get_form_attr', "").">";
@@ -1729,6 +1726,8 @@ class mf_webshop
 	function block_render_buy_button_callback($attributes)
 	{
 		global $wpdb, $post;
+
+		do_action('load_font_awesome');
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -3762,6 +3761,8 @@ class mf_webshop
 	{
 		global $post_type, $obj_font_icons;
 
+		do_action('load_font_awesome');
+
 		switch($post_type)
 		{
 			case $this->post_type_categories:
@@ -4502,6 +4503,8 @@ class mf_webshop
 
 			if($cart_post_id > 0 && (!isset($post->ID) || $cart_post_id != $post->ID))
 			{
+				//do_action('load_font_awesome');
+
 				$plugin_include_url = plugin_dir_url(__FILE__);
 
 				mf_enqueue_style('style_webshop_cart_icon', $plugin_include_url."style_cart_icon.css");
@@ -4509,9 +4512,14 @@ class mf_webshop
 					'ajax_url' => admin_url('admin-ajax.php'),
 				));
 
-				$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='webshop_cart_icon hide' rel='nofollow'>
-					<i class='fa fa-shopping-cart fa-lg'></i>
-					<div>0</div>
+				$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='webshop_cart_icon hide' rel='nofollow'>"
+					//."<i class='fa fa-shopping-cart fa-lg'></i>"
+					.'<svg viewBox="0 0 24 24" fill="none">
+						<g>
+						<path id="Vector" d="M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM17 17H9.29395C8.83288 17 8.60193 17 8.41211 16.918C8.24466 16.8456 8.09938 16.7291 7.99354 16.5805C7.8749 16.414 7.82719 16.1913 7.73274 15.7505L5.27148 4.26465C5.17484 3.81363 5.12587 3.58838 5.00586 3.41992C4.90002 3.27135 4.75477 3.15441 4.58732 3.08205C4.39746 3 4.16779 3 3.70653 3H3M6 6H18.8732C19.595 6 19.9555 6 20.1978 6.15036C20.41 6.28206 20.5653 6.48862 20.633 6.729C20.7104 7.00343 20.611 7.34996 20.411 8.04346L19.0264 12.8435C18.9068 13.2581 18.8469 13.465 18.7256 13.6189C18.6185 13.7547 18.4772 13.861 18.317 13.9263C18.1361 14 17.9211 14 17.4921 14H7.73047M8 21C6.89543 21 6 20.1046 6 19C6 17.8954 6.89543 17 8 17C9.10457 17 10 17.8954 10 19C10 20.1046 9.10457 21 8 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</g>
+					</svg>'
+					."<div>0</div>
 				</a>";
 			}
 		}
@@ -6369,11 +6377,6 @@ class mf_webshop
 		}
 
 		$out = [];
-
-		/*if(isset($data['option_type']))
-		{
-			$this->option_type = ($data['option_type'] != '' ? "_".$data['option_type'] : '');
-		}*/
 
 		if($data['id'] != '')
 		{

@@ -3,7 +3,7 @@
 	color: #fff;
 	opacity: .7;
 	position: fixed;
-	right: 0;
+	right: .3em;
 	top: 12em;
 	text-decoration: none;
 	transition: all .5s ease;
@@ -21,6 +21,11 @@
 		text-shadow: 0 0 .4em rgba(0, 0, 0, .9);
 	}
 
+	.webshop_cart_icon svg
+	{
+		width: 2em;
+	}
+
 	.webshop_cart_icon div
 	{
 		background: #0a0;
@@ -28,8 +33,8 @@
 		font-size: .7em;
 		height: 1.5em;
 		position: absolute;
-		top: -0.6em;
-		right: 1.3em;
+		top: -.4em;
+		right: .8em;
 		text-align: center;
 		transition: all .25s ease;
 		width: 1.5em;
