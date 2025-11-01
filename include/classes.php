@@ -1269,7 +1269,7 @@ class mf_webshop
 					</tr>
 				</tbody>
 			</table>
-			<div class='cart_summary flex_flow hide'>
+			<div".apply_filters('get_flex_flow', "", ['class' => ['cart_summary', 'hide']]).">
 				<div>
 					<h3>".__("Summary", 'lang_webshop')."</h3>
 					<table".apply_filters('get_table_attr', "", ['class' => ["cart_totals"]]).">
@@ -1307,19 +1307,19 @@ class mf_webshop
 					."<form".apply_filters('get_form_attr', " action='#'").">
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>
 						<div class='order_details'>
-							<div class='flex_flow'>"
+							<div".apply_filters('get_flex_flow', "").">"
 								.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'value' => $this->order_details['first_name'], 'xtra' => " data-fetch_info='first_name'", 'required' => true))
 								.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'value' => $this->order_details['last_name'], 'xtra' => " data-fetch_info='last_name'", 'required' => true))
 							."</div>"
 							//."<strong>".__("Contact", 'lang_webshop')."</strong>"
-							."<div class='flex_flow'>"
+							."<div".apply_filters('get_flex_flow', "").">"
 								.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'value' => $this->order_details['contact_email'], 'xtra' => " data-fetch_info='email'", 'required' => true))
 								.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'value' => $this->order_details['contact_phone'], 'xtra' => " data-fetch_info='telno'"))
 							."</div>"
 							//."<strong>".__("Address", 'lang_webshop')."</strong>"
 							.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_webshop'), 'value' => $this->order_details['address_street'], 'xtra' => " data-fetch_info='address'", 'required' => true))
 							.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'value' => $this->order_details['address_co'], 'required' => true))
-							."<div class='flex_flow'>"
+							."<div".apply_filters('get_flex_flow', "").">"
 								.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_webshop'), 'value' => $this->order_details['address_zip'], 'xtra' => " data-fetch_info='zip'", 'required' => true))
 								.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_webshop'), 'value' => $this->order_details['address_city'], 'xtra' => " data-fetch_info='city'", 'required' => true))
 							."</div>"
@@ -1364,7 +1364,7 @@ class mf_webshop
 									$out .= get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe_test')))
 										."<div class='card_details'>"
 											.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
-											."<div class='flex_flow'>"
+											."<div".apply_filters('get_flex_flow', "").">"
 												.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
 												.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
 											."</div>
@@ -1386,7 +1386,7 @@ class mf_webshop
 									$out .= get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => __("Card", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe')))
 										."<div class='card_details'>"
 											.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
-											."<div class='flex_flow'>"
+											."<div".apply_filters('get_flex_flow', "").">"
 												.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
 												.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
 											."</div>
