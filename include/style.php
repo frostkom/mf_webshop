@@ -95,17 +95,6 @@ content > div > form, > div > form
 			width: 100%;
 		}
 
-	.webshop_favorites ul
-	{
-		list-style: none;
-	}
-
-		.webshop_favorites ul li
-		{
-			margin-bottom: 1em;
-			position: relative;
-		}
-
 .webshop_widget .widget_spinner
 {
 	text-align: center;

@@ -2,3 +2,8 @@
 {
 	max-width: 4em;
 }
+
+.widget.webshop_cart .card_details
+{
+	margin-bottom: .8em;
+}
