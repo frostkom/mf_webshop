@@ -1252,7 +1252,7 @@ class mf_webshop
 												{
 													$('.notification').removeClass('hide').find('p').text(result.error.message);
 												}
-												
+
 												else
 												{
 													fetch('/wp-json/".__CLASS__."/charge',
@@ -1275,7 +1275,7 @@ class mf_webshop
 														{
 															location.href = data.return_url;
 														}
-														
+
 														else
 														{
 															$('.notification').removeClass('hide').find('p').text(data.error);
@@ -1587,6 +1587,8 @@ class mf_webshop
 	function block_render_more_images_callback($attributes)
 	{
 		global $post;
+
+		do_action('load_lightbox');
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -5783,7 +5785,7 @@ class mf_webshop
 		{
 			return new WP_REST_Response(['error' => $response['error']['message']], 400);
 		}
-		
+
 		else if($response['status'] === 'succeeded')
 		{
 			$post_data = array(
@@ -5804,7 +5806,7 @@ class mf_webshop
 				'return_url' => $return_url,
 			];
 		}
-		
+
 		else
 		{
 			return new WP_REST_Response(['error' => __("Payment failed or requires action.", 'lang_webshop')], 400);

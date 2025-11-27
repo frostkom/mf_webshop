@@ -26,6 +26,7 @@
 
 .widget .cart_buttons a, .widget .cart_buttons a i
 {
+	text-overflow: initial; /* Override button style to prevent ... */
 	transition: all .5s ease;
 }
 
