@@ -62,6 +62,32 @@ jQuery(function($)
 		});
 	}
 
+	function display_payment_alternatives_or_not()
+	{
+		var is_all_entered = true;
+
+		$(".order_details input[required]").each(function()
+		{
+			if($(this).val().trim() === '')
+			{
+				is_all_entered = false;
+				return false;
+			}
+		});
+
+		if(is_all_entered == true)
+		{
+			$(".payment_require_information").addClass('hide');
+			$(".payment_alternatives").removeClass('hide');
+		}
+		
+		else
+		{
+			$(".payment_alternatives").addClass('hide');
+			$(".payment_require_information").removeClass('hide');
+		}
+	}
+
 	$.ajax(
 	{
 		url: script_webshop_cart.ajax_url,
@@ -105,6 +131,7 @@ jQuery(function($)
 	/* ##################### */
 
 	/* Fetch user details if logged in */
+	/* ##################### */
 	if($.isArray(script_webshop_cart.arr_webshop_input_type))
 	{
 		var arr_fields = [];
@@ -144,13 +171,17 @@ jQuery(function($)
 						{
 							dom_obj_widget.find("#" + value.id).val(value.value);
 						});
+
+						display_payment_alternatives_or_not();
 					}
 				}
 			});
 		}
 	}
+	/* ##################### */
 
 	/* Update order details */
+	/* ##################### */
 	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
 	{
 		var form_data = $(this).parents("form").serialize();
@@ -165,14 +196,12 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					/*$.each(data.response_fields, function(key, value)
-					{
-						dom_obj_widget.find("#" + value.id).val(value.value);
-					});*/
+					display_payment_alternatives_or_not();
 				}
 			}
 		});
 	});
+	/* ##################### */
 
 	/* Check if orgno is entered */
 	/* ##################### */
@@ -213,14 +242,11 @@ jQuery(function($)
 
 	/* Validate card details & activate buy button */
 	/* ##################### */
-	$(document).on('input', ".toggle_card #payment_card_no", function()
+	/*$(document).on('input', ".toggle_card #payment_card_no", function()
 	{
 		let value = $(this).val();
 
-		/* Remove all non-digit characters */
 		value = value.replace(/\D/g, '');
-
-		/* Insert space after every 4 digits */
 		value = value.replace(/(.{4})/g, '$1 ').trim();
 
 		$(this).val(value);
@@ -260,6 +286,6 @@ jQuery(function($)
 		{
 			$(".toggle_card button[name='btnWebshopPayCard']").removeAttr('disabled');
 		}
-	});
+	});*/
 	/* ##################### */
 });
