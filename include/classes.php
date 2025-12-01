@@ -1062,24 +1062,6 @@ class mf_webshop
 			}
 		}
 
-		/*else
-		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			foreach($result as $r)
-			{
-				foreach($this->arr_meta_keys as $meta_key)
-				{
-					$this->order_details[$meta_key] = get_post_meta($r->ID, $this->meta_prefix.$meta_key, true);
-
-					if($this->order_details[$meta_key] != '')
-					{
-						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
-					}
-				}
-			}
-		}*/
-
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_cart", 'attributes' => $attributes)).">
 			<table".apply_filters('get_table_attr', "", ['class' => ["cart_products", "mf_form"]]).">"
 				.show_table_header($arr_header)
