@@ -7,3 +7,11 @@
 {
 	margin-bottom: .8em;
 }
+
+	.widget.webshop_cart .toggle_card .card_details
+	{
+		background: rgba(255, 255, 255, .9);
+		border: .1em solid #e1e1e1;
+		font: inherit;
+		padding: .4em;
+	}

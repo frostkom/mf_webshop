@@ -1200,7 +1200,7 @@ class mf_webshop
 										<div class='notification hide'><div class='error'><p></p></div></div>
 										<div id='card-element' class='card_details'></div>"
 										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopPayCard', 'text' => $button_title, 'xtra' => "id='submit'")) // disabled
+											.show_button(array('text' => $button_title, 'xtra' => "id='submit'")) // 'name' => 'btnWebshopPayCard'
 										."</div>
 									</form>
 
@@ -1209,8 +1209,10 @@ class mf_webshop
 										{
 											var style = {
 												base: {
-													border: '.1em solid #e1e1e1',
-													padding: '.4em',
+													border: '.1em solid #4a90e2',
+													color: '#32325d',
+													fontFamily: 'inherit',
+													fontSize: '1em',
 													'::placeholder': {
 														color: '#aab7c4'
 													}
