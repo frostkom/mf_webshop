@@ -10,7 +10,6 @@ class mf_webshop
 	var $interval_amount = 0;
 	var $interval_count = 0;
 	var $arr_interval_type_data = [];
-	var $post_name_for_type = [];
 	var $post_type_categories = 'mf_category';
 	var $post_type_products = 'mf_product';
 	var $post_type_custom_categories = 'mf_cust_cat';
@@ -94,14 +93,9 @@ class mf_webshop
 
 	function get_post_name_for_type($type)
 	{
-		global $wpdb;
+		global $wpdb, $obj_base;
 
-		if(!isset($this->post_name_for_type[$type]))
-		{
-			$this->post_name_for_type[$type] = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type));
-		}
-
-		return $this->post_name_for_type[$type];
+		return $obj_base->cache_query($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type), 'get_var');
 	}
 
 	function create_product_event_connection($post_id = 0)
@@ -400,7 +394,7 @@ class mf_webshop
 
 	function get_categories_result($data = [])
 	{
-		global $wpdb;
+		global $wpdb, $obj_base;
 
 		if(!isset($data['include_on'])){			$data['include_on'] = 'products';}
 		if(!isset($data['post_parent'])){			$data['post_parent'] = 0;}
@@ -413,7 +407,7 @@ class mf_webshop
 			$query_limit = " LIMIT 0, ".$data['limit'];
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
+		return $obj_base->cache_query($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
 	}
 
 	function get_categories_for_select($data = [])
@@ -642,11 +636,11 @@ class mf_webshop
 						$out .= get_toggler_container(array('type' => 'start', 'text' => __("Filter", 'lang_webshop')));
 					}
 
-						$obj_webshop_interval = new mf_webshop();
+						//$obj_webshop_interval = new mf_webshop();
 
 						$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 
-						$obj_webshop_interval->set_interval_amount($result);
+						$this->set_interval_amount($result);
 
 						foreach($result as $r)
 						{
@@ -784,11 +778,11 @@ class mf_webshop
 								break;
 
 								case 'interval':
-									$obj_webshop_interval->increase_count();
+									$this->increase_count();
 
 									$post_title = get_post_meta_or_default($post_id, $this->meta_prefix.'document_alt_text', true, $post_title);
 
-									$obj_webshop_interval->add_interval_type($post_name, $post_title);
+									$this->add_interval_type($post_name, $post_title);
 
 									$result = $this->get_list();
 
@@ -800,10 +794,10 @@ class mf_webshop
 
 										list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
 
-										$obj_webshop_interval->set_range($post_meta_min);
+										$this->set_range($post_meta_min);
 									}
 
-									$has_equal_amount = $obj_webshop_interval->has_equal_amount($post_title, $name_choose_here);
+									$has_equal_amount = $this->has_equal_amount($post_title, $name_choose_here);
 
 									if($has_equal_amount != '')
 									{
@@ -7417,9 +7411,17 @@ if(class_exists('mf_import'))
 
 		function get_defaults()
 		{
-			global $wpdb;
+			global $wpdb, $obj_webshop;
 
-			$this->obj_webshop = new mf_webshop();
+			if(!isset($obj_webshop))
+			{
+				$this->obj_webshop = $obj_webshop = new mf_webshop();
+			}
+
+			else
+			{
+				$this->obj_webshop = $obj_webshop;
+			}
 
 			$this->prefix = $wpdb->base_prefix;
 			$this->post_type = $this->obj_webshop->post_type_products;

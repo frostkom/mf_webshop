@@ -80,7 +80,7 @@ jQuery(function($)
 			$(".payment_require_information").addClass('hide');
 			$(".payment_alternatives").removeClass('hide');
 		}
-		
+
 		else
 		{
 			$(".payment_alternatives").addClass('hide');
