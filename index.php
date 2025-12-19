@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description:
-Version: 2.2.7.33
+Version: 2.2.7.34
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -59,30 +59,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	{
 		add_action('wp_head', array($obj_webshop, 'wp_head'), 0);
 		add_action('wp_footer', array($obj_webshop, 'wp_footer'));
-
-		if(wp_doing_ajax())
-		{
-			add_action('wp_ajax_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
-			add_action('wp_ajax_nopriv_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
-
-			add_action('wp_ajax_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
-			add_action('wp_ajax_nopriv_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
-
-			add_action('wp_ajax_api_webshop_update_product_amount', array($obj_webshop, 'api_webshop_update_product_amount'));
-			add_action('wp_ajax_nopriv_api_webshop_update_product_amount', array($obj_webshop, 'api_webshop_update_product_amount'));
-
-			add_action('wp_ajax_api_webshop_buy_button', array($obj_webshop, 'api_webshop_buy_button'));
-			add_action('wp_ajax_nopriv_api_webshop_buy_button', array($obj_webshop, 'api_webshop_buy_button'));
-
-			add_action('wp_ajax_api_webshop_add_to_cart', array($obj_webshop, 'api_webshop_add_to_cart'));
-			add_action('wp_ajax_nopriv_api_webshop_add_to_cart', array($obj_webshop, 'api_webshop_add_to_cart'));
-
-			add_action('wp_ajax_api_webshop_fetch_info', array($obj_webshop, 'api_webshop_fetch_info'));
-			add_action('wp_ajax_nopriv_api_webshop_fetch_info', array($obj_webshop, 'api_webshop_fetch_info'));
-
-			add_action('wp_ajax_api_webshop_order_update', array($obj_webshop, 'api_webshop_order_update'));
-			add_action('wp_ajax_nopriv_api_webshop_order_update', array($obj_webshop, 'api_webshop_order_update'));
-		}
 	}
 
 	add_filter('filter_is_file_used', array($obj_webshop, 'filter_is_file_used'));
@@ -90,6 +66,30 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_action('rwmb_after_save_post', array($obj_webshop, 'rwmb_after_save_post'));
 
 	add_filter('get_group_sync_addresses', array($obj_webshop, 'get_group_sync_addresses'), 10, 2);
+
+	if(wp_doing_ajax())
+	{
+		add_action('wp_ajax_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
+		add_action('wp_ajax_nopriv_api_webshop_cart_icon', array($obj_webshop, 'api_webshop_cart_icon'));
+
+		add_action('wp_ajax_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
+		add_action('wp_ajax_nopriv_api_webshop_call', array($obj_webshop, 'api_webshop_call'));
+
+		add_action('wp_ajax_api_webshop_update_product_amount', array($obj_webshop, 'api_webshop_update_product_amount'));
+		add_action('wp_ajax_nopriv_api_webshop_update_product_amount', array($obj_webshop, 'api_webshop_update_product_amount'));
+
+		add_action('wp_ajax_api_webshop_buy_button', array($obj_webshop, 'api_webshop_buy_button'));
+		add_action('wp_ajax_nopriv_api_webshop_buy_button', array($obj_webshop, 'api_webshop_buy_button'));
+
+		add_action('wp_ajax_api_webshop_add_to_cart', array($obj_webshop, 'api_webshop_add_to_cart'));
+		add_action('wp_ajax_nopriv_api_webshop_add_to_cart', array($obj_webshop, 'api_webshop_add_to_cart'));
+
+		add_action('wp_ajax_api_webshop_fetch_info', array($obj_webshop, 'api_webshop_fetch_info'));
+		add_action('wp_ajax_nopriv_api_webshop_fetch_info', array($obj_webshop, 'api_webshop_fetch_info'));
+
+		add_action('wp_ajax_api_webshop_order_update', array($obj_webshop, 'api_webshop_order_update'));
+		add_action('wp_ajax_nopriv_api_webshop_order_update', array($obj_webshop, 'api_webshop_order_update'));
+	}
 
 	add_action('rest_api_init', array($obj_webshop, 'rest_api_init'));
 
