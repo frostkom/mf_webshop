@@ -2240,7 +2240,7 @@ class mf_webshop
 
 			if($option == '')
 			{
-				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".pem")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>";
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".pem");
 			}
 
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
@@ -2255,7 +2255,7 @@ class mf_webshop
 
 			if($option == '')
 			{
-				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".p12")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>"; // cert / pem / p12
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".p12"); // cert / pem / p12
 			}
 
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
@@ -2278,7 +2278,7 @@ class mf_webshop
 
 			if($option == '')
 			{
-				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".key")." <a href='#'>".__("Get yours here", 'lang_webshop')."</a>";
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".key");
 			}
 
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
@@ -4381,9 +4381,10 @@ class mf_webshop
 					foreach($result as $r)
 					{
 						$arr_addresses[] = array(
-							'email' => $r->meta_value,
 							'first_name' => $r->post_title,
 							'sur_name' => "",
+							'email' => $r->meta_value,
+							'phone' => "",
 						);
 					}
 				}
