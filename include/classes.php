@@ -1355,8 +1355,6 @@ class mf_webshop
 											echo 'Response: ' . $response . "n";
 										}
 
-										curl_close($ch);
-
 										Callback:
 										{
 										  "id": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
@@ -5791,7 +5789,7 @@ class mf_webshop
 		]);
 
 		$result = curl_exec($ch);
-		curl_close($ch);
+		//curl_close($ch);
 
 		$response = json_decode($result, true);
 
