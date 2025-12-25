@@ -1873,6 +1873,36 @@ class mf_webshop
 		));
 	}
 
+	function admin_notices()
+	{
+		global $wpdb, $done_text, $notice_text, $error_text;
+
+		if(IS_ADMINISTRATOR)
+		{
+			if($done_text == '' && $notice_text == '' && $error_text == '')
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s LIMIT 0, 1", 'wp_template', 'single-'.$this->post_type_products));
+
+				if($wpdb->num_rows == 0)
+				{
+					$notice_text = sprintf(__("You need to %screate a single template%s for Products", 'lang_webshop'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
+				}
+			}
+
+			if($done_text == '' && $notice_text == '' && $error_text == '')
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s LIMIT 0, 1", 'wp_template', 'single-'.$this->post_type_orders));
+
+				if($wpdb->num_rows == 0)
+				{
+					$notice_text = sprintf(__("You need to %screate a single template%s for Orders", 'lang_webshop'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
+				}
+			}
+
+			echo get_notification();
+		}
+	}
+
 	function settings_webshop()
 	{
 		$options_area_orig = __FUNCTION__;
