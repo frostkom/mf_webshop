@@ -133,7 +133,7 @@ class mf_webshop
 
 				if(!($event_id > 0))
 				{
-					$event_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s AND post_author = '%d' AND post_parent = '0'", $obj_calendar->post_type, $post_title, $post_author));
+					$event_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s AND post_author = %d AND post_parent = '0'", $obj_calendar->post_type, $post_title, $post_author));
 
 					if($event_id > 0)
 					{
@@ -407,7 +407,7 @@ class mf_webshop
 			$query_limit = " LIMIT 0, ".$data['limit'];
 		}
 
-		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
+		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = %d AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
 	}
 
 	function get_categories_for_select($data = [])
@@ -1877,7 +1877,7 @@ class mf_webshop
 	{
 		global $wpdb, $done_text, $notice_text, $error_text;
 
-		if(IS_ADMINISTRATOR)
+		if(IS_ADMINISTRATOR && wp_is_block_theme() == true)
 		{
 			if($done_text == '' && $notice_text == '' && $error_text == '')
 			{
@@ -2850,7 +2850,7 @@ class mf_webshop
 		$updated = false;
 
 		/* Delete old connections */
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $meta_value)."')", $post_id, $meta_key));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value NOT IN('".implode("','", $meta_value)."')", $post_id, $meta_key));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -2860,11 +2860,11 @@ class mf_webshop
 		/* Insert new connections */
 		foreach($meta_value as $value)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $meta_key, $value));
+			$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $meta_key, $value));
 
 			if($wpdb->num_rows == 0)
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $meta_key, $value));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = %d, meta_key = %s, meta_value = %d", $post_id, $meta_key, $value));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2982,7 +2982,7 @@ class mf_webshop
 
 				if($post_parent > 0)
 				{
-					$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = '%d'", 'where_value' => $post_parent, 'limit' => "0, 1"));
+					$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = %d", 'where_value' => $post_parent, 'limit' => "0, 1"));
 
 					$arr_attributes['connect_to'] = $this->meta_prefix.$parent_name;
 				}
@@ -3805,7 +3805,7 @@ class mf_webshop
 					break;
 
 					case 'products':
-						$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $post_id));
+						$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = %d", $post_id));
 
 						echo $product_amount;
 					break;
@@ -4169,7 +4169,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE ID = '%d' AND post_type = %s AND meta_key = %s GROUP BY ID LIMIT 0, 1", $post_id, 'page', '_wp_page_template'));
+		return $wpdb->get_var($wpdb->prepare("SELECT meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE ID = %d AND post_type = %s AND meta_key = %s GROUP BY ID LIMIT 0, 1", $post_id, 'page', '_wp_page_template'));
 	}
 
 	function display_post_states($post_states, $post)
@@ -4744,7 +4744,7 @@ class mf_webshop
 									$query_where .= " AND post_author = '".get_current_user_id()."'";
 								}
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = %d".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
 
 								foreach($result as $r)
 								{
@@ -4876,7 +4876,7 @@ class mf_webshop
 														case 'file_advanced':
 															$value_temp = [];
 
-															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
+															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s", $post_id, $id_temp));
 
 															foreach($result_files as $r_file)
 															{
@@ -4965,7 +4965,7 @@ class mf_webshop
 								$query_where = "";
 								$query_where .= " AND post_author = '".get_current_user_id()."'";
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = %d".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
 
 								foreach($result as $r)
 								{
@@ -5025,7 +5025,7 @@ class mf_webshop
 															}*/
 															#################################
 															/* Delete old connections */
-															$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
+															$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
 
 															if($wpdb->num_rows > 0)
 															{
@@ -5035,11 +5035,11 @@ class mf_webshop
 															/* Insert new connections */
 															foreach($arr_ids as $file_id)
 															{
-																$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $id_temp, $file_id));
+																$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $id_temp, $file_id));
 
 																if($wpdb->num_rows == 0)
 																{
-																	$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $id_temp, $file_id));
+																	$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = %d, meta_key = %s, meta_value = %d", $post_id, $id_temp, $file_id));
 
 																	if($wpdb->num_rows > 0)
 																	{
@@ -5117,7 +5117,7 @@ class mf_webshop
 
 							else
 							{
-								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = %d", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
 
 								if($wpdb->num_rows == 0)
 								{
@@ -5463,7 +5463,7 @@ class mf_webshop
 						/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
 						/*if($this->order_details['address_street'] != '')
 						{
-							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
+							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != %d ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
 
 							foreach($result_address as $r)
 							{
@@ -6573,7 +6573,7 @@ class mf_webshop
 
 		if($location_post_name != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d' GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = %d GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
 		}
 
 		else

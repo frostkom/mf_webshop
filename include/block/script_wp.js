@@ -54,10 +54,6 @@
 				{className: 'wp_mf_block_container'},
 				[
 					el(
-						InspectorControls,
-						'div',
-					),
-					el(
 						'strong',
 						{className: props.className},
 						script_webshop_block_wp.block_title2
