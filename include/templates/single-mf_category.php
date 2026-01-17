@@ -44,7 +44,7 @@ get_header();
 
 			echo "<article".(IS_ADMINISTRATOR ? " class='single-mf_category'" : "").">";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND post_parent = '0' AND meta_key = %s AND meta_value = %d ORDER BY menu_order ASC", $obj_webshop->post_type_products, 'publish', $obj_webshop->meta_prefix.'category', $cat_id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND post_parent = '0' AND meta_key = %s AND meta_value = '%d' ORDER BY menu_order ASC", $obj_webshop->post_type_products, 'publish', $obj_webshop->meta_prefix.'category', $cat_id));
 
 				if($wpdb->num_rows == 0)
 				{

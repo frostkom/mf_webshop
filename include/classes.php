@@ -133,7 +133,7 @@ class mf_webshop
 
 				if(!($event_id > 0))
 				{
-					$event_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s AND post_author = %d AND post_parent = '0'", $obj_calendar->post_type, $post_title, $post_author));
+					$event_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s AND post_author = '%d' AND post_parent = '0'", $obj_calendar->post_type, $post_title, $post_author));
 
 					if($event_id > 0)
 					{
@@ -407,7 +407,7 @@ class mf_webshop
 			$query_limit = " LIMIT 0, ".$data['limit'];
 		}
 
-		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = %d AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
+		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
 	}
 
 	function get_categories_for_select($data = [])
@@ -2095,33 +2095,33 @@ class mf_webshop
 			);
 		}
 
-		function setting_webshop_currency_callback($args = [])
+		function setting_webshop_currency_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, 'SEK');
 
 			echo show_select(array('data' => $this->get_currency_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_tax_rate_callback($args = [])
+		function setting_webshop_tax_rate_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, 25);
 
 			echo show_textfield(array('name' => $setting_key, 'value' => $option, 'suffix' => "%"));
 		}
 
-		function setting_webshop_tax_enter_callback($args = [])
+		function setting_webshop_tax_enter_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, 'yes');
 
 			echo show_select(array('data' => array('yes' => __("Incl. Tax", 'lang_webshop'), 'no' => __("Excl. Tax", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_tax_display_callback($args = [])
+		function setting_webshop_tax_display_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, 'yes');
 
 			echo show_select(array('data' => array('yes' => __("Excl. Tax", 'lang_webshop'), 'no' => __("Incl. Tax", 'lang_webshop')), 'name' => $setting_key, 'value' => $option));
@@ -2133,16 +2133,16 @@ class mf_webshop
 			."<div id='storage_response'></div>";
 		}*/
 
-	function settings_webshop_search_callback($args = [])
+	function settings_webshop_search_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'));
 	}
 
-		function setting_webshop_display_sort_callback($args = [])
+		function setting_webshop_display_sort_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			if($option == 'yes')
@@ -2153,17 +2153,17 @@ class mf_webshop
 			echo show_select(array('data' => $this->get_sort_for_select(), 'name' => $setting_key."[]", 'value' => $option));
 		}
 
-		function setting_webshop_sort_default_callback($args = [])
+		function setting_webshop_sort_default_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option_or_default($setting_key, 'size');
 
 			echo show_select(array('data' => $this->get_sort_for_select(get_option('setting_webshop_display_sort')), 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_display_filter_callback($args = [])
+		function setting_webshop_display_filter_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option_or_default($setting_key, 'yes');
 
 			$arr_data = array(
@@ -2175,47 +2175,47 @@ class mf_webshop
 			echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
 		}
 
-	function settings_webshop_shipping_callback($args = [])
+	function settings_webshop_shipping_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Shipping", 'lang_webshop'));
 	}
 
-		function setting_webshop_shipping_cost_callback($args = [])
+		function setting_webshop_shipping_cost_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_shipping_free_limit_callback($args = [])
+		function setting_webshop_shipping_free_limit_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
-	function settings_webshop_payment_callback($args = [])
+	function settings_webshop_payment_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Payment", 'lang_webshop'));
 	}
 
-		function setting_webshop_invoice_cost_callback($args = [])
+		function setting_webshop_invoice_cost_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_stripe_secret_key_test_callback($args = [])
+		function setting_webshop_stripe_secret_key_test_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			$obj_encryption = new mf_encryption(__CLASS__);
@@ -2224,17 +2224,17 @@ class mf_webshop
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_stripe_public_key_test_callback($args = [])
+		function setting_webshop_stripe_public_key_test_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_stripe_secret_key_callback($args = [])
+		function setting_webshop_stripe_secret_key_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			$obj_encryption = new mf_encryption(__CLASS__);
@@ -2243,25 +2243,25 @@ class mf_webshop
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_stripe_public_key_callback($args = [])
+		function setting_webshop_stripe_public_key_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_swish_merchant_number_callback($args = [])
+		function setting_webshop_swish_merchant_number_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
-		function setting_webshop_swish_certificate_root_file_callback($args = [])
+		function setting_webshop_swish_certificate_root_file_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			$description = '';
@@ -2274,9 +2274,9 @@ class mf_webshop
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
-		function setting_webshop_swish_certificate_file_callback($args = [])
+		function setting_webshop_swish_certificate_file_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			$description = '';
@@ -2289,17 +2289,17 @@ class mf_webshop
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
-		function setting_webshop_swish_certificate_password_callback($args = [])
+		function setting_webshop_swish_certificate_password_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_swish_key_file_callback($args = [])
+		function setting_webshop_swish_key_file_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			$description = '';
@@ -2312,40 +2312,40 @@ class mf_webshop
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
-		function setting_webshop_payment_alternatives_callback($args = [])
+		function setting_webshop_payment_alternatives_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, array('invoice'));
 
 			echo show_select(array('data' => $this->get_payment_alternatives_for_select(), 'name' => $setting_key."[]", 'value' => $option));
 		}
 
-		function setting_webshop_prefered_payment_alternative_callback($args = [])
+		function setting_webshop_prefered_payment_alternative_callback()
 		{
-			$setting_key = get_setting_key(__FUNCTION__, $args);
+			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_select(array('data' => $this->get_prefered_payment_alternative_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-	function settings_webshop_product_callback($args = [])
+	function settings_webshop_product_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Product", 'lang_webshop'));
 	}
 
-	function setting_webshop_allow_multiple_categories_callback($args = [])
+	function setting_webshop_allow_multiple_categories_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'yes');
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 	}
 
-	function setting_gmaps_api_callback($args = [])
+	function setting_gmaps_api_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
 		$suffix = ($option == '' ? "<a href='//developers.google.com/maps/documentation/javascript/get-api-key'>".__("Get yours here", 'lang_webshop')."</a>" : "");
@@ -2353,33 +2353,33 @@ class mf_webshop
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'suffix' => $suffix));
 	}
 
-	function setting_range_min_default_callback($args = [])
+	function setting_range_min_default_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 10);
 
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='100'", 'suffix' => "%", 'description' => __("If no lower value is entered in a range, this percentage is used to calculate the lower end of the range", 'lang_webshop')));
 	}
 
-	function setting_range_choices_callback($args = [])
+	function setting_range_choices_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => '1-50,50-100,1000+'));
 	}
 
-	function setting_search_max_callback($args = [])
+	function setting_search_max_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option_or_default($setting_key, 50);
 
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='10' max='100'"));
 	}
 
-	function setting_show_all_min_callback($args = [])
+	function setting_show_all_min_callback()
 	{
-		$setting_key = get_setting_key(__FUNCTION__, $args);
+		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option_or_default($setting_key, 30);
 
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'xtra' => "min='0' max='100'", 'suffix' => sprintf(__("%d will hide the link in the form", 'lang_webshop'), 0)));
@@ -2850,7 +2850,7 @@ class mf_webshop
 		$updated = false;
 
 		/* Delete old connections */
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value NOT IN('".implode("','", $meta_value)."')", $post_id, $meta_key));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $meta_value)."')", $post_id, $meta_key));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -2860,11 +2860,11 @@ class mf_webshop
 		/* Insert new connections */
 		foreach($meta_value as $value)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $meta_key, $value));
+			$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $meta_key, $value));
 
 			if($wpdb->num_rows == 0)
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = %d, meta_key = %s, meta_value = %d", $post_id, $meta_key, $value));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $meta_key, $value));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2982,7 +2982,7 @@ class mf_webshop
 
 				if($post_parent > 0)
 				{
-					$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = %d", 'where_value' => $post_parent, 'limit' => "0, 1"));
+					$parent_name = $this->get_document_types(array('select' => "post_name", 'where_key' => "ID = '%d'", 'where_value' => $post_parent, 'limit' => "0, 1"));
 
 					$arr_attributes['connect_to'] = $this->meta_prefix.$parent_name;
 				}
@@ -3805,7 +3805,7 @@ class mf_webshop
 					break;
 
 					case 'products':
-						$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = %d", $post_id));
+						$product_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(post_id) FROM ".$wpdb->postmeta." WHERE meta_key = '".$this->meta_prefix."category' AND meta_value = '%d'", $post_id));
 
 						echo $product_amount;
 					break;
@@ -4169,7 +4169,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE ID = %d AND post_type = %s AND meta_key = %s GROUP BY ID LIMIT 0, 1", $post_id, 'page', '_wp_page_template'));
+		return $wpdb->get_var($wpdb->prepare("SELECT meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE ID = '%d' AND post_type = %s AND meta_key = %s GROUP BY ID LIMIT 0, 1", $post_id, 'page', '_wp_page_template'));
 	}
 
 	function display_post_states($post_states, $post)
@@ -4744,7 +4744,7 @@ class mf_webshop
 									$query_where .= " AND post_author = '".get_current_user_id()."'";
 								}
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = %d".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type, post_author FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
 
 								foreach($result as $r)
 								{
@@ -4876,7 +4876,7 @@ class mf_webshop
 														case 'file_advanced':
 															$value_temp = [];
 
-															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s", $post_id, $id_temp));
+															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
 
 															foreach($result_files as $r_file)
 															{
@@ -4965,7 +4965,7 @@ class mf_webshop
 								$query_where = "";
 								$query_where .= " AND post_author = '".get_current_user_id()."'";
 
-								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = %d".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_name, post_type FROM ".$wpdb->posts." WHERE post_type = %s AND (post_status = %s OR post_status = %s) AND ID = '%d'".$query_where, $this->post_type_products, 'publish', 'draft', $post_id));
 
 								foreach($result as $r)
 								{
@@ -5025,7 +5025,7 @@ class mf_webshop
 															}*/
 															#################################
 															/* Delete old connections */
-															$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
+															$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
 
 															if($wpdb->num_rows > 0)
 															{
@@ -5035,11 +5035,11 @@ class mf_webshop
 															/* Insert new connections */
 															foreach($arr_ids as $file_id)
 															{
-																$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $id_temp, $file_id));
+																$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $id_temp, $file_id));
 
 																if($wpdb->num_rows == 0)
 																{
-																	$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = %d, meta_key = %s, meta_value = %d", $post_id, $id_temp, $file_id));
+																	$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->postmeta." SET post_id = '%d', meta_key = %s, meta_value = '%d'", $post_id, $id_temp, $file_id));
 
 																	if($wpdb->num_rows > 0)
 																	{
@@ -5117,7 +5117,7 @@ class mf_webshop
 
 							else
 							{
-								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = %d", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
 
 								if($wpdb->num_rows == 0)
 								{
@@ -5463,7 +5463,7 @@ class mf_webshop
 						/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
 						/*if($this->order_details['address_street'] != '')
 						{
-							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != %d ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
+							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
 
 							foreach($result_address as $r)
 							{
@@ -6573,7 +6573,7 @@ class mf_webshop
 
 		if($location_post_name != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = %d GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d' GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
 		}
 
 		else
