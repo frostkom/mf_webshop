@@ -1412,22 +1412,22 @@ class mf_webshop
 										{
 											case 200:
 											case 201:
-												//$json = json_decode($url_content, true);
+												//$arr_json = json_decode($url_content, true);
 
-												$json = array();
+												$arr_json = array();
 
 												foreach(explode("\n", $url_content) as $row)
 												{
 													@list($row_key, $row_value) = explode(":", $row, 2);
 
-													$json[trim($row_key)] = trim($row_value);
+													$arr_json[trim($row_key)] = trim($row_value);
 												}
 
-												//$out .= "Successful: ".var_export($json, true)." (".var_export($headers, true).")";
+												//$out .= "Successful: ".var_export($arr_json, true)." (".var_export($headers, true).")";
 
-												if(isset($json['PaymentRequestToken']))
+												if(isset($arr_json['PaymentRequestToken']))
 												{
-													$token = $json['PaymentRequestToken'];
+													$token = $arr_json['PaymentRequestToken'];
 													$callback = $base_callback_url."&accept";
 
 													$action = "swish://paymentrequest?token=".$token."&callbackurl=".urlencode($callback);
@@ -1489,12 +1489,12 @@ class mf_webshop
 										$response_request = $_REQUEST;
 										$response_body = file_get_contents('php://input');
 
-										$json = json_decode($response_body, true);
+										$arr_json = json_decode($response_body, true);
 
-										switch($json['status'])
+										switch($arr_json['status'])
 										{
 											case 'DECLINED':
-												if($this->order_id == $json['payeePaymentReference'])
+												if($this->order_id == $arr_json['payeePaymentReference'])
 												{
 													// The payment was cancelled. Save it in the order
 													//$this->order_id
@@ -1507,7 +1507,7 @@ class mf_webshop
 											break;
 
 											case 'ERROR':
-												if($this->order_id == $json['payeePaymentReference'])
+												if($this->order_id == $arr_json['payeePaymentReference'])
 												{
 													// The payment failed. Save it in the order
 													//$this->order_id
@@ -1520,9 +1520,9 @@ class mf_webshop
 											break;
 
 											case 'PAID':
-												if($this->order_id == $json['payeePaymentReference'])
+												if($this->order_id == $arr_json['payeePaymentReference'])
 												{
-													if((int)$json['amount'] == (int)$total_sum)
+													if((int)$arr_json['amount'] == (int)$total_sum)
 													{
 														// The paid amount is correct. Save it in the order
 														//$this->order_id
@@ -1541,7 +1541,7 @@ class mf_webshop
 											break;
 
 											default:
-												do_log("Swish Status Unknown (".$json['status']."): ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+												do_log("Swish Status Unknown (".$arr_json['status']."): ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
 											break;
 										}
 									}
@@ -5136,7 +5136,7 @@ class mf_webshop
 										$json_output['success'] = true;
 										$json_output['message'] = sprintf(__("I have saved the information for you. %sView the page here%s", 'lang_webshop'), "<a href='".get_permalink($post_id)."'>", "</a>");
 										$json_output['next_request'] = "admin/webshop/edit/".$post_id;
-										////$json_output['debug'] = "Created: ".$wpdb->last_query;
+										//$json_output['debug'] = "Created: ".$wpdb->last_query;
 									}
 
 									else
@@ -5768,11 +5768,11 @@ class mf_webshop
 
 		$setting_webshop_payment_alternatives = get_option_or_default('setting_webshop_payment_alternatives', []);
 
-		$data = json_decode($request->get_body(), true);
+		$arr_json = json_decode($request->get_body(), true);
 
-		$order_id = sanitize_text_field($data['order_id']);
-		$payment_method_id = sanitize_text_field($data['payment_method_id']);
-		$test_mode = sanitize_text_field($data['test_mode']);
+		$order_id = sanitize_text_field($arr_json['order_id']);
+		$payment_method_id = sanitize_text_field($arr_json['payment_method_id']);
+		$test_mode = sanitize_text_field($arr_json['test_mode']);
 
 		if($test_mode == 'yes' && in_array('stripe_test', $setting_webshop_payment_alternatives))
 		{
@@ -5821,14 +5821,14 @@ class mf_webshop
 		$result = curl_exec($ch);
 		//curl_close($ch);
 
-		$response = json_decode($result, true);
+		$arr_json = json_decode($result, true);
 
-		if(isset($response['error']))
+		if(isset($arr_json['error']))
 		{
-			return new WP_REST_Response(['error' => $response['error']['message']], 400);
+			return new WP_REST_Response(['error' => $arr_json['error']['message']], 400);
 		}
 
-		else if($response['status'] === 'succeeded')
+		else if($arr_json['status'] === 'succeeded')
 		{
 			$post_data = array(
 				'ID' => $r->ID,
@@ -6201,28 +6201,28 @@ class mf_webshop
 		switch($headers['http_code'])
 		{
 			case 200:
-				$json = json_decode($content);
+				$arr_json = json_decode($content);
 
 				switch($type)
 				{
 					case 'ipgeolocationapi':
-						if(isset($json->geo->latitude) && isset($json->geo->longitude))
+						if(isset($arr_json->geo->latitude) && isset($arr_json->geo->longitude))
 						{
-							$out = $json->geo->latitude.",".$json->geo->longitude;
+							$out = $arr_json->geo->latitude.",".$arr_json->geo->longitude;
 						}
 					break;
 
 					case 'geoplugin':
-						if(isset($json->geoplugin_latitude) && isset($json->geoplugin_longitude))
+						if(isset($arr_json->geoplugin_latitude) && isset($arr_json->geoplugin_longitude))
 						{
-							$out = $json->geoplugin_latitude.",".$json->geoplugin_longitude;
+							$out = $arr_json->geoplugin_latitude.",".$arr_json->geoplugin_longitude;
 						}
 					break;
 
 					case 'ipapi':
-						if(isset($json->lat) && isset($json->lon))
+						if(isset($arr_json->lat) && isset($arr_json->lon))
 						{
-							$out = $json->lat.",".$json->lon;
+							$out = $arr_json->lat.",".$arr_json->lon;
 						}
 					break;
 				}
@@ -6256,11 +6256,11 @@ class mf_webshop
 			switch($headers['http_code'])
 			{
 				case 200:
-					$json = json_decode($content);
+					$arr_json = json_decode($content);
 
 					$postal_town = $country = "";
 
-					foreach($json->results as $json_row)
+					foreach($arr_json->results as $json_row)
 					{
 						foreach($json_row->address_components as $address_component)
 						{
