@@ -2348,7 +2348,7 @@ class mf_webshop
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		$suffix = ($option == '' ? "<a href='//developers.google.com/maps/documentation/javascript/get-api-key'>".__("Get yours here", 'lang_webshop')."</a>" : "");
+		$suffix = ($option == '' ? "<a href='//developers.google.com/maps/get-started'>".__("Get yours here", 'lang_webshop')."</a>" : "");
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'suffix' => $suffix));
 	}
