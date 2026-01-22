@@ -5819,7 +5819,6 @@ class mf_webshop
 		]);
 
 		$result = curl_exec($ch);
-		//curl_close($ch);
 
 		$arr_json = json_decode($result, true);
 
