@@ -1187,6 +1187,8 @@ class mf_webshop
 
 						if($public_key != '')
 						{
+							do_action('load_notification');
+
 							$out .= "<div class='payment_alternatives hide'>"
 								.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
 								."<script src='https://js.stripe.com/v3/'></script>
@@ -1341,7 +1343,7 @@ class mf_webshop
 										]);
 
 										// Execute request
-										$response = curl_exec($ch);
+										$content = curl_exec($ch);
 										$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 										if(curl_errno($ch))
@@ -1352,7 +1354,7 @@ class mf_webshop
 										else
 										{
 											echo 'HTTP status: ' . $httpCode . "n";
-											echo 'Response: ' . $response . "n";
+											echo 'Response: ' . $content . "n";
 										}
 
 										Callback:
@@ -1840,7 +1842,7 @@ class mf_webshop
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
-			//'supports' => $arr_supports,
+			'supports' => array('title'),
 			'hierarchical' => false,
 			'has_archive' => false,
 		));
@@ -2796,7 +2798,9 @@ class mf_webshop
 		if(IS_EDITOR)
 		{
 			add_menu_page($name_webshop, $name_webshop, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
-			add_submenu_page($menu_start, __("Products", 'lang_webshop'), __("Products", 'lang_webshop'), $menu_capability, $menu_start);
+
+			$menu_title = __("Products", 'lang_webshop');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
 
 			$menu_title = __("Categories", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_categories);
@@ -4290,6 +4294,13 @@ class mf_webshop
 				}
 			}
 		}
+	}
+
+	function wp_sitemaps_post_types($post_types)
+	{
+		unset($post_types[$this->post_type_orders]);
+
+		return $post_types;
 	}
 
 	function split_coordinates($in)
@@ -5818,9 +5829,9 @@ class mf_webshop
 			'Authorization: Bearer '.$secret_key,
 		]);
 
-		$result = curl_exec($ch);
+		$content = curl_exec($ch);
 
-		$arr_json = json_decode($result, true);
+		$arr_json = json_decode($content, true);
 
 		if(isset($arr_json['error']))
 		{
