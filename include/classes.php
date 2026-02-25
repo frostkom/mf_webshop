@@ -633,10 +633,8 @@ class mf_webshop
 				{
 					if($setting_webshop_display_filter == 'button')
 					{
-						$out .= get_toggler_container(array('type' => 'start', 'text' => __("Filter", 'lang_webshop')));
+						$out .= get_toggler_container(array('type' => 'start', 'id' => 'filter', 'text' => __("Filter", 'lang_webshop')));
 					}
-
-						//$obj_webshop_interval = new mf_webshop();
 
 						$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 
@@ -1300,7 +1298,7 @@ class mf_webshop
 						if($setting_webshop_swish_merchant_number != '')
 						{
 							$out .= "<div class='payment_alternatives hide'>"
-								.get_toggler_container(array('type' => 'start', 'text' => __("Swish", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish')));
+								.get_toggler_container(array('type' => 'start', 'id' => 'swish', 'text' => __("Swish", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish')));
 
 									if(isset($_POST['btnPaymentSwish']))
 									{
@@ -2391,7 +2389,8 @@ class mf_webshop
 	{
 		global $pagenow;
 
-		$this->combined_head();
+		// Why is this initiated here? It will run on all pages in admin then
+		//$this->combined_head();
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -3604,7 +3603,7 @@ class mf_webshop
 	{
 		global $post_type;
 
-		if(isset($this->post_type_products) && isset($post_type) && substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
+		if(isset($post_type) && substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
 		{
 			$location_post_name = $this->get_post_name_for_type('location');
 
@@ -3622,7 +3621,7 @@ class mf_webshop
 			}
 		}
 
-		else if(isset($this->post_type_document_type) && isset($post_type) && substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
+		else if(isset($post_type) && substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
 		{
 			$strFilterPlacement = check_var('strFilterPlacement');
 
