@@ -1373,7 +1373,7 @@ class mf_webshop
 
 										$setting_webshop_swish_certificate_root_file = get_option('setting_webshop_swish_certificate_root_file');
 										$setting_webshop_swish_certificate_file = get_option('setting_webshop_swish_certificate_file');
-										$setting_webshop_swish_certificate_password = get_option('setting_webshop_swish_certificate_password');
+										//$setting_webshop_swish_certificate_password = get_option('setting_webshop_swish_certificate_password');
 										$setting_webshop_swish_key_file = get_option('setting_webshop_swish_key_file');
 
 										$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
@@ -1980,7 +1980,7 @@ class mf_webshop
 		{
 			$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
 			$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
-			$arr_settings['setting_webshop_swish_certificate_password'] = " - ".__("Certificate Password", 'lang_webshop');
+			//$arr_settings['setting_webshop_swish_certificate_password'] = " - ".__("Certificate Password", 'lang_webshop');
 			$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
 		}
 
@@ -2283,19 +2283,19 @@ class mf_webshop
 
 			if($option == '')
 			{
-				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".p12"); // cert / pem / p12
+				$description = sprintf(__("The file should be a %s file.", 'lang_webshop'), ".pem"); // cert / pem / p12
 			}
 
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
-		function setting_webshop_swish_certificate_password_callback()
+		/*function setting_webshop_swish_certificate_password_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
-		}
+		}*/
 
 		function setting_webshop_swish_key_file_callback()
 		{
