@@ -1371,10 +1371,16 @@ class mf_webshop
 										  "errorCode": null
 										}*/
 
+										list($upload_path, $upload_url) = get_uploads_folder();
+
 										$setting_webshop_swish_certificate_root_file = get_option('setting_webshop_swish_certificate_root_file');
 										$setting_webshop_swish_certificate_file = get_option('setting_webshop_swish_certificate_file');
 										//$setting_webshop_swish_certificate_password = get_option('setting_webshop_swish_certificate_password');
 										$setting_webshop_swish_key_file = get_option('setting_webshop_swish_key_file');
+
+										$setting_webshop_swish_certificate_root_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_certificate_root_file);
+										$setting_webshop_swish_certificate_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_certificate_file);
+										$setting_webshop_swish_key_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_key_file);
 
 										$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
@@ -1404,19 +1410,19 @@ class mf_webshop
 											'ssl_key_path' => $setting_webshop_swish_key_file,
 										);
 
-										list($url_content, $headers) = get_url_content($data);
+										list($content, $headers) = get_url_content($data);
 
-										//do_log("Swish: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($url_content, true)));
+										//do_log("Swish: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
 
 										switch($headers['http_code'])
 										{
 											case 200:
 											case 201:
-												//$arr_json = json_decode($url_content, true);
+												//$arr_json = json_decode($content, true);
 
 												$arr_json = array();
 
-												foreach(explode("\n", $url_content) as $row)
+												foreach(explode("\n", $content) as $row)
 												{
 													@list($row_key, $row_value) = explode(":", $row, 2);
 
@@ -1442,7 +1448,7 @@ class mf_webshop
 
 												else
 												{
-													$error_text = __("I could not find a token in the answer", 'lang_webshop')." (".htmlspecialchars($url_content).")";
+													$error_text = __("I could not find a token in the answer", 'lang_webshop')." (".htmlspecialchars($content).")";
 
 													$out .= get_notification();
 												}
@@ -1453,7 +1459,7 @@ class mf_webshop
 
 												$out .= get_notification();
 
-												do_log("Unsuccessful Swish payment: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($url_content, true)));
+												do_log("Unsuccessful Swish payment: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
 											break;
 										}
 									}
@@ -4740,7 +4746,7 @@ class mf_webshop
 								'post_title' => "",
 								'post_name' => "",
 								'meta_boxes' => [],
-								'timestamp' => date("Y-m-d H:i:s"),
+								'timestamp' => current_time('mysql'),
 							);
 
 							if($post_id > 0)
@@ -4987,7 +4993,7 @@ class mf_webshop
 									$post_data = array(
 										'ID' => $post_id,
 										'post_status' => 'publish',
-										'post_modified' => date("Y-m-d H:i:s"),
+										'post_modified' => current_time('mysql'),
 										'meta_input' => [],
 									);
 
@@ -7379,7 +7385,7 @@ class mf_webshop
 				'product_description' => apply_filters('the_content', $this->product_description),
 				'product_has_email' => $this->product_has_email,
 				'product_map' => $this->product_map,
-				'product_timestamp' => date("Y-m-d H:i:s"),
+				'product_timestamp' => current_time('mysql'),
 			);
 		}
 	}
