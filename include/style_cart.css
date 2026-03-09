@@ -1,4 +1,4 @@
-.widget.webshop_cart .cart_products .mf_form_field[type='number']
+.widget.webshop_cart .cart_products .mf_form_field[inputmode='numeric']
 {
 	max-width: 4em;
 }

@@ -77,3 +77,8 @@
 			{
 				content: "\f110";
 			}
+
+.widget .read_more_button
+{
+	flex-grow: 1;
+}

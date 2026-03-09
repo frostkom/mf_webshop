@@ -305,7 +305,13 @@ content > div > form, > div > form
 			padding: 0;
 		}
 
-		.product_meta li.description
+		.product_meta
+		{
+			list-style: inside;
+			padding: 0;
+		}";
+
+		/*.product_meta li.description
 		{
 			overflow: hidden;
 			margin-bottom: .5em;
@@ -320,9 +326,9 @@ content > div > form, > div > form
 		.product_meta li a
 		{
 			display: inline;
-		}
+		}*/
 
-		li.type_image
+		echo "li.type_image
 		{
 			float: left;
 			min-height: 80px;
@@ -386,10 +392,10 @@ content > div > form, > div > form
 						width: 10%;
 					}
 
-	.product_list .wp-block-buttons-is-layout-flex
+	/*.product_list .wp-block-buttons-is-layout-flex
 	{
 		justify-content: right;
-	}
+	}*/
 
 /* Product */
 .product_breadcrumbs span + span:before, .webshop_breadcrumbs span + span:before

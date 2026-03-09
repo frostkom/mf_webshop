@@ -110,7 +110,7 @@ jQuery(function($)
 	/* ##################### */
 	var update_timeout;
 
-	dom_obj_widget.on('change', ".cart_products .mf_form_field[type='number']", function()
+	dom_obj_widget.on('change', ".cart_products .mf_form_field[inputmode='numeric']", function()
 	{
 		var dom_obj = $(this);
 
