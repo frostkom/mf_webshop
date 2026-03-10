@@ -297,10 +297,10 @@ class mf_webshop
 				'overlay' => __("Overlay", 'lang_webshop'),
 			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
 				'number' => __("Number", 'lang_webshop'),
-				'price' => __("Number", 'lang_webshop')." (".__("Price", 'lang_webshop').")",
-				'size' => __("Number", 'lang_webshop')." (".__("Size", 'lang_webshop').")",
-				'stock' => __("Number", 'lang_webshop')." (".__("Stock", 'lang_webshop').")",
-				'cart_max' => __("Number", 'lang_webshop')." (".__("Cart Max", 'lang_webshop').")",
+				'price' => __("Price", 'lang_webshop'),
+				'size' => __("Size", 'lang_webshop'),
+				'stock' => __("Stock", 'lang_webshop'),
+				'cart_max' => __("Cart Max", 'lang_webshop'),
 				'interval' => __("Interval", 'lang_webshop'),
 			'group_location' => "-- ".__("Location", 'lang_webshop')." --",
 				'city' => __("City", 'lang_webshop'),
@@ -6030,8 +6030,8 @@ class mf_webshop
 					."</script>
 
 					<script type='text/template' id='template_filter_products_message'>
-						<li class='info_text'>
-							<p>".sprintf(__("I could not find any %s", 'lang_webshop'), __("Products", 'lang_webshop'))."</p>
+						<li>
+							<div class='content'>".sprintf(__("I could not find any %s", 'lang_webshop'), __("Products", 'lang_webshop'))."</div>
 						</li>
 					</script>
 
@@ -6111,8 +6111,8 @@ class mf_webshop
 
 				case 'products':
 					$out .= "<script type='text/template' id='template_product_message'>
-						<li class='info_text'>
-							<p>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</p>
+						<li>
+							<div class='content'>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</div>
 						</li>
 					</script>
 
@@ -6131,7 +6131,7 @@ class mf_webshop
 										<% if(product_data != ''){ %><%= product_data %><% } %>
 									</div>
 								<% } %>
-								<a href='<%= product_url %>'><%= product_title %></a>
+								<a href='<%= product_url %>' class='grid_title'><%= product_title %></a>
 								<% if(product_location != '')
 								{ %>
 									<p class='product_location'><%= product_location %></p>

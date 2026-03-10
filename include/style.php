@@ -23,12 +23,10 @@ if(!isset($obj_webshop))
 
 $setting_webshop_display_filter = get_option('setting_webshop_display_filter');
 
-//$setting_map_visibility = get_option('setting_map_visibility');
-//$setting_map_visibility_mobile = get_option('setting_map_visibility_mobile');
 $setting_color_info = get_option('setting_webshop_color_info');
 $setting_text_color_info = get_option('setting_webshop_text_color_info');
 
-echo ".info_text p, p.info_text, .info_text h3
+/*echo ".info_text p, p.info_text, .info_text h3
 {
 	background: ".$setting_color_info.";
 	border-radius: .2em;
@@ -41,9 +39,9 @@ echo ".info_text p, p.info_text, .info_text h3
 	{
 		font-size: .8em;
 		font-weight: normal;
-	}
+	}";*/
 
-li.is_disabled
+echo "li.is_disabled
 {
 	cursor: no-drop;
 	text-decoration: line-through;
@@ -195,9 +193,9 @@ content > div > form, > div > form
 			.product_categories.category_icon li i, .product_categories.category_icon > span i
 			{
 				margin-right: .4em;
-			}
+			}";
 
-	.form_button .info_text, .wp-block-button .info_text
+	/*echo ".form_button .info_text, .wp-block-button .info_text
 	{
 		position: relative;
 	}
@@ -210,10 +208,10 @@ content > div > form, > div > form
 			position: absolute;
 			right: 50%;
 			top: -2em;
-		}
+		}";*/
 
 /* Result List */
-.product_list > li.loading
+echo ".product_list > li.loading
 {
 	padding: 2em;
 	text-align: center;
