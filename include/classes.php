@@ -1347,13 +1347,13 @@ class mf_webshop
 
 										if(curl_errno($ch))
 										{
-											echo 'Curl error: ' . curl_error($ch);
+											echo 'Curl error: '.curl_error($ch);
 										}
 
 										else
 										{
-											echo 'HTTP status: ' . $httpCode . "n";
-											echo 'Response: ' . $content . "n";
+											echo 'HTTP status: '.$httpCode."n";
+											echo 'Response: '.$content."n";
 										}
 
 										Callback:
@@ -2296,6 +2296,27 @@ class mf_webshop
 			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+
+			if($option == '')
+			{
+				echo "<h3>".__("Step 1: Create a Stripe Account", 'lang_webshop')."</h3>
+				<ol>
+					<li>".sprintf(__("Go to %sStripe's website%s.", 'lang_webshop'), "<a href='//dashboard.stripe.com/register'>", "</a>")."</li>
+					<li>".__("Fill in your name, email address, and create a password.", 'lang_webshop')."</li>
+					<li>".__("Confirm your email address by clicking on the link sent to your inbox.", 'lang_webshop')."</li>
+				</ol>
+				<h3>".__("Step 2: Log In to Your Stripe Account", 'lang_webshop')."</h3>
+				<ol>
+					<li>".__("After confirming your email, log in to your account with your new credentials.", 'lang_webshop')."</li>
+				</ol>
+				<h3>".__("Step 3: Retrieve API Keys", 'lang_webshop')."</h3>
+				<ol>
+					<li>".__("Navigate to 'Developers' in the sidebar.", 'lang_webshop')."</li>
+					<li>".__("Click on 'API keys' under the 'Developers' tab.", 'lang_webshop')."</li>
+					<li>".__("You will see both the Publishable key and the Secret key there.", 'lang_webshop')."</li>
+					<li>".__("Click the eye icon next to the key name to reveal the Secret key if it is hidden.", 'lang_webshop')."</li>
+				</ol>";
+			}
 		}
 
 		function setting_webshop_stripe_public_key_callback()
