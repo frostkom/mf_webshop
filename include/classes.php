@@ -39,6 +39,7 @@ class mf_webshop
 	var $product_coordinates;
 	var $product_map;
 	var $product_categories;
+	var $product_amount_left;
 	var $product_address;
 	var $product_location;
 	var $product_data;
@@ -835,7 +836,7 @@ class mf_webshop
 								break;
 
 								default:
-									do_log(sprintf("The type %s does not have a case", $post_custom_type)." (".$post_id." -> search)");
+									do_log("The type ".$post_custom_type." does not have a case (".$post_id." -> search)");
 								break;
 							}
 						}
@@ -6907,27 +6908,9 @@ class mf_webshop
 				break;
 
 				case 'stock':
-					$this->amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
+					$this->product_amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
 
-					/*$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
-
-					foreach($result as $r)
-					{
-						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-						if(is_array($arr_products))
-						{
-							foreach($arr_products as $key => $arr_value)
-							{
-								if($arr_products[$key]['id'] == $this->product_id)
-								{
-									$this->amount_left -= $arr_products[$key]['amount'];
-								}
-							}
-						}
-					}*/
-
-					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$this->amount_left."</span>";
+					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$this->product_amount_left."</span>";
 				break;
 
 				default:
@@ -6968,7 +6951,7 @@ class mf_webshop
 			$this->product_description = shorten_text(array('string' => strip_tags($post->post_content), 'limit' => 120));
 		}
 
-		$this->amount_left = 100;
+		$this->product_amount_left = 100;
 		$this->product_has_content = $this->product_has_read_more = false;
 		$this->product_price = $this->product_image = $this->arr_category_id = '';
 		$this->product_url = "#";
@@ -7396,10 +7379,12 @@ class mf_webshop
 								}
 							break;
 
+							case 'cart_max':
 							case 'ghost':
 							case 'overlay':
 							case 'phone':
 							case 'social':
+							case 'stock':
 							case 'text':
 							case 'url':
 								//Do nothing
@@ -7415,7 +7400,7 @@ class mf_webshop
 
 								else
 								{
-									do_log(sprintf("The type %s does not have a case", $this->meta_type)." (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> list)");
+									do_log("The type ".$this->meta_type." does not have a case (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> list)");
 								}
 							break;
 						}
@@ -7502,7 +7487,7 @@ class mf_webshop
 				'product_price' => $this->product_price,
 				'product_cart_max' => $product_cart_max,
 				'product_in_cart' => $product_in_cart,
-				'product_amount_left' => $this->amount_left,
+				'product_amount_left' => $this->product_amount_left,
 				'product_has_read_more' => $this->product_has_read_more,
 				'product_image' => $product_image,
 				'product_meta' => $this->product_meta,
