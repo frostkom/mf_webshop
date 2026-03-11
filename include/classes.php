@@ -1652,6 +1652,33 @@ class mf_webshop
 
 		return $out;
 	}
+	
+	function get_amount_in_carts($product_id)
+	{
+		global $wpdb;
+
+		$amount = 0;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
+
+		foreach($result as $r)
+		{
+			$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+			if(is_array($arr_products))
+			{
+				foreach($arr_products as $key => $arr_value)
+				{
+					if($arr_products[$key]['id'] == $product_id)
+					{
+						$amount += $arr_products[$key]['amount'];
+					}
+				}
+			}
+		}
+
+		return $amount;
+	}
 
 	function block_render_buy_button_callback($attributes)
 	{
@@ -1691,6 +1718,7 @@ class mf_webshop
 
 			if($cart_post_id > 0)
 			{
+				$product_amount_left = 100;
 				$product_cart_max = 0;
 				$product_in_cart = $this->get_product_in_cart($product_id);
 
@@ -1701,10 +1729,17 @@ class mf_webshop
 					$product_cart_max = get_post_meta($product_id, $this->meta_prefix.$cart_max_post_name, true);
 				}
 
+				$stock_post_name = $this->get_post_name_for_type('stock');
+
+				if($stock_post_name != '')
+				{
+					$product_amount_left = (get_post_meta($product_id, $this->meta_prefix.$stock_post_name, true) - $this->get_amount_in_carts($product_id));
+				}
+
 				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 					<div class='wp-block-button cart_buttons'>";
 
-						if($product_cart_max <= 0 || $product_cart_max > $product_in_cart)
+						if(($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0)
 						{
 							$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 						}
@@ -6144,73 +6179,69 @@ class mf_webshop
 									<%= product_image %>
 								</a>
 							</div>
+							<% if(product_category != '' || product_data != '')
+							{ %>
+								<div class='grid_meta'>
+									<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
+									<% if(product_data != ''){ %><%= product_data %><% } %>
+								</div>
+							<% } %>
 							<div class='content'>
-								<% if(product_category != '' || product_data != '')
-								{ %>
-									<div class='meta'>
-										<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
-										<% if(product_data != ''){ %><%= product_data %><% } %>
-									</div>
-								<% } %>
 								<a href='<%= product_url %>' class='grid_title'><%= product_title %></a>
 								<% if(product_location != '')
 								{ %>
 									<p class='product_location'><%= product_location %></p>
-								<% }
-
-								if(product_clock != '')
+								<% } %>
+								<% if(product_clock != '')
 								{ %>
 									<span class='product_clock'><%= product_clock %></span>
+								<% } %>
+								<% if(product_description != '')
+								{ %>
+									<div class='text'>
+										<%= product_description %>
+									</div>
 								<% } %>
 								<% if(product_meta.length > 0)
 								{ %>
 									<ul class='product_meta'>
 										<% _.each(product_meta, function(meta)
 										{ %>
-											<li class='<%= meta.class %>'>
-												<%= meta.content %>
-											</li>
+											<li class='<%= meta.class %>'><%= meta.content %></li>
 										<% }); %>
 									</ul>
-								<% }
-
-								if(product_description != '')
-								{ %>
-									<div class='text'>
-										<%= product_description %>
-									</div>
 								<% } %>
-								<% if(product_price != '' || product_has_read_more == true)
-								{ %>
-									<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
-										<% if(product_price != '')
-										{ %>";
+							</div>
+							<% if(product_price != '' || product_has_read_more == true)
+							{ %>
+								<div class='grid_buttons is-layout-flex wp-block-buttons-is-layout-flex'>
+									<% if(product_price != '')
+									{ %>";
 
-											$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+										$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-											if($cart_post_id > 0)
-											{
-												$out .= "<div class='wp-block-button cart_buttons'>
-													<% if(product_cart_max <= 0 || product_cart_max > product_in_cart)
-													{ %>
-														<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
-													<% } %>
+										if($cart_post_id > 0)
+										{
+											$out .= "<div class='wp-block-button cart_buttons'>
+												<% if((product_cart_max <= 0 || product_cart_max > product_in_cart) && product_amount_left > 0)
+												{ %>
+													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+												<% } %>
 
-													<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
-												</div>";
-											}
+												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+											</div>";
+										}
 
-										$out .= "<% }
+									$out .= "<% }
 
-										if(product_has_read_more == true)
-										{ %>
-											<div class='is-style-outline wp-block-button read_more_button'>
-												<a href='<%= product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
-											</div>
-										<% } %>
-									</div>
-								<% } %>"
-							."</div>
+									if(product_has_read_more == true)
+									{ %>
+										<div class='is-style-outline wp-block-button read_more_button'>
+											<a href='<%= product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
+										</div>
+									<% } %>
+								</div>
+							<% } %>
 						</li>
 					</script>";
 				break;
@@ -6876,9 +6907,9 @@ class mf_webshop
 				break;
 
 				case 'stock':
-					$amount_left = $data['meta'];
+					$this->amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
+					/*$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
 
 					foreach($result as $r)
 					{
@@ -6890,17 +6921,17 @@ class mf_webshop
 							{
 								if($arr_products[$key]['id'] == $this->product_id)
 								{
-									$amount_left -= $arr_products[$key]['amount'];
+									$this->amount_left -= $arr_products[$key]['amount'];
 								}
 							}
 						}
-					}
+					}*/
 
-					$content = "<span>".$symbol_code.$data['title']."</span><span>".$amount_left."</span>";
+					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$this->amount_left."</span>";
 				break;
 
 				default:
-					$content = "<span>".$symbol_code.$data['title']."</span><span>".$data['meta']."</span>";
+					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$data['meta']."</span>";
 				break;
 			}
 
@@ -6937,6 +6968,7 @@ class mf_webshop
 			$this->product_description = shorten_text(array('string' => strip_tags($post->post_content), 'limit' => 120));
 		}
 
+		$this->amount_left = 100;
 		$this->product_has_content = $this->product_has_read_more = false;
 		$this->product_price = $this->product_image = $this->arr_category_id = '';
 		$this->product_url = "#";
@@ -7447,7 +7479,7 @@ class mf_webshop
 			{
 				$product_category .= ($product_category != '' ? ", " : "").get_the_title($category_id);
 			}
-			
+
 			$product_cart_max = 0;
 			$product_in_cart = $this->get_product_in_cart($this->product_id);
 
@@ -7470,6 +7502,7 @@ class mf_webshop
 				'product_price' => $this->product_price,
 				'product_cart_max' => $product_cart_max,
 				'product_in_cart' => $product_in_cart,
+				'product_amount_left' => $this->amount_left,
 				'product_has_read_more' => $this->product_has_read_more,
 				'product_image' => $product_image,
 				'product_meta' => $this->product_meta,

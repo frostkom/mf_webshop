@@ -338,14 +338,20 @@ echo ".product_list > li.loading
 			{
 				border-radius: 50%;
 			}
+			
+		.product_list .product_meta strong
+		{
+			display: inline-block;
+			margin-right: .5em;
+		}";
 
-		.product_list > li li span
+		/*echo ".product_list > li li span
 		{
 			display: inline-block;
 			overflow: hidden;
-		}
+		}";*/
 
-			.product_list > li li > span:first-child, .single-mf_product li > span:first-child
+			echo ".product_list > li li > span:first-child, .single-mf_product li > span:first-child
 			{
 				margin-right: 2%;
 				overflow: hidden;
