@@ -1827,7 +1827,9 @@ class mf_webshop
 			}
 
 			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation", 'attributes' => $attributes)).">
-				<h1>".sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name'])."</h1>
+				<h1>"
+					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
+				."</h1>
 				<div class='flex_flow'>
 					<div>
 						<h2>".__("Order Info", 'lang_webshop')."</h2>
@@ -1886,17 +1888,10 @@ class mf_webshop
 					$payment_method = get_post_meta($post_id, $this->meta_prefix.'payment_method', true);
 					$payment_method_id = get_post_meta($post_id, $this->meta_prefix.'payment_method_id', true);
 					$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
-
 					$shipping_cost = get_post_meta($post_id, $this->meta_prefix.'shipping_cost', true);
 					$total_sum_invoice = get_post_meta($post_id, $this->meta_prefix.'total_sum_invoice', true);
-
-					// Old way
-					$paid_amount = get_post_meta($post_id, $this->meta_prefix.'paid_amount', true);
-					$paid_tax = get_post_meta($post_id, $this->meta_prefix.'paid_tax', true);
-
 					$total_sum = get_post_meta($post_id, $this->meta_prefix.'total_sum', true);
 					$total_tax = get_post_meta($post_id, $this->meta_prefix.'total_tax', true);
-
 					$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
 					$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
 
@@ -1939,15 +1934,7 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($paid_amount != '')
-							{
-								$out .= "<tr>
-									<td>".__("Total", 'lang_webshop')."</td>
-									<td>".($paid_amount / 100)." ".$paid_currency." ".$paid_tax_display_prefix."</td>
-								</tr>";
-							}
-
-							else if($total_sum != '')
+							if($total_sum != '')
 							{
 								$out .= "<tr>
 									<td>".__("Total", 'lang_webshop')."</td>
@@ -1955,15 +1942,7 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($paid_tax != '')
-							{
-								$out .= "<tr>
-									<td>".__("Tax", 'lang_webshop')."</td>
-									<td>".($paid_tax / 100)." ".$paid_currency."</td>
-								</tr>";
-							}
-							
-							else if($total_tax != '')
+							if($total_tax != '')
 							{
 								$out .= "<tr>
 									<td>".__("Tax", 'lang_webshop')."</td>
@@ -5944,7 +5923,7 @@ class mf_webshop
 
 		if($this->order_id != '')
 		{
-			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+			//$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
 			$price_post_name = $this->get_post_name_for_type('price');
 			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
@@ -5969,7 +5948,7 @@ class mf_webshop
 					{
 						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 						{
-							$product_amount_temp = ++$arr_product['amount'];
+							$product_amount_temp = ++$arr_products[$key]['amount'];
 
 							$was_in_array = true;
 							break;
@@ -5991,24 +5970,16 @@ class mf_webshop
 					if(wp_update_post($post_data) > 0)
 					{
 						$json_output['success'] = true;
-						//$json_output['debug'] .= "Update: ".var_export($post_data, true);
 
-						if($cart_post_id > 0)
+						if(IS_SUPER_ADMIN)
 						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'product_amount' => $product_amount_temp,
-							);
+							$json_output['debug'] .= "Update: ".var_export($post_data, true);
 						}
 
-						else
-						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'product_amount' => $product_amount_temp,
-								//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($product_amount_temp) ? $product_amount_temp : 1)),
-							);
-						}
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'product_amount' => $product_amount_temp,
+						);
 					}
 
 					else
@@ -6040,24 +6011,16 @@ class mf_webshop
 				if(wp_insert_post($post_data) > 0)
 				{
 					$json_output['success'] = true;
-					//$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 
-					if($cart_post_id > 0)
+					if(IS_SUPER_ADMIN)
 					{
-						$json_output['response_add_to_cart'] = array(
-							'product_id' => $product_id,
-							'product_amount' => 1,
-						);
+						$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 					}
 
-					else
-					{
-						$json_output['response_add_to_cart'] = array(
-							'product_id' => $product_id,
-							'product_amount' => 1,
-							//'text' => sprintf(__("Added %d to your cart", 'lang_webshop'), 1),
-						);
-					}
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'product_amount' => 1,
+					);
 				}
 
 				else

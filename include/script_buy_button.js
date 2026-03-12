@@ -25,7 +25,7 @@ jQuery(function($)
 		});
 	});
 
-	dom_obj_widget.on('click', ".add_to_cart", function()
+	dom_obj_widget.on('click', ".add_to_cart", function(e)
 	{
 		var dom_obj = $(this).addClass('loading');
 
@@ -53,5 +53,8 @@ jQuery(function($)
 				}
 			}
 		});
+
+		e.preventDefault();
+		return false;
 	});
 });

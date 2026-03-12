@@ -349,6 +349,7 @@ var WebshopView = Backbone.View.extend(
 
 		this.model.getPage("type=add_to_cart&product_id=" + product_id);
 
+		e.preventDefault();
 		return false;
 	},
 
