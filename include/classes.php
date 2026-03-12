@@ -1051,6 +1051,8 @@ class mf_webshop
 
 			else
 			{
+				do_log("Save data for btnWebshopPayInvoice");
+
 				// Save price + $setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
 				// Set order to published
 			}
@@ -1639,11 +1641,11 @@ class mf_webshop
 
 				if(is_array($arr_products))
 				{
-					foreach($arr_products as $key => $arr_value)
+					foreach($arr_products as $key => $arr_product)
 					{
-						if($arr_products[$key]['id'] == $product_id)
+						if($arr_product['id'] == $product_id)
 						{
-							$out = $arr_products[$key]['amount'];
+							$out = $arr_product['amount'];
 							break;
 						}
 					}
@@ -1658,7 +1660,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$amount = 0;
+		$product_amount = 0;
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
 
@@ -1668,17 +1670,59 @@ class mf_webshop
 
 			if(is_array($arr_products))
 			{
-				foreach($arr_products as $key => $arr_value)
+				foreach($arr_products as $key => $arr_product)
 				{
-					if($arr_products[$key]['id'] == $product_id)
+					if($arr_product['id'] == $product_id)
 					{
-						$amount += $arr_products[$key]['amount'];
+						$product_amount += $arr_product['amount'];
 					}
 				}
 			}
 		}
 
-		return $amount;
+		return $product_amount;
+	}
+
+	function display_price($data)
+	{
+		if(!isset($data['calculate'])){	$data['calculate'] = true;}
+		if(!isset($data['suffix'])){	$data['suffix'] = 'all';}
+
+		if($data['calculate'] == true)
+		{
+			$setting_webshop_tax_enter = get_option('setting_webshop_tax_enter', 'yes');
+			$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+			$setting_webshop_tax_rate = get_option('setting_webshop_tax_rate', 25);
+
+			if($setting_webshop_tax_enter == 'no')
+			{
+				$data['price'] += ($data['price'] * ($setting_webshop_tax_rate / 100));
+			}
+
+			if($setting_webshop_tax_display == 'yes')
+			{
+				$data['price'] -= ($data['price'] - ($data['price'] / (1 + ($setting_webshop_tax_rate / 100))));
+			}
+		}
+
+		if($data['suffix'] != false)
+		{
+			if($data['suffix'] == 'currency' || $data['suffix'] == 'all')
+			{
+				$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
+
+				$data['price'] .= "&nbsp;".$setting_webshop_currency;
+			}
+
+			if($data['suffix'] == 'tax' || $data['suffix'] == 'all')
+			{
+				$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+
+				$data['price'] .= "&nbsp;".($setting_webshop_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+			}
+		}
+
+		return $data['price'];
 	}
 
 	function block_render_buy_button_callback($attributes)
@@ -1755,6 +1799,188 @@ class mf_webshop
 		return $out;
 	}
 
+	function block_render_order_confirmation_callback($attributes)
+	{
+		global $wpdb, $post;
+
+		$post_id = $post->ID;
+
+		if($post_id > 0)
+		{
+			$post_date = get_post_field('post_date', $post_id);
+			
+			$order_number = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+			$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
+
+			// Address
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$this->order_details = [];
+
+			foreach($this->arr_meta_keys as $meta_key)
+			{
+				$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+				if($this->order_details[$meta_key] != '')
+				{
+					$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_number));
+				}
+			}
+
+			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation", 'attributes' => $attributes)).">
+				<h1>".sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name'])."</h1>
+				<div class='flex_flow'>
+					<div>
+						<h2>".__("Order Info", 'lang_webshop')."</h2>
+						<p>"
+							//."<strong>".__("Number", 'lang_webshop')."</strong> #".$order_number."<br>"
+							."<strong>".__("Date / Time", 'lang_webshop')."</strong> ".format_date($post_date)."
+						</p>
+					</div>
+					<div>
+						<h2>".__("Billing Info", 'lang_webshop')."</h2>
+						<p>";
+
+							if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+							{
+								$out .= $this->order_details['first_name']." ".$this->order_details['last_name']."<br>";
+							}
+
+							if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
+							{
+								$out .= $this->order_details['address_street']."<br>"
+								.$this->order_details['address_zip']." ".$this->order_details['address_city'];
+							}
+
+						$out .= "</p>
+					</div>
+				</div>";
+
+				if(is_array($arr_products) && count($arr_products) > 0)
+				{
+					$out .= "<h3>".__("Products", 'lang_webshop')."</h3>
+					<table".apply_filters('get_table_attr', "").">";
+
+						$arr_header[] = __("Product", 'lang_webshop');
+						$arr_header[] = __("Amount", 'lang_webshop');
+						$arr_header[] = __("Price", 'lang_webshop');
+						$arr_header[] = __("Tax", 'lang_webshop');
+						$arr_header[] = __("Subtotal", 'lang_webshop');
+
+						$out .= show_table_header($arr_header)
+						."<tbody>";
+
+							foreach($arr_products as $key => $arr_product)
+							{
+								$out .= "<tr>
+									<td><a href='".get_the_permalink($arr_product['id'])."'>".get_the_title($arr_product['id'])."</a></td>
+									<td>".$arr_product['amount']."</td>
+									<td>".$this->display_price(array('price' => $arr_product['price']))."</td>
+									<td>".$this->get_tax(array('price' => $arr_product['price'], 'suffix' => true))."</td>
+									<td>".$this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']))."</td>
+								</tr>";
+							}
+
+						$out .= "</tbody>
+					</table>";
+
+					$payment_method = get_post_meta($post_id, $this->meta_prefix.'payment_method', true);
+					$payment_method_id = get_post_meta($post_id, $this->meta_prefix.'payment_method_id', true);
+					$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
+
+					$shipping_cost = get_post_meta($post_id, $this->meta_prefix.'shipping_cost', true);
+					$total_sum_invoice = get_post_meta($post_id, $this->meta_prefix.'total_sum_invoice', true);
+
+					// Old way
+					$paid_amount = get_post_meta($post_id, $this->meta_prefix.'paid_amount', true);
+					$paid_tax = get_post_meta($post_id, $this->meta_prefix.'paid_tax', true);
+
+					$total_sum = get_post_meta($post_id, $this->meta_prefix.'total_sum', true);
+					$total_tax = get_post_meta($post_id, $this->meta_prefix.'total_tax', true);
+
+					$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
+					$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
+
+					if($paid_tax_display == '')
+					{
+						$paid_tax_display = get_option('setting_webshop_tax_display', 'yes');
+					}
+
+					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+
+					$out .= "<h3>".__("Summary", 'lang_webshop')."</h3>
+					<table".apply_filters('get_table_attr', "").">
+						<tbody>
+							<tr>
+								<td>".__("Payment Method", 'lang_webshop')."</td>
+								<td>".$payment_method." (".$payment_method_id.")</td>
+							</tr>";
+
+							if(IS_SUPER_ADMIN)
+							{
+								$out .= "<tr>
+									<td>".__("Test Mode", 'lang_webshop')."</td>
+									<td>".$test_mode."</td>
+								</tr>";
+							}
+
+							if($shipping_cost != '')
+							{
+								$out .= "<tr>
+									<td>".__("Shipping Cost", 'lang_webshop')."</td>
+									<td>".$shipping_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+								</tr>";
+							}
+
+							if($total_sum_invoice != '')
+							{
+								$out .= "<tr>
+									<td>".__("Invoice Total", 'lang_webshop')."</td>
+									<td>".$total_sum_invoice." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+								</tr>";
+							}
+
+							if($paid_amount != '')
+							{
+								$out .= "<tr>
+									<td>".__("Total", 'lang_webshop')."</td>
+									<td>".($paid_amount / 100)." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+								</tr>";
+							}
+
+							else if($total_sum != '')
+							{
+								$out .= "<tr>
+									<td>".__("Total", 'lang_webshop')."</td>
+									<td>".$total_sum." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+								</tr>";
+							}
+
+							if($paid_tax != '')
+							{
+								$out .= "<tr>
+									<td>".__("Tax", 'lang_webshop')."</td>
+									<td>".($paid_tax / 100)." ".$paid_currency."</td>
+								</tr>";
+							}
+							
+							else if($total_tax != '')
+							{
+								$out .= "<tr>
+									<td>".__("Tax", 'lang_webshop')."</td>
+									<td>".$total_tax." ".$paid_currency."</td>
+								</tr>";
+							}
+
+						$out .= "</tbody>
+					</table>";
+				}
+
+			$out .= "</div>";
+		}
+
+		return $out;
+	}
+
 	function enqueue_block_editor_assets()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -1771,6 +1997,8 @@ class mf_webshop
 			'block_description6' => __("Display More Images", 'lang_webshop'),
 			'block_title5' => __("Webshop", 'lang_webshop')." - ".__("Buy Button", 'lang_webshop'),
 			'block_description5' => __("Display Buy Button", 'lang_webshop'),
+			'block_title_confirmation' => __("Webshop", 'lang_webshop')." - ".__("Order Confirmation", 'lang_webshop'),
+			'block_description_confirmation' => __("Display Order Confirmation", 'lang_webshop'),
 		));
 	}
 
@@ -1934,6 +2162,7 @@ class mf_webshop
 			'supports' => array('title'),
 			'hierarchical' => false,
 			'has_archive' => false,
+			'rewrite' => array('slug' => 'order'),
 		));
 
 		flush_rewrite_rules();
@@ -1961,6 +2190,12 @@ class mf_webshop
 			'editor_script' => 'script_webshop_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_buy_button_callback'),
+		));
+
+		register_block_type('mf/webshopconfirmation', array(
+			'editor_script' => 'script_webshop_block_wp',
+			'editor_style' => 'style_base_block_wp',
+			'render_callback' => array($this, 'block_render_order_confirmation_callback'),
 		));
 	}
 
@@ -2060,10 +2295,10 @@ class mf_webshop
 
 		$arr_settings = array(
 			'setting_webshop_invoice_cost' => __("Invoice Cost", 'lang_webshop'),
-			'setting_webshop_stripe_secret_key_test' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
 			'setting_webshop_stripe_public_key_test' => __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
-			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
+			'setting_webshop_stripe_secret_key_test' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
 			'setting_webshop_stripe_public_key' => __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")",
+			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
 			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 		);
 
@@ -2304,6 +2539,14 @@ class mf_webshop
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
+		function setting_webshop_stripe_public_key_test_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+		}
+
 		function setting_webshop_stripe_secret_key_test_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
@@ -2315,21 +2558,10 @@ class mf_webshop
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
 
-		function setting_webshop_stripe_public_key_test_callback()
+		function setting_webshop_stripe_public_key_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
-
-			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
-		}
-
-		function setting_webshop_stripe_secret_key_callback()
-		{
-			$setting_key = get_setting_key(__FUNCTION__);
-			$option = get_option($setting_key);
-
-			$obj_encryption = new mf_encryption(__CLASS__);
-			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 
@@ -2355,10 +2587,13 @@ class mf_webshop
 			}
 		}
 
-		function setting_webshop_stripe_public_key_callback()
+		function setting_webshop_stripe_secret_key_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
+
+			$obj_encryption = new mf_encryption(__CLASS__);
+			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
@@ -4564,48 +4799,6 @@ class mf_webshop
 		return $data['price'];
 	}
 
-	function display_price($data)
-	{
-		if(!isset($data['calculate'])){	$data['calculate'] = true;}
-		if(!isset($data['suffix'])){	$data['suffix'] = 'all';}
-
-		if($data['calculate'] == true)
-		{
-			$setting_webshop_tax_enter = get_option('setting_webshop_tax_enter', 'yes');
-			$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
-			$setting_webshop_tax_rate = get_option('setting_webshop_tax_rate', 25);
-
-			if($setting_webshop_tax_enter == 'no')
-			{
-				$data['price'] += ($data['price'] * ($setting_webshop_tax_rate / 100));
-			}
-
-			if($setting_webshop_tax_display == 'yes')
-			{
-				$data['price'] -= ($data['price'] - ($data['price'] / (1 + ($setting_webshop_tax_rate / 100))));
-			}
-		}
-
-		if($data['suffix'] == true)
-		{
-			if($data['suffix'] == 'currency' || $data['suffix'] == 'all')
-			{
-				$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
-
-				$data['price'] .= "&nbsp;".$setting_webshop_currency;
-			}
-
-			if($data['suffix'] == 'tax' || $data['suffix'] == 'all')
-			{
-				$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
-
-				$data['price'] .= "&nbsp;".($setting_webshop_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
-			}
-		}
-
-		return $data['price'];
-	}
-
 	function get_webshop_cart($json_output, $order_id = 0)
 	{
 		global $wpdb;
@@ -4636,7 +4829,7 @@ class mf_webshop
 
 				if(is_array($arr_products))
 				{
-					foreach($arr_products as $key => $arr_value)
+					foreach($arr_products as $key => $arr_product)
 					{
 						$product_cart_max = 0;
 
@@ -4644,18 +4837,18 @@ class mf_webshop
 
 						if($cart_max_post_name != '')
 						{
-							$product_cart_max = get_post_meta($arr_products[$key]['id'], $this->meta_prefix.$cart_max_post_name, true);
+							$product_cart_max = get_post_meta($arr_product['id'], $this->meta_prefix.$cart_max_post_name, true);
 						}
 
-						$total_sum += $this->display_price(array('price' => ($arr_products[$key]['price'] * $arr_products[$key]['amount']), 'suffix' => false));
-						$total_tax += $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => false));
+						$total_sum += $this->display_price(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
 
-						$arr_products[$key]['product_title'] = get_the_title($arr_products[$key]['id']);
-						$arr_products[$key]['product_url'] = get_the_permalink($arr_products[$key]['id']);
+						$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
+						$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
 						$arr_products[$key]['product_cart_max'] = $product_cart_max;
-						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_products[$key]['price'], 'suffix' => true));
-						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_products[$key]['price'] * $arr_products[$key]['amount']));
-						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_products[$key]['price']));
+						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
+						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
+						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
 					}
 				}
 
@@ -4676,14 +4869,17 @@ class mf_webshop
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
-				if(!($setting_webshop_shipping_free_limit > 0) || $total_sum < $setting_webshop_shipping_free_limit)
+				if($setting_webshop_shipping_free_limit > 0 && $total_sum < $setting_webshop_shipping_free_limit)
 				{
 					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
-					$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
-					$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+					if($shipping_cost > 0)
+					{
+						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 
-					$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+					}
 				}
 
 				$setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
@@ -4692,10 +4888,15 @@ class mf_webshop
 				$json_output['response_webshop_cart'] = array(
 					//'order_id' => $this->order_id,
 					'products' => $arr_products,
+					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
 					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
+					'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
+					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
 					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
+					'total_tax_raw' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => false)),
 					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
+					//'debug' => $setting_webshop_shipping_free_limit.", ".$total_sum,
 				);
 			}
 
@@ -4731,9 +4932,9 @@ class mf_webshop
 
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
-					foreach($arr_products as $key => $arr_value)
+					foreach($arr_products as $key => $arr_product)
 					{
-						$json_output['product_amount'] += $arr_products[$key]['amount'];
+						$json_output['product_amount'] += $arr_product['amount'];
 					}
 				}
 			}
@@ -5648,9 +5849,9 @@ class mf_webshop
 				{
 					$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
 
-					foreach($arr_products as $key => $arr_value)
+					foreach($arr_products as $key => $arr_product)
 					{
-						if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 						{
 							if($product_amount > 0)
 							{
@@ -5719,12 +5920,12 @@ class mf_webshop
 			{
 				$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
 
-				foreach($arr_products as $key => $arr_value)
+				foreach($arr_products as $key => $arr_product)
 				{
-					if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+					if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 					{
 						$json_output['success'] = true;
-						$json_output['product_amount'] = $arr_products[$key]['amount'];
+						$json_output['product_amount'] = $arr_product['amount'];
 					}
 				}
 			}
@@ -5761,14 +5962,14 @@ class mf_webshop
 						$arr_products = [];
 					}
 
-					$amount_temp = 1;
+					$product_amount_temp = 1;
 					$was_in_array = false;
 
-					foreach($arr_products as $key => $arr_value)
+					foreach($arr_products as $key => $arr_product)
 					{
-						if(isset($arr_products[$key]['id']) && $arr_products[$key]['id'] == $product_id)
+						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 						{
-							$amount_temp = ++$arr_products[$key]['amount'];
+							$product_amount_temp = ++$arr_product['amount'];
 
 							$was_in_array = true;
 							break;
@@ -5777,7 +5978,7 @@ class mf_webshop
 
 					if($was_in_array == false)
 					{
-						$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $amount_temp);
+						$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $product_amount_temp);
 					}
 
 					$post_data = array(
@@ -5796,7 +5997,7 @@ class mf_webshop
 						{
 							$json_output['response_add_to_cart'] = array(
 								'product_id' => $product_id,
-								'product_amount' => $amount_temp,
+								'product_amount' => $product_amount_temp,
 							);
 						}
 
@@ -5804,8 +6005,8 @@ class mf_webshop
 						{
 							$json_output['response_add_to_cart'] = array(
 								'product_id' => $product_id,
-								'product_amount' => $amount_temp,
-								//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($amount_temp) ? $amount_temp : 1)),
+								'product_amount' => $product_amount_temp,
+								//'text' => sprintf(__("Updated to %d in your cart", 'lang_webshop'), (isset($product_amount_temp) ? $product_amount_temp : 1)),
 							);
 						}
 					}
@@ -5916,8 +6117,7 @@ class mf_webshop
 		$secret_key = $obj_encryption->decrypt($secret_key, md5(AUTH_KEY));
 
 		$arr_cart_data = $this->get_webshop_cart([], $order_id);
-		$amount = ($arr_cart_data['response_webshop_cart']['total_sum'] * 100);
-		$currency = get_option('setting_webshop_currency');
+		$setting_webshop_currency = get_option('setting_webshop_currency');
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
 
@@ -5932,8 +6132,8 @@ class mf_webshop
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-			'amount' => $amount,
-			'currency' => $currency,
+			'amount' => ($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
+			'currency' => $setting_webshop_currency,
 			'payment_method' => $payment_method_id,
 			'confirmation_method' => 'automatic',
 			'confirm' => 'true',
@@ -5955,14 +6155,21 @@ class mf_webshop
 
 		else if($arr_json['status'] === 'succeeded')
 		{
+			$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+
 			$post_data = array(
 				'ID' => $r->ID,
 				'post_status' => 'publish',
 				'meta_input' => array(
 					$this->meta_prefix.'payment_method_id' => $payment_method_id,
+					$this->meta_prefix.'payment_method' => 'stripe',
 					$this->meta_prefix.'test_mode' => $test_mode,
-					$this->meta_prefix.'paid_amount' => $amount,
-					$this->meta_prefix.'paid_currency' => $currency,
+					$this->meta_prefix.'shipping_cost' => $arr_cart_data['response_webshop_cart']['shipping_cost_raw'],
+					$this->meta_prefix.'total_sum_invoice' => $arr_cart_data['response_webshop_cart']['total_sum_invoice_raw'],
+					$this->meta_prefix.'total_sum' => $arr_cart_data['response_webshop_cart']['total_sum_raw'],
+					$this->meta_prefix.'total_tax' => $arr_cart_data['response_webshop_cart']['total_tax_raw'],
+					$this->meta_prefix.'paid_currency' => $setting_webshop_currency,
+					$this->meta_prefix.'paid_tax_display' => $setting_webshop_tax_display,
 				),
 			);
 
