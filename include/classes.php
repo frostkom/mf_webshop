@@ -1231,6 +1231,8 @@ class mf_webshop
 
 											form.addEventListener('submit', function(event)
 											{
+												$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
+
 												event.preventDefault();
 
 												stripe.createPaymentMethod('card', card).then(function(result)
@@ -1729,72 +1731,76 @@ class mf_webshop
 	{
 		global $wpdb, $post;
 
-		do_action('load_font_awesome');
-
 		$product_id = $post->ID;
 
-		$plugin_include_url = plugin_dir_url(__FILE__);
+		$out = "";
 
-		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
-		mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
-			'ajax_url' => admin_url('admin-ajax.php'),
-		));
+		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-		$out = "<div".parse_block_attributes(array('class' => "widget webshop_buy_button", 'attributes' => $attributes)).">";
+		if(IS_SUPER_ADMIN || $cart_post_id > 0)
+		{
+			do_action('load_font_awesome');
 
-			if(IS_SUPER_ADMIN)
-			{
-				$price_post_name = $this->get_post_name_for_type('price');
+			$plugin_include_url = plugin_dir_url(__FILE__);
+			mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
+			mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
+				'ajax_url' => admin_url('admin-ajax.php'),
+			));
 
-				if($price_post_name != '')
+			$out .= "<div".parse_block_attributes(array('class' => "widget webshop_buy_button", 'attributes' => $attributes)).">";
+
+				if(IS_SUPER_ADMIN)
 				{
-					$price_post_title = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', 'price'));
+					$price_post_name = $this->get_post_name_for_type('price');
 
-					$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
-
-					if($product_price > 0)
+					if($price_post_name != '')
 					{
-						$out .= "<p><strong>".$price_post_title.":</strong> ".$this->display_price(array('price' => $product_price, 'suffix' => true))."</p>";
+						$price_post_title = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', 'price'));
+
+						$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
+
+						if($product_price > 0)
+						{
+							$out .= "<p><strong>".$price_post_title.":</strong> ".$this->display_price(array('price' => $product_price, 'suffix' => true))."</p>";
+						}
 					}
 				}
-			}
 
-			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
-
-			if($cart_post_id > 0)
-			{
-				$product_amount_left = 100;
-				$product_cart_max = 0;
-				$product_in_cart = $this->get_product_in_cart($product_id);
-
-				$cart_max_post_name = $this->get_post_name_for_type('cart_max');
-
-				if($cart_max_post_name != '')
+				if($cart_post_id > 0)
 				{
-					$product_cart_max = get_post_meta($product_id, $this->meta_prefix.$cart_max_post_name, true);
+					$product_amount_left = 100;
+					$product_cart_max = 0;
+					$product_in_cart = $this->get_product_in_cart($product_id);
+
+					$cart_max_post_name = $this->get_post_name_for_type('cart_max');
+
+					if($cart_max_post_name != '')
+					{
+						$product_cart_max = get_post_meta($product_id, $this->meta_prefix.$cart_max_post_name, true);
+					}
+
+					$stock_post_name = $this->get_post_name_for_type('stock');
+
+					if($stock_post_name != '')
+					{
+						$product_amount_left = (get_post_meta($product_id, $this->meta_prefix.$stock_post_name, true) - $this->get_amount_in_carts($product_id));
+					}
+
+					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
+						<div class='wp-block-button cart_buttons'>";
+
+							if(($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0)
+							{
+								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+							}
+
+							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+						</div>
+					</div>";
 				}
 
-				$stock_post_name = $this->get_post_name_for_type('stock');
-
-				if($stock_post_name != '')
-				{
-					$product_amount_left = (get_post_meta($product_id, $this->meta_prefix.$stock_post_name, true) - $this->get_amount_in_carts($product_id));
-				}
-
-				$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
-					<div class='wp-block-button cart_buttons'>";
-
-						if(($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0)
-						{
-							$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
-						}
-
-						$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
-					</div>
-				</div>";
-			}
-
-		$out .= "</div>";
+			$out .= "</div>";
+		}
 
 		return $out;
 	}
@@ -1812,7 +1818,6 @@ class mf_webshop
 			$order_number = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
 			$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
 
-			// Address
 			$obj_encryption = new mf_encryption(__CLASS__);
 			$this->order_details = [];
 
@@ -1826,40 +1831,51 @@ class mf_webshop
 				}
 			}
 
-			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation", 'attributes' => $attributes)).">
+			$plugin_include_url = plugin_dir_url(__FILE__);
+			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
+
+			$plugin_base_include_url = plugins_url()."/mf_base/include/";
+			mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
+
+			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">
 				<h1>"
 					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
 				."</h1>
-				<div class='flex_flow'>
-					<div>
-						<h2>".__("Order Info", 'lang_webshop')."</h2>
-						<p>"
-							//."<strong>".__("Number", 'lang_webshop')."</strong> #".$order_number."<br>"
-							."<strong>".__("Date / Time", 'lang_webshop')."</strong> ".format_date($post_date)."
-						</p>
-					</div>
-					<div>
-						<h2>".__("Billing Info", 'lang_webshop')."</h2>
-						<p>";
+				<p>#".$order_number." @ ".format_date($post_date)."</p>
+				<ul class='grid_columns'>"
+					/*."<li>
+						<div class='content'>
+							<span class='grid_title'>".__("Order Info", 'lang_webshop')."</span>
+							<p class='text'>"
+								//."<strong>".__("Number", 'lang_webshop')."</strong> #".."<br>"
+								."<strong>".__("Date / Time", 'lang_webshop')."</strong> ".."
+							</p>
+						</div>
+					</li>"*/
+					."<li>
+						<div class='content'>
+							<span class='grid_title'>".__("Billing Info", 'lang_webshop')."</span>
+							<p class='text'>";
 
-							if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
-							{
-								$out .= $this->order_details['first_name']." ".$this->order_details['last_name']."<br>";
-							}
+								if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+								{
+									$out .= $this->order_details['first_name']." ".$this->order_details['last_name']."<br>";
+								}
 
-							if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
-							{
-								$out .= $this->order_details['address_street']."<br>"
-								.$this->order_details['address_zip']." ".$this->order_details['address_city'];
-							}
+								if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
+								{
+									$out .= $this->order_details['address_street']."<br>"
+									.$this->order_details['address_zip']." ".$this->order_details['address_city'];
+								}
 
-						$out .= "</p>
-					</div>
-				</div>";
+							$out .= "</p>
+						</div>
+					</li>
+				</ul>";
 
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
-					$out .= "<h3>".__("Products", 'lang_webshop')."</h3>
+					$out .= "<h2>".__("Products", 'lang_webshop')."</h2>
 					<table".apply_filters('get_table_attr', "").">";
 
 						$arr_header[] = __("Product", 'lang_webshop');
@@ -1902,19 +1918,27 @@ class mf_webshop
 
 					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
-					$out .= "<h3>".__("Summary", 'lang_webshop')."</h3>
+					$out .= "<h2>".__("Summary", 'lang_webshop')."</h2>
 					<table".apply_filters('get_table_attr', "").">
 						<tbody>
 							<tr>
 								<td>".__("Payment Method", 'lang_webshop')."</td>
-								<td>".$payment_method." (".$payment_method_id.")</td>
+								<td>"
+									.$this->get_payment_alternatives_for_select()[$payment_method];
+
+									if(IS_SUPER_ADMIN)
+									{
+										$out .= " (".$payment_method.", ".$payment_method_id.")";
+									}
+								
+								$out .= "</td>
 							</tr>";
 
 							if(IS_SUPER_ADMIN)
 							{
 								$out .= "<tr>
 									<td>".__("Test Mode", 'lang_webshop')."</td>
-									<td>".$test_mode."</td>
+									<td><i class='fa ".($test_mode == 'yes' ? "fa-check green" : "fa-times red")."'></i></td>
 								</tr>";
 							}
 
@@ -1926,7 +1950,7 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($total_sum_invoice != '')
+							if($total_sum_invoice != '' && $total_sum_invoice != $total_sum)
 							{
 								$out .= "<tr>
 									<td>".__("Invoice Total", 'lang_webshop')."</td>
@@ -2299,6 +2323,20 @@ class mf_webshop
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
 
+		// Order Confirmation
+		############################
+		$options_area = $options_area_orig."_order_confirmation";
+
+		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+
+		$arr_settings = array(
+			'setting_webshop_order_confirmation_buyer' => __("Send to Buyer", 'lang_webshop'),
+			'setting_webshop_order_confirmation_admin' => __("Send to Admin", 'lang_webshop'),
+		);
+
+		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
+		############################
+
 		//Map
 		############################
 		/*if(is_plugin_active("mf_maps/index.php"))
@@ -2652,6 +2690,29 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_select(array('data' => $this->get_prefered_payment_alternative_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+	function settings_webshop_order_confirmation_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+
+		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Order Confirmation", 'lang_webshop'));
+	}
+
+		function setting_webshop_order_confirmation_buyer_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, 'no');
+
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_order_confirmation_admin_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, 'no');
+
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
 	function settings_webshop_product_callback()
@@ -4682,6 +4743,16 @@ class mf_webshop
 		}
 	}
 
+	function pre_get_document_title($title)
+	{
+		if(is_singular($this->post_type_orders))
+		{
+			return __("Order Confirmation", 'lang_webshop')." - ".get_bloginfo('name');
+		}
+		
+		return $title;
+	}
+
 	function wp_head()
 	{
 		global $post;
@@ -4707,7 +4778,7 @@ class mf_webshop
 					//."<i class='fa fa-shopping-cart fa-lg'></i>"
 					.'<svg viewBox="0 0 24 24" fill="none">
 						<g>
-						<path id="Vector" d="M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM17 17H9.29395C8.83288 17 8.60193 17 8.41211 16.918C8.24466 16.8456 8.09938 16.7291 7.99354 16.5805C7.8749 16.414 7.82719 16.1913 7.73274 15.7505L5.27148 4.26465C5.17484 3.81363 5.12587 3.58838 5.00586 3.41992C4.90002 3.27135 4.75477 3.15441 4.58732 3.08205C4.39746 3 4.16779 3 3.70653 3H3M6 6H18.8732C19.595 6 19.9555 6 20.1978 6.15036C20.41 6.28206 20.5653 6.48862 20.633 6.729C20.7104 7.00343 20.611 7.34996 20.411 8.04346L19.0264 12.8435C18.9068 13.2581 18.8469 13.465 18.7256 13.6189C18.6185 13.7547 18.4772 13.861 18.317 13.9263C18.1361 14 17.9211 14 17.4921 14H7.73047M8 21C6.89543 21 6 20.1046 6 19C6 17.8954 6.89543 17 8 17C9.10457 17 10 17.8954 10 19C10 20.1046 9.10457 21 8 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<path id="Vector" d="M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM17 17H9.29395C8.83288 17 8.60193 17 8.41211 16.918C8.24466 16.8456 8.09938 16.7291 7.99354 16.5805C7.8749 16.414 7.82719 16.1913 7.73274 15.7505L5.27148 4.26465C5.17484 3.81363 5.12587 3.58838 5.00586 3.41992C4.90002 3.27135 4.75477 3.15441 4.58732 3.08205C4.39746 3 4.16779 3 3.70653 3H3M6 6H18.8732C19.595 6 19.9555 6 20.1978 6.15036C20.41 6.28206 20.5653 6.48862 20.633 6.729C20.7104 7.00343 20.611 7.34996 20.411 8.04346L19.0264 12.8435C18.9068 13.2581 18.8469 13.465 18.7256 13.6189C18.6185 13.7547 18.4772 13.861 18.317 13.9263C18.1361 14 17.9211 14 17.4921 14H7.73047M8 21C6.89543 21 6 20.1046 6 19C6 17.8954 6.89543 17 8 17C9.10457 17 10 17.8954 10 19C10 20.1046 9.10457 21 8 21Z" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 						</g>
 					</svg>'
 					."<div>0</div>
@@ -5973,6 +6044,11 @@ class mf_webshop
 
 						if(IS_SUPER_ADMIN)
 						{
+							if(!isset($json_output['debug']))
+							{
+								$json_output['debug'] = "";
+							}
+
 							$json_output['debug'] .= "Update: ".var_export($post_data, true);
 						}
 
@@ -6014,6 +6090,11 @@ class mf_webshop
 
 					if(IS_SUPER_ADMIN)
 					{
+						if(!isset($json_output['debug']))
+						{
+							$json_output['debug'] = "";
+						}
+
 						$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 					}
 
@@ -6084,69 +6165,114 @@ class mf_webshop
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
 
-		foreach($result as $r)
+		if($wpdb->num_rows > 0)
 		{
-			$post_id = $r->ID;
-			$return_url = get_permalink($post_id);
-		}
+			foreach($result as $r)
+			{
+				$post_id = $r->ID;
+				$return_url = get_permalink($post_id);
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-			'amount' => ($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
-			'currency' => $setting_webshop_currency,
-			'payment_method' => $payment_method_id,
-			'confirmation_method' => 'automatic',
-			'confirm' => 'true',
-			'return_url' => $return_url,
-		]));
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+					'amount' => ($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
+					'currency' => $setting_webshop_currency,
+					'payment_method' => $payment_method_id,
+					'confirmation_method' => 'automatic',
+					'confirm' => 'true',
+					'return_url' => $return_url,
+				]));
 
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Authorization: Bearer '.$secret_key,
-		]);
+				curl_setopt($ch, CURLOPT_HTTPHEADER,
+				[
+					'Authorization: Bearer '.$secret_key,
+				]);
 
-		$content = curl_exec($ch);
+				$content = curl_exec($ch);
 
-		$arr_json = json_decode($content, true);
+				$arr_json = json_decode($content, true);
 
-		if(isset($arr_json['error']))
-		{
-			return new WP_REST_Response(['error' => $arr_json['error']['message']], 400);
-		}
+				if(isset($arr_json['error']))
+				{
+					return new WP_REST_Response(['error' => $arr_json['error']['message']], 400);
+				}
 
-		else if($arr_json['status'] === 'succeeded')
-		{
-			$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+				else if($arr_json['status'] === 'succeeded')
+				{
+					$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
 
-			$post_data = array(
-				'ID' => $r->ID,
-				'post_status' => 'publish',
-				'meta_input' => array(
-					$this->meta_prefix.'payment_method_id' => $payment_method_id,
-					$this->meta_prefix.'payment_method' => 'stripe',
-					$this->meta_prefix.'test_mode' => $test_mode,
-					$this->meta_prefix.'shipping_cost' => $arr_cart_data['response_webshop_cart']['shipping_cost_raw'],
-					$this->meta_prefix.'total_sum_invoice' => $arr_cart_data['response_webshop_cart']['total_sum_invoice_raw'],
-					$this->meta_prefix.'total_sum' => $arr_cart_data['response_webshop_cart']['total_sum_raw'],
-					$this->meta_prefix.'total_tax' => $arr_cart_data['response_webshop_cart']['total_tax_raw'],
-					$this->meta_prefix.'paid_currency' => $setting_webshop_currency,
-					$this->meta_prefix.'paid_tax_display' => $setting_webshop_tax_display,
-				),
-			);
+					$post_data = array(
+						'ID' => $post_id,
+						'post_status' => 'publish',
+						'meta_input' => array(
+							$this->meta_prefix.'payment_method_id' => $payment_method_id,
+							$this->meta_prefix.'payment_method' => 'stripe',
+							$this->meta_prefix.'test_mode' => $test_mode,
+							$this->meta_prefix.'shipping_cost' => $arr_cart_data['response_webshop_cart']['shipping_cost_raw'],
+							$this->meta_prefix.'total_sum_invoice' => $arr_cart_data['response_webshop_cart']['total_sum_invoice_raw'],
+							$this->meta_prefix.'total_sum' => $arr_cart_data['response_webshop_cart']['total_sum_raw'],
+							$this->meta_prefix.'total_tax' => $arr_cart_data['response_webshop_cart']['total_tax_raw'],
+							$this->meta_prefix.'paid_currency' => $setting_webshop_currency,
+							$this->meta_prefix.'paid_tax_display' => $setting_webshop_tax_display,
+						),
+					);
 
-			wp_update_post($post_data);
+					if(!(wp_update_post($post_data) > 0))
+					{
+						do_log(__FUNCTION__.": The payment was successful but the order was not updated correctly (".var_export($post_data, true).")");
+					}
 
-			return [
-				'success' => true,
-				'return_url' => $return_url,
-			];
+					$return_url = get_permalink($post_id);
+
+					$obj_encryption = new mf_encryption(__CLASS__);
+					$this->order_details = [];
+
+					foreach($this->arr_meta_keys as $meta_key)
+					{
+						$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+						if($this->order_details[$meta_key] != '')
+						{
+							$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_id));
+						}
+					}
+
+					if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
+					{
+						$mail_to = $this->order_details['contact_email'];
+						$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
+						$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+
+						$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+					}
+
+					if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
+					{
+						$mail_to = get_bloginfo('admin_email');
+						$mail_subject = __("An order has been placed", 'lang_webshop');
+						$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+
+						$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+					}
+
+					return [
+						'success' => true,
+						'return_url' => $return_url,
+					];
+				}
+
+				else
+				{
+					return new WP_REST_Response(['error' => __("I am sorry. The payment failed or requires action", 'lang_webshop')], 400);
+				}
+			}
 		}
 
 		else
 		{
-			return new WP_REST_Response(['error' => __("Payment failed or requires action.", 'lang_webshop')], 400);
+			return new WP_REST_Response(['error' => __("I am sorry but I could not find an order to process", 'lang_webshop')], 400);
 		}
 	}
 
@@ -7856,7 +7982,6 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 			$attributes = self::get_attributes($field, $meta);
 
 			return sprintf("<textarea %s>%s</textarea>", self::render_attributes($attributes), $meta);
-			//return show_textarea(array('name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-content large-text", 'xtra' => self::render_attributes($field['attributes'])));
 		}
 	}
 
@@ -7948,17 +8073,6 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 	}
 
 	class RWMB_Overlay_Field extends RWMB_Page_Field{}
-
-	/*class RWMB_Overlay_Field extends RWMB_Textarea_Field
-	{
-		static public function html($meta, $field)
-		{
-			$attributes = self::get_attributes($field, $meta);
-
-			return sprintf("<textarea %s>%s</textarea>", self::render_attributes($attributes), $meta);
-			//return show_textarea(array('name' => $field['field_name'], 'value' => $meta, 'class' => "rwmb-content large-text", 'xtra' => self::render_attributes($field['attributes'])));
-		}
-	}*/
 
 	class RWMB_Price_Field extends RWMB_Field
 	{

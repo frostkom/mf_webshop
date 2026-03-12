@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-12 07:41+0100\n"
+"POT-Creation-Date: 2026-03-12 08:30+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr "Importera"
 #: ../include/classes.php:378
 #: ../include/classes.php:483
 #: ../include/classes.php:615
-#: ../include/classes.php:2386
+#: ../include/classes.php:2399
 msgid "Choose Here"
 msgstr "Välj här"
 
@@ -46,12 +46,12 @@ msgid "Size"
 msgstr "Storlek"
 
 #: ../include/classes.php:275
-#: ../include/classes.php:3396
+#: ../include/classes.php:3432
 msgid "Information"
 msgstr ""
 
 #: ../include/classes.php:276
-#: ../include/classes.php:3733
+#: ../include/classes.php:3769
 msgid "Description"
 msgstr "Förklaring"
 
@@ -60,7 +60,7 @@ msgid "Heading"
 msgstr "Rubrik"
 
 #: ../include/classes.php:278
-#: ../include/classes.php:7754
+#: ../include/classes.php:7833
 msgid "Content"
 msgstr "Innehåll"
 
@@ -69,7 +69,7 @@ msgid "Label"
 msgstr "Etikett"
 
 #: ../include/classes.php:280
-#: ../include/classes.php:4378
+#: ../include/classes.php:4414
 msgid "Input"
 msgstr "Inmatning"
 
@@ -129,18 +129,18 @@ msgstr "Fil"
 
 #: ../include/classes.php:294
 #: ../include/classes.php:295
-#: ../include/classes.php:1992
-#: ../include/classes.php:1994
-#: ../include/classes.php:3126
-#: ../include/classes.php:3241
-#: ../include/classes.php:4030
+#: ../include/classes.php:1991
+#: ../include/classes.php:1993
+#: ../include/classes.php:3162
+#: ../include/classes.php:3277
+#: ../include/classes.php:4066
 msgid "Categories"
 msgstr "Kategorier"
 
 #: ../include/classes.php:296
-#: ../include/classes.php:2038
-#: ../include/classes.php:2040
-#: ../include/classes.php:3131
+#: ../include/classes.php:2037
+#: ../include/classes.php:2039
+#: ../include/classes.php:3167
 msgid "Custom Categories"
 msgstr "Anpassade kategorier"
 
@@ -162,7 +162,7 @@ msgstr "Nummer"
 
 #: ../include/classes.php:301
 #: ../include/classes.php:1020
-#: ../include/classes.php:1867
+#: ../include/classes.php:1866
 msgid "Price"
 msgstr "Pris"
 
@@ -180,8 +180,8 @@ msgstr "Intervall"
 
 #: ../include/classes.php:306
 #: ../include/classes.php:308
-#: ../include/classes.php:2077
-#: ../include/classes.php:3137
+#: ../include/classes.php:2076
+#: ../include/classes.php:3173
 msgid "Location"
 msgstr "Plats"
 
@@ -228,15 +228,15 @@ msgid "End of Container"
 msgstr "Slut på behållare"
 
 #: ../include/classes.php:318
-#: ../include/classes.php:3155
-#: ../include/classes.php:3408
-#: ../include/classes.php:3745
-#: ../include/classes.php:3754
-#: ../include/classes.php:3835
-#: ../include/classes.php:3847
-#: ../include/classes.php:3879
-#: ../include/classes.php:3899
-#: ../include/classes.php:4071
+#: ../include/classes.php:3191
+#: ../include/classes.php:3444
+#: ../include/classes.php:3781
+#: ../include/classes.php:3790
+#: ../include/classes.php:3871
+#: ../include/classes.php:3883
+#: ../include/classes.php:3915
+#: ../include/classes.php:3935
+#: ../include/classes.php:4107
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -262,28 +262,28 @@ msgstr "Kort"
 
 #: ../include/classes.php:336
 #: ../include/classes.php:1175
+#: ../include/classes.php:2276
 #: ../include/classes.php:2277
-#: ../include/classes.php:2278
 msgid "Test"
 msgstr "Testa"
 
 #: ../include/classes.php:346
 #: ../include/classes.php:1305
-#: ../include/classes.php:2281
+#: ../include/classes.php:2280
 msgid "Swish"
 msgstr ""
 
 #: ../include/classes.php:392
-#: ../include/classes.php:1862
-#: ../include/classes.php:2018
-#: ../include/classes.php:2020
-#: ../include/classes.php:3123
-#: ../include/classes.php:3164
-#: ../include/classes.php:4011
-#: ../include/classes.php:4080
-#: ../include/classes.php:4091
-#: ../include/classes.php:6252
-#: ../include/classes.php:6261
+#: ../include/classes.php:1861
+#: ../include/classes.php:2017
+#: ../include/classes.php:2019
+#: ../include/classes.php:3159
+#: ../include/classes.php:3200
+#: ../include/classes.php:4047
+#: ../include/classes.php:4116
+#: ../include/classes.php:4127
+#: ../include/classes.php:6331
+#: ../include/classes.php:6340
 msgid "Products"
 msgstr "Produkter"
 
@@ -292,40 +292,40 @@ msgid "Choose Category Here"
 msgstr "Välj kategori här"
 
 #: ../include/classes.php:486
-#: ../include/classes.php:3215
-#: ../include/classes.php:3420
-#: ../include/classes.php:3519
-#: ../include/classes.php:4366
+#: ../include/classes.php:3251
+#: ../include/classes.php:3456
+#: ../include/classes.php:3555
+#: ../include/classes.php:4402
 msgid "Searchable"
 msgstr "Sökbar"
 
 #: ../include/classes.php:487
-#: ../include/classes.php:3432
-#: ../include/classes.php:3543
+#: ../include/classes.php:3468
+#: ../include/classes.php:3579
 msgid "Results"
 msgstr "Resultat"
 
 #: ../include/classes.php:488
-#: ../include/classes.php:3444
-#: ../include/classes.php:3555
+#: ../include/classes.php:3480
+#: ../include/classes.php:3591
 msgid "Contact Info"
 msgstr "Kontaktinformation"
 
 #: ../include/classes.php:489
-#: ../include/classes.php:3456
-#: ../include/classes.php:3567
+#: ../include/classes.php:3492
+#: ../include/classes.php:3603
 msgid "Quick Info"
 msgstr "Snabbinfo"
 
 #: ../include/classes.php:490
-#: ../include/classes.php:3468
-#: ../include/classes.php:3579
+#: ../include/classes.php:3504
+#: ../include/classes.php:3615
 msgid "Properties"
 msgstr "Egenskaper"
 
 #: ../include/classes.php:617
-#: ../include/classes.php:1971
-#: ../include/classes.php:2445
+#: ../include/classes.php:1970
+#: ../include/classes.php:2458
 msgid "Search"
 msgstr "Sök"
 
@@ -334,7 +334,7 @@ msgid "Sort By"
 msgstr "Sortera på"
 
 #: ../include/classes.php:638
-#: ../include/classes.php:2058
+#: ../include/classes.php:2057
 msgid "Filter"
 msgstr "Filtrera"
 
@@ -370,45 +370,45 @@ msgid "Please enter a Social Security Number with the correct last check number"
 msgstr "Var vänlig fyll i ett personnummer med korrekt slutsiffror"
 
 #: ../include/classes.php:1019
-#: ../include/classes.php:1865
-#: ../include/classes.php:2019
-#: ../include/classes.php:2661
-#: ../include/classes.php:3800
-#: ../include/classes.php:4012
-#: ../include/classes.php:5254
+#: ../include/classes.php:1864
+#: ../include/classes.php:2018
+#: ../include/classes.php:2697
+#: ../include/classes.php:3836
+#: ../include/classes.php:4048
+#: ../include/classes.php:5290
 msgid "Product"
 msgstr "Produkt"
 
 #: ../include/classes.php:1024
 #: ../include/classes.php:1084
-#: ../include/classes.php:1868
-#: ../include/classes.php:1948
+#: ../include/classes.php:1867
+#: ../include/classes.php:1947
 msgid "Tax"
 msgstr "Moms"
 
 #: ../include/classes.php:1027
-#: ../include/classes.php:1866
+#: ../include/classes.php:1865
 msgid "Amount"
 msgstr "Antal"
 
 #: ../include/classes.php:1028
-#: ../include/classes.php:1869
+#: ../include/classes.php:1868
 msgid "Subtotal"
 msgstr "Delsumma"
 
 #: ../include/classes.php:1072
-#: ../include/classes.php:1905
+#: ../include/classes.php:1904
 msgid "Summary"
 msgstr "Översikt"
 
 #: ../include/classes.php:1076
-#: ../include/classes.php:1924
-#: ../include/classes.php:2262
+#: ../include/classes.php:1923
+#: ../include/classes.php:2261
 msgid "Shipping Cost"
 msgstr "Fraktkostnad"
 
 #: ../include/classes.php:1080
-#: ../include/classes.php:1940
+#: ../include/classes.php:1939
 msgid "Total"
 msgstr "Totalt"
 
@@ -441,7 +441,7 @@ msgid "Payment Alternative"
 msgstr "Betalningsalternativ"
 
 #: ../include/classes.php:1141
-#: ../include/classes.php:2292
+#: ../include/classes.php:2291
 msgid "Payment Alternatives"
 msgstr "Betalningsalternativ"
 
@@ -515,123 +515,138 @@ msgid "There is not yet a status on your payment. Wait a moment..."
 msgstr "Det finns inte någon status på betalningen ännu. Vänta en stund..."
 
 #: ../include/classes.php:1721
-#: ../include/classes.php:1903
+#: ../include/classes.php:1902
 msgid "excl. tax"
 msgstr "exkl. moms"
 
 #: ../include/classes.php:1721
-#: ../include/classes.php:1903
+#: ../include/classes.php:1902
 msgid "incl. tax"
 msgstr "inkl. moms"
 
 #: ../include/classes.php:1789
-#: ../include/classes.php:6399
+#: ../include/classes.php:6478
 msgid "Add this to your cart"
 msgstr "Lägg till denna i din varukorg"
 
 #: ../include/classes.php:1789
-#: ../include/classes.php:6399
+#: ../include/classes.php:6478
 msgid "Add"
 msgstr "Lägg till"
 
 #: ../include/classes.php:1792
-#: ../include/classes.php:6402
+#: ../include/classes.php:6481
 msgid "Go to your cart"
 msgstr "Gå till din varukorg"
 
 #: ../include/classes.php:1792
-#: ../include/classes.php:6402
+#: ../include/classes.php:6481
 msgid "in Cart"
 msgstr "i varukorg"
 
-#: ../include/classes.php:1831
+#: ../include/classes.php:1830
+#: ../include/classes.php:6198
 #, php-format
 msgid "Thanks for your order, %s!"
 msgstr "Tack för din order, %s!"
 
-#: ../include/classes.php:1831
+#: ../include/classes.php:1830
+#: ../include/classes.php:6198
 msgid "Thanks for your order!"
 msgstr "Tack för din order!"
 
-#: ../include/classes.php:1835
+#: ../include/classes.php:1834
 msgid "Order Info"
 msgstr "Orderinformation"
 
-#: ../include/classes.php:1838
+#: ../include/classes.php:1837
 msgid "Date / Time"
 msgstr "Datum / Tid"
 
-#: ../include/classes.php:1842
+#: ../include/classes.php:1841
 msgid "Billing Info"
 msgstr "Fakturainformation"
 
-#: ../include/classes.php:1909
+#: ../include/classes.php:1908
 msgid "Payment Method"
 msgstr "Betalningsmetod"
 
-#: ../include/classes.php:1916
+#: ../include/classes.php:1915
 msgid "Test Mode"
 msgstr "Testläge"
 
-#: ../include/classes.php:1932
+#: ../include/classes.php:1931
 msgid "Invoice Total"
 msgstr "Fakturakostnad"
 
-#: ../include/classes.php:1971
-#: ../include/classes.php:1973
-#: ../include/classes.php:1975
-#: ../include/classes.php:1977
-#: ../include/classes.php:1979
-#: ../include/classes.php:2380
-#: ../include/classes.php:2445
-#: ../include/classes.php:2487
-#: ../include/classes.php:2510
-#: ../include/classes.php:2661
-#: ../include/classes.php:2749
-#: ../include/classes.php:3117
+#: ../include/classes.php:1970
+#: ../include/classes.php:1972
+#: ../include/classes.php:1974
+#: ../include/classes.php:1976
+#: ../include/classes.php:1978
+#: ../include/classes.php:2393
+#: ../include/classes.php:2458
+#: ../include/classes.php:2500
+#: ../include/classes.php:2523
+#: ../include/classes.php:2674
+#: ../include/classes.php:2697
+#: ../include/classes.php:2785
+#: ../include/classes.php:3153
 msgid "Webshop"
 msgstr "Butik"
 
-#: ../include/classes.php:1972
+#: ../include/classes.php:1971
 msgid "Display Search"
 msgstr "Visa sök"
 
-#: ../include/classes.php:1973
-#: ../include/classes.php:4505
+#: ../include/classes.php:1972
+#: ../include/classes.php:4541
 msgid "Cart"
 msgstr "Varukorg"
 
-#: ../include/classes.php:1974
+#: ../include/classes.php:1973
 msgid "Display Cart"
 msgstr "Visa varukorg"
 
-#: ../include/classes.php:1975
+#: ../include/classes.php:1974
 msgid "More Images"
 msgstr "Fler bilder"
 
-#: ../include/classes.php:1976
+#: ../include/classes.php:1975
 msgid "Display More Images"
 msgstr "Visa fler bilder"
 
-#: ../include/classes.php:1977
+#: ../include/classes.php:1976
 msgid "Buy Button"
 msgstr "Köpknapp"
 
-#: ../include/classes.php:1978
+#: ../include/classes.php:1977
 msgid "Display Buy Button"
 msgstr "Visa köpknapp"
 
-#: ../include/classes.php:1979
+#: ../include/classes.php:1978
+#: ../include/classes.php:2674
 msgid "Order Confirmation"
 msgstr "Orderbekräftelse"
 
-#: ../include/classes.php:1980
+#: ../include/classes.php:1979
 msgid "Display Order Confirmation"
 msgstr "Visar orderbekräftelse"
 
-#: ../include/classes.php:1993
+#: ../include/classes.php:1992
 msgid "Category"
 msgstr "Kategori"
+
+#: ../include/classes.php:1994
+#: ../include/classes.php:2020
+#: ../include/classes.php:2040
+#: ../include/classes.php:2059
+#: ../include/classes.php:2078
+#: ../include/classes.php:2097
+#: ../include/classes.php:2114
+#: ../include/classes.php:2131
+msgid "List"
+msgstr "Lista"
 
 #: ../include/classes.php:1995
 #: ../include/classes.php:2021
@@ -641,8 +656,8 @@ msgstr "Kategori"
 #: ../include/classes.php:2098
 #: ../include/classes.php:2115
 #: ../include/classes.php:2132
-msgid "List"
-msgstr "Lista"
+msgid "Edit"
+msgstr "Redigera"
 
 #: ../include/classes.php:1996
 #: ../include/classes.php:2022
@@ -652,8 +667,8 @@ msgstr "Lista"
 #: ../include/classes.php:2099
 #: ../include/classes.php:2116
 #: ../include/classes.php:2133
-msgid "Edit"
-msgstr "Redigera"
+msgid "View"
+msgstr "Visa"
 
 #: ../include/classes.php:1997
 #: ../include/classes.php:2023
@@ -663,511 +678,522 @@ msgstr "Redigera"
 #: ../include/classes.php:2100
 #: ../include/classes.php:2117
 #: ../include/classes.php:2134
-msgid "View"
-msgstr "Visa"
-
-#: ../include/classes.php:1998
-#: ../include/classes.php:2024
-#: ../include/classes.php:2044
-#: ../include/classes.php:2063
-#: ../include/classes.php:2082
-#: ../include/classes.php:2101
-#: ../include/classes.php:2118
-#: ../include/classes.php:2135
 msgid "Add New"
 msgstr "Lägg till ny"
 
-#: ../include/classes.php:2039
+#: ../include/classes.php:2038
 msgid "Custom Category"
 msgstr "Anpassade kategorier"
 
-#: ../include/classes.php:2057
-#: ../include/classes.php:2059
-#: ../include/classes.php:3141
-#: ../include/classes.php:3853
-#: ../include/classes.php:4062
+#: ../include/classes.php:2056
+#: ../include/classes.php:2058
+#: ../include/classes.php:3177
+#: ../include/classes.php:3889
+#: ../include/classes.php:4098
 msgid "Filters"
 msgstr "Filter"
 
-#: ../include/classes.php:2076
-#: ../include/classes.php:2078
+#: ../include/classes.php:2075
+#: ../include/classes.php:2077
 msgid "Locations"
 msgstr "Platser"
 
-#: ../include/classes.php:2095
-#: ../include/classes.php:2097
+#: ../include/classes.php:2094
+#: ../include/classes.php:2096
 msgid "Customers"
 msgstr "Kunder"
 
-#: ../include/classes.php:2096
+#: ../include/classes.php:2095
 msgid "Customer"
 msgstr "Kund"
 
-#: ../include/classes.php:2112
-#: ../include/classes.php:2114
+#: ../include/classes.php:2111
+#: ../include/classes.php:2113
 msgid "Delivery Types"
 msgstr "Leveranssätt"
 
-#: ../include/classes.php:2113
+#: ../include/classes.php:2112
 msgid "Delivery Type"
 msgstr "Leveranssätt"
 
-#: ../include/classes.php:2129
-#: ../include/classes.php:2131
-#: ../include/classes.php:3144
+#: ../include/classes.php:2128
+#: ../include/classes.php:2130
+#: ../include/classes.php:3180
 msgid "Orders"
 msgstr "Ordrar"
 
-#: ../include/classes.php:2130
+#: ../include/classes.php:2129
 msgid "Order"
 msgstr "Ordrar"
 
-#: ../include/classes.php:2193
+#: ../include/classes.php:2192
 #, php-format
 msgid "You need to %screate a single template%s for Products"
 msgstr "Du behöver %sskapa ett enskilt objekt%s för produkter"
 
-#: ../include/classes.php:2203
+#: ../include/classes.php:2202
 #, php-format
 msgid "You need to %screate a single template%s for Orders"
 msgstr "Du behöver %sskapa ett enskilt objekt%s för ordrar"
 
-#: ../include/classes.php:2222
+#: ../include/classes.php:2221
 msgid "Currency"
 msgstr "Valuta"
 
-#: ../include/classes.php:2223
+#: ../include/classes.php:2222
 msgid "VAT"
 msgstr "Moms"
 
-#: ../include/classes.php:2224
+#: ../include/classes.php:2223
 msgid "Enter Price"
 msgstr "Ange pris"
 
-#: ../include/classes.php:2225
+#: ../include/classes.php:2224
 msgid "Display Price"
 msgstr "Visa pris"
 
-#: ../include/classes.php:2239
+#: ../include/classes.php:2238
 msgid "Display Sort"
 msgstr "Visa sortering"
 
-#: ../include/classes.php:2240
+#: ../include/classes.php:2239
 msgid "Sort Default"
 msgstr "Standardsortering"
 
-#: ../include/classes.php:2241
+#: ../include/classes.php:2240
 msgid "Display Filter"
 msgstr "Visa filter"
 
-#: ../include/classes.php:2244
+#: ../include/classes.php:2243
 msgid "Min results to show number"
 msgstr "Minsta antal för att visa nummer"
 
-#: ../include/classes.php:2248
+#: ../include/classes.php:2247
 msgid "Default range minimum"
 msgstr "Standard på minsta intervallvärde"
 
-#: ../include/classes.php:2249
+#: ../include/classes.php:2248
 msgid "Custom range choices"
 msgstr "Egna val i intervall"
 
-#: ../include/classes.php:2263
+#: ../include/classes.php:2262
 msgid "Limit for Free Shipping"
 msgstr "Gräns för gratis frakt"
 
-#: ../include/classes.php:2276
+#: ../include/classes.php:2275
 msgid "Invoice Cost"
 msgstr "Fakturakostnad"
 
+#: ../include/classes.php:2276
 #: ../include/classes.php:2277
 #: ../include/classes.php:2278
 #: ../include/classes.php:2279
-#: ../include/classes.php:2280
 msgid "Stripe"
 msgstr ""
 
-#: ../include/classes.php:2277
-#: ../include/classes.php:2279
+#: ../include/classes.php:2276
+#: ../include/classes.php:2278
 msgid "Public Key"
 msgstr "Publik nyckel"
 
-#: ../include/classes.php:2278
-#: ../include/classes.php:2280
+#: ../include/classes.php:2277
+#: ../include/classes.php:2279
 msgid "Secret Key"
 msgstr "Hemlig nyckel"
 
-#: ../include/classes.php:2281
+#: ../include/classes.php:2280
 msgid "Merchant Number"
 msgstr "Handlarnummer"
 
-#: ../include/classes.php:2286
+#: ../include/classes.php:2285
 msgid "Certificate Root File"
 msgstr "Rotfil för certifikat"
 
-#: ../include/classes.php:2287
+#: ../include/classes.php:2286
 msgid "Certificate File"
 msgstr "Fil för certifikat"
 
-#: ../include/classes.php:2289
+#: ../include/classes.php:2288
 msgid "Key File"
 msgstr "Nyckelfil"
 
-#: ../include/classes.php:2296
+#: ../include/classes.php:2295
 msgid "Prefered"
 msgstr "Förvalt"
 
-#: ../include/classes.php:2351
+#: ../include/classes.php:2308
+msgid "Send to Buyer"
+msgstr "Skicka till köpare"
+
+#: ../include/classes.php:2309
+msgid "Send to Admin"
+msgstr "Skicka till admin"
+
+#: ../include/classes.php:2364
 msgid "Allow Multiple Categories"
 msgstr "Tillåt flera kategorier"
 
-#: ../include/classes.php:2388
+#: ../include/classes.php:2401
 msgid "Euro"
 msgstr ""
 
-#: ../include/classes.php:2389
+#: ../include/classes.php:2402
 msgid "US Dollar"
 msgstr "USA-dollar"
 
-#: ../include/classes.php:2391
+#: ../include/classes.php:2404
 msgid "Swedish Krona"
 msgstr "Svenska kronor"
 
-#: ../include/classes.php:2424
-#: ../include/classes.php:2432
+#: ../include/classes.php:2437
+#: ../include/classes.php:2445
 msgid "Incl. Tax"
 msgstr "Inkl. moms"
 
-#: ../include/classes.php:2424
-#: ../include/classes.php:2432
+#: ../include/classes.php:2437
+#: ../include/classes.php:2445
 msgid "Excl. Tax"
 msgstr "Exkl. moms"
 
-#: ../include/classes.php:2475
-#: ../include/classes.php:2476
+#: ../include/classes.php:2488
+#: ../include/classes.php:2489
 msgid "Yes"
 msgstr "Ja"
 
-#: ../include/classes.php:2476
+#: ../include/classes.php:2489
 msgid "Hidden behind a button"
 msgstr "Gömd bakom en knapp"
 
-#: ../include/classes.php:2477
+#: ../include/classes.php:2490
 msgid "No"
 msgstr "Nej"
 
-#: ../include/classes.php:2487
+#: ../include/classes.php:2500
 msgid "Shipping"
 msgstr "Frakt"
 
-#: ../include/classes.php:2510
+#: ../include/classes.php:2523
 msgid "Payment"
 msgstr "Betalning"
 
-#: ../include/classes.php:2549
+#: ../include/classes.php:2562
 msgid "Step 1: Create a Stripe Account"
 msgstr "Steg 1: Skapa ett Stripe-konto"
 
-#: ../include/classes.php:2551
+#: ../include/classes.php:2564
 #, php-format
 msgid "Go to %sStripe's website%s."
 msgstr "Gå till %sStripes webbplats%s."
 
-#: ../include/classes.php:2552
+#: ../include/classes.php:2565
 msgid "Fill in your name, email address, and create a password."
 msgstr "Fyll i ditt namn, e-postadress och skapa ett lösenord."
 
-#: ../include/classes.php:2553
+#: ../include/classes.php:2566
 msgid "Confirm your email address by clicking on the link sent to your inbox."
 msgstr "Bekräfta din e-postadress genom att klicka på länken som skickas till din inkorg."
 
-#: ../include/classes.php:2555
+#: ../include/classes.php:2568
 msgid "Step 2: Log In to Your Stripe Account"
 msgstr "Steg 2: Logga in på ditt Stripe-konto"
 
-#: ../include/classes.php:2557
+#: ../include/classes.php:2570
 msgid "After confirming your email, log in to your account with your new credentials."
 msgstr "Efter att du har bekräftat din e-post, logga in på ditt konto med dina nya inloggningsuppgifter."
 
-#: ../include/classes.php:2559
+#: ../include/classes.php:2572
 msgid "Step 3: Retrieve API Keys"
 msgstr "Steg 3: Hämta API-nycklar"
 
-#: ../include/classes.php:2561
+#: ../include/classes.php:2574
 msgid "Navigate to 'Developers' in the sidebar."
 msgstr "Gå till 'Developers' i sidomenyn."
 
-#: ../include/classes.php:2562
+#: ../include/classes.php:2575
 msgid "Click on 'API keys' under the 'Developers' tab."
 msgstr "Klicka på 'API keys' under fliken 'Developers'."
 
-#: ../include/classes.php:2563
+#: ../include/classes.php:2576
 msgid "You will see both the Publishable key and the Secret key there."
 msgstr "Du kommer att se både den publika nyckeln (Publishable key) och den hemliga nyckeln (Secret key) där."
 
-#: ../include/classes.php:2564
+#: ../include/classes.php:2577
 msgid "Click the eye icon next to the key name to reveal the Secret key if it is hidden."
 msgstr "Klicka på ögonikonen bredvid nyckelns namn för att visa den hemliga nyckeln om den är dolt."
 
-#: ../include/classes.php:2597
-#: ../include/classes.php:2612
-#: ../include/classes.php:2635
+#: ../include/classes.php:2610
+#: ../include/classes.php:2625
+#: ../include/classes.php:2648
 #, php-format
 msgid "The file should be a %s file."
 msgstr "Filen ska vara en %s-fil."
 
-#: ../include/classes.php:2677
+#: ../include/classes.php:2713
 msgid "Get yours here"
 msgstr "Hämta din här"
 
-#: ../include/classes.php:2687
+#: ../include/classes.php:2723
 msgid "If no lower value is entered in a range, this percentage is used to calculate the lower end of the range"
 msgstr "Om inget nedre värde är angivet för ett intervall, används denna procentsats för att räkna ut det nedre värdet i intervallet"
 
-#: ../include/classes.php:2711
+#: ../include/classes.php:2747
 #, php-format
 msgid "%d will hide the link in the form"
 msgstr "%d kommer att dölja länken i formuläret"
 
-#: ../include/classes.php:2732
+#: ../include/classes.php:2768
 #, php-format
 msgid "%s was successfully cleared on this device"
 msgstr "%s rensades från denna enhet"
 
-#: ../include/classes.php:2747
+#: ../include/classes.php:2783
 #, php-format
 msgid "When searching we store information in the so called %s in the visiting browser. This data is only used on the site to remember what was last saved and not sent forward to the server unless the visitor fullfills an inquiry. Then the information is sent along with the form to distribute the inquiry to the correct recipients."
 msgstr "Vid sökning sparar vi information i en sk. %s i den besökandes webbläsare. Denna data används endast på webbsidan för att komma ihåg vad som senast sparades och skicka inte vidare till servern förrän besökaren fullföljer en förfrågan. Då skickas information med vid sidan om formuläret för att dela ut förfrågan till rätt mottagare."
 
-#: ../include/classes.php:2900
+#: ../include/classes.php:2936
 msgid "Street 123, City"
 msgstr "Kronborgsvägen 18d, Malmö"
 
-#: ../include/classes.php:2920
+#: ../include/classes.php:2956
 msgid "001-888-342-324"
 msgstr "070-123 45 67"
 
-#: ../include/classes.php:3278
-#: ../include/classes.php:3859
-#: ../include/classes.php:4063
+#: ../include/classes.php:3314
+#: ../include/classes.php:3895
+#: ../include/classes.php:4099
 msgid "Image"
 msgstr "Bild"
 
-#: ../include/classes.php:3499
-#: ../include/classes.php:4070
+#: ../include/classes.php:3535
+#: ../include/classes.php:4106
 msgid "Type"
 msgstr "Typ"
 
-#: ../include/classes.php:3506
+#: ../include/classes.php:3542
 msgid "Max Length"
 msgstr "Maxlängd"
 
-#: ../include/classes.php:3531
-#: ../include/classes.php:3591
-#: ../include/classes.php:4366
-#: ../include/classes.php:4378
+#: ../include/classes.php:3567
+#: ../include/classes.php:3627
+#: ../include/classes.php:4402
+#: ../include/classes.php:4414
 msgid "Required"
 msgstr "Obligatorisk"
 
-#: ../include/classes.php:3614
+#: ../include/classes.php:3650
 msgid "Events"
 msgstr "Händelser"
 
-#: ../include/classes.php:3637
-#: ../include/classes.php:4075
+#: ../include/classes.php:3673
+#: ../include/classes.php:4111
 msgid "Display on Categories"
 msgstr "Visa på kategorier"
 
-#: ../include/classes.php:3660
-#: ../include/classes.php:3675
+#: ../include/classes.php:3696
+#: ../include/classes.php:3711
 msgid "Symbol"
 msgstr ""
 
-#: ../include/classes.php:3660
-#: ../include/classes.php:3675
+#: ../include/classes.php:3696
+#: ../include/classes.php:3711
 msgid "Ref"
 msgstr ""
 
-#: ../include/classes.php:3687
+#: ../include/classes.php:3723
 msgid "Alternate text"
 msgstr "Alternativ text"
 
-#: ../include/classes.php:3698
+#: ../include/classes.php:3734
 msgid "Custom class"
 msgstr "Egen klass"
 
-#: ../include/classes.php:3710
+#: ../include/classes.php:3746
 msgid "Default value"
 msgstr "Standardvärde"
 
-#: ../include/classes.php:3722
+#: ../include/classes.php:3758
 msgid "Placeholder"
 msgstr "Platshållare"
 
-#: ../include/classes.php:3760
+#: ../include/classes.php:3796
 msgid "Order number"
 msgstr "Ordernummer"
 
-#: ../include/classes.php:3784
+#: ../include/classes.php:3820
 msgid "Background Color"
 msgstr "Bakgrundsfärg"
 
-#: ../include/classes.php:3789
-#: ../include/classes.php:4010
+#: ../include/classes.php:3825
+#: ../include/classes.php:4046
 msgid "Icon"
 msgstr "Ikon"
 
-#: ../include/classes.php:3795
+#: ../include/classes.php:3831
 msgid "Color"
 msgstr "Färg"
 
-#: ../include/classes.php:3800
-#: ../include/classes.php:4012
+#: ../include/classes.php:3836
+#: ../include/classes.php:4048
 #, php-format
 msgid "Connect to new %s"
 msgstr "Koppla till ny %s"
 
-#: ../include/classes.php:3813
-#: ../include/classes.php:4016
+#: ../include/classes.php:3849
+#: ../include/classes.php:4052
 msgid "Include on"
 msgstr "Inkludera på"
 
-#: ../include/classes.php:3824
+#: ../include/classes.php:3860
 msgid "Event Max Length"
 msgstr "Maxlängd för händelse"
 
-#: ../include/classes.php:3866
-#: ../include/classes.php:4064
+#: ../include/classes.php:3902
+#: ../include/classes.php:4100
 msgid "Affect Heading"
 msgstr "Påverka rubrik"
 
-#: ../include/classes.php:3885
+#: ../include/classes.php:3921
 msgid "Hidden"
 msgstr "Gömd"
 
-#: ../include/classes.php:3905
+#: ../include/classes.php:3941
 msgid "Customer No"
 msgstr "Kundernummer"
 
-#: ../include/classes.php:4009
+#: ../include/classes.php:4045
 msgid "Background"
 msgstr "Bakgrund"
 
-#: ../include/classes.php:4081
+#: ../include/classes.php:4117
 msgid "Details"
 msgstr "Detaljer"
 
-#: ../include/classes.php:4404
+#: ../include/classes.php:4440
 msgid "All"
 msgstr "Alla"
 
-#: ../include/classes.php:4427
+#: ../include/classes.php:4463
 msgid "Nothing in the cart so far"
 msgstr "Inget i varukorgen än så länge"
 
-#: ../include/classes.php:4504
+#: ../include/classes.php:4540
 msgid "Shop"
 msgstr "Butik"
 
-#: ../include/classes.php:4857
+#: ../include/classes.php:4893
 #, php-format
 msgid "%s left to free shipping"
 msgstr "%s kvar till gratis frakt"
 
-#: ../include/classes.php:4884
+#: ../include/classes.php:4920
 msgid "Error"
 msgstr "Fel"
 
-#: ../include/classes.php:5017
+#: ../include/classes.php:5053
 msgid "Draft"
 msgstr "Utdrag"
 
-#: ../include/classes.php:5121
-#: ../include/classes.php:5153
-#: ../include/classes.php:7884
-#: ../include/classes.php:8014
+#: ../include/classes.php:5157
+#: ../include/classes.php:5189
+#: ../include/classes.php:7963
+#: ../include/classes.php:8093
 #, php-format
 msgid "You have to install the plugin %s first"
 msgstr "Du behöver installera pluginet %s först"
 
-#: ../include/classes.php:5403
-#: ../include/classes.php:5443
+#: ../include/classes.php:5439
+#: ../include/classes.php:5479
 #, php-format
 msgid "I have saved the information for you. %sView the page here%s"
 msgstr "Jag har sparat informationen åt dig. %sSe sidan här%s"
 
-#: ../include/classes.php:5413
+#: ../include/classes.php:5449
 msgid "I could not update the information for you"
 msgstr "Jag kunde inte uppdatera informationen åt dig"
 
-#: ../include/classes.php:5450
+#: ../include/classes.php:5486
 msgid "I could not save the information for you"
 msgstr "Jag kunde inte spara informationen åt dig"
 
-#: ../include/classes.php:5456
+#: ../include/classes.php:5492
 msgid "One with that title already exists"
 msgstr "En med den rubriken finns redan"
 
-#: ../include/classes.php:5989
-#: ../include/classes.php:6030
+#: ../include/classes.php:6025
+#: ../include/classes.php:6066
 msgid "Try Again"
 msgstr "Försök igen"
 
-#: ../include/classes.php:5990
+#: ../include/classes.php:6026
 #, php-format
 msgid "I could not update your cart with %d of %s"
 msgstr "Jag kunde inte uppdatera din varukorg med %d av %s"
 
-#: ../include/classes.php:6031
+#: ../include/classes.php:6067
 #, php-format
 msgid "I could not add %d of %s to your cart"
 msgstr "Jag kunde inte lägga till %d av %s i din varukorg"
 
-#: ../include/classes.php:6149
-msgid "Payment failed or requires action."
-msgstr "Betalningen misslyckades, eller så krävs det åtgärder."
+#: ../include/classes.php:6199
+#: ../include/classes.php:6208
+#, php-format
+msgid "Go to %s to see the order"
+msgstr "Gå till %s för att se ordern"
 
-#: ../include/classes.php:6200
+#: ../include/classes.php:6207
+msgid "An order has been placed"
+msgstr "En order har lagts"
+
+#: ../include/classes.php:6221
+msgid "I am sorry. The payment failed or requires action"
+msgstr "Jag är ledsen. Betalningen misslyckades, eller så krävs det åtgärder."
+
+#: ../include/classes.php:6228
+msgid "I am sorry but I could not find an order to process"
+msgstr "Jag är ledsen men jag kunde inte hitta en order att behandla"
+
+#: ../include/classes.php:6279
 #, php-format
 msgid "Filter amongst %s products"
 msgstr "Filtrera bland %s produkter"
 
-#: ../include/classes.php:6204
+#: ../include/classes.php:6283
 #, php-format
 msgid "Your search matches %s products"
 msgstr "Din sökning matchar %s produkter"
 
-#: ../include/classes.php:6252
+#: ../include/classes.php:6331
 #, php-format
 msgid "Display More %s (%s)"
 msgstr "Visa fler %s (%s)"
 
-#: ../include/classes.php:6261
+#: ../include/classes.php:6340
 #, php-format
 msgid "I could not find any %s"
 msgstr "Jag kunde inte hitta några %s"
 
-#: ../include/classes.php:6309
-#: ../include/classes.php:6324
-#: ../include/classes.php:6411
+#: ../include/classes.php:6388
+#: ../include/classes.php:6403
+#: ../include/classes.php:6490
 #: ../include/templates/single-mf_category.php:78
 msgid "Read More"
 msgstr "Läs mer"
 
-#: ../include/classes.php:6342
+#: ../include/classes.php:6421
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jag kunde inte hitta något som stämde överens med dina val"
 
-#: ../include/classes.php:6430
+#: ../include/classes.php:6509
 #, php-format
 msgid "You don't have any products in your cart yet. %sStart shopping%s"
 msgstr "Du har ännu inte några produkter i din varukorg. %sBörja handla%s"
 
-#: ../include/classes.php:6435
+#: ../include/classes.php:6514
 msgid "You don't have any products in your cart yet"
 msgstr "Du har ännu inte några produkter i din varukorg"
 
-#: ../include/classes.php:7753
+#: ../include/classes.php:7832
 msgid "Title"
 msgstr "Rubrik"
 
@@ -1646,9 +1672,6 @@ msgstr "Rubrik"
 #~ msgid "Name"
 #~ msgstr "Namn"
 
-#~ msgid "Edit in Admin"
-#~ msgstr "Redigera i admin"
-
 #~ msgid "There is nothing to show"
 #~ msgstr "Det finns inget att visa"
 
@@ -1666,9 +1689,6 @@ msgstr "Rubrik"
 
 #~ msgid "The cart has been updated"
 #~ msgstr "Kundkorgen har uppdaterats"
-
-#~ msgid "The order has been completed"
-#~ msgstr "Ordern är klar"
 
 #~ msgid "Show all"
 #~ msgstr "Visa alla"

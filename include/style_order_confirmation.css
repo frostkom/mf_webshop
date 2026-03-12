@@ -1,0 +1,25 @@
+.webshop_order_confirmation h1
+{
+	margin-bottom: 0;
+}
+
+.webshop_order_confirmation h1 + p
+{
+	color: #ccc;
+}
+
+.webshop_order_confirmation p
+{
+	margin-top: 0;
+	margin-bottom: .3em;
+}
+
+.webshop_order_confirmation h2
+{
+	margin-bottom: .5em;
+}
+
+.webshop_order_confirmation table
+{
+	margin-bottom: 1em;
+}
