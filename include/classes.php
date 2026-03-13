@@ -6471,7 +6471,7 @@ class mf_webshop
 
 					<script type='text/template' id='template_product_item'>
 						<li id='product_<%= product_id %>'<%= (product_url != '#' ? '' : ' class=ghost') %>>
-							<div class='image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
+							<div class='grid_image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
 								<a href='<%= product_url %>'>
 									<%= product_image %>
 								</a>
