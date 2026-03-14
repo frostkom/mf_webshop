@@ -544,12 +544,63 @@ class mf_webshop
 		{
 			// Remove old non-fulfilled orders
 			###########
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL 1 YEAR)", $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
-				do_log(__FUNCTION__.": Remove the order #".$r->ID." because it is old and not fulfilled");
-				//wp_trash_post($r->ID);
+				//do_log(__FUNCTION__.": Remove the order #".$r->ID." because it is old and not fulfilled");
+				wp_trash_post($r->ID);
+			}
+			###########
+
+			// Remove products with stock limit from orders that has not been updated within x minutes
+			###########
+			$stock_post_name = $this->get_post_name_for_type('stock');
+
+			if($stock_post_name != '')
+			{
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+
+					$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
+
+					if(is_array($arr_products))
+					{
+						foreach($arr_products as $key => $arr_product)
+						{
+							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+
+							if($product_stock_max > 0)
+							{
+								unset($arr_products[$key]);
+							}
+						}
+
+						$arr_products = array_values($arr_products);
+
+						$post_data = array(
+							'ID' => $post_id,
+							'meta_input' => apply_filters('filter_meta_input', array(
+								$this->meta_prefix.'products' => $arr_products,
+							)),
+						);
+
+						if(wp_update_post($post_data) > 0)
+						{
+							do_log("I updated (".var_export($post_data, true).")");
+						}
+
+						else
+						{
+							do_log("I could not update (".var_export($post_data, true).")");
+						}
+					}
+				}
+
+				//do_log(__FUNCTION__.": Remove the order #".$r->ID." because it is old and not fulfilled");
 			}
 			###########
 
@@ -1851,8 +1902,8 @@ class mf_webshop
 
 							if($product_time_limit > 0)
 							{
-								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), $product_time_limit)."'>
-									<i class='fa fa-clock grey'></i>
+								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), $product_time_limit)."'>
+									<i class='fa fa-clock ".($product_time_limit < 2 ? "red" : "grey")."'></i>
 								</a>";
 							}
 
@@ -4251,6 +4302,8 @@ class mf_webshop
 			case $this->post_type_orders:
 				$columns['products'] = __("Products", 'lang_webshop');
 				$columns['details'] = __("Details", 'lang_webshop');
+				$columns['total_sum'] = __("Total", 'lang_webshop');
+				$columns['total_tax'] = __("Tax", 'lang_webshop');
 			break;
 
 			case $this->post_type_location:
@@ -4626,6 +4679,26 @@ class mf_webshop
 						if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 						{
 							echo "<p>".$this->order_details['address_street'].", ".$this->order_details['address_zip']." ".$this->order_details['address_city']."</p>";
+						}
+					break;
+
+					case 'total_sum':
+					case 'total_tax':
+						$total_value = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+						if($total_value > 0)
+						{
+							$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
+							$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
+
+							if($paid_tax_display == '')
+							{
+								$paid_tax_display = get_option('setting_webshop_tax_display', 'yes');
+							}
+
+							$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+
+							echo $total_value." ".$paid_currency." ".$paid_tax_display_prefix;
 						}
 					break;
 
@@ -6166,10 +6239,10 @@ class mf_webshop
 									$arr_products[$key]['amount'] = $product_amount;
 								}
 
-								else
+								/*else
 								{
 									$arr_products[$key]['amount']--;
-								}
+								}*/
 							}
 
 							else
@@ -6665,7 +6738,7 @@ class mf_webshop
 												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
 												<% if(product_time_limit > 0)
 												{ %>
-													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
+													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
 														<i class='fa fa-clock grey'></i>
 													</a>
 												<% } %>
@@ -6731,7 +6804,7 @@ class mf_webshop
 								."<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>"
 								."<% if(product_time_limit > 0)
 								{ %>
-									<i class='fa fa-clock grey' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+									<i class='fa fa-clock grey' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
 								<% } %>"
 							."</td>
 							<td><%= product_total %></td>
