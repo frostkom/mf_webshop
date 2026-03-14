@@ -29,6 +29,7 @@ class mf_webshop
 	var $product_image;
 	var $product_price;
 	var $product_url;
+	var $product_time_limit = 20;
 	var $show_in_result;
 	var $product_has_email;
 	var $size_amount;
@@ -39,7 +40,6 @@ class mf_webshop
 	var $product_coordinates;
 	var $product_map;
 	var $product_categories;
-	var $product_amount_left;
 	var $product_address;
 	var $product_location;
 	var $product_data;
@@ -1735,6 +1735,39 @@ class mf_webshop
 
 		return $data['price'];
 	}
+	
+	function get_cart_values($product_id)
+	{
+		$product_amount_left = 100;
+		$product_stock_max = $product_cart_max = 0;
+
+		$product_in_cart = $this->get_product_in_cart($product_id);
+
+		$cart_max_post_name = $this->get_post_name_for_type('cart_max');
+
+		if($cart_max_post_name != '')
+		{
+			$product_cart_max = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
+		}
+
+		$stock_post_name = $this->get_post_name_for_type('stock');
+
+		if($stock_post_name != '')
+		{
+			$product_stock_max = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
+
+			if($product_stock_max > 0)
+			{
+				$amount_in_carts = $this->get_amount_in_carts($product_id);
+
+				$product_amount_left = ($product_stock_max - $amount_in_carts);
+			}
+		}
+
+		$is_allowed_to_buy = (($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0);
+
+		return array($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left);
+	}
 
 	function block_render_buy_button_callback($attributes)
 	{
@@ -1777,46 +1810,53 @@ class mf_webshop
 
 				if($cart_post_id > 0)
 				{
-					$product_amount_left = 100;
-					$product_cart_max = 0;
-					$product_in_cart = $this->get_product_in_cart($product_id);
+					list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
 
-					$cart_max_post_name = $this->get_post_name_for_type('cart_max');
+					$this->order_id = $this->get_cookie();
 
-					if($cart_max_post_name != '')
+					if($this->order_id != '')
 					{
-						$product_cart_max = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+						foreach($result as $r)
+						{
+							$post_id = $r->ID;
+							$post_modified = $r->post_modified;
+
+							$product_time_limit = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+						}
 					}
 
-					$stock_post_name = $this->get_post_name_for_type('stock');
-
-					if($stock_post_name != '')
+					else
 					{
-						$product_stock_max = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
-
-						if($product_stock_max > 0)
-						{
-							$amount_in_carts = $this->get_amount_in_carts((int)$product_id);
-
-							$product_amount_left = ($product_stock_max - $amount_in_carts);
-						}
+						$product_time_limit = 0;
 					}
 
 					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 						<div class='wp-block-button cart_buttons'>";
 
-							if(($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0)
+							if($is_allowed_to_buy)
 							{
 								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 							}
 
 							else
 							{
-								$out .= "<a href='#' class='wp-block-button__link disabled' title='".__("No more left to buy", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".__("I am sorry, but you can not buy more of this", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 							}
 
-							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
-						</div>
+							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
+								<span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
+							</a>";
+
+							if($product_time_limit > 0)
+							{
+								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), $product_time_limit)."'>
+									<i class='fa fa-clock grey'></i>
+								</a>";
+							}
+
+						$out .= "</div>
 					</div>";
 				}
 
@@ -4942,39 +4982,20 @@ class mf_webshop
 			$arr_products = [];
 			$total_sum = $total_tax = 0;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
-				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+				$post_id = $r->ID;
+				$post_modified = $r->post_modified;
+
+				$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
 
 				if(is_array($arr_products))
 				{
 					foreach($arr_products as $key => $arr_product)
 					{
-						$product_amount_left = 100;
-						$product_cart_max = 0;
-
-						$cart_max_post_name = $this->get_post_name_for_type('cart_max');
-
-						if($cart_max_post_name != '')
-						{
-							$product_cart_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$cart_max_post_name, true, 0);
-						}
-
-						$stock_post_name = $this->get_post_name_for_type('stock');
-
-						if($stock_post_name != '')
-						{
-							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
-
-							if($product_stock_max > 0)
-							{
-								$amount_in_carts = $this->get_amount_in_carts($arr_product['id']);
-
-								$product_amount_left = ($product_stock_max - $amount_in_carts);
-							}
-						}
+						list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($arr_product['id']);
 
 						$product_amount_max = ($arr_product['amount'] + $product_amount_left);
 
@@ -4988,8 +5009,8 @@ class mf_webshop
 
 						$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
 						$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
-						//$arr_products[$key]['product_cart_max'] = $product_cart_max;
 						$arr_products[$key]['product_amount_max'] = $product_amount_max;
+						$arr_products[$key]['product_time_limit'] = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
 						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
 						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
 						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
@@ -5087,6 +5108,141 @@ class mf_webshop
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
+	}
+
+	function add_to_cart($json_output, $product_id)
+	{
+		global $wpdb;
+
+		$this->order_id = $this->get_cookie();
+
+		if($this->order_id != '')
+		{
+			list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
+
+			if($is_allowed_to_buy)
+			{
+				$price_post_name = $this->get_post_name_for_type('price');
+				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+						if(!is_array($arr_products))
+						{
+							$arr_products = [];
+						}
+
+						$product_amount_temp = 1;
+						$was_in_array = false;
+
+						foreach($arr_products as $key => $arr_product)
+						{
+							if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
+							{
+								$product_amount_temp = ++$arr_products[$key]['amount'];
+
+								$was_in_array = true;
+								break;
+							}
+						}
+
+						if($was_in_array == false)
+						{
+							$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $product_amount_temp);
+						}
+
+						$post_data = array(
+							'ID' => $r->ID,
+							'meta_input' => apply_filters('filter_meta_input', array(
+								$this->meta_prefix.'products' => $arr_products,
+							)),
+						);
+
+						if(wp_update_post($post_data) > 0)
+						{
+							$json_output['success'] = true;
+
+							if(IS_SUPER_ADMIN)
+							{
+								if(!isset($json_output['debug']))
+								{
+									$json_output['debug'] = "";
+								}
+
+								$json_output['debug'] .= "Update: ".var_export($post_data, true);
+							}
+
+							$json_output['response_add_to_cart'] = array(
+								'product_id' => $product_id,
+								'product_amount' => $product_amount_temp,
+							);
+						}
+
+						else
+						{
+							$json_output['response_add_to_cart'] = array(
+								'product_id' => $product_id,
+								'text' => __("Try Again", 'lang_webshop'),
+								'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
+							);
+						}
+					}
+				}
+
+				else
+				{
+					$arr_products = [];
+					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+
+					$post_data = array(
+						'post_type' => $this->post_type_orders,
+						'post_status' => 'draft',
+						'post_title' => $this->order_id,
+						'meta_input' => apply_filters('filter_meta_input', array(
+							$this->meta_prefix.'cart_hash' => $this->order_id,
+							$this->meta_prefix.'products' => $arr_products,
+						)),
+					);
+
+					if(wp_insert_post($post_data) > 0)
+					{
+						$json_output['success'] = true;
+
+						if(IS_SUPER_ADMIN)
+						{
+							if(!isset($json_output['debug']))
+							{
+								$json_output['debug'] = "";
+							}
+
+							$json_output['debug'] .= "Insert: ".var_export($post_data, true);
+						}
+
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'product_amount' => 1,
+						);
+					}
+
+					else
+					{
+						$json_output['response_add_to_cart'] = array(
+							'product_id' => $product_id,
+							'text' => __("Try Again", 'lang_webshop'),
+							'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
+						);
+					}
+				}
+			}
+		}
+
+		return $json_output;
 	}
 
 	function api_webshop_call()
@@ -6003,7 +6159,17 @@ class mf_webshop
 						{
 							if($product_amount > 0)
 							{
-								$arr_products[$key]['amount'] = $product_amount;
+								list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
+
+								if($is_allowed_to_buy)
+								{
+									$arr_products[$key]['amount'] = $product_amount;
+								}
+
+								else
+								{
+									$arr_products[$key]['amount']--;
+								}
 							}
 
 							else
@@ -6082,138 +6248,6 @@ class mf_webshop
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
-	}
-
-	function add_to_cart($json_output, $product_id)
-	{
-		global $wpdb;
-
-		$this->order_id = $this->get_cookie();
-
-		if($this->order_id != '')
-		{
-			//$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
-
-			$price_post_name = $this->get_post_name_for_type('price');
-			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			if($wpdb->num_rows > 0)
-			{
-				foreach($result as $r)
-				{
-					$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-					if(!is_array($arr_products))
-					{
-						$arr_products = [];
-					}
-
-					$product_amount_temp = 1;
-					$was_in_array = false;
-
-					foreach($arr_products as $key => $arr_product)
-					{
-						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
-						{
-							$product_amount_temp = ++$arr_products[$key]['amount'];
-
-							$was_in_array = true;
-							break;
-						}
-					}
-
-					if($was_in_array == false)
-					{
-						$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $product_amount_temp);
-					}
-
-					$post_data = array(
-						'ID' => $r->ID,
-						'meta_input' => apply_filters('filter_meta_input', array(
-							$this->meta_prefix.'products' => $arr_products,
-						)),
-					);
-
-					if(wp_update_post($post_data) > 0)
-					{
-						$json_output['success'] = true;
-
-						if(IS_SUPER_ADMIN)
-						{
-							if(!isset($json_output['debug']))
-							{
-								$json_output['debug'] = "";
-							}
-
-							$json_output['debug'] .= "Update: ".var_export($post_data, true);
-						}
-
-						$json_output['response_add_to_cart'] = array(
-							'product_id' => $product_id,
-							'product_amount' => $product_amount_temp,
-						);
-					}
-
-					else
-					{
-						$json_output['response_add_to_cart'] = array(
-							'product_id' => $product_id,
-							'text' => __("Try Again", 'lang_webshop'),
-							'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
-						);
-					}
-				}
-			}
-
-			else
-			{
-				$arr_products = [];
-				$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
-
-				$post_data = array(
-					'post_type' => $this->post_type_orders,
-					'post_status' => 'draft',
-					'post_title' => $this->order_id,
-					'meta_input' => apply_filters('filter_meta_input', array(
-						$this->meta_prefix.'cart_hash' => $this->order_id,
-						$this->meta_prefix.'products' => $arr_products,
-					)),
-				);
-
-				if(wp_insert_post($post_data) > 0)
-				{
-					$json_output['success'] = true;
-
-					if(IS_SUPER_ADMIN)
-					{
-						if(!isset($json_output['debug']))
-						{
-							$json_output['debug'] = "";
-						}
-
-						$json_output['debug'] .= "Insert: ".var_export($post_data, true);
-					}
-
-					$json_output['response_add_to_cart'] = array(
-						'product_id' => $product_id,
-						'product_amount' => 1,
-					);
-				}
-
-				else
-				{
-					$json_output['response_add_to_cart'] = array(
-						'product_id' => $product_id,
-						'text' => __("Try Again", 'lang_webshop'),
-						'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
-					);
-				}
-			}
-		}
-
-		return $json_output;
 	}
 
 	function api_webshop_add_to_cart()
@@ -6618,17 +6652,23 @@ class mf_webshop
 										if($cart_post_id > 0)
 										{
 											$out .= "<div class='wp-block-button cart_buttons'>
-												<% if((product_cart_max <= 0 || product_cart_max > product_in_cart) && product_amount_left > 0)
+												<% if(is_allowed_to_buy)
 												{ %>
 													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 												<% }
 												
 												else
 												{ %>
-													<a href='#' class='wp-block-button__link disabled' title='".__("No more left to buy", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+													<a href='#' class='wp-block-button__link disabled' title='".__("I am sorry, but you can not buy more of this", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 												<% } %>
 
 												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+												<% if(product_time_limit > 0)
+												{ %>
+													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
+														<i class='fa fa-clock grey'></i>
+													</a>
+												<% } %>
 											</div>";
 										}
 
@@ -6689,6 +6729,10 @@ class mf_webshop
 							$out .= "<td>"
 								//.show_textfield(array('type' => 'number', 'name' => 'product_amount_<%= id %>', 'value' => "<%= amount %>"))
 								."<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>"
+								."<% if(product_time_limit > 0)
+								{ %>
+									<i class='fa fa-clock grey' title='".sprintf(__("This is a product with limited stock. It will be removed in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+								<% } %>"
 							."</td>
 							<td><%= product_total %></td>
 							<td><i class='fa fa-trash red'></i></td>
@@ -7311,9 +7355,9 @@ class mf_webshop
 				break;
 
 				case 'stock':
-					$this->product_amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
+					$product_amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
 
-					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$this->product_amount_left."</span>";
+					$content = "<strong>".$symbol_code.$data['title']."</strong><span>".$product_amount_left."</span>";
 				break;
 
 				default:
@@ -7354,7 +7398,6 @@ class mf_webshop
 			$this->product_description = shorten_text(array('string' => strip_tags($post->post_content), 'limit' => 120));
 		}
 
-		$this->product_amount_left = 100;
 		$this->product_has_content = $this->product_has_read_more = false;
 		$this->product_price = $this->product_image = $this->arr_category_id = '';
 		$this->product_url = "#";
@@ -7482,7 +7525,7 @@ class mf_webshop
 
 	function get_product_data($data, &$json_output)
 	{
-		global $obj_form, $obj_font_icons;
+		global $wpdb, $obj_form, $obj_font_icons;
 
 		if(!isset($obj_font_icons))
 		{
@@ -7868,14 +7911,26 @@ class mf_webshop
 				$product_category .= ($product_category != '' ? ", " : "").get_the_title($category_id);
 			}
 
-			$product_cart_max = 0;
-			$product_in_cart = $this->get_product_in_cart($this->product_id);
+			list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($this->product_id);
 
-			$cart_max_post_name = $this->get_post_name_for_type('cart_max');
+			$this->order_id = $this->get_cookie();
 
-			if($cart_max_post_name != '')
+			if($this->order_id != '')
 			{
-				$product_cart_max = get_post_meta_or_default($this->product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+					$post_modified = $r->post_modified;
+
+					$product_time_limit = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+				}
+			}
+
+			else
+			{
+				$product_time_limit = 0;
 			}
 
 			$json_output['product_response'][] = array(
@@ -7888,9 +7943,9 @@ class mf_webshop
 				'product_location' => $this->product_location,
 				'product_url' => $this->product_url,
 				'product_price' => $this->product_price,
-				'product_cart_max' => $product_cart_max,
+				'is_allowed_to_buy' => $is_allowed_to_buy,
 				'product_in_cart' => $product_in_cart,
-				'product_amount_left' => $this->product_amount_left,
+				'product_time_limit' => $product_time_limit,
 				'product_has_read_more' => $this->product_has_read_more,
 				'product_image' => $product_image,
 				'product_meta' => $this->product_meta,

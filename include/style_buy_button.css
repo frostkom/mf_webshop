@@ -84,6 +84,11 @@
 		opacity: .5;
 	}
 
+		.widget .cart_buttons a.disabled i
+		{
+			transform: rotate(45deg);
+		}
+
 .widget .read_more_button
 {
 	flex-grow: 1;
