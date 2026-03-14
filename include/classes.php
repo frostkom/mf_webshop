@@ -240,6 +240,11 @@ class mf_webshop
 			$arr_data['alphabetical'] = __("A-Z", 'lang_webshop');
 		}
 
+		if(!is_array($include) || count($include) == 0 || in_array('menu_order', $include))
+		{
+			$arr_data['menu_order'] = __("Menu Order", 'lang_webshop');
+		}
+
 		if(!is_array($include) || count($include) == 0 || in_array('newest', $include) || in_array('latest', $include))
 		{
 			$arr_data['latest'] = __("Latest", 'lang_webshop');
@@ -610,244 +615,252 @@ class mf_webshop
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
 			<form".apply_filters('get_form_attr', "").">";
 
-				//.$this->get_search_result_info(array('type' => 'filter'))
+				$product_limit = 6;
 
-				$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s LIMIT 0, ".($product_limit + 1), $this->post_type_products, 'publish'));
+				$product_amount = $wpdb->num_rows;
 
-				$out .= show_textfield(array('name' => 'search_text', 'placeholder' => __("Search", 'lang_webshop')));
-
-				$setting_webshop_display_sort = get_option('setting_webshop_display_sort');
-				$setting_webshop_display_filter = get_option('setting_webshop_display_filter');
-
-				if($setting_webshop_display_sort == 'yes')
+				if($product_amount > $product_limit)
 				{
-					$setting_webshop_display_sort = array('latest', 'random', 'alphabetical', 'size');
-				}
+					//$out .= $this->get_search_result_info(array('type' => 'filter'));
 
-				if(is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
-				{
-					$setting_webshop_sort_default = get_option('setting_webshop_sort_default', 'alphabetical');
+					$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
 
-					$out .= show_form_alternatives(array('data' => $this->get_sort_for_select($setting_webshop_display_sort), 'name' => 'order', 'text' => __("Sort By", 'lang_webshop'), 'value' => $setting_webshop_sort_default));
-				}
+					$out .= show_textfield(array('name' => 'search_text', 'placeholder' => __("Search", 'lang_webshop')));
 
-				if($setting_webshop_display_filter != 'no')
-				{
-					if($setting_webshop_display_filter == 'button')
+					$setting_webshop_display_sort = get_option('setting_webshop_display_sort');
+					$setting_webshop_display_filter = get_option('setting_webshop_display_filter');
+
+					if($setting_webshop_display_sort == 'yes')
 					{
-						$out .= get_toggler_container(array('type' => 'start', 'id' => 'filter', 'text' => __("Filter", 'lang_webshop')));
+						$setting_webshop_display_sort = array('latest', 'random', 'alphabetical', 'menu_order', 'size');
 					}
 
-						$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
+					if(is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
+					{
+						$setting_webshop_sort_default = get_option('setting_webshop_sort_default', 'alphabetical');
 
-						$this->set_interval_amount($result);
+						$out .= show_form_alternatives(array('data' => $this->get_sort_for_select($setting_webshop_display_sort), 'name' => 'order', 'text' => __("Sort By", 'lang_webshop'), 'value' => $setting_webshop_sort_default));
+					}
 
-						foreach($result as $r)
+					if($setting_webshop_display_filter != 'no')
+					{
+						if($setting_webshop_display_filter == 'button')
 						{
-							$post_id = $r->ID;
-							$post_title = $r->post_title;
-							$post_name = $r->post_name;
+							$out .= get_toggler_container(array('type' => 'start', 'id' => 'filter', 'text' => __("Filter", 'lang_webshop')));
+						}
 
-							$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
-							$post_custom_symbol = get_post_meta($post_id, $this->meta_prefix.'document_symbol', true);
-							$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
-							$post_custom_required = get_post_meta($post_id, $this->meta_prefix.'document_searchable_required', true);
-							$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
+							$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 
-							$arr_attributes = [];
+							$this->set_interval_amount($result);
 
-							if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+							foreach($result as $r)
 							{
-								$arr_attributes['condition_type'] = 'show_this_if';
-								$arr_attributes['condition_selector'] = 'category';
-								$arr_attributes['condition_value'] = $post_document_display_on_categories;
-							}
+								$post_id = $r->ID;
+								$post_title = $r->post_title;
+								$post_name = $r->post_name;
 
-							$custom_class = " class='".$post_custom_type.($post_custom_class != '' ? " ".$post_custom_class : "")."'";
+								$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
+								$post_custom_symbol = get_post_meta($post_id, $this->meta_prefix.'document_symbol', true);
+								$post_custom_class = get_post_meta($post_id, $this->meta_prefix.'custom_class', true);
+								$post_custom_required = get_post_meta($post_id, $this->meta_prefix.'document_searchable_required', true);
+								$post_document_display_on_categories = get_post_meta($post_id, $this->meta_prefix.'document_display_on_categories', false);
 
-							$symbol_tag = $obj_font_icons->get_symbol_tag(array('symbol' => $post_custom_symbol));
+								$arr_attributes = [];
 
-							if($symbol_tag != '')
-							{
-								$post_title = $symbol_tag."&nbsp;".$post_title;
-							}
+								if(is_array($post_document_display_on_categories) && count($post_document_display_on_categories) > 0)
+								{
+									$arr_attributes['condition_type'] = 'show_this_if';
+									$arr_attributes['condition_selector'] = 'category';
+									$arr_attributes['condition_value'] = $post_document_display_on_categories;
+								}
 
-							switch($post_custom_type)
-							{
-								case 'checkbox':
-									$out .= show_checkbox(array('name' => $post_name, 'text' => $post_title, 'value' => 1, 'compare' => isset($_REQUEST[$post_name]), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
-								break;
+								$custom_class = " class='".$post_custom_type.($post_custom_class != '' ? " ".$post_custom_class : "")."'";
 
-								case 'categories':
-									$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
-								break;
+								$symbol_tag = $obj_font_icons->get_symbol_tag(array('symbol' => $post_custom_symbol));
 
-								case 'categories_v2':
-									$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(array('include_on' => 'events', 'display_icons' => true, 'add_choose_here' => false)), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes')));
-								break;
+								if($symbol_tag != '')
+								{
+									$post_title = $symbol_tag."&nbsp;".$post_title;
+								}
 
-								case 'custom_categories':
-									$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name));
+								switch($post_custom_type)
+								{
+									case 'checkbox':
+										$out .= show_checkbox(array('name' => $post_name, 'text' => $post_title, 'value' => 1, 'compare' => isset($_REQUEST[$post_name]), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+									break;
 
-									$arr_data = [];
-									get_post_children(array(
-										'add_choose_here' => true,
-										'post_type' => $this->post_type_custom_categories,
-										'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
-										'where' => "meta_value = '".esc_sql($post_id_temp)."'",
-										//'debug' => true,
-									), $arr_data);
+									case 'categories':
+										$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+									break;
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
-								break;
+									case 'categories_v2':
+										$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(array('include_on' => 'events', 'display_icons' => true, 'add_choose_here' => false)), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class." product_categories category_icon", 'required' => ($post_custom_required == 'yes')));
+									break;
 
-								case 'location':
-									$arr_data = array(
-										'' => $name_choose_here,
-									);
+									case 'custom_categories':
+										$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name));
 
-									$location_post_name = $this->get_post_name_for_type('location');
+										$arr_data = [];
+										get_post_children(array(
+											'add_choose_here' => true,
+											'post_type' => $this->post_type_custom_categories,
+											'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
+											'where' => "meta_value = '".esc_sql($post_id_temp)."'",
+											//'debug' => true,
+										), $arr_data);
 
-									get_post_children(array(
-										'post_type' => $this->post_type_location,
-										'post_status' => 'publish',
-									), $arr_data);
+										$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes')));
+									break;
 
-									// Filter those locations that aren't used
-									foreach($arr_data as $key => $value)
-									{
-										if($key > 0)
+									case 'location':
+										$arr_data = array(
+											'' => $name_choose_here,
+										);
+
+										$location_post_name = $this->get_post_name_for_type('location');
+
+										get_post_children(array(
+											'post_type' => $this->post_type_location,
+											'post_status' => 'publish',
+										), $arr_data);
+
+										// Filter those locations that aren't used
+										foreach($arr_data as $key => $value)
 										{
-											$result = $this->get_products_from_location($key);
-
-											if(count($result) == 0)
+											if($key > 0)
 											{
-												unset($arr_data[$key]);
+												$result = $this->get_products_from_location($key);
+
+												if(count($result) == 0)
+												{
+													unset($arr_data[$key]);
+												}
 											}
 										}
-									}
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
-								break;
+										$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
+									break;
 
-								case 'number':
-								case 'price':
-								case 'size':
-								case 'address':
-								case 'local_address':
-									$is_numeric = in_array($post_custom_type, array('number', 'price', 'size'));
+									case 'number':
+									case 'price':
+									case 'size':
+									case 'address':
+									case 'local_address':
+										$is_numeric = in_array($post_custom_type, array('number', 'price', 'size'));
 
-									$arr_data = array(
-										'' => $name_choose_here,
-									);
+										$arr_data = array(
+											'' => $name_choose_here,
+										);
 
-									$result = $this->get_list();
+										$result = $this->get_list();
 
-									foreach($result as $r)
-									{
-										$page_id = $r->ID;
+										foreach($result as $r)
+										{
+											$page_id = $r->ID;
 
-										$post_meta = get_post_meta($page_id, $this->meta_prefix.$post_name, true);
+											$post_meta = get_post_meta($page_id, $this->meta_prefix.$post_name, true);
+
+											if($is_numeric)
+											{
+												$arr_data[$post_meta] = $post_meta;
+
+												$this->set_range($post_meta);
+											}
+
+											else
+											{
+												$arr_data[$post_meta] = $post_meta;
+											}
+										}
 
 										if($is_numeric)
 										{
-											$arr_data[$post_meta] = $post_meta;
+											if(count($arr_data) > 5)
+											{
+												$arr_data = array(
+													'' => $name_choose_here
+												);
 
-											$this->set_range($post_meta);
+												$this->calculate_range($arr_data);
+											}
 										}
 
-										else
+										$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
+									break;
+
+									case 'interval':
+										$this->increase_count();
+
+										$post_title = get_post_meta_or_default($post_id, $this->meta_prefix.'document_alt_text', true, $post_title);
+
+										$this->add_interval_type($post_name, $post_title);
+
+										$result = $this->get_list();
+
+										foreach($result as $r)
 										{
-											$arr_data[$post_meta] = $post_meta;
-										}
-									}
+											$page_id = $r->ID;
 
-									if($is_numeric)
-									{
-										if(count($arr_data) > 5)
+											$post_meta = get_post_meta($page_id, $this->meta_prefix.$post_name, true);
+
+											list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
+
+											$this->set_range($post_meta_min);
+										}
+
+										$has_equal_amount = $this->has_equal_amount($post_title, $name_choose_here);
+
+										if($has_equal_amount != '')
 										{
-											$arr_data = array(
-												'' => $name_choose_here
-											);
-
-											$this->calculate_range($arr_data);
+											$out .= "<div".$custom_class.">".$has_equal_amount."</div>";
 										}
-									}
+									break;
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'class' => $post_custom_class, 'required' => ($post_custom_required == 'yes'), 'attributes' => $arr_attributes));
-								break;
+									case 'heading':
+										$out .= "<h3".$custom_class.">".$post_title."</h3>";
+									break;
 
-								case 'interval':
-									$this->increase_count();
+									case 'coordinates':
+									case 'gps':
+										$out .= show_textfield(array('type' => 'range', 'name' => $post_name, 'text' => __("Distance", 'lang_webshop'), 'value' => check_var($post_name, 'char'), 'xtra' => "min='0' max='500'"));
+									break;
 
-									$post_title = get_post_meta_or_default($post_id, $this->meta_prefix.'document_alt_text', true, $post_title);
+									case 'label':
+										$out .= "<label".$custom_class.">".$post_title."</label>";
+									break;
 
-									$this->add_interval_type($post_name, $post_title);
+									case 'container_start':
+										$out .= "<div".$custom_class.">";
+									break;
 
-									$result = $this->get_list();
+									case 'container_end':
+										$out .= "</div>";
+									break;
 
-									foreach($result as $r)
-									{
-										$page_id = $r->ID;
+									case 'divider':
+										$out .= "<hr".$custom_class.">";
+									break;
 
-										$post_meta = get_post_meta($page_id, $this->meta_prefix.$post_name, true);
+									case 'read_more_button':
+									case 'overlay':
+										// Do nothing
+									break;
 
-										list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
-
-										$this->set_range($post_meta_min);
-									}
-
-									$has_equal_amount = $this->has_equal_amount($post_title, $name_choose_here);
-
-									if($has_equal_amount != '')
-									{
-										$out .= "<div".$custom_class.">".$has_equal_amount."</div>";
-									}
-								break;
-
-								case 'heading':
-									$out .= "<h3".$custom_class.">".$post_title."</h3>";
-								break;
-
-								case 'coordinates':
-								case 'gps':
-									$out .= show_textfield(array('type' => 'range', 'name' => $post_name, 'text' => __("Distance", 'lang_webshop'), 'value' => check_var($post_name, 'char'), 'xtra' => "min='0' max='500'"));
-								break;
-
-								case 'label':
-									$out .= "<label".$custom_class.">".$post_title."</label>";
-								break;
-
-								case 'container_start':
-									$out .= "<div".$custom_class.">";
-								break;
-
-								case 'container_end':
-									$out .= "</div>";
-								break;
-
-								case 'divider':
-									$out .= "<hr".$custom_class.">";
-								break;
-
-								case 'read_more_button':
-								case 'overlay':
-									// Do nothing
-								break;
-
-								default:
-									do_log("The type ".$post_custom_type." does not have a case (".$post_id." -> search)");
-								break;
+									default:
+										do_log("The type ".$post_custom_type." does not have a case (".$post_id." -> search)");
+									break;
+								}
 							}
+
+						if($setting_webshop_display_filter == 'button')
+						{
+							$out .= get_toggler_container(array('type' => 'end'));
 						}
-
-					if($setting_webshop_display_filter == 'button')
-					{
-						$out .= get_toggler_container(array('type' => 'end'));
 					}
-				}
 
-				//.$this->get_search_result_info(array('type' => 'matches'))
+					//$out .= $this->get_search_result_info(array('type' => 'matches'));
+				}
 
 				$out .= "<ul class='product_list webshop_item_list grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
 			."</form>"
@@ -1587,11 +1600,7 @@ class mf_webshop
 		do_action('load_lightbox');
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
-
 		mf_enqueue_style('style_webshop_more_images', $plugin_include_url."style_more_images.css");
-		/*mf_enqueue_script('script_webshop_buy_button', $plugin_include_url."script_buy_button.js", array(
-			'ajax_url' => admin_url('admin-ajax.php'),
-		));*/
 
 		$out = "";
 
@@ -1776,14 +1785,21 @@ class mf_webshop
 
 					if($cart_max_post_name != '')
 					{
-						$product_cart_max = get_post_meta($product_id, $this->meta_prefix.$cart_max_post_name, true);
+						$product_cart_max = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
 					}
 
 					$stock_post_name = $this->get_post_name_for_type('stock');
 
 					if($stock_post_name != '')
 					{
-						$product_amount_left = (get_post_meta($product_id, $this->meta_prefix.$stock_post_name, true) - $this->get_amount_in_carts($product_id));
+						$product_stock_max = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
+
+						if($product_stock_max > 0)
+						{
+							$amount_in_carts = $this->get_amount_in_carts((int)$product_id);
+
+							$product_amount_left = ($product_stock_max - $amount_in_carts);
+						}
 					}
 
 					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
@@ -1792,6 +1808,11 @@ class mf_webshop
 							if(($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0)
 							{
 								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+							}
+
+							else
+							{
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".__("No more left to buy", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 							}
 
 							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
@@ -1810,6 +1831,8 @@ class mf_webshop
 		global $wpdb, $post;
 
 		$post_id = $post->ID;
+
+		$out = "";
 
 		if($post_id > 0)
 		{
@@ -1842,8 +1865,9 @@ class mf_webshop
 					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
 				."</h1>
 				<p>#".$order_number." @ ".format_date($post_date)."</p>
-				<ul class='grid_columns'>"
-					/*."<li>
+				<ul class='grid_columns'>";
+
+					/*$out .= "<li>
 						<div class='content'>
 							<span class='grid_title'>".__("Order Info", 'lang_webshop')."</span>
 							<p class='text'>"
@@ -1851,27 +1875,54 @@ class mf_webshop
 								."<strong>".__("Date / Time", 'lang_webshop')."</strong> ".."
 							</p>
 						</div>
-					</li>"*/
-					."<li>
-						<div class='content'>
-							<span class='grid_title'>".__("Billing Info", 'lang_webshop')."</span>
-							<p class='text'>";
+					</li>";*/
 
-								if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
-								{
-									$out .= $this->order_details['first_name']." ".$this->order_details['last_name']."<br>";
-								}
+					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
+					{
+						$out .= "<li>
+							<div class='content'>
+								<span class='grid_title'>".__("Billing Info", 'lang_webshop')."</span>
+								<p class='text'>";
 
-								if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
-								{
-									$out .= $this->order_details['address_street']."<br>"
-									.$this->order_details['address_zip']." ".$this->order_details['address_city'];
-								}
+									if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+									{
+										$out .= $this->order_details['first_name']." ".$this->order_details['last_name']."<br>";
+									}
 
-							$out .= "</p>
-						</div>
-					</li>
-				</ul>";
+									if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
+									{
+										$out .= $this->order_details['address_street']."<br>"
+										.$this->order_details['address_zip']." ".$this->order_details['address_city'];
+									}
+
+								$out .= "</p>
+							</div>
+						</li>";
+					}
+
+					if($this->order_details['contact_phone'] != '' || $this->order_details['contact_email'] != '')
+					{
+						$out .= "<li>
+							<div class='content'>
+								<span class='grid_title'>".__("Contact Info", 'lang_webshop')."</span>
+								<p class='text'>";
+
+									if($this->order_details['contact_phone'] != '')
+									{
+										$out .= "<a href='".format_phone_no($this->order_details['contact_phone'])."'>".$this->order_details['contact_phone']."</a><br>";
+									}
+
+									if($this->order_details['contact_email'] != '')
+									{
+										$out .= "<a href='mailto:".$this->order_details['contact_email']."'>".$this->order_details['contact_email']."</a><br>";
+									}
+
+								$out .= "</p>
+							</div>
+						</li>";
+					}
+
+				$out .= "</ul>";
 
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
@@ -1923,8 +1974,19 @@ class mf_webshop
 						<tbody>
 							<tr>
 								<td>".__("Payment Method", 'lang_webshop')."</td>
-								<td>"
-									.$this->get_payment_alternatives_for_select()[$payment_method];
+								<td>";
+
+									$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
+
+									if($payment_method != '' && isset($arr_payment_alternatives[$payment_method]))
+									{
+										$out .= $arr_payment_alternatives[$payment_method];
+									}
+
+									else
+									{
+										$out .= "<span title='".$payment_method."'>".__("unknown", 'lang_webshop')."</span>";
+									}
 
 									if(IS_SUPER_ADMIN)
 									{
@@ -1979,6 +2041,15 @@ class mf_webshop
 				}
 
 			$out .= "</div>";
+		}
+
+		$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+		if($search_post_id > 0)
+		{
+			$out .= "<div class='wp-block-button'>
+				<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+			</div>";
 		}
 
 		return $out;
@@ -2490,7 +2561,7 @@ class mf_webshop
 
 			if($option == 'yes')
 			{
-				$option = array('latest', 'random', 'alphabetical', 'size');
+				$option = array('latest', 'random', 'alphabetical', 'menu_order', 'size');
 			}
 
 			echo show_select(array('data' => $this->get_sort_for_select(), 'name' => $setting_key."[]", 'value' => $option));
@@ -4881,13 +4952,35 @@ class mf_webshop
 				{
 					foreach($arr_products as $key => $arr_product)
 					{
+						$product_amount_left = 100;
 						$product_cart_max = 0;
 
 						$cart_max_post_name = $this->get_post_name_for_type('cart_max');
 
 						if($cart_max_post_name != '')
 						{
-							$product_cart_max = get_post_meta($arr_product['id'], $this->meta_prefix.$cart_max_post_name, true);
+							$product_cart_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$cart_max_post_name, true, 0);
+						}
+
+						$stock_post_name = $this->get_post_name_for_type('stock');
+
+						if($stock_post_name != '')
+						{
+							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+
+							if($product_stock_max > 0)
+							{
+								$amount_in_carts = $this->get_amount_in_carts($arr_product['id']);
+
+								$product_amount_left = ($product_stock_max - $amount_in_carts);
+							}
+						}
+
+						$product_amount_max = ($arr_product['amount'] + $product_amount_left);
+
+						if($product_cart_max > 0 && $product_cart_max < $product_amount_max)
+						{
+							$product_amount_max = $product_cart_max;
 						}
 
 						$total_sum += $this->display_price(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
@@ -4895,7 +4988,8 @@ class mf_webshop
 
 						$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
 						$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
-						$arr_products[$key]['product_cart_max'] = $product_cart_max;
+						//$arr_products[$key]['product_cart_max'] = $product_cart_max;
+						$arr_products[$key]['product_amount_max'] = $product_amount_max;
 						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
 						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
 						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
@@ -5036,7 +5130,7 @@ class mf_webshop
 
 				else
 				{
-					$$key = $value;
+					$$key = $value; //$search_text etc.
 				}
 			}
 		}
@@ -5575,7 +5669,7 @@ class mf_webshop
 
 				$query_select = $query_join = $query_where = $query_group = $query_order = "";
 
-				if($search_text != '')
+				if(isset($search_text) && $search_text != '')
 				{
 					$query_where .= " AND (post_title LIKE '%".esc_sql($search_text)."%' OR post_content LIKE '%".esc_sql($search_text)."%')";
 				}
@@ -5588,6 +5682,10 @@ class mf_webshop
 					default:
 					case 'alphabetical':
 						$query_order .= ($query_order != '' ? ", " : "")."post_title ASC";
+					break;
+
+					case 'menu_order':
+						$query_order .= ($query_order != '' ? ", " : "")."menu_order ASC";
 					break;
 
 					case 'newest':
@@ -6523,9 +6621,21 @@ class mf_webshop
 												<% if((product_cart_max <= 0 || product_cart_max > product_in_cart) && product_amount_left > 0)
 												{ %>
 													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+												<% }
+												
+												else
+												{ %>
+													<a href='#' class='wp-block-button__link disabled' title='".__("No more left to buy", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 												<% } %>
 
 												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+											</div>";
+										}
+
+										else if(IS_SUPER_ADMIN)
+										{
+											$out .= "<div class='wp-block-button cart_buttons'>
+												<a href='#' class='wp-block-button__link' title='".__("You need to create a page for the Cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
 											</div>";
 										}
 
@@ -6576,18 +6686,10 @@ class mf_webshop
 								$out .= "<td><%= product_tax %></td>";
 							}
 
-							$out .= "<td>
-								<% if(product_cart_max <= 0 || product_cart_max > amount)
-								{ %>
-									".show_textfield(array('type' => 'number', 'name' => 'product_amount_<%= id %>', 'value' => "<%= amount %>"))."
-								<% }
-
-								else
-								{ %>
-									<span><%= amount %></span>
-									".input_hidden(array('name' => 'product_amount_<%= id %>', 'value' => "<%= amount %>"))."
-								<% } %>
-							</td>
+							$out .= "<td>"
+								//.show_textfield(array('type' => 'number', 'name' => 'product_amount_<%= id %>', 'value' => "<%= amount %>"))
+								."<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>"
+							."</td>
 							<td><%= product_total %></td>
 							<td><i class='fa fa-trash red'></i></td>
 						</tr>
@@ -6779,6 +6881,11 @@ class mf_webshop
 		else if($data['order_by'] == 'alphabetical')
 		{
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_title ASC";
+		}
+		
+		else if($data['order_by'] == 'menu_order')
+		{
+			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."menu_order ASC";
 		}
 
 		else //latest
@@ -7768,7 +7875,7 @@ class mf_webshop
 
 			if($cart_max_post_name != '')
 			{
-				$product_cart_max = get_post_meta($this->product_id, $this->meta_prefix.$cart_max_post_name, true);
+				$product_cart_max = get_post_meta_or_default($this->product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
 			}
 
 			$json_output['product_response'][] = array(
