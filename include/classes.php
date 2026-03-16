@@ -601,7 +601,7 @@ class mf_webshop
 
 							if(wp_update_post($post_data) > 0)
 							{
-								do_log("I updated (".var_export($post_data, true).")");
+								//do_log("I updated (".var_export($post_data, true).")");
 							}
 
 							else
@@ -624,7 +624,7 @@ class mf_webshop
 			replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search', 'setting_webshop_map_placement', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_map_info', 'setting_webshop_map_button_placement', 'setting_webshop_replace_email_favorites', 'setting_webshop_share_email_content', 'setting_webshop_share_email_subject', 'setting_webshop_replace_favorites_info', 'setting_webshop_switch_icon_off', 'setting_webshop_switch_icon_on', 'setting_quote_form_popup', 'setting_webshop_replace_hide_map', 'setting_webshop_replace_show_map'),
+				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search', 'setting_webshop_map_placement', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_map_info', 'setting_webshop_map_button_placement', 'setting_webshop_replace_email_favorites', 'setting_webshop_share_email_content', 'setting_webshop_share_email_subject', 'setting_webshop_replace_favorites_info', 'setting_webshop_switch_icon_off', 'setting_webshop_switch_icon_on', 'setting_quote_form_popup', 'setting_webshop_replace_hide_map', 'setting_webshop_replace_show_map', 'setting_webshop_allow_multiple_categories'),
 				'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 			));
 		}
@@ -2604,21 +2604,18 @@ class mf_webshop
 
 		/* Product */
 		############################
-		$options_area = $options_area_orig."_product";
+		/*$options_area = $options_area_orig."_product";
 
 		add_settings_section($options_area.'', "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 		$arr_settings = [];
 
-		if(is_plugin_active("mf_form/index.php"))
+		if($this->has_categories(array('include_on' => 'products')) > 0)
 		{
-			if($this->has_categories(array('include_on' => 'products')) > 0)
-			{
-				$arr_settings['setting_webshop_allow_multiple_categories'] = __("Allow Multiple Categories", 'lang_webshop');
-			}
+			$arr_settings['setting_webshop_allow_multiple_categories'] = __("Allow Multiple Categories", 'lang_webshop');
 		}
 
-		show_settings_fields(array('area' => $options_area.'', 'object' => $this, 'settings' => $arr_settings));
+		show_settings_fields(array('area' => $options_area.'', 'object' => $this, 'settings' => $arr_settings));*/
 		############################
 	}
 
@@ -2943,20 +2940,20 @@ class mf_webshop
 			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
-	function settings_webshop_product_callback()
+	/*function settings_webshop_product_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
 		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Product", 'lang_webshop'));
 	}
 
-	function setting_webshop_allow_multiple_categories_callback()
-	{
-		$setting_key = get_setting_key(__FUNCTION__);
-		$option = get_option($setting_key, 'yes');
+		function setting_webshop_allow_multiple_categories_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, 'yes');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+		}*/
 
 	function setting_gmaps_api_callback()
 	{
@@ -3108,18 +3105,18 @@ class mf_webshop
 				switch($type)
 				{
 					case 'products':
-						if(get_option('setting_webshop_allow_multiple_categories', 'yes') == 'yes')
-						{
+						/*if(get_option('setting_webshop_allow_multiple_categories', 'yes') == 'yes')
+						{*/
 							$fields_array['type'] = 'select';
 							$fields_array['multiple'] = true;
 							$fields_array['attributes']['size'] = get_select_size(array('count' => count($arr_categories)));
-						}
+						/*}
 
 						else
 						{
 							$fields_array['type'] = 'select';
 							$fields_array['multiple'] = false;
-						}
+						}*/
 					break;
 				}
 
@@ -3507,9 +3504,9 @@ class mf_webshop
 			'options' => $arr_yes_no,
 		);*/
 
-		$setting_webshop_allow_multiple_categories = get_option('setting_webshop_allow_multiple_categories', 'yes');
+		//$setting_webshop_allow_multiple_categories = get_option('setting_webshop_allow_multiple_categories', 'yes');
 
-		$arr_categories = $this->get_categories_for_select(array('include_on' => 'products', 'add_choose_here' => ($setting_webshop_allow_multiple_categories != 'yes')));
+		$arr_categories = $this->get_categories_for_select(array('include_on' => 'products')); //, 'add_choose_here' => ($setting_webshop_allow_multiple_categories != 'yes')
 		$count_temp = count($arr_categories);
 
 		if($count_temp > 0)
@@ -3538,19 +3535,19 @@ class mf_webshop
 				'desc' => $meta_description,
 			);
 
-			if($setting_webshop_allow_multiple_categories == 'yes')
-			{
+			/*if($setting_webshop_allow_multiple_categories == 'yes')
+			{*/
 				$data_temp['multiple'] = true;
 				$data_temp['attributes'] = array(
 					'size' => get_select_size(array('count' => $count_temp)),
 				);
-			}
+			/*}
 
 			else
 			{
 				$data_temp['multiple'] = false;
 				$data_temp['attributes'] = [];
-			}
+			}*/
 
 			$fields_settings[] = $data_temp;
 		}
