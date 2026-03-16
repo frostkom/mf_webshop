@@ -37,6 +37,7 @@ var WebshopView = Backbone.View.extend(
 		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
 		"click .product_list.webshop_item_list > li": "set_last_product",
 		"click .product_list.webshop_item_list > li .add_to_cart": "add_to_cart",
+		"click .product_list.webshop_item_list > li .disabled": "disabled",
 
 		/* Filter Products */
 		"click .webshop_widget .widget_load_more button": "load_more_button"
@@ -353,6 +354,12 @@ var WebshopView = Backbone.View.extend(
 		return false;
 	},
 
+	disabled: function(e)
+	{
+		e.preventDefault();
+		return false;
+	},
+
 	show_add_to_cart: function()
 	{
 		var response = this.model.get('response_add_to_cart'),
@@ -366,6 +373,11 @@ var WebshopView = Backbone.View.extend(
 		{
 			dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
 		}, 250);
+
+		if(response.is_allowed_to_buy == false)
+		{
+			dom_obj_parent.find(".add_to_cart").addClass('disabled').removeClass('add_to_cart').attr('title', response.is_allowed_to_buy_reason);
+		}
 
 		update_cart_icon();
 	},

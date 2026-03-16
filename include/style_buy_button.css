@@ -14,7 +14,7 @@
 			transform: rotate(1440deg);
 		}
 
-	.widget.webshop_search .cart_buttons a > span:last-of-type
+	/*.widget.webshop_search .cart_buttons a > span:last-of-type
 	{
 		display: none;
 	}
@@ -22,7 +22,7 @@
 		.widget.webshop_search .cart_buttons a:hover > span:last-of-type
 		{
 			display: inline-block;
-		}
+		}*/
 
 .widget .cart_buttons a, .widget .cart_buttons a i
 {
@@ -52,7 +52,7 @@
 			content: "\f061";
 		}
 
-.widget .cart_buttons a + a
+.widget.webshop_buy_button .cart_buttons a + a
 {
 	margin-left: .5em;
 }

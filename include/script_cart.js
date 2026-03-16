@@ -119,7 +119,7 @@ jQuery(function($)
 		update_timeout = setTimeout(function()
 		{
 			update_product_amount(dom_obj.parents("tr").attr('id'), dom_obj.val());
-		}, 500);
+		}, 1000);
 	});
 
 	dom_obj_widget.on('click', ".cart_products .fa-trash.red", function()

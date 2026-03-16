@@ -49,11 +49,22 @@ jQuery(function($)
 						dom_obj.siblings(".in_cart").find("span:first-of-type").text(data.response_add_to_cart.product_amount).removeClass('updating');
 					}, 250);
 
+					if(data.response_add_to_cart.is_allowed_to_buy == false)
+					{
+						dom_obj.addClass('disabled').removeClass('add_to_cart');
+					}
+
 					update_cart_icon();
 				}
 			}
 		});
 
+		e.preventDefault();
+		return false;
+	});
+
+	dom_obj_widget.on('click', ".disabled", function(e)
+	{
 		e.preventDefault();
 		return false;
 	});

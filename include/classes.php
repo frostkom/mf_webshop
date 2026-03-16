@@ -364,7 +364,12 @@ class mf_webshop
 
 		foreach($setting_webshop_payment_alternatives as $key)
 		{
-			$arr_data[$key] = $this->get_payment_alternatives_for_select()[$key];
+			$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
+
+			if(isset($arr_payment_alternatives[$key]))
+			{
+				$arr_data[$key] = $arr_payment_alternatives[$key];
+			}
 		}
 
 		return $arr_data;
@@ -569,6 +574,8 @@ class mf_webshop
 
 					if(is_array($arr_products))
 					{
+						$updated = false;
+
 						foreach($arr_products as $key => $arr_product)
 						{
 							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
@@ -576,26 +583,31 @@ class mf_webshop
 							if($product_stock_max > 0)
 							{
 								unset($arr_products[$key]);
+
+								$updated = true;
 							}
 						}
 
-						$arr_products = array_values($arr_products);
-
-						$post_data = array(
-							'ID' => $post_id,
-							'meta_input' => apply_filters('filter_meta_input', array(
-								$this->meta_prefix.'products' => $arr_products,
-							)),
-						);
-
-						if(wp_update_post($post_data) > 0)
+						if($updated == true)
 						{
-							do_log("I updated (".var_export($post_data, true).")");
-						}
+							$arr_products = array_values($arr_products);
 
-						else
-						{
-							do_log("I could not update (".var_export($post_data, true).")");
+							$post_data = array(
+								'ID' => $post_id,
+								'meta_input' => apply_filters('filter_meta_input', array(
+									$this->meta_prefix.'products' => $arr_products,
+								)),
+							);
+
+							if(wp_update_post($post_data) > 0)
+							{
+								do_log("I updated (".var_export($post_data, true).")");
+							}
+
+							else
+							{
+								do_log("I could not update (".var_export($post_data, true).")");
+							}
 						}
 					}
 				}
@@ -1789,35 +1801,107 @@ class mf_webshop
 	
 	function get_cart_values($product_id)
 	{
-		$product_amount_left = 100;
-		$product_stock_max = $product_cart_max = 0;
+		global $wpdb;
 
-		$product_in_cart = $this->get_product_in_cart($product_id);
+		$out = array(
+			'is_allowed_to_buy' => false,
+			'is_allowed_to_buy_reason' => __("There are no more left in stock", 'lang_webshop'),
+			'product_stock_max' => 0,
+			'product_cart_max' => 0,
+			'product_in_cart' => 0,
+			'product_amount_left' => 100,
+		);
+
+		$out['product_in_cart'] = $this->get_product_in_cart($product_id);
 
 		$cart_max_post_name = $this->get_post_name_for_type('cart_max');
 
 		if($cart_max_post_name != '')
 		{
-			$product_cart_max = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
+			$out['product_cart_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
 		}
 
 		$stock_post_name = $this->get_post_name_for_type('stock');
 
 		if($stock_post_name != '')
 		{
-			$product_stock_max = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
+			$out['product_stock_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
 
-			if($product_stock_max > 0)
+			if($out['product_stock_max'] > 0)
 			{
-				$amount_in_carts = $this->get_amount_in_carts($product_id);
-
-				$product_amount_left = ($product_stock_max - $amount_in_carts);
+				$out['product_amount_left'] = ($out['product_stock_max'] - $this->get_amount_in_carts($product_id));
 			}
 		}
 
-		$is_allowed_to_buy = (($product_cart_max <= 0 || $product_cart_max > $product_in_cart) && $product_amount_left > 0);
+		if($out['product_amount_left'] > 0)
+		{
+			$out['is_allowed_to_buy'] = (($out['product_cart_max'] <= 0 || $out['product_cart_max'] > $out['product_in_cart']));
 
-		return array($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left);
+			if($out['is_allowed_to_buy'] == false)
+			{
+				$out['is_allowed_to_buy_reason'] = __("You have reached the maximum amount in your cart", 'lang_webshop');
+			}
+		}
+
+		if($out['is_allowed_to_buy'] == true)
+		{
+			$product_parent = get_post_field('post_parent', $product_id);
+
+			if($product_parent > 0)
+			{
+				$out['is_allowed_to_buy'] = false;
+				$out['is_allowed_to_buy_reason'] = sprintf(__("You have to buy %s first", 'lang_webshop'), get_the_title($product_parent));
+
+				$this->order_id = $this->get_cookie();
+
+				if($this->order_id != '')
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+					foreach($result as $r)
+					{
+						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
+
+						if(is_array($arr_products) && count($arr_products) > 0)
+						{
+							foreach($arr_products as $key => $arr_product)
+							{
+								if($arr_product['id'] == $product_parent)
+								{
+									$out['is_allowed_to_buy'] = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $out;
+	}
+
+	function get_product_time_limit($product_stock_max)
+	{
+		global $wpdb;
+
+		$out = 0;
+
+		$this->order_id = $this->get_cookie();
+
+		if($this->order_id != '')
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			foreach($result as $r)
+			{
+				$post_modified = $r->post_modified;
+
+				$out = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+			}
+		}
+
+		return $out;
 	}
 
 	function block_render_buy_button_callback($attributes)
@@ -1861,43 +1945,25 @@ class mf_webshop
 
 				if($cart_post_id > 0)
 				{
-					list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
+					$arr_cart_values = $this->get_cart_values($product_id);
 
-					$this->order_id = $this->get_cookie();
-
-					if($this->order_id != '')
-					{
-						$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-						foreach($result as $r)
-						{
-							$post_id = $r->ID;
-							$post_modified = $r->post_modified;
-
-							$product_time_limit = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
-						}
-					}
-
-					else
-					{
-						$product_time_limit = 0;
-					}
+					$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
 
 					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 						<div class='wp-block-button cart_buttons'>";
 
-							if($is_allowed_to_buy)
+							if($arr_cart_values['is_allowed_to_buy'])
 							{
 								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 							}
 
 							else
 							{
-								$out .= "<a href='#' class='wp-block-button__link disabled' title='".__("I am sorry, but you can not buy more of this", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
 							}
 
-							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($product_in_cart > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
-								<span>".$product_in_cart."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
+							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
+								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
 							</a>";
 
 							if($product_time_limit > 0)
@@ -1927,6 +1993,12 @@ class mf_webshop
 
 		if($post_id > 0)
 		{
+			$plugin_base_include_url = plugins_url()."/mf_base/include/";
+			mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
+
+			$plugin_include_url = plugin_dir_url(__FILE__);
+			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
+
 			$post_date = get_post_field('post_date', $post_id);
 			
 			$order_number = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
@@ -1944,12 +2016,6 @@ class mf_webshop
 					$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_number));
 				}
 			}
-
-			$plugin_include_url = plugin_dir_url(__FILE__);
-			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
-
-			$plugin_base_include_url = plugins_url()."/mf_base/include/";
-			mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
 
 			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">
 				<h1>"
@@ -2192,12 +2258,12 @@ class mf_webshop
 			'has_archive' => false,
 		));
 
-		$arr_supports = array('title', 'thumbnail', 'excerpt', 'revisions', 'author');
+		$arr_supports = array('title', 'page-attributes', 'thumbnail', 'excerpt', 'revisions', 'author', 'editor');
 
-		if($this->get_post_name_for_type('content') == '')
+		/*if($this->get_post_name_for_type('content') == '')
 		{
 			$arr_supports[] = 'editor';
-		}
+		}*/
 
 		register_post_type($this->post_type_products, array(
 			'labels' => array(
@@ -3434,12 +3500,12 @@ class mf_webshop
 
 		$arr_yes_no = get_yes_no_for_select();
 
-		$fields_settings[] = array(
+		/*$fields_settings[] = array(
 			'name' => __("Searchable", 'lang_webshop'),
 			'id' => $this->meta_prefix.'searchable',
 			'type' => 'select',
 			'options' => $arr_yes_no,
-		);
+		);*/
 
 		$setting_webshop_allow_multiple_categories = get_option('setting_webshop_allow_multiple_categories', 'yes');
 
@@ -3469,9 +3535,7 @@ class mf_webshop
 				'id' => $this->meta_prefix.'category',
 				'type' => 'select',
 				'options' => $arr_categories,
-				'multiple' => false,
 				'desc' => $meta_description,
-				'attributes' => [],
 			);
 
 			if($setting_webshop_allow_multiple_categories == 'yes')
@@ -3480,6 +3544,12 @@ class mf_webshop
 				$data_temp['attributes'] = array(
 					'size' => get_select_size(array('count' => $count_temp)),
 				);
+			}
+
+			else
+			{
+				$data_temp['multiple'] = false;
+				$data_temp['attributes'] = [];
 			}
 
 			$fields_settings[] = $data_temp;
@@ -5068,13 +5138,13 @@ class mf_webshop
 				{
 					foreach($arr_products as $key => $arr_product)
 					{
-						list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($arr_product['id']);
+						$arr_cart_values = $this->get_cart_values($arr_product['id']);
 
-						$product_amount_max = ($arr_product['amount'] + $product_amount_left);
+						$product_amount_max = ($arr_product['amount'] + $arr_cart_values['product_amount_left']);
 
-						if($product_cart_max > 0 && $product_cart_max < $product_amount_max)
+						if($arr_cart_values['product_cart_max'] > 0 && $arr_cart_values['product_cart_max'] < $product_amount_max)
 						{
-							$product_amount_max = $product_cart_max;
+							$product_amount_max = $arr_cart_values['product_cart_max'];
 						}
 
 						$total_sum += $this->display_price(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
@@ -5083,7 +5153,7 @@ class mf_webshop
 						$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
 						$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
 						$arr_products[$key]['product_amount_max'] = $product_amount_max;
-						$arr_products[$key]['product_time_limit'] = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+						$arr_products[$key]['product_time_limit'] = ($arr_cart_values['product_stock_max'] > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
 						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
 						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
 						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
@@ -5191,9 +5261,9 @@ class mf_webshop
 
 		if($this->order_id != '')
 		{
-			list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
+			$arr_cart_values = $this->get_cart_values($product_id);
 
-			if($is_allowed_to_buy)
+			if($arr_cart_values['is_allowed_to_buy'])
 			{
 				$price_post_name = $this->get_post_name_for_type('price');
 				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
@@ -5251,9 +5321,13 @@ class mf_webshop
 								$json_output['debug'] .= "Update: ".var_export($post_data, true);
 							}
 
+							$arr_cart_values = $this->get_cart_values($product_id);
+
 							$json_output['response_add_to_cart'] = array(
 								'product_id' => $product_id,
 								'product_amount' => $product_amount_temp,
+								'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+								'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
 							);
 						}
 
@@ -5297,9 +5371,13 @@ class mf_webshop
 							$json_output['debug'] .= "Insert: ".var_export($post_data, true);
 						}
 
+						$arr_cart_values = $this->get_cart_values($product_id);
+
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
 							'product_amount' => 1,
+							'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+							'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
 						);
 					}
 
@@ -5316,6 +5394,423 @@ class mf_webshop
 		}
 
 		return $json_output;
+	}
+
+	function get_product_data($data, &$json_output)
+	{
+		global $wpdb, $obj_form, $obj_font_icons;
+
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
+
+		$is_single = false;
+
+		$this->product_init(array('post' => $data['product'], 'single' => $is_single, 'single_image' => $data['single_image']));
+
+		foreach($this->result as $r)
+		{
+			$this->meta_init(array('meta' => $r, 'single' => $is_single));
+
+			$post_search = check_var($this->meta_name, 'char');
+
+			$post_meta = '';
+
+			switch($this->meta_type)
+			{
+				case 'categories':
+				case 'categories_v2':
+					$this->arr_category_id = $post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
+
+					if($post_search != '' && !in_array($post_search, $post_meta))
+					{
+						$this->show_in_result = false;
+
+						break;
+					}
+				break;
+
+				case 'file_advanced':
+					$post_meta = get_post_meta_file_src(array('post_id' => $this->meta_id, 'meta_key' => $this->meta_prefix.$this->meta_name, 'is_image' => false));
+				break;
+
+				case 'location':
+					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, false);
+
+					if(count($post_meta) == 0)
+					{
+						if($post_search != '')
+						{
+							$this->show_in_result = false;
+
+							break;
+						}
+					}
+
+					else
+					{
+						if($post_search != '' && !in_array($post_search, $post_meta))
+						{
+							$this->show_in_result = false;
+
+							break;
+						}
+
+						$str_locations = "";
+
+						foreach($post_meta as $location_id)
+						{
+							$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
+						}
+
+						if($data['show_location_in_data'] == true)
+						{
+							$this->product_data .= "<span class='".$this->meta_type."'>".$str_locations."</span>";
+						}
+
+						else
+						{
+							if($this->meta_public == 'no')
+							{
+								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$str_locations."</span>";
+							}
+
+							else
+							{
+								$post_meta = $str_locations;
+							}
+						}
+
+						if($this->meta_public == 'no')
+						{
+							$post_meta = "";
+						}
+					}
+				break;
+
+				case 'read_more_button':
+					if($this->product_has_content && $this->product_url != "#")
+					{
+						$this->product_has_read_more = true;
+					}
+				break;
+
+				default:
+					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, true);
+
+					if($post_meta == '')
+					{
+						if($post_search != '')
+						{
+							$this->show_in_result = false;
+
+							break;
+						}
+					}
+
+					else
+					{
+						switch($this->meta_type)
+						{
+							case 'address':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+
+								if($data['show_location_in_data'] == true)
+								{
+									$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
+								}
+
+								if($this->meta_public == 'no')
+								{
+									$post_meta = "";
+								}
+							break;
+
+							case 'checkbox':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+
+								$post_meta = $post_meta == 1 ? "<i class='fa fa-check green'></i>" : "";
+							break;
+
+							case 'clock':
+								if($this->meta_public == 'yes')
+								{
+									if($this->meta_symbol != '')
+									{
+										$this->meta_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
+									}
+
+									$this->product_clock .= $this->meta_symbol.$post_meta;
+
+									$post_meta = "";
+								}
+							break;
+
+							case 'custom_categories':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+							break;
+
+							case 'coordinates':
+								$this->product_coordinates .= $post_meta;
+								$this->product_map = $post_meta;
+
+								$post_meta = "";
+							break;
+
+							case 'email':
+								$this->product_has_email = true;
+							break;
+
+							case 'gps':
+								$this->product_map = $post_meta;
+
+								$post_meta = "";
+							break;
+
+							case 'interval':
+								if($this->interval_type == $this->meta_name && $this->interval_range != '')
+								{
+									list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
+
+									if(!$this->is_between(array('value' => array($post_meta_min, $post_meta_max), 'compare' => array($this->interval_range_min, $this->interval_range_max))))
+									{
+										$this->show_in_result = false;
+
+										break;
+									}
+								}
+							break;
+
+							case 'local_address':
+								if($post_search != '' && $post_search != $post_meta)
+								{
+									$this->show_in_result = false;
+
+									break;
+								}
+
+								if($data['show_location_in_data'] == false)
+								{
+									$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
+								}
+
+								if($this->meta_public == 'no')
+								{
+									$post_meta = "";
+								}
+							break;
+
+							case 'number':
+							case 'price':
+							case 'size':
+								if($this->meta_type == 'price' && $post_meta != '')
+								{
+									$this->product_price = $post_meta;
+								}
+
+								if($post_search != '')
+								{
+									if(strpos($post_search, "-"))
+									{
+										list($post_search_min, $post_search_max) = explode("-", $post_search);
+
+										if($this->is_between(array('value' => array($post_meta), 'compare' => array($post_search_min, $post_search_max))))
+										{
+											$this->show_in_result = false;
+
+											break;
+										}
+									}
+
+									else
+									{
+										$post_meta_min = $post_meta_max = $post_meta;
+
+										if($post_search < $post_meta_min || $post_search > $post_meta_max)
+										{
+											$this->show_in_result = false;
+
+											break;
+										}
+									}
+								}
+
+								if($this->meta_type == 'number' && $this->number_amount == 1 || $this->meta_type == 'price' && $this->price_amount == 1 || $this->meta_type == 'size' && $this->size_amount == 1)
+								{
+									$this->product_data .= "<span class='".$this->meta_type."'>";
+
+										if($this->meta_symbol != '')
+										{
+											$this->product_data .= $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
+										}
+
+										else
+										{
+											$this->product_data .= $this->meta_title.": ";
+										}
+
+										if($this->meta_type == 'price')
+										{
+											$this->product_data .= $this->display_price(array('price' => $post_meta));
+										}
+
+										else
+										{
+											$this->product_data .= $post_meta;
+										}
+
+									$this->product_data .= "</span>";
+
+									$post_meta = "";
+								}
+							break;
+
+							case 'page':
+								$this->meta_title = get_the_title($post_meta);
+
+								$post_meta = get_permalink($post_meta);
+							break;
+
+							case 'content':
+							case 'description':
+							case 'textarea':
+								$this->product_has_content = true;
+
+								if($this->product_url == '#')
+								{
+									$this->product_url = get_permalink($this->product_id);
+								}
+							break;
+
+							case 'cart_max':
+							case 'ghost':
+							case 'overlay':
+							case 'phone':
+							case 'social':
+							case 'stock':
+							case 'text':
+							case 'url':
+								//Do nothing
+							break;
+
+							default:
+								$arr_filtered_meta_type = apply_filters('filter_webshop_meta_type', array('page' => 'list', 'meta_type' => $this->meta_type, 'post_meta' => $post_meta, 'meta_type_found' => false));
+
+								if($arr_filtered_meta_type['meta_type_found'])
+								{
+									$post_meta = $arr_filtered_meta_type['post_meta'];
+								}
+
+								else
+								{
+									do_log("The type ".$this->meta_type." does not have a case (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> list)");
+								}
+							break;
+						}
+					}
+				break;
+			}
+
+			$this->gather_product_meta(array(
+				'public' => $this->meta_public,
+				'title' => $this->meta_title,
+				'meta' => $post_meta,
+				'type' => $this->meta_type,
+				'symbol' => $this->meta_symbol,
+			));
+		}
+
+		if($this->show_in_result == true)
+		{
+			$ghost_post_name = $this->get_post_name_for_type('ghost');
+
+			if($ghost_post_name != '' && get_post_meta($this->product_id, $this->meta_prefix.$ghost_post_name, true) == true)
+			{
+				$this->product_url = '#';
+				$this->product_meta = array(
+					array(
+						'class' => 'description',
+						'content' => $this->product_description,
+					)
+				);
+			}
+
+			if($this->product_image != '')
+			{
+				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
+			}
+
+			/*else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
+			{
+				$product_image = "<div class='category_icon'>";
+
+					foreach($this->arr_category_id as $category_id)
+					{
+						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
+
+						$product_image .= $obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
+					}
+
+				$product_image .= "</div>";
+			}*/
+
+			else
+			{
+				$product_image = apply_filters('get_image_fallback', "");
+			}
+
+			$product_category = "";
+
+			$arr_categories = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
+
+			foreach($arr_categories as $category_id)
+			{
+				$product_category .= ($product_category != '' ? ", " : "").get_the_title($category_id);
+			}
+
+			$arr_cart_values = $this->get_cart_values($this->product_id);
+
+			$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
+
+			$json_output['product_response'][] = array(
+				'product_id' => $this->product_id,
+				'product_title' => $this->product_title,
+				'product_clock' => ($this->product_clock),
+				'product_address' => $this->product_address,
+				'product_data' => $this->product_data,
+				'product_category' => $product_category,
+				'product_location' => $this->product_location,
+				'product_url' => $this->product_url,
+				'product_price' => $this->product_price,
+				'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+				'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
+				'product_in_cart' => $arr_cart_values['product_in_cart'],
+				'product_time_limit' => $product_time_limit,
+				'product_has_read_more' => $this->product_has_read_more,
+				'product_image' => $product_image,
+				'product_meta' => $this->product_meta,
+				'product_description' => apply_filters('the_content', $this->product_description),
+				'product_has_email' => $this->product_has_email,
+				'product_map' => $this->product_map,
+				'product_timestamp' => current_time('mysql'),
+			);
+		}
 	}
 
 	function api_webshop_call()
@@ -5376,7 +5871,7 @@ class mf_webshop
 			$type_switch = $arr_type[0];
 		}
 
-		$arr_fields_excluded = array($this->meta_prefix.'searchable');
+		//$arr_fields_excluded = array($this->meta_prefix.'searchable');
 
 		switch($type_switch)
 		{
@@ -5472,10 +5967,10 @@ class mf_webshop
 												$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 												$multiple_temp = (isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false);
 
-												$display_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['display'] = !in_array($id_temp, $arr_fields_excluded);
+												/*$display_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['display'] = !in_array($id_temp, $arr_fields_excluded);
 
 												if($display_temp)
-												{
+												{*/
 													// Add options
 													switch($type_temp)
 													{
@@ -5621,7 +6116,7 @@ class mf_webshop
 															break;
 														}
 													}
-												}
+												//}
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = $value_temp;
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple_temp;
@@ -5903,8 +6398,8 @@ class mf_webshop
 					$query_where .= " AND (post_title LIKE '%".esc_sql($search_text)."%' OR post_content LIKE '%".esc_sql($search_text)."%')";
 				}
 
-				$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key = '".$this->meta_prefix.'searchable'."'";
-				$query_where .= " AND (searchable.meta_value IS null OR searchable.meta_value = 'yes')";
+				/*$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key = '".$this->meta_prefix.'searchable'."'";
+				$query_where .= " AND (searchable.meta_value IS null OR searchable.meta_value = 'yes')";*/
 
 				switch($order)
 				{
@@ -5949,7 +6444,7 @@ class mf_webshop
 					$query_order = " ORDER BY ".$query_order;
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s".$query_where.$query_group.$query_order, $this->post_type_products, 'publish'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', 0));
 
 				if(IS_SUPER_ADMIN)
 				{
@@ -5959,6 +6454,18 @@ class mf_webshop
 				foreach($result as $r)
 				{
 					$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $json_output);
+
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', $r->ID));
+
+					if(IS_SUPER_ADMIN)
+					{
+						$json_output['debug'] .= ", ".$wpdb->last_query;
+					}
+
+					foreach($result as $r)
+					{
+						$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $json_output);
+					}
 				}
 
 				$json_output['success'] = true;
@@ -6232,9 +6739,9 @@ class mf_webshop
 						{
 							if($product_amount > 0)
 							{
-								list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($product_id);
+								$arr_cart_values = $this->get_cart_values($product_id);
 
-								if($is_allowed_to_buy)
+								if($arr_cart_values['is_allowed_to_buy'])
 								{
 									$arr_products[$key]['amount'] = $product_amount;
 								}
@@ -6727,15 +7234,15 @@ class mf_webshop
 											$out .= "<div class='wp-block-button cart_buttons'>
 												<% if(is_allowed_to_buy)
 												{ %>
-													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
 												<% }
 												
 												else
 												{ %>
-													<a href='#' class='wp-block-button__link disabled' title='".__("I am sorry, but you can not buy more of this", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
+													<a href='#' class='wp-block-button__link disabled' title='<%= is_allowed_to_buy_reason %>'><i class='fa fa-plus'></i></a>
 												<% } %>
 
-												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i></a>
+												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
 												<% if(product_time_limit > 0)
 												{ %>
 													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
@@ -7594,440 +8101,6 @@ class mf_webshop
 
 		$this->meta_title = get_post_meta_or_default($this->meta_id, $this->meta_prefix.'document_alt_text', true, $this->meta_title);
 		$this->meta_symbol = get_post_meta($this->meta_id, $this->meta_prefix.'document_symbol', true);
-	}
-
-	function get_product_data($data, &$json_output)
-	{
-		global $wpdb, $obj_form, $obj_font_icons;
-
-		if(!isset($obj_font_icons))
-		{
-			$obj_font_icons = new mf_font_icons();
-		}
-
-		$is_single = false;
-
-		$this->product_init(array('post' => $data['product'], 'single' => $is_single, 'single_image' => $data['single_image']));
-
-		foreach($this->result as $r)
-		{
-			$this->meta_init(array('meta' => $r, 'single' => $is_single));
-
-			$post_search = check_var($this->meta_name, 'char');
-
-			$post_meta = '';
-
-			switch($this->meta_type)
-			{
-				case 'categories':
-				case 'categories_v2':
-					$this->arr_category_id = $post_meta = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
-
-					if($post_search != '' && !in_array($post_search, $post_meta))
-					{
-						$this->show_in_result = false;
-
-						break;
-					}
-				break;
-
-				case 'file_advanced':
-					$post_meta = get_post_meta_file_src(array('post_id' => $this->meta_id, 'meta_key' => $this->meta_prefix.$this->meta_name, 'is_image' => false));
-				break;
-
-				case 'location':
-					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, false);
-
-					if(count($post_meta) == 0)
-					{
-						if($post_search != '')
-						{
-							$this->show_in_result = false;
-
-							break;
-						}
-					}
-
-					else
-					{
-						if($post_search != '' && !in_array($post_search, $post_meta))
-						{
-							$this->show_in_result = false;
-
-							break;
-						}
-
-						$str_locations = "";
-
-						foreach($post_meta as $location_id)
-						{
-							$str_locations .= ($str_locations != '' ? ", " : "").get_the_title($location_id);
-						}
-
-						if($data['show_location_in_data'] == true)
-						{
-							$this->product_data .= "<span class='".$this->meta_type."'>".$str_locations."</span>";
-						}
-
-						else
-						{
-							if($this->meta_public == 'no')
-							{
-								$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$str_locations."</span>";
-							}
-
-							else
-							{
-								$post_meta = $str_locations;
-							}
-						}
-
-						if($this->meta_public == 'no')
-						{
-							$post_meta = "";
-						}
-					}
-				break;
-
-				case 'read_more_button':
-					if($this->product_has_content && $this->product_url != "#")
-					{
-						$this->product_has_read_more = true;
-					}
-				break;
-
-				default:
-					$post_meta = get_post_meta($this->product_id, $this->meta_prefix.$this->meta_name, true);
-
-					if($post_meta == '')
-					{
-						if($post_search != '')
-						{
-							$this->show_in_result = false;
-
-							break;
-						}
-					}
-
-					else
-					{
-						switch($this->meta_type)
-						{
-							case 'address':
-								if($post_search != '' && $post_search != $post_meta)
-								{
-									$this->show_in_result = false;
-
-									break;
-								}
-
-								if($data['show_location_in_data'] == true)
-								{
-									$this->product_data .= "<span class='".$this->meta_type."'>".$post_meta."</span>";
-								}
-
-								if($this->meta_public == 'no')
-								{
-									$post_meta = "";
-								}
-							break;
-
-							case 'checkbox':
-								if($post_search != '' && $post_search != $post_meta)
-								{
-									$this->show_in_result = false;
-
-									break;
-								}
-
-								$post_meta = $post_meta == 1 ? "<i class='fa fa-check green'></i>" : "";
-							break;
-
-							case 'clock':
-								if($this->meta_public == 'yes')
-								{
-									if($this->meta_symbol != '')
-									{
-										$this->meta_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol));
-									}
-
-									$this->product_clock .= $this->meta_symbol.$post_meta;
-
-									$post_meta = "";
-								}
-							break;
-
-							case 'custom_categories':
-								if($post_search != '' && $post_search != $post_meta)
-								{
-									$this->show_in_result = false;
-
-									break;
-								}
-							break;
-
-							case 'coordinates':
-								$this->product_coordinates .= $post_meta;
-								$this->product_map = $post_meta;
-
-								$post_meta = "";
-							break;
-
-							case 'email':
-								$this->product_has_email = true;
-							break;
-
-							case 'gps':
-								$this->product_map = $post_meta;
-
-								$post_meta = "";
-							break;
-
-							case 'interval':
-								if($this->interval_type == $this->meta_name && $this->interval_range != '')
-								{
-									list($post_meta_min, $post_meta_max) = $this->get_interval_min($post_meta);
-
-									if(!$this->is_between(array('value' => array($post_meta_min, $post_meta_max), 'compare' => array($this->interval_range_min, $this->interval_range_max))))
-									{
-										$this->show_in_result = false;
-
-										break;
-									}
-								}
-							break;
-
-							case 'local_address':
-								if($post_search != '' && $post_search != $post_meta)
-								{
-									$this->show_in_result = false;
-
-									break;
-								}
-
-								if($data['show_location_in_data'] == false)
-								{
-									$this->product_location .= ($this->product_location != '' ? ", " : "")."<span class='".$this->meta_type."'>".$post_meta."</span>";
-								}
-
-								if($this->meta_public == 'no')
-								{
-									$post_meta = "";
-								}
-							break;
-
-							case 'number':
-							case 'price':
-							case 'size':
-								if($this->meta_type == 'price' && $post_meta != '')
-								{
-									$this->product_price = $post_meta;
-								}
-
-								if($post_search != '')
-								{
-									if(strpos($post_search, "-"))
-									{
-										list($post_search_min, $post_search_max) = explode("-", $post_search);
-
-										if($this->is_between(array('value' => array($post_meta), 'compare' => array($post_search_min, $post_search_max))))
-										{
-											$this->show_in_result = false;
-
-											break;
-										}
-									}
-
-									else
-									{
-										$post_meta_min = $post_meta_max = $post_meta;
-
-										if($post_search < $post_meta_min || $post_search > $post_meta_max)
-										{
-											$this->show_in_result = false;
-
-											break;
-										}
-									}
-								}
-
-								if($this->meta_type == 'number' && $this->number_amount == 1 || $this->meta_type == 'price' && $this->price_amount == 1 || $this->meta_type == 'size' && $this->size_amount == 1)
-								{
-									$this->product_data .= "<span class='".$this->meta_type."'>";
-
-										if($this->meta_symbol != '')
-										{
-											$this->product_data .= $obj_font_icons->get_symbol_tag(array('symbol' => $this->meta_symbol, 'title' => $this->meta_title));
-										}
-
-										else
-										{
-											$this->product_data .= $this->meta_title.": ";
-										}
-
-										if($this->meta_type == 'price')
-										{
-											$this->product_data .= $this->display_price(array('price' => $post_meta));
-										}
-
-										else
-										{
-											$this->product_data .= $post_meta;
-										}
-
-									$this->product_data .= "</span>";
-
-									$post_meta = "";
-								}
-							break;
-
-							case 'page':
-								$this->meta_title = get_the_title($post_meta);
-
-								$post_meta = get_permalink($post_meta);
-							break;
-
-							case 'content':
-							case 'description':
-							case 'textarea':
-								$this->product_has_content = true;
-
-								if($this->product_url == '#')
-								{
-									$this->product_url = get_permalink($this->product_id);
-								}
-							break;
-
-							case 'cart_max':
-							case 'ghost':
-							case 'overlay':
-							case 'phone':
-							case 'social':
-							case 'stock':
-							case 'text':
-							case 'url':
-								//Do nothing
-							break;
-
-							default:
-								$arr_filtered_meta_type = apply_filters('filter_webshop_meta_type', array('page' => 'list', 'meta_type' => $this->meta_type, 'post_meta' => $post_meta, 'meta_type_found' => false));
-
-								if($arr_filtered_meta_type['meta_type_found'])
-								{
-									$post_meta = $arr_filtered_meta_type['post_meta'];
-								}
-
-								else
-								{
-									do_log("The type ".$this->meta_type." does not have a case (Product: ".$this->product_id." -> Meta: ".$this->meta_id." -> list)");
-								}
-							break;
-						}
-					}
-				break;
-			}
-
-			$this->gather_product_meta(array(
-				'public' => $this->meta_public,
-				'title' => $this->meta_title,
-				'meta' => $post_meta,
-				'type' => $this->meta_type,
-				'symbol' => $this->meta_symbol,
-			));
-		}
-
-		if($this->show_in_result == true)
-		{
-			$ghost_post_name = $this->get_post_name_for_type('ghost');
-
-			if($ghost_post_name != '' && get_post_meta($this->product_id, $this->meta_prefix.$ghost_post_name, true) == true)
-			{
-				$this->product_url = '#';
-				$this->product_meta = array(
-					array(
-						'class' => 'description',
-						'content' => $this->product_description,
-					)
-				);
-			}
-
-			if($this->product_image != '')
-			{
-				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
-			}
-
-			/*else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
-			{
-				$product_image = "<div class='category_icon'>";
-
-					foreach($this->arr_category_id as $category_id)
-					{
-						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
-
-						$product_image .= $obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
-					}
-
-				$product_image .= "</div>";
-			}*/
-
-			else
-			{
-				$product_image = apply_filters('get_image_fallback', "");
-			}
-
-			$product_category = "";
-
-			$arr_categories = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
-
-			foreach($arr_categories as $category_id)
-			{
-				$product_category .= ($product_category != '' ? ", " : "").get_the_title($category_id);
-			}
-
-			list($is_allowed_to_buy, $product_stock_max, $product_cart_max, $product_in_cart, $product_amount_left) = $this->get_cart_values($this->product_id);
-
-			$this->order_id = $this->get_cookie();
-
-			if($this->order_id != '')
-			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-				foreach($result as $r)
-				{
-					$post_id = $r->ID;
-					$post_modified = $r->post_modified;
-
-					$product_time_limit = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
-				}
-			}
-
-			else
-			{
-				$product_time_limit = 0;
-			}
-
-			$json_output['product_response'][] = array(
-				'product_id' => $this->product_id,
-				'product_title' => $this->product_title,
-				'product_clock' => ($this->product_clock),
-				'product_address' => $this->product_address,
-				'product_data' => $this->product_data,
-				'product_category' => $product_category,
-				'product_location' => $this->product_location,
-				'product_url' => $this->product_url,
-				'product_price' => $this->product_price,
-				'is_allowed_to_buy' => $is_allowed_to_buy,
-				'product_in_cart' => $product_in_cart,
-				'product_time_limit' => $product_time_limit,
-				'product_has_read_more' => $this->product_has_read_more,
-				'product_image' => $product_image,
-				'product_meta' => $this->product_meta,
-				'product_description' => apply_filters('the_content', $this->product_description),
-				'product_has_email' => $this->product_has_email,
-				'product_map' => $this->product_map,
-				'product_timestamp' => current_time('mysql'),
-			);
-		}
 	}
 
 	function get_distance($coordinates_1, $coordinates_2)
