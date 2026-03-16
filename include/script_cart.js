@@ -88,23 +88,33 @@ jQuery(function($)
 		}
 	}
 
-	$.ajax(
+	function get_webshop_cart()
 	{
-		url: script_webshop_cart.ajax_url,
-		type: 'post',
-		dataType: 'json',
-		data: {
-			action: 'api_webshop_call',
-			type: 'webshop_cart'
-		},
-		success: function(data)
+		$.ajax(
 		{
-			if(data.success)
+			url: script_webshop_cart.ajax_url,
+			type: 'post',
+			dataType: 'json',
+			data: {
+				action: 'api_webshop_call',
+				type: 'webshop_cart'
+			},
+			success: function(data)
 			{
-				render_cart(data);
+				if(data.success)
+				{
+					render_cart(data);
+				}
 			}
-		}
-	});
+		});
+	}
+
+	get_webshop_cart();
+
+	setInterval(function()
+	{
+		get_webshop_cart();
+	}, 60000);
 
 	/* Update cart */
 	/* ##################### */

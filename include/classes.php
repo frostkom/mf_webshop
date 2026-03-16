@@ -1968,8 +1968,8 @@ class mf_webshop
 
 							if($product_time_limit > 0)
 							{
-								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), $product_time_limit)."'>
-									<i class='fa fa-clock ".($product_time_limit < 2 ? "red" : "grey")."'></i>
+								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), $product_time_limit)."'>
+									<i class='fa fa-clock ".($product_time_limit <= ceil($this->product_time_limit / 2) ? "red" : "grey")."'></i>
 								</a>";
 							}
 
@@ -7245,8 +7245,8 @@ class mf_webshop
 												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
 												<% if(product_time_limit > 0)
 												{ %>
-													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
-														<i class='fa fa-clock grey'></i>
+													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
+														<i class='fa fa-clock <% if(product_time_limit <= ".ceil($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>'></i>
 													</a>
 												<% } %>
 											</div>";
@@ -7311,7 +7311,7 @@ class mf_webshop
 								."<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>"
 								."<% if(product_time_limit > 0)
 								{ %>
-									<i class='fa fa-clock grey' title='".sprintf(__("This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+									<i class='fa fa-clock <% if(product_time_limit <= ".ceil($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
 								<% } %>"
 							."</td>
 							<td><%= product_total %></td>

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 08:05+0100\n"
+"POT-Creation-Date: 2026-03-16 08:31+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -566,10 +566,9 @@ msgid "in Cart"
 msgstr "i varukorg"
 
 #: ../include/classes.php:1971
-#: ../include/classes.php:7248
 #, php-format
-msgid "This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout."
-msgstr "Detta är en produkt med begränsat lager. Den kommer att tas bort från din varukorg om %s minuter om du inte uppdaterar eller går till betalning."
+msgid "This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout."
+msgstr "Detta är en produkt med tidsbegränsning. Den kommer att tas bort från din varukorg om %s minuter om du inte uppdaterar varukorgen, din information eller går till betalning."
 
 #: ../include/classes.php:2022
 #: ../include/classes.php:6957
@@ -1205,6 +1204,11 @@ msgstr "Läs mer"
 #: ../include/classes.php:7180
 msgid "I could not find anything that corresponded to your choices"
 msgstr "Jag kunde inte hitta något som stämde överens med dina val"
+
+#: ../include/classes.php:7248
+#, php-format
+msgid "This is a product with limited stock. It will be removed from your cart in %s minutes if you do not update or checkout."
+msgstr "Detta är en produkt med begränsat lager. Den kommer att tas bort från din varukorg om %s minuter om du inte uppdaterar eller går till betalning."
 
 #: ../include/classes.php:7258
 msgid "You need to create a page for the Cart"
