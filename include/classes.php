@@ -30,6 +30,8 @@ class mf_webshop
 	var $product_price;
 	var $product_url;
 	var $product_time_limit = 20;
+	var $cart_time_limit = 10;
+	var $cart_amount_limit = 100;
 	var $show_in_result;
 	var $product_has_email;
 	var $size_amount;
@@ -72,9 +74,21 @@ class mf_webshop
 		return $_COOKIE[$this->cookie_name];
 	}
 
-	function get_cookie()
+	function get_cookie($set_cookie_if_not_set = true)
 	{
-		return (isset($_COOKIE[$this->cookie_name]) ? $_COOKIE[$this->cookie_name] : $this->set_cookie());
+		$out = "";
+
+		if(isset($_COOKIE[$this->cookie_name]))
+		{
+			$out = $_COOKIE[$this->cookie_name];
+		}
+
+		else if($set_cookie_if_not_set == true)
+		{
+			$this->set_cookie();
+		}
+
+		return $out;
 	}
 
 	function get_category_colors($data = [])
@@ -1693,32 +1707,45 @@ class mf_webshop
 		return $out;
 	}
 
+	function get_order_products()
+	{
+		global $wpdb, $obj_base;
+
+		if(!($this->order_id != ''))
+		{
+			$this->order_id = $this->get_cookie();
+		}
+
+		$arr_products = [];
+
+		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+		foreach($result as $r)
+		{
+			$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+		}
+
+		return $arr_products;
+	}
+
 	function get_product_in_cart($product_id)
 	{
 		global $wpdb;
 
 		$out = 0;
 
-		$this->order_id = $this->get_cookie();
+		$this->order_id = $this->get_cookie(false);
 
 		if($product_id > 0 && $this->order_id != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$arr_products = $this->get_order_products();
 
-			foreach($result as $r)
+			foreach($arr_products as $key => $arr_product)
 			{
-				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-				if(is_array($arr_products))
+				if($arr_product['id'] == $product_id)
 				{
-					foreach($arr_products as $key => $arr_product)
-					{
-						if($arr_product['id'] == $product_id)
-						{
-							$out = $arr_product['amount'];
-							break;
-						}
-					}
+					$out = $arr_product['amount'];
+					break;
 				}
 			}
 		}
@@ -1808,6 +1835,8 @@ class mf_webshop
 			'product_amount_left' => 100,
 		);
 
+		$this->order_id = $this->get_cookie();
+
 		$out['product_in_cart'] = $this->get_product_in_cart($product_id);
 
 		$cart_max_post_name = $this->get_post_name_for_type('cart_max');
@@ -1848,28 +1877,47 @@ class mf_webshop
 				$out['is_allowed_to_buy'] = false;
 				$out['is_allowed_to_buy_reason'] = sprintf(__("You have to buy %s first", 'lang_webshop'), get_the_title($product_parent));
 
-				$this->order_id = $this->get_cookie();
+				$arr_products = $this->get_order_products();
 
-				if($this->order_id != '')
+				if(is_array($arr_products) && count($arr_products) > 0)
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-					foreach($result as $r)
+					foreach($arr_products as $key => $arr_product)
 					{
-						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-						if(is_array($arr_products) && count($arr_products) > 0)
+						if($arr_product['id'] == $product_parent)
 						{
-							foreach($arr_products as $key => $arr_product)
-							{
-								if($arr_product['id'] == $product_parent)
-								{
-									$out['is_allowed_to_buy'] = true;
-									break;
-								}
-							}
+							$out['is_allowed_to_buy'] = true;
+							break;
 						}
 					}
+				}
+			}
+		}
+		
+		if($out['is_allowed_to_buy'] == true)
+		{
+			if(!isset($arr_products))
+			{
+				$arr_products = $this->get_order_products();
+			}
+
+			if(is_array($arr_products) && count($arr_products) > 0)
+			{
+				// All good. You are allowed to continue
+			}
+
+			else
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL ".$this->cart_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+				$count_temp = $wpdb->num_rows;
+
+				if($count_temp >= $this->cart_amount_limit)
+				{
+					// Get my order created time and modified time
+					// Get amount of orders that has a created time and modified time before me in the queue
+					$number_of_visitors_before_you = 10;
+
+					$out['is_allowed_to_buy'] = false;
+					$out['is_allowed_to_buy_reason'] = sprintf(__("There are already %d people making their orders. And you are number %d in the queue after that.", 'lang_webshop'), $count_temp, $number_of_visitors_before_you);
 				}
 			}
 		}
@@ -1883,7 +1931,7 @@ class mf_webshop
 
 		$out = 0;
 
-		$this->order_id = $this->get_cookie();
+		$this->order_id = $this->get_cookie(false);
 
 		if($this->order_id != '')
 		{
@@ -5036,7 +5084,7 @@ class mf_webshop
 	{
 		global $post;
 
-		$this->order_id = $this->get_cookie();
+		$this->order_id = $this->get_cookie(false);
 
 		if($this->order_id != '')
 		{
@@ -5139,7 +5187,7 @@ class mf_webshop
 
 		else
 		{
-			if(!($this->order_id > 0))
+			if(!($this->order_id != ''))
 			{
 				$this->order_id = $this->get_cookie();
 			}
@@ -5247,30 +5295,17 @@ class mf_webshop
 		global $wpdb;
 
 		$json_output = array(
-			'success' => false,
+			'success' => true,
 			'product_amount' => 0,
 		);
 
 		$this->order_id = $this->get_cookie();
 
-		if($this->order_id != '')
+		$arr_products = $this->get_order_products();
+
+		foreach($arr_products as $key => $arr_product)
 		{
-			$json_output['success'] = true;
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			foreach($result as $r)
-			{
-				$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-				if(is_array($arr_products) && count($arr_products) > 0)
-				{
-					foreach($arr_products as $key => $arr_product)
-					{
-						$json_output['product_amount'] += $arr_product['amount'];
-					}
-				}
-			}
+			$json_output['product_amount'] += $arr_product['amount'];
 		}
 
 		header('Content-Type: application/json');
@@ -5284,105 +5319,48 @@ class mf_webshop
 
 		$this->order_id = $this->get_cookie();
 
-		if($this->order_id != '')
+		$arr_cart_values = $this->get_cart_values($product_id);
+
+		if($arr_cart_values['is_allowed_to_buy'])
 		{
-			$arr_cart_values = $this->get_cart_values($product_id);
+			$price_post_name = $this->get_post_name_for_type('price');
+			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
-			if($arr_cart_values['is_allowed_to_buy'])
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			if($wpdb->num_rows > 0)
 			{
-				$price_post_name = $this->get_post_name_for_type('price');
-				$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-				if($wpdb->num_rows > 0)
+				foreach($result as $r)
 				{
-					foreach($result as $r)
+					$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+
+					$product_amount_temp = 1;
+					$was_in_array = false;
+
+					foreach($arr_products as $key => $arr_product)
 					{
-						$arr_products = get_post_meta($r->ID, $this->meta_prefix.'products', true);
-
-						if(!is_array($arr_products))
+						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 						{
-							$arr_products = [];
-						}
+							$product_amount_temp = ++$arr_products[$key]['amount'];
 
-						$product_amount_temp = 1;
-						$was_in_array = false;
-
-						foreach($arr_products as $key => $arr_product)
-						{
-							if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
-							{
-								$product_amount_temp = ++$arr_products[$key]['amount'];
-
-								$was_in_array = true;
-								break;
-							}
-						}
-
-						if($was_in_array == false)
-						{
-							$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $product_amount_temp);
-						}
-
-						$post_data = array(
-							'ID' => $r->ID,
-							'meta_input' => apply_filters('filter_meta_input', array(
-								$this->meta_prefix.'products' => $arr_products,
-							)),
-						);
-
-						if(wp_update_post($post_data) > 0)
-						{
-							$json_output['success'] = true;
-
-							if(IS_SUPER_ADMIN)
-							{
-								if(!isset($json_output['debug']))
-								{
-									$json_output['debug'] = "";
-								}
-
-								$json_output['debug'] .= "Update: ".var_export($post_data, true);
-							}
-
-							$arr_cart_values = $this->get_cart_values($product_id);
-
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'product_amount' => $product_amount_temp,
-								'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
-								'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
-							);
-						}
-
-						else
-						{
-							$json_output['response_add_to_cart'] = array(
-								'product_id' => $product_id,
-								'text' => __("Try Again", 'lang_webshop'),
-								'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
-							);
+							$was_in_array = true;
+							break;
 						}
 					}
-				}
 
-				else
-				{
-					$arr_products = [];
-					$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+					if($was_in_array == false)
+					{
+						$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => $product_amount_temp);
+					}
 
 					$post_data = array(
-						'post_type' => $this->post_type_orders,
-						'post_status' => 'draft',
-						'post_title' => $this->order_id,
+						'ID' => $r->ID,
 						'meta_input' => apply_filters('filter_meta_input', array(
-							$this->meta_prefix.'cart_hash' => $this->order_id,
 							$this->meta_prefix.'products' => $arr_products,
 						)),
 					);
 
-					if(wp_insert_post($post_data) > 0)
+					if(wp_update_post($post_data) > 0)
 					{
 						$json_output['success'] = true;
 
@@ -5393,14 +5371,14 @@ class mf_webshop
 								$json_output['debug'] = "";
 							}
 
-							$json_output['debug'] .= "Insert: ".var_export($post_data, true);
+							$json_output['debug'] .= "Update: ".var_export($post_data, true);
 						}
 
 						$arr_cart_values = $this->get_cart_values($product_id);
 
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
-							'product_amount' => 1,
+							'product_amount' => $product_amount_temp,
 							'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
 							'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
 						);
@@ -5411,9 +5389,58 @@ class mf_webshop
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
 							'text' => __("Try Again", 'lang_webshop'),
-							'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
+							'error' => sprintf(__("I could not update your cart with %d of %s", 'lang_webshop'), 1, get_the_title($product_id)),
 						);
 					}
+				}
+			}
+
+			else
+			{
+				$arr_products = [];
+				$arr_products[] = array('id' => $product_id, 'price' => $product_price, 'amount' => 1);
+
+				$post_data = array(
+					'post_type' => $this->post_type_orders,
+					'post_status' => 'draft',
+					'post_title' => $this->order_id,
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'cart_hash' => $this->order_id,
+						$this->meta_prefix.'products' => $arr_products,
+					)),
+				);
+
+				if(wp_insert_post($post_data) > 0)
+				{
+					$json_output['success'] = true;
+
+					if(IS_SUPER_ADMIN)
+					{
+						if(!isset($json_output['debug']))
+						{
+							$json_output['debug'] = "";
+						}
+
+						$json_output['debug'] .= "Insert: ".var_export($post_data, true);
+					}
+
+					$arr_cart_values = $this->get_cart_values($product_id);
+
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'product_amount' => 1,
+						'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+						'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
+					);
+				}
+
+				else
+				{
+					$json_output['response_add_to_cart'] = array(
+						'product_id' => $product_id,
+						'text' => __("Try Again", 'lang_webshop'),
+						'error' => sprintf(__("I could not add %d of %s to your cart", 'lang_webshop'), 1, get_the_title($product_id)),
+					);
 				}
 			}
 		}
@@ -6513,28 +6540,25 @@ class mf_webshop
 	{
 		global $wpdb;
 
+		$this->order_id = $this->get_cookie();
+
 		$arr_fields = check_var('arr_fields');
 
 		$out = [];
 
-		$this->order_id = $this->get_cookie();
+		$obj_encryption = new mf_encryption(__CLASS__);
 
-		if($this->order_id != '')
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+		foreach($result as $r)
 		{
-			$obj_encryption = new mf_encryption(__CLASS__);
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			foreach($result as $r)
+			foreach($this->arr_meta_keys as $meta_key)
 			{
-				foreach($this->arr_meta_keys as $meta_key)
-				{
-					$order_detail = get_post_meta($r->ID, $this->meta_prefix.$meta_key, true);
+				$order_detail = get_post_meta($r->ID, $this->meta_prefix.$meta_key, true);
 
-					if($order_detail != '')
-					{
-						$out[] = array('id' => $meta_key, 'value' => $obj_encryption->decrypt($order_detail, md5($this->order_id)));
-					}
+				if($order_detail != '')
+				{
+					$out[] = array('id' => $meta_key, 'value' => $obj_encryption->decrypt($order_detail, md5($this->order_id)));
 				}
 			}
 		}
@@ -6659,73 +6683,70 @@ class mf_webshop
 
 		$this->order_id = $this->get_cookie();
 
-		if($this->order_id != '')
+		foreach($this->arr_meta_keys as $meta_key)
 		{
-			foreach($this->arr_meta_keys as $meta_key)
+			$this->order_details[$meta_key] = check_var($meta_key);
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+		if($wpdb->num_rows > 0)
+		{
+			$obj_encryption = new mf_encryption(__CLASS__);
+
+			foreach($result as $r)
 			{
-				$this->order_details[$meta_key] = check_var($meta_key);
-			}
+				$post_id = $r->ID;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+				$post_data = array('meta_input' => array());
 
-			if($wpdb->num_rows > 0)
-			{
-				$obj_encryption = new mf_encryption(__CLASS__);
-
-				foreach($result as $r)
+				foreach($this->arr_meta_keys as $meta_key)
 				{
-					$post_id = $r->ID;
-
-					$post_data = array('meta_input' => array());
-
-					foreach($this->arr_meta_keys as $meta_key)
+					if($this->order_details[$meta_key] != '')
 					{
-						if($this->order_details[$meta_key] != '')
-						{
-							$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
-						}
-
-						$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
+						$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
 					}
 
-					$post_data['ID'] = $post_id;
-					$post_data['meta_input'] = apply_filters('filter_meta_input', $post_data['meta_input'], $post_data['ID']);
+					$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
+				}
 
-					if(wp_update_post($post_data))
+				$post_data['ID'] = $post_id;
+				$post_data['meta_input'] = apply_filters('filter_meta_input', $post_data['meta_input'], $post_data['ID']);
+
+				if(wp_update_post($post_data))
+				{
+					$json_output['success'] = true;
+					$json_output['response_fields'] = [];
+
+					/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
+					/*if($this->order_details['address_street'] != '')
 					{
-						$json_output['success'] = true;
-						$json_output['response_fields'] = [];
+						$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
 
-						/* Since the data is encrypted we can't do this. Then it has to loop through every order and decrypt the data, and then compare */
-						/*if($this->order_details['address_street'] != '')
+						foreach($result_address as $r)
 						{
-							$result_address = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status != %s AND ID != '%d' ORDER BY post_modified ASC", $this->meta_prefix.'address_street', $this->order_details['address_street'], $this->post_type_orders, 'trash', $post_id));
+							$cart_hash = get_post_meta($r->ID, $this->meta_prefix.'cart_hash', true);
 
-							foreach($result_address as $r)
+							$order_address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
+
+							if($order_address_zip != '')
 							{
-								$cart_hash = get_post_meta($r->ID, $this->meta_prefix.'cart_hash', true);
-
-								$order_address_zip = get_post_meta($r->ID, $this->meta_prefix.'address_zip', true);
-
-								if($order_address_zip != '')
-								{
-									$json_output['response_fields']['address_zip'] = $obj_encryption->decrypt($order_address_zip, md5($cart_hash));
-								}
+								$json_output['response_fields']['address_zip'] = $obj_encryption->decrypt($order_address_zip, md5($cart_hash));
 							}
-						}*/
-					}
+						}
+					}*/
+				}
 
-					else
-					{
-						$json_output['error'] = "Not updated";
-					}
+				else
+				{
+					$json_output['error'] = "Not updated";
 				}
 			}
+		}
 
-			else
-			{
-				$json_output['error'] = "No order found (".$wpdb->last_query.")";
-			}
+		else
+		{
+			$json_output['error'] = "No order found (".$wpdb->last_query.")";
 		}
 
 		header('Content-Type: application/json');
@@ -6743,75 +6764,72 @@ class mf_webshop
 
 		$this->order_id = $this->get_cookie();
 
-		if($this->order_id != '')
+		$product_name = check_var('product_name');
+		$product_amount = check_var('product_amount');
+
+		list($product_rest, $product_id) = explode("_", $product_name);
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+		if($wpdb->num_rows > 0)
 		{
-			$product_name = check_var('product_name');
-			$product_amount = check_var('product_amount');
-
-			list($product_rest, $product_id) = explode("_", $product_name);
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			if($wpdb->num_rows > 0)
+			foreach($result as $r)
 			{
-				foreach($result as $r)
+				$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+
+				foreach($arr_products as $key => $arr_product)
 				{
-					$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
-
-					foreach($arr_products as $key => $arr_product)
+					if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 					{
-						if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
+						if($product_amount > 0)
 						{
-							if($product_amount > 0)
+							$arr_cart_values = $this->get_cart_values($product_id);
+
+							if($arr_cart_values['is_allowed_to_buy'])
 							{
-								$arr_cart_values = $this->get_cart_values($product_id);
-
-								if($arr_cart_values['is_allowed_to_buy'])
-								{
-									$arr_products[$key]['amount'] = $product_amount;
-								}
-
-								/*else
-								{
-									$arr_products[$key]['amount']--;
-								}*/
+								$arr_products[$key]['amount'] = $product_amount;
 							}
 
-							else
+							/*else
 							{
-								unset($arr_products[$key]);
-							}
-
-							break;
+								$arr_products[$key]['amount']--;
+							}*/
 						}
-					}
 
-					$arr_products = array_values($arr_products);
+						else
+						{
+							unset($arr_products[$key]);
+						}
 
-					$post_data = array(
-						'ID' => $r->ID,
-						'meta_input' => apply_filters('filter_meta_input', array(
-							$this->meta_prefix.'products' => $arr_products,
-						)),
-					);
-
-					if(wp_update_post($post_data) > 0)
-					{
-						$json_output['success'] = true;
-						$json_output = $this->get_webshop_cart($json_output);
-					}
-
-					else
-					{
-						$json_output['error'] = "I could not update (".$wpdb->last_query.")";
+						break;
 					}
 				}
-			}
 
-			else
-			{
-				$json_output['error'] = "No order found (".$wpdb->last_query.")";
+				$arr_products = array_values($arr_products);
+
+				$post_data = array(
+					'ID' => $r->ID,
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'products' => $arr_products,
+					)),
+				);
+
+				if(wp_update_post($post_data) > 0)
+				{
+					$json_output['success'] = true;
+					$json_output = $this->get_webshop_cart($json_output);
+				}
+
+				else
+				{
+					$json_output['error'] = "I could not update (".$wpdb->last_query.")";
+				}
 			}
+		}
+
+		else
+		{
+			$json_output['error'] = "No order found (".$wpdb->last_query.")";
 		}
 
 		header('Content-Type: application/json');
@@ -6827,25 +6845,20 @@ class mf_webshop
 			'success' => false,
 		);
 
-		$this->order_id = $this->get_cookie();
+		$this->order_id = $this->get_cookie(false);
 
 		if($this->order_id != '')
 		{
 			$product_id = check_var('product_id');
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$arr_products = $this->get_order_products();
 
-			foreach($result as $r)
+			foreach($arr_products as $key => $arr_product)
 			{
-				$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
-
-				foreach($arr_products as $key => $arr_product)
+				if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
 				{
-					if(isset($arr_product['id']) && $arr_product['id'] == $product_id)
-					{
-						$json_output['success'] = true;
-						$json_output['product_amount'] = $arr_product['amount'];
-					}
+					$json_output['success'] = true;
+					$json_output['product_amount'] = $arr_product['amount'];
 				}
 			}
 		}
