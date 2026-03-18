@@ -338,7 +338,7 @@ echo ".product_list > li.loading
 			{
 				border-radius: 50%;
 			}
-			
+
 		.product_list .product_meta strong
 		{
 			display: inline-block;

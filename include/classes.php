@@ -570,12 +570,10 @@ class mf_webshop
 				{
 					$post_id = $r->ID;
 
-					$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
+					$arr_products_orig = $arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
 
 					if(is_array($arr_products))
 					{
-						$updated = false;
-
 						foreach($arr_products as $key => $arr_product)
 						{
 							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
@@ -583,12 +581,10 @@ class mf_webshop
 							if($product_stock_max > 0)
 							{
 								unset($arr_products[$key]);
-
-								$updated = true;
 							}
 						}
 
-						if($updated == true)
+						if($arr_products != $arr_products_orig)
 						{
 							$arr_products = array_values($arr_products);
 
@@ -1363,7 +1359,7 @@ class mf_webshop
 										.show_button(array('name' => 'btnWebshopPayCard', 'text' => sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 									."</div>";*/
 
-									if($test_mode == 'yes')
+									if($test_mode != 'no')
 									{
 										$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
 									}
@@ -1729,7 +1725,7 @@ class mf_webshop
 
 		return $out;
 	}
-	
+
 	function get_amount_in_carts($product_id)
 	{
 		global $wpdb;
@@ -1798,7 +1794,7 @@ class mf_webshop
 
 		return $data['price'];
 	}
-	
+
 	function get_cart_values($product_id)
 	{
 		global $wpdb;
@@ -2000,7 +1996,7 @@ class mf_webshop
 			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
 
 			$post_date = get_post_field('post_date', $post_id);
-			
+
 			$order_number = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
 			$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
 
@@ -2145,19 +2141,21 @@ class mf_webshop
 										$out .= "<span title='".$payment_method."'>".__("unknown", 'lang_webshop')."</span>";
 									}
 
-									if(IS_SUPER_ADMIN)
+									/*if(IS_SUPER_ADMIN)
 									{
 										$out .= " (".$payment_method.", ".$payment_method_id.")";
-									}
-								
+									}*/
+
 								$out .= "</td>
 							</tr>";
 
-							if(IS_SUPER_ADMIN)
+							if(IS_SUPER_ADMIN && $test_mode != 'no')
 							{
+								do_action('load_font_awesome');
+
 								$out .= "<tr>
 									<td>".__("Test Mode", 'lang_webshop')."</td>
-									<td><i class='fa ".($test_mode == 'yes' ? "fa-check green" : "fa-times red")."'></i></td>
+									<td><i class='fa fa-exclamation-triangle yellow'></i></td>
 								</tr>";
 							}
 
@@ -4320,6 +4318,13 @@ class mf_webshop
 					$columns['category'] = __("Categories", 'lang_webshop');
 				}
 
+				$result = $this->get_post_type_info(array('type' => 'stock'));
+
+				if(isset($result->post_title))
+				{
+					$columns['stock'] = $result->post_title;
+				}
+
 				$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone', 'event'); //address
 				$arr_columns_admin = array('email', 'phone');
 
@@ -4367,6 +4372,7 @@ class mf_webshop
 			break;
 
 			case $this->post_type_orders:
+				$columns['test_mode'] = __("Test Mode", 'lang_webshop');
 				$columns['products'] = __("Products", 'lang_webshop');
 				$columns['details'] = __("Details", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
@@ -4499,6 +4505,16 @@ class mf_webshop
 								}
 
 							echo "</div>";
+						}
+					break;
+
+					case 'stock':
+						$post_name = $this->get_post_name_for_type($column);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
+
+						if($post_meta > 0)
+						{
+							echo $post_meta;
 						}
 					break;
 
@@ -4702,6 +4718,18 @@ class mf_webshop
 			case $this->post_type_orders:
 				switch($column)
 				{
+					case 'test_mode':
+						if(get_post_status($post_id) == 'publish')
+						{
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+							if($post_meta != 'no')
+							{
+								echo "<i class='fa fa-exclamation-triangle yellow'></i>";
+							}
+						}
+					break;
+
 					case 'products':
 						$arr_post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 
@@ -4751,9 +4779,9 @@ class mf_webshop
 
 					case 'total_sum':
 					case 'total_tax':
-						$total_value = get_post_meta($post_id, $this->meta_prefix.$column, true);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 
-						if($total_value > 0)
+						if($post_meta > 0)
 						{
 							$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
 							$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
@@ -4765,7 +4793,7 @@ class mf_webshop
 
 							$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
-							echo $total_value." ".$paid_currency." ".$paid_tax_display_prefix;
+							echo $post_meta." ".$paid_currency." ".$paid_tax_display_prefix;
 						}
 					break;
 
@@ -5000,7 +5028,7 @@ class mf_webshop
 		{
 			return __("Order Confirmation", 'lang_webshop')." - ".get_bloginfo('name');
 		}
-		
+
 		return $title;
 	}
 
@@ -6854,7 +6882,7 @@ class mf_webshop
 		$payment_method_id = sanitize_text_field($arr_json['payment_method_id']);
 		$test_mode = sanitize_text_field($arr_json['test_mode']);
 
-		if($test_mode == 'yes' && in_array('stripe_test', $setting_webshop_payment_alternatives))
+		if($test_mode != 'no' && in_array('stripe_test', $setting_webshop_payment_alternatives))
 		{
 			$setting_key = 'setting_webshop_stripe_secret_key_test';
 		}
@@ -6917,7 +6945,7 @@ class mf_webshop
 						'post_status' => 'publish',
 						'meta_input' => array(
 							$this->meta_prefix.'payment_method_id' => $payment_method_id,
-							$this->meta_prefix.'payment_method' => 'stripe',
+							$this->meta_prefix.'payment_method' => ($test_mode != 'no' ? 'stripe_test' : 'stripe'),
 							$this->meta_prefix.'test_mode' => $test_mode,
 							$this->meta_prefix.'shipping_cost' => $arr_cart_data['response_webshop_cart']['shipping_cost_raw'],
 							$this->meta_prefix.'total_sum_invoice' => $arr_cart_data['response_webshop_cart']['total_sum_invoice_raw'],
@@ -6928,7 +6956,30 @@ class mf_webshop
 						),
 					);
 
-					if(!(wp_update_post($post_data) > 0))
+					if(wp_update_post($post_data) > 0)
+					{
+						if($test_mode == 'no')
+						{
+							$stock_post_name = $this->get_post_name_for_type('stock');
+
+							if($stock_post_name != '')
+							{
+								$arr_products = $arr_cart_data['response_webshop_cart']['products'];
+
+								foreach($arr_products as $key => $arr_product)
+								{
+									$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+
+									if($product_stock > 0 && $arr_product['amount'] > 0)
+									{
+										update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock - $arr_product['amount']));
+									}
+								}
+							}
+						}
+					}
+
+					else
 					{
 						do_log(__FUNCTION__.": The payment was successful but the order was not updated correctly (".var_export($post_data, true).")");
 					}
@@ -6960,8 +7011,18 @@ class mf_webshop
 					if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
 					{
 						$mail_to = get_bloginfo('admin_email');
-						$mail_subject = __("An order has been placed", 'lang_webshop');
-						$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+
+						if($test_mode != 'no')
+						{
+							$mail_subject = __("A TEST order has been placed", 'lang_webshop');
+							$mail_content = sprintf(__("Go to %s to see the order. But be aware that it is only a TEST order.", 'lang_webshop'), $return_url);
+						}
+
+						else
+						{
+							$mail_subject = __("An order has been placed", 'lang_webshop');
+							$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+						}
 
 						$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
 					}
@@ -7233,7 +7294,7 @@ class mf_webshop
 												{ %>
 													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
 												<% }
-												
+
 												else
 												{ %>
 													<a href='#' class='wp-block-button__link disabled' title='<%= is_allowed_to_buy_reason %>'><i class='fa fa-plus'></i></a>
@@ -7503,7 +7564,7 @@ class mf_webshop
 		{
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_title ASC";
 		}
-		
+
 		else if($data['order_by'] == 'menu_order')
 		{
 			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."menu_order ASC";
