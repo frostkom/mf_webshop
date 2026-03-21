@@ -2168,12 +2168,7 @@ class mf_webshop
 					$total_sum = get_post_meta($post_id, $this->meta_prefix.'total_sum', true);
 					$total_tax = get_post_meta($post_id, $this->meta_prefix.'total_tax', true);
 					$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
-					$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
-
-					if($paid_tax_display == '')
-					{
-						$paid_tax_display = get_option('setting_webshop_tax_display', 'yes');
-					}
+					$paid_tax_display = get_post_meta_or_default($post_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
 
 					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
@@ -3448,8 +3443,7 @@ class mf_webshop
 
 	function admin_menu()
 	{
-		global $wpdb;
-
+		$menu_root = 'mf_webshop/';
 		$menu_start = "edit.php?post_type=".$this->post_type_products;
 		$menu_capability = 'edit_posts';
 
@@ -3482,6 +3476,9 @@ class mf_webshop
 
 			$menu_title = __("Orders", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_orders);
+
+			$menu_title = __("Statistics", 'lang_webshop');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root."stats/index.php");
 		}
 
 		else
@@ -4839,12 +4836,7 @@ class mf_webshop
 						if($post_meta > 0)
 						{
 							$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
-							$paid_tax_display = get_post_meta($post_id, $this->meta_prefix.'paid_tax_display', true);
-
-							if($paid_tax_display == '')
-							{
-								$paid_tax_display = get_option('setting_webshop_tax_display', 'yes');
-							}
+							$paid_tax_display = get_post_meta_or_default($post_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
 
 							$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
