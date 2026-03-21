@@ -7,7 +7,7 @@ var WebshopView = Backbone.View.extend(
 	initialize: function()
 	{
 		/* Product */
-		this.model.on("change:product_response", this.show_products, this);
+		/*this.model.on("change:product_response", this.show_products, this);*/
 		this.model.on("change:product_amount", this.show_product_amount, this);
 		this.model.on("change:response_add_to_cart", this.show_add_to_cart, this);
 
@@ -382,7 +382,7 @@ var WebshopView = Backbone.View.extend(
 		update_cart_icon();
 	},
 
-	show_products: function()
+	/*show_products: function()
 	{
 		if(this.has_product_result)
 		{
@@ -413,7 +413,7 @@ var WebshopView = Backbone.View.extend(
 
 			this.show_quote_request_button();
 		}
-	},
+	},*/
 
 	show_product_amount: function()
 	{

@@ -21,6 +21,11 @@ jQuery(function($)
 				{
 					dom_obj.siblings(".in_cart").removeClass('hide').find("span:first-of-type").text(data.product_amount).removeClass('hide');
 				}
+
+				/*else if(data.data.redirect_url)
+				{
+					window.location.href = data.data.redirect_url;
+				}*/
 			}
 		});
 	});
@@ -56,6 +61,11 @@ jQuery(function($)
 
 					update_cart_icon();
 				}
+
+				/*else if(data.data.redirect_url)
+				{
+					window.location.href = data.data.redirect_url;
+				}*/
 			}
 		});
 

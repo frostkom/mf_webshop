@@ -28,6 +28,11 @@ jQuery(function($)
 			{
 				$(".webshop_cart_icon").removeClass('hide').children("div").text(data.product_amount);
 			}
+
+			/*else if(data.data.redirect_url)
+			{
+				window.location.href = data.data.redirect_url;
+			}*/
 		}
 	});
 });
