@@ -292,51 +292,51 @@ class mf_webshop
 	{
 		$arr_data = array(
 			'group_information' => "-- ".__("Information", 'lang_webshop')." --",
-				'description' => __("Description", 'lang_webshop'),
 				'heading' => __("Heading", 'lang_webshop'),
+				'description' => __("Description", 'lang_webshop'),
 				'content' => __("Content", 'lang_webshop'),
-				'label' => __("Label", 'lang_webshop'),
+				//'label' => __("Label", 'lang_webshop'),
 			'group_input' => "-- ".__("Input", 'lang_webshop')." --",
 				'text' => __("Text", 'lang_webshop'),
-				'textarea' => __("Textarea", 'lang_webshop'),
-				'date' => __("Date", 'lang_webshop'),
+				//'textarea' => __("Textarea", 'lang_webshop'),
+				//'date' => __("Date", 'lang_webshop'),
 				'email' => __("E-mail", 'lang_webshop'),
 				'phone' => __("Phone Number", 'lang_webshop'),
 				'url' => __("URL", 'lang_webshop'),
-				'clock' => __("Clock", 'lang_webshop'),
-				'checkbox' => __("Checkbox", 'lang_webshop'),
-			'group_special_input' => "-- ".__("Special Input", 'lang_webshop')." --",
-				'color' => __("Color Picker", 'lang_webshop'),
-				'event' => __("Event", 'lang_webshop'),
-				'page' => __("Page", 'lang_webshop'),
-				'file_advanced' => __("File", 'lang_webshop'),
-				'categories' => __("Categories", 'lang_webshop'),
-				'categories_v2' => __("Categories", 'lang_webshop')." (v2)",
-				'custom_categories' => __("Custom Categories", 'lang_webshop'),
-				'social' => __("Social Feed", 'lang_webshop'),
-				'overlay' => __("Overlay", 'lang_webshop'),
+				//'clock' => __("Clock", 'lang_webshop'),
+				//'checkbox' => __("Checkbox", 'lang_webshop'),
+			//'group_special_input' => "-- ".__("Special Input", 'lang_webshop')." --",
+				//'color' => __("Color Picker", 'lang_webshop'),
+				//'event' => __("Event", 'lang_webshop'),
+				//'page' => __("Page", 'lang_webshop'),
+				//'file_advanced' => __("File", 'lang_webshop'),
+				//'categories' => __("Categories", 'lang_webshop'),
+				//'categories_v2' => __("Categories", 'lang_webshop')." (v2)",
+				//'custom_categories' => __("Custom Categories", 'lang_webshop'),
+				//'social' => __("Social Feed", 'lang_webshop'),
+				//'overlay' => __("Overlay", 'lang_webshop'),
 			'group_numbers' => "-- ".__("Numbers", 'lang_webshop')." --",
-				'number' => __("Number", 'lang_webshop'),
+				//'number' => __("Number", 'lang_webshop'),
 				'price' => __("Price", 'lang_webshop'),
 				'size' => __("Size", 'lang_webshop'),
 				'stock' => __("Stock", 'lang_webshop'),
 				'cart_max' => __("Cart Max", 'lang_webshop'),
-				'interval' => __("Interval", 'lang_webshop'),
+				//'interval' => __("Interval", 'lang_webshop'),
 			'group_location' => "-- ".__("Location", 'lang_webshop')." --",
 				'city' => __("City", 'lang_webshop'),
 				'location' => __("Location", 'lang_webshop'),
 				'address' => __("Address", 'lang_webshop'),
 				'local_address' => __("Local Address", 'lang_webshop'),
-				'coordinates' => __("Coordinates", 'lang_webshop'),
-				'gps' => __("Map", 'lang_webshop'),
+				//'coordinates' => __("Coordinates", 'lang_webshop'),
+				//'gps' => __("Map", 'lang_webshop'),
 			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
 				'divider' => __("Divider", 'lang_webshop'),
 				'read_more_button' => __("Read More Button", 'lang_webshop'),
-				'container_start' => __("Start of Container", 'lang_webshop'),
-				'container_end' => __("End of Container", 'lang_webshop'),
-			'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
-				'ghost' => __("Hide Information", 'lang_webshop'),
-				'global_code' => __("Global Code", 'lang_webshop'),
+				//'container_start' => __("Start of Container", 'lang_webshop'),
+				//'container_end' => __("End of Container", 'lang_webshop'),
+			//'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
+				//'ghost' => __("Hide Information", 'lang_webshop'),
+				//'global_code' => __("Global Code", 'lang_webshop'),
 		);
 
 		$arr_data = apply_filters('get_webshop_filters_for_select', $arr_data);
@@ -510,8 +510,8 @@ class mf_webshop
 		$arr_data['searchable'] = __("Searchable", 'lang_webshop');
 		$arr_data['public'] = __("Results", 'lang_webshop');
 		$arr_data['public_single'] = __("Contact Info", 'lang_webshop');
-		$arr_data['quick'] = __("Quick Info", 'lang_webshop');
-		$arr_data['property'] = __("Properties", 'lang_webshop');
+		//$arr_data['quick'] = __("Quick Info", 'lang_webshop');
+		//$arr_data['property'] = __("Properties", 'lang_webshop');
 
 		return $arr_data;
 	}
@@ -3443,6 +3443,8 @@ class mf_webshop
 
 	function admin_menu()
 	{
+		global $wpdb;
+
 		$menu_root = 'mf_webshop/';
 		$menu_start = "edit.php?post_type=".$this->post_type_products;
 		$menu_capability = 'edit_posts';
@@ -3474,11 +3476,16 @@ class mf_webshop
 			$menu_title = __("Filters", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_document_type);
 
-			$menu_title = __("Orders", 'lang_webshop');
-			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_orders);
+			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s", $this->post_type_orders));
 
-			$menu_title = __("Statistics", 'lang_webshop');
-			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root."stats/index.php");
+			if($wpdb->num_rows > 0)
+			{
+				$menu_title = __("Orders", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_orders);
+
+				$menu_title = __("Statistics", 'lang_webshop');
+				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root."stats/index.php");
+			}
 		}
 
 		else
@@ -3903,7 +3910,7 @@ class mf_webshop
 					'condition_value' => $condition_value_placement,
 				),
 			),
-			array(
+			/*array(
 				'name' => __("Quick Info", 'lang_webshop'),
 				'id' => $this->meta_prefix.'document_quick',
 				'type' => 'select',
@@ -3938,10 +3945,10 @@ class mf_webshop
 					'condition_selector' => $this->meta_prefix.'document_type',
 					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay", "heading", "categories", "categories_v2", "event", "container_start", "container_end", "read_more_button", "file_advanced", "event", "coordinates", "divider"', //, "education"
 				),
-			),
+			),*/
 		);
 
-		if(is_plugin_active("mf_calendar/index.php"))
+		/*if(is_plugin_active("mf_calendar/index.php"))
 		{
 			$default_events = 'no';
 
@@ -3962,7 +3969,7 @@ class mf_webshop
 					'condition_value' => $condition_value_placement,
 				),
 			);
-		}
+		}*/
 
 		$arr_categories = $this->get_categories_for_select(array('include_on' => 'products', 'add_choose_here' => false));
 		$count_temp = count($arr_categories);
@@ -3992,7 +3999,7 @@ class mf_webshop
 			'type' => 'divider',
 		);
 
-		$arr_data_symbols = $this->get_symbols_for_select();
+		/*$arr_data_symbols = $this->get_symbols_for_select();
 
 		if(count($arr_data_symbols) > 1)
 		{
@@ -4038,19 +4045,19 @@ class mf_webshop
 			'name' => __("Custom class", 'lang_webshop'),
 			'id' => $this->meta_prefix.'custom_class',
 			'type' => 'text',
-			/* Same as document_searchable */
+			// Same as document_searchable
 			'attributes' => array(
 				'condition_type' => 'show_this_if',
 				'condition_selector' => $this->meta_prefix.'document_type',
 				'condition_value' => '"checkbox", "categories", "categories_v2", "custom_categories", "number", "price", "size", "stock", "interval", "location", "address", "local_address", "container_start", "container_end"',
 			),
-		);
+		);*/
 
 		$arr_fields[] = array(
 			'name' => __("Default value", 'lang_webshop'),
 			'id' => $this->meta_prefix.'document_default',
-			'type' => 'textarea',
-			/* Same as document_searchable */
+			'type' => 'text', // textarea
+			// Same as document_searchable
 			'attributes' => array(
 				'condition_type' => 'show_this_if',
 				'condition_selector' => $this->meta_prefix.'document_type',
@@ -4069,7 +4076,7 @@ class mf_webshop
 			),
 		);
 
-		$arr_fields[] = array(
+		/*$arr_fields[] = array(
 			'name' => __("Description", 'lang_webshop'),
 			'id' => $this->meta_prefix.'document_description',
 			'type' => 'text',
@@ -4078,7 +4085,7 @@ class mf_webshop
 				'condition_selector' => $this->meta_prefix.'document_type',
 				'condition_value' => '"description", "color", "gps", "container_start", "container_end"',
 			),
-		);
+		);*/
 
 		$meta_boxes[] = array(
 			'id' => $this->meta_prefix.'settings',
