@@ -347,6 +347,7 @@ class mf_webshop
 	function get_payment_alternatives_for_select()
 	{
 		$arr_data = [
+			'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
 			'invoice' => __("Invoice", 'lang_webshop'),
 		];
 
@@ -362,10 +363,34 @@ class mf_webshop
 
 		if(get_option('setting_webshop_swish_merchant_number') != '')
 		{
-			$arr_data['swish'] = __("Swish", 'lang_webshop');
+			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")";
+
+			if(get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
+			{
+				$arr_data['swish'] = __("Swish", 'lang_webshop');
+			}
 		}
 
 		return $arr_data;
+	}
+
+	function get_payment_method_name($string)
+	{
+		$out = "";
+
+		$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
+
+		if($string != '' && isset($arr_payment_alternatives[$string]))
+		{
+			$out .= $arr_payment_alternatives[$string];
+		}
+
+		else
+		{
+			$out .= "<span title='".$string."'>".__("unknown", 'lang_webshop')."</span>";
+		}
+
+		return $out;
 	}
 
 	function get_prefered_payment_alternative_for_select()
@@ -378,12 +403,7 @@ class mf_webshop
 
 		foreach($setting_webshop_payment_alternatives as $key)
 		{
-			$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
-
-			if(isset($arr_payment_alternatives[$key]))
-			{
-				$arr_data[$key] = $arr_payment_alternatives[$key];
-			}
+			$arr_data[$key] = $this->get_payment_method_name($key);
 		}
 
 		return $arr_data;
@@ -1085,6 +1105,103 @@ class mf_webshop
 		return $out;
 	}
 
+	function save_payment_success($data)
+	{
+		if(!isset($data['payment_method_id'])){		$data['payment_method_id'] = '';}
+
+		$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
+
+		$post_data = array(
+			'ID' => $data['post_id'],
+			'post_status' => 'publish',
+			'meta_input' => array(
+				$this->meta_prefix.'payment_method_id' => $data['payment_method_id'],
+				$this->meta_prefix.'payment_method' => ($data['test_mode'] != 'no' ? $data['payment_method'].'_test' : $data['payment_method']),
+				$this->meta_prefix.'test_mode' => $data['test_mode'],
+				$this->meta_prefix.'shipping_cost' => $data['arr_cart_data']['response_webshop_cart']['shipping_cost_raw'],
+				$this->meta_prefix.'invoice_cost' => $data['arr_cart_data']['response_webshop_cart']['invoice_cost_raw'],
+				//$this->meta_prefix.'total_sum_invoice' => $data['arr_cart_data']['response_webshop_cart']['total_sum_invoice_raw'],
+				$this->meta_prefix.'total_sum' => $data['arr_cart_data']['response_webshop_cart']['total_sum_raw'],
+				$this->meta_prefix.'total_tax' => $data['arr_cart_data']['response_webshop_cart']['total_tax_raw'],
+				$this->meta_prefix.'paid_currency' => $data['setting_webshop_currency'],
+				$this->meta_prefix.'paid_tax_display' => $setting_webshop_tax_display,
+			),
+		);
+
+		if(wp_update_post($post_data) > 0)
+		{
+			if($data['test_mode'] == 'no')
+			{
+				$stock_post_name = $this->get_post_name_for_type('stock');
+
+				if($stock_post_name != '')
+				{
+					$arr_products = $data['arr_cart_data']['response_webshop_cart']['products'];
+
+					foreach($arr_products as $key => $arr_product)
+					{
+						$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+
+						if($product_stock > 0 && $arr_product['amount'] > 0)
+						{
+							update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock - $arr_product['amount']));
+						}
+					}
+				}
+			}
+		}
+
+		else
+		{
+			do_log(__FUNCTION__.": The payment was successful but the order was not updated correctly (".var_export($post_data, true).")");
+		}
+
+		$return_url = get_permalink($data['post_id']);
+
+		$obj_encryption = new mf_encryption(__CLASS__);
+		$this->order_details = [];
+
+		foreach($this->arr_meta_keys as $meta_key)
+		{
+			$this->order_details[$meta_key] = get_post_meta($data['post_id'], $this->meta_prefix.$meta_key, true);
+
+			if($this->order_details[$meta_key] != '')
+			{
+				$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
+			}
+		}
+
+		if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
+		{
+			$mail_to = $this->order_details['contact_email'];
+			$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
+			$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+
+			$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+		}
+
+		if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
+		{
+			$mail_to = get_bloginfo('admin_email');
+
+			if($data['test_mode'] != 'no')
+			{
+				$mail_subject = __("A TEST order has been placed", 'lang_webshop');
+				$mail_content = sprintf(__("Go to %s to see the order. But be aware that it is only a TEST order.", 'lang_webshop'), $return_url);
+			}
+
+			else
+			{
+				$mail_subject = __("An order has been placed", 'lang_webshop');
+				$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+			}
+
+			$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+		}
+
+		return $return_url;
+	}
+
 	function block_render_cart_callback($attributes)
 	{
 		global $wpdb, $error_text, $done_text;
@@ -1098,6 +1215,7 @@ class mf_webshop
 		mf_enqueue_script('script_webshop_cart', $plugin_include_url."script_cart.js", array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'arr_webshop_input_type' => $arr_webshop_input_type,
+			'unknown_label' => __("unknown", 'lang_webshop'),
 		));
 
 		$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
@@ -1124,6 +1242,42 @@ class mf_webshop
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}
 
+		if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayManual']))
+		{
+			$this->order_id = $this->get_cookie();
+
+			$payment_method = 'manual';
+			$test_mode = 'no';
+
+			$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+			$setting_webshop_currency = get_option('setting_webshop_currency');
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+			if($wpdb->num_rows > 0)
+			{
+				foreach($result as $r)
+				{
+					$post_id = $r->ID;
+
+					$return_url = $this->save_payment_success(array(
+						'post_id' => $post_id,
+						'payment_method' => $payment_method,
+						'test_mode' => $test_mode,
+						'arr_cart_data' => $arr_cart_data,
+						'setting_webshop_currency' => $setting_webshop_currency,
+					));
+
+					mf_redirect($return_url);
+				}
+			}
+
+			else
+			{
+				$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+			}
+		}
+
 		if(isset($_POST['btnWebshopPayInvoice']))
 		{
 			$payment_ssn = check_var('payment_ssn');
@@ -1137,10 +1291,84 @@ class mf_webshop
 
 			else
 			{
-				do_log("Save data for btnWebshopPayInvoice");
+				$this->order_id = $this->get_cookie();
 
-				// Save price + $setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
-				// Set order to published
+				$payment_method = 'invoice';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+		
+		if(isset($_POST['btnWebshopPaySwishManual']))
+		{
+			$payment_swished = check_var('payment_swished');
+
+			if($payment_swished != 1)
+			{
+				$error_text = __("You have to pay with Swish first", 'lang_webshop');
+			}
+
+			else
+			{
+				$this->order_id = $this->get_cookie();
+
+				$payment_method = 'swish_manual';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
 			}
 		}
 
@@ -1238,6 +1466,17 @@ class mf_webshop
 						{
 							$out .= "<p class='italic payment_require_information'>".__("The payment alterantives will be loaded as soon as you have entered all required fields.", 'lang_webshop')."</p>";
 
+							if(IS_SUPER_ADMIN && in_array('manual', $setting_webshop_payment_alternatives))
+							{
+								$out .= "<div class='payment_alternatives hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'manual', 'text' => __("Manual", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'manual')))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
+							}
+
 							if(in_array('invoice', $setting_webshop_payment_alternatives))
 							{
 								$out .= "<div class='payment_alternatives hide'>"
@@ -1249,6 +1488,23 @@ class mf_webshop
 									.get_toggler_container(array('type' => 'end'))
 								."</div>";
 							}
+
+							if(in_array('swish_manual', $setting_webshop_payment_alternatives))
+							{
+								$setting_webshop_swish_merchant_number = get_option('setting_webshop_swish_merchant_number');
+
+								if($setting_webshop_swish_merchant_number != '')
+								{
+									$out .= "<div class='payment_alternatives hide'>"
+										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
+											.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<span class='strong'>".$setting_webshop_swish_merchant_number."</span>"), 'value' => 1))
+											."<div".get_form_button_classes().">"
+												.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+											."</div>"
+										.get_toggler_container(array('type' => 'end'))
+									."</div>";
+								}
+							}
 						}
 
 						else
@@ -1258,136 +1514,133 @@ class mf_webshop
 
 					$out .= "</form>";
 
-					if(IS_SUPER_ADMIN && in_array('stripe_test', $setting_webshop_payment_alternatives) || in_array('swish', $setting_webshop_payment_alternatives))
+					$public_key = '';
+
+					if(IS_SUPER_ADMIN && in_array('stripe_test', $setting_webshop_payment_alternatives))
 					{
-						$public_key = '';
+						$public_key = get_option('setting_webshop_stripe_public_key_test');
+						$toggler_title = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
+						$button_title = sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
+						$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe_test');
+						$test_mode = 'yes';
+					}
 
-						if(IS_SUPER_ADMIN && in_array('stripe_test', $setting_webshop_payment_alternatives))
-						{
-							$public_key = get_option('setting_webshop_stripe_public_key_test');
-							$toggler_title = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
-							$button_title = sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
-							$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe_test');
-							$test_mode = 'yes';
-						}
+					else if(in_array('stripe', $setting_webshop_payment_alternatives))
+					{
+						$public_key = get_option('setting_webshop_stripe_public_key');
+						$toggler_title = __("Card", 'lang_webshop');
+						$button_title = sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
+						$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe');
+						$test_mode = 'no';
+					}
 
-						else if(in_array('stripe', $setting_webshop_payment_alternatives))
-						{
-							$public_key = get_option('setting_webshop_stripe_public_key');
-							$toggler_title = __("Card", 'lang_webshop');
-							$button_title = sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
-							$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe');
-							$test_mode = 'no';
-						}
+					if($public_key != '')
+					{
+						do_action('load_notification');
 
-						if($public_key != '')
-						{
-							do_action('load_notification');
+						$out .= "<div class='payment_alternatives hide'>"
+							.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
+							."<script src='https://js.stripe.com/v3/'></script>
+								<form id='payment-form'>
+									<div class='notification hide'><div class='error'><p></p></div></div>
+									<div id='card-element' class='card_details'></div>"
+									."<div".get_form_button_classes().">"
+										.show_button(array('text' => $button_title, 'xtra' => "id='submit'")) // 'name' => 'btnWebshopPayCard'
+									."</div>
+								</form>
 
-							$out .= "<div class='payment_alternatives hide'>"
-								.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
-								."<script src='https://js.stripe.com/v3/'></script>
-									<form id='payment-form'>
-										<div class='notification hide'><div class='error'><p></p></div></div>
-										<div id='card-element' class='card_details'></div>"
-										."<div".get_form_button_classes().">"
-											.show_button(array('text' => $button_title, 'xtra' => "id='submit'")) // 'name' => 'btnWebshopPayCard'
-										."</div>
-									</form>
-
-									<script>
-										jQuery(function($)
-										{
-											var style = {
-												base: {
-													border: '.1em solid #4a90e2',
-													color: '#32325d',
-													fontFamily: 'inherit',
-													fontSize: '1em',
-													'::placeholder': {
-														color: '#aab7c4'
-													}
-												},
-												invalid: {
-													color: '#fa755a',
-													iconColor: '#fa755a'
+								<script>
+									jQuery(function($)
+									{
+										var style = {
+											base: {
+												border: '.1em solid #4a90e2',
+												color: '#32325d',
+												fontFamily: 'inherit',
+												fontSize: '1em',
+												'::placeholder': {
+													color: '#aab7c4'
 												}
-											};
+											},
+											invalid: {
+												color: '#fa755a',
+												iconColor: '#fa755a'
+											}
+										};
 
-											var stripe = Stripe('".$public_key."'),
-												elements = stripe.elements(),
-												card = elements.create('card', { style: style });
+										var stripe = Stripe('".$public_key."'),
+											elements = stripe.elements(),
+											card = elements.create('card', { style: style });
 
-											card.mount('#card-element');
+										card.mount('#card-element');
 
-											var form = document.getElementById('payment-form');
+										var form = document.getElementById('payment-form');
 
-											form.addEventListener('submit', function(event)
+										form.addEventListener('submit', function(event)
+										{
+											$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
+
+											event.preventDefault();
+
+											stripe.createPaymentMethod('card', card).then(function(result)
 											{
-												$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
-
-												event.preventDefault();
-
-												stripe.createPaymentMethod('card', card).then(function(result)
+												if(result.error)
 												{
-													if(result.error)
-													{
-														$('.notification').removeClass('hide').find('p').text(result.error.message);
-													}
+													$('.notification').removeClass('hide').find('p').text(result.error.message);
+												}
 
-													else
+												else
+												{
+													fetch('/wp-json/".__CLASS__."/charge',
 													{
-														fetch('/wp-json/".__CLASS__."/charge',
+														method: 'POST',
+														headers:
 														{
-															method: 'POST',
-															headers:
-															{
-																'Content-Type': 'application/json'
-															},
-															body: JSON.stringify(
-															{
-																order_id: '".$this->order_id."',
-																payment_method_id: result.paymentMethod.id,
-																test_mode: '".$test_mode."'
-															})
+															'Content-Type': 'application/json'
+														},
+														body: JSON.stringify(
+														{
+															order_id: '".$this->order_id."',
+															payment_method_id: result.paymentMethod.id,
+															test_mode: '".$test_mode."'
 														})
-														.then(response => response.json())
-														.then(data => {
-															if(data.success)
-															{
-																location.href = data.return_url;
-															}
+													})
+													.then(response => response.json())
+													.then(data => {
+														if(data.success)
+														{
+															location.href = data.return_url;
+														}
 
-															else
-															{
-																$('.notification').removeClass('hide').find('p').text(data.error);
-															}
-														});
-													}
-												});
+														else
+														{
+															$('.notification').removeClass('hide').find('p').text(data.error);
+														}
+													});
+												}
 											});
 										});
-									</script>";
+									});
+								</script>";
 
-									/*$out .= "<div class='card_details'>"
-										.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
-										."<div".apply_filters('get_flex_flow', "").">"
-											.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
-											.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
-										."</div>
-									</div>
-									<div".get_form_button_classes().">"
-										.show_button(array('name' => 'btnWebshopPayCard', 'text' => sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
-									."</div>";*/
+								/*$out .= "<div class='card_details'>"
+									.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
+									."<div".apply_filters('get_flex_flow', "").">"
+										.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
+										.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
+									."</div>
+								</div>
+								<div".get_form_button_classes().">"
+									.show_button(array('name' => 'btnWebshopPayCard', 'text' => sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+								."</div>";*/
 
-									if($test_mode != 'no')
-									{
-										$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
-									}
+								if($test_mode != 'no')
+								{
+									$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
+								}
 
-								$out .= get_toggler_container(array('type' => 'end'))
-							."</div>";
-						}
+							$out .= get_toggler_container(array('type' => 'end'))
+						."</div>";
 					}
 
 					if(in_array('swish', $setting_webshop_payment_alternatives))
@@ -1399,7 +1652,7 @@ class mf_webshop
 							$out .= "<div class='payment_alternatives hide'>"
 								.get_toggler_container(array('type' => 'start', 'id' => 'swish', 'text' => __("Swish", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish')));
 
-									if(isset($_POST['btnPaymentSwish']))
+									if(isset($_POST['btnWebshopPaySwish']))
 									{
 										$base_callback_url = $_SERVER['HTTP_REFERER'];
 
@@ -1540,7 +1793,7 @@ class mf_webshop
 													$out .= "<form method='post' action='".$action."'>
 														<div".get_form_button_classes().">"
 															//."<p>".$action."</p>"
-															.show_button(array('text' => __("Open the App", 'lang_webshop'))) //'name' => 'btnPaymentSwish',
+															.show_button(array('text' => __("Open the App", 'lang_webshop'))) //'name' => 'btnWebshopPaySwish',
 														."</div>
 													</form>";
 												}
@@ -1655,7 +1908,7 @@ class mf_webshop
 									{
 										$out .= "<form method='post' action=''>"
 											."<div".get_form_button_classes().">"
-												.show_button(array('name' => 'btnPaymentSwish', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+												.show_button(array('name' => 'btnWebshopPaySwish', 'text' => sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>")))
 											."</div>"
 										."</form>";
 									}
@@ -2003,6 +2256,13 @@ class mf_webshop
 					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 						<div class='wp-block-button cart_buttons'>";
 
+							$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+							if($search_post_id > 0)
+							{
+								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'><i class='fas fa-chevron-left' title='".__("Continue Shopping", 'lang_webshop')."'></i></a>";
+							}
+
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
 								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
@@ -2164,6 +2424,7 @@ class mf_webshop
 					$payment_method_id = get_post_meta($post_id, $this->meta_prefix.'payment_method_id', true);
 					$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
 					$shipping_cost = get_post_meta($post_id, $this->meta_prefix.'shipping_cost', true);
+					$invoice_cost = get_post_meta($post_id, $this->meta_prefix.'invoice_cost', true);
 					$total_sum_invoice = get_post_meta($post_id, $this->meta_prefix.'total_sum_invoice', true);
 					$total_sum = get_post_meta($post_id, $this->meta_prefix.'total_sum', true);
 					$total_tax = get_post_meta($post_id, $this->meta_prefix.'total_tax', true);
@@ -2177,26 +2438,7 @@ class mf_webshop
 						<tbody>
 							<tr>
 								<td>".__("Payment Method", 'lang_webshop')."</td>
-								<td>";
-
-									$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
-
-									if($payment_method != '' && isset($arr_payment_alternatives[$payment_method]))
-									{
-										$out .= $arr_payment_alternatives[$payment_method];
-									}
-
-									else
-									{
-										$out .= "<span title='".$payment_method."'>".__("unknown", 'lang_webshop')."</span>";
-									}
-
-									/*if(IS_SUPER_ADMIN)
-									{
-										$out .= " (".$payment_method.", ".$payment_method_id.")";
-									}*/
-
-								$out .= "</td>
+								<td>".$this->get_payment_method_name($payment_method)."</td>
 							</tr>";
 
 							if(IS_SUPER_ADMIN && $test_mode != 'no')
@@ -2217,12 +2459,23 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($total_sum_invoice != '' && $total_sum_invoice != $total_sum)
+							if($payment_method == 'invoice')
 							{
-								$out .= "<tr>
-									<td>".__("Invoice Total", 'lang_webshop')."</td>
-									<td>".$total_sum_invoice." ".$paid_currency." ".$paid_tax_display_prefix."</td>
-								</tr>";
+								if($invoice_cost != '')
+								{
+									$out .= "<tr>
+										<td>".__("Invoice Total", 'lang_webshop')."</td>
+										<td>".$invoice_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+									</tr>";
+								}
+
+								if($total_sum_invoice != '' && $total_sum_invoice != $total_sum)
+								{
+									$out .= "<tr>
+										<td>".__("Invoice Total", 'lang_webshop')."</td>
+										<td>".($total_sum_invoice - $total_sum)." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+									</tr>";
+								}
 							}
 
 							if($total_sum != '')
@@ -2774,7 +3027,7 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option_or_default($setting_key, 'size');
 
-			echo show_select(array('data' => $this->get_sort_for_select(get_option('setting_webshop_display_sort')), 'name' => $setting_key, 'value' => $option));
+			echo show_select(array('data' => $this->get_sort_for_select(get_option('setting_webshop_display_sort')), 'name' => $setting_key, 'value' => $option, 'allow_hidden_field' => false));
 		}
 
 		function setting_webshop_display_filter_callback()
@@ -4377,11 +4630,16 @@ class mf_webshop
 					$columns['category'] = __("Categories", 'lang_webshop');
 				}
 
-				$result = $this->get_post_type_info(array('type' => 'stock'));
+				$arr_columns = array('price', 'stock');
 
-				if(isset($result->post_title))
+				foreach($arr_columns as $column)
 				{
-					$columns['stock'] = $result->post_title;
+					$result = $this->get_post_type_info(array('type' => $column));
+
+					if(isset($result->post_title))
+					{
+						$columns[$column] = $result->post_title;
+					}
 				}
 
 				$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone', 'event'); //address
@@ -4431,9 +4689,10 @@ class mf_webshop
 			break;
 
 			case $this->post_type_orders:
-				$columns['test_mode'] = __("Test Mode", 'lang_webshop');
 				$columns['products'] = __("Products", 'lang_webshop');
-				$columns['details'] = __("Details", 'lang_webshop');
+				//$columns['details'] = __("Details", 'lang_webshop');
+				$columns['test_mode'] = __("Test Mode", 'lang_webshop');
+				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
 				$columns['total_tax'] = __("Tax", 'lang_webshop');
 			break;
@@ -4564,6 +4823,16 @@ class mf_webshop
 								}
 
 							echo "</div>";
+						}
+					break;
+
+					case 'price':
+						$post_name = $this->get_post_name_for_type($column);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
+
+						if($post_meta > 0)
+						{
+							echo $this->display_price(array('price' => $post_meta, 'suffix' => true));
 						}
 					break;
 
@@ -4777,18 +5046,6 @@ class mf_webshop
 			case $this->post_type_orders:
 				switch($column)
 				{
-					case 'test_mode':
-						if(get_post_status($post_id) == 'publish')
-						{
-							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
-
-							if($post_meta != 'no')
-							{
-								echo "<i class='fa fa-exclamation-triangle yellow'></i>";
-							}
-						}
-					break;
-
 					case 'products':
 						$arr_post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 
@@ -4833,6 +5090,27 @@ class mf_webshop
 						if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 						{
 							echo "<p>".$this->order_details['address_street'].", ".$this->order_details['address_zip']." ".$this->order_details['address_city']."</p>";
+						}
+					break;
+
+					case 'test_mode':
+						if(get_post_status($post_id) == 'publish')
+						{
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+							if($post_meta != 'no')
+							{
+								echo "<i class='fa fa-exclamation-triangle yellow'></i>";
+							}
+						}
+					break;
+
+					case 'payment_method':
+						if(get_post_status($post_id) == 'publish')
+						{
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+							echo $this->get_payment_method_name($post_meta);
 						}
 					break;
 
@@ -6897,7 +7175,8 @@ class mf_webshop
 
 		$arr_json = json_decode($request->get_body(), true);
 
-		$order_id = sanitize_text_field($arr_json['order_id']);
+		$this->order_id = sanitize_text_field($arr_json['order_id']);
+		$payment_method = 'stripe';
 		$payment_method_id = sanitize_text_field($arr_json['payment_method_id']);
 		$test_mode = sanitize_text_field($arr_json['test_mode']);
 
@@ -6916,10 +7195,10 @@ class mf_webshop
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$secret_key = $obj_encryption->decrypt($secret_key, md5(AUTH_KEY));
 
-		$arr_cart_data = $this->get_webshop_cart([], $order_id);
+		$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
 		$setting_webshop_currency = get_option('setting_webshop_currency');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $order_id, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -6957,94 +7236,14 @@ class mf_webshop
 
 				else if($arr_json['status'] === 'succeeded')
 				{
-					$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
-
-					$post_data = array(
-						'ID' => $post_id,
-						'post_status' => 'publish',
-						'meta_input' => array(
-							$this->meta_prefix.'payment_method_id' => $payment_method_id,
-							$this->meta_prefix.'payment_method' => ($test_mode != 'no' ? 'stripe_test' : 'stripe'),
-							$this->meta_prefix.'test_mode' => $test_mode,
-							$this->meta_prefix.'shipping_cost' => $arr_cart_data['response_webshop_cart']['shipping_cost_raw'],
-							$this->meta_prefix.'total_sum_invoice' => $arr_cart_data['response_webshop_cart']['total_sum_invoice_raw'],
-							$this->meta_prefix.'total_sum' => $arr_cart_data['response_webshop_cart']['total_sum_raw'],
-							$this->meta_prefix.'total_tax' => $arr_cart_data['response_webshop_cart']['total_tax_raw'],
-							$this->meta_prefix.'paid_currency' => $setting_webshop_currency,
-							$this->meta_prefix.'paid_tax_display' => $setting_webshop_tax_display,
-						),
-					);
-
-					if(wp_update_post($post_data) > 0)
-					{
-						if($test_mode == 'no')
-						{
-							$stock_post_name = $this->get_post_name_for_type('stock');
-
-							if($stock_post_name != '')
-							{
-								$arr_products = $arr_cart_data['response_webshop_cart']['products'];
-
-								foreach($arr_products as $key => $arr_product)
-								{
-									$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
-
-									if($product_stock > 0 && $arr_product['amount'] > 0)
-									{
-										update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock - $arr_product['amount']));
-									}
-								}
-							}
-						}
-					}
-
-					else
-					{
-						do_log(__FUNCTION__.": The payment was successful but the order was not updated correctly (".var_export($post_data, true).")");
-					}
-
-					$return_url = get_permalink($post_id);
-
-					$obj_encryption = new mf_encryption(__CLASS__);
-					$this->order_details = [];
-
-					foreach($this->arr_meta_keys as $meta_key)
-					{
-						$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
-
-						if($this->order_details[$meta_key] != '')
-						{
-							$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_id));
-						}
-					}
-
-					if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
-					{
-						$mail_to = $this->order_details['contact_email'];
-						$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
-						$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
-
-						$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
-					}
-
-					if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
-					{
-						$mail_to = get_bloginfo('admin_email');
-
-						if($test_mode != 'no')
-						{
-							$mail_subject = __("A TEST order has been placed", 'lang_webshop');
-							$mail_content = sprintf(__("Go to %s to see the order. But be aware that it is only a TEST order.", 'lang_webshop'), $return_url);
-						}
-
-						else
-						{
-							$mail_subject = __("An order has been placed", 'lang_webshop');
-							$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
-						}
-
-						$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
-					}
+					$return_url = $this->save_payment_success(array(
+						'post_id' => $post_id,
+						'payment_method' => $payment_method,
+						'payment_method_id' => $payment_method_id,
+						'test_mode' => $test_mode,
+						'arr_cart_data' => $arr_cart_data,
+						'setting_webshop_currency' => $setting_webshop_currency,
+					));
 
 					return [
 						'success' => true,

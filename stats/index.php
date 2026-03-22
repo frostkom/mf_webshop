@@ -16,9 +16,16 @@ echo "<div class='wrap'>
 	{
 		$post_id = $r->ID;
 
+		$payment_method = get_post_meta($post_id, $obj_webshop->meta_prefix.'payment_method', true);
 		$test_mode = get_post_meta($post_id, $obj_webshop->meta_prefix.'test_mode', true);
 		$shipping_cost = get_post_meta($post_id, $obj_webshop->meta_prefix.'shipping_cost', true);
-		$total_sum_invoice = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_sum_invoice', true);
+
+		if($payment_method == 'invoice')
+		{
+			$invoice_cost = get_post_meta($post_id, $obj_webshop->meta_prefix.'invoice_cost', true);
+			$total_sum_invoice = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_sum_invoice', true);
+		}
+
 		$total_sum = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_sum', true);
 		//$total_tax = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_tax', true);
 		$paid_currency = get_post_meta($post_id, $obj_webshop->meta_prefix.'paid_currency', true);
@@ -34,14 +41,27 @@ echo "<div class='wrap'>
 			$shipping_cost_total[$test_mode] += $shipping_cost;
 		}
 
-		if(($total_sum_invoice - $total_sum) > 0)
+		if($payment_method == 'invoice')
 		{
-			if(!isset($invoice_cost_total[$test_mode]))
+			if($invoice_cost > 0)
 			{
-				$invoice_cost_total[$test_mode] = 0;
+				if(!isset($invoice_cost_total[$test_mode]))
+				{
+					$invoice_cost_total[$test_mode] = 0;
+				}
+
+				$invoice_cost_total[$test_mode] += $invoice_cost;
 			}
 
-			$invoice_cost_total[$test_mode] += ($total_sum_invoice - $total_sum);
+			else if(($total_sum_invoice - $total_sum) > 0)
+			{
+				if(!isset($invoice_cost_total[$test_mode]))
+				{
+					$invoice_cost_total[$test_mode] = 0;
+				}
+
+				$invoice_cost_total[$test_mode] += ($total_sum_invoice - $total_sum);
+			}
 		}
 
 		$arr_products = get_post_meta($post_id, $obj_webshop->meta_prefix.'products', true);

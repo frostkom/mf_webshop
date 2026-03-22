@@ -1,7 +1,7 @@
 jQuery(function($)
 {
-	var dom_obj_widget = $(".widget.webshop_cart");
-	var countdown_interval;
+	var dom_obj_widget = $(".widget.webshop_cart"),
+		countdown_interval;
 
 	function render_cart(data)
 	{
@@ -18,7 +18,10 @@ jQuery(function($)
 			{
 				html += _.template(dom_template)(response.products[i]);
 
-				product_time_limit = response.products[i].product_time_limit;
+				if(response.products[i].product_time_limit > product_time_limit)
+				{
+					product_time_limit = response.products[i].product_time_limit;
+				}
 			}
 
 			dom_obj_widget.find(".cart_products tbody").html(html);
@@ -164,7 +167,7 @@ jQuery(function($)
 		get_webshop_cart();
 	}, 60000);
 
-	/* Update cart */
+	/* Update Cart */
 	/* ##################### */
 	var update_timeout;
 
@@ -188,7 +191,7 @@ jQuery(function($)
 	});
 	/* ##################### */
 
-	/* Fetch user details if logged in */
+	/* Get user details if logged in */
 	/* ##################### */
 	if($.isArray(script_webshop_cart.arr_webshop_input_type))
 	{
@@ -225,9 +228,14 @@ jQuery(function($)
 				{
 					if(data.success)
 					{
-						$.each(data.response_fields, function(key, value)
+						$.each(data.response_fields, function(key, arr_value)
 						{
-							dom_obj_widget.find("#" + value.id).val(value.value);
+							dom_obj_widget.find("#" + arr_value.id).val(arr_value.value);
+
+							if(arr_value.id == 'contact_phone')
+							{
+								dom_obj_widget.find(".proceed_to_checkout .contact_phone").text((arr_value.value != '' ? arr_value.value : script_webshop_cart.unknown_label));
+							}
 						});
 
 						display_payment_alternatives_or_not();
@@ -238,11 +246,11 @@ jQuery(function($)
 	}
 	/* ##################### */
 
-	/* Update order details */
+	/* Save Order Details */
 	/* ##################### */
-	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details", function()
+	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details input", function()
 	{
-		var form_data = $(this).parents("form").serialize();
+		var form_data = $(this).closest("form").serialize();
 
 		$.ajax(
 		{
@@ -258,10 +266,13 @@ jQuery(function($)
 				}
 			}
 		});
+	}).on('input', ".proceed_to_checkout .order_details input[name='contact_phone']", function()
+	{
+		dom_obj_widget.find(".proceed_to_checkout .contact_phone").text((this.value != '' ? this.value : script_webshop_cart.unknown_label));
 	});
 	/* ##################### */
 
-	/* Check if orgno is entered */
+	/* Invoice */
 	/* ##################### */
 	$(document).on('input', ".toggle_invoice #payment_ssn", function()
 	{
@@ -296,6 +307,18 @@ jQuery(function($)
 			$(".toggle_invoice button[name='btnWebshopPayInvoice']").removeAttr('disabled');
 		}
 	});
+	/* ##################### */
+	
+	/* Swish (Manual) */
+	/* ##################### */
+	$(document).on('change', ".toggle_swish_manual input[type='checkbox']", function()
+	{
+		var dom_checked = this.checked,
+			has_phone_number_val = $(".proceed_to_checkout input[name='contact_phone']").val(),
+			is_disabled = (!dom_checked || has_phone_number_val == '');
+
+		$(".toggle_swish_manual button[name='btnWebshopPaySwishManual']").attr('disabled', is_disabled);
+	}).trigger('change');
 	/* ##################### */
 
 	/* Validate card details & activate buy button */
