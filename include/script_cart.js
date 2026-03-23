@@ -73,6 +73,10 @@ jQuery(function($)
 			dom_obj_widget.find(".proceed_to_checkout .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
 
+			var swish_link = dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('rel');
+
+			dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link.replace('[total_sum]', response.total_sum_raw));
+
 			dom_obj_widget.find(".cart_summary").removeClass('hide');
 		}
 
@@ -193,6 +197,23 @@ jQuery(function($)
 
 	/* Get user details if logged in */
 	/* ##################### */
+	function update_swish_manual(value)
+	{
+		if(value != '')
+		{
+			dom_obj_widget.find(".swish_manual_message").addClass('hide');
+			dom_obj_widget.find(".proceed_to_checkout .contact_phone").text(value);
+			dom_obj_widget.find(".swish_manual_form").removeClass('hide');
+		}
+
+		else
+		{
+			dom_obj_widget.find(".swish_manual_form").addClass('hide');
+			dom_obj_widget.find(".proceed_to_checkout .contact_phone").text(script_webshop_cart.unknown_label);
+			dom_obj_widget.find(".swish_manual_message").removeClass('hide');
+		}
+	}
+
 	if($.isArray(script_webshop_cart.arr_webshop_input_type))
 	{
 		var arr_fields = [];
@@ -234,7 +255,7 @@ jQuery(function($)
 
 							if(arr_value.id == 'contact_phone')
 							{
-								dom_obj_widget.find(".proceed_to_checkout .contact_phone").text((arr_value.value != '' ? arr_value.value : script_webshop_cart.unknown_label));
+								update_swish_manual(arr_value.value);
 							}
 						});
 
@@ -268,7 +289,7 @@ jQuery(function($)
 		});
 	}).on('input', ".proceed_to_checkout .order_details input[name='contact_phone']", function()
 	{
-		dom_obj_widget.find(".proceed_to_checkout .contact_phone").text((this.value != '' ? this.value : script_webshop_cart.unknown_label));
+		update_swish_manual(this.value);
 	});
 	/* ##################### */
 

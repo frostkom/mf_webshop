@@ -1118,6 +1118,7 @@ class mf_webshop
 				$this->meta_prefix.'payment_method_id' => $data['payment_method_id'],
 				$this->meta_prefix.'payment_method' => ($data['test_mode'] != 'no' ? $data['payment_method'].'_test' : $data['payment_method']),
 				$this->meta_prefix.'test_mode' => $data['test_mode'],
+				$this->meta_prefix.'order_status' => $data['order_status'],
 				$this->meta_prefix.'shipping_cost' => $data['arr_cart_data']['response_webshop_cart']['shipping_cost_raw'],
 				$this->meta_prefix.'invoice_cost' => $data['arr_cart_data']['response_webshop_cart']['invoice_cost_raw'],
 				//$this->meta_prefix.'total_sum_invoice' => $data['arr_cart_data']['response_webshop_cart']['total_sum_invoice_raw'],
@@ -1264,6 +1265,7 @@ class mf_webshop
 						'post_id' => $post_id,
 						'payment_method' => $payment_method,
 						'test_mode' => $test_mode,
+						'order_status' => 'ordered',
 						'arr_cart_data' => $arr_cart_data,
 						'setting_webshop_currency' => $setting_webshop_currency,
 					));
@@ -1311,6 +1313,7 @@ class mf_webshop
 							'post_id' => $post_id,
 							'payment_method' => $payment_method,
 							'test_mode' => $test_mode,
+							'order_status' => 'ordered',
 							'arr_cart_data' => $arr_cart_data,
 							'setting_webshop_currency' => $setting_webshop_currency,
 						));
@@ -1357,6 +1360,7 @@ class mf_webshop
 							'post_id' => $post_id,
 							'payment_method' => $payment_method,
 							'test_mode' => $test_mode,
+							'order_status' => 'ordered',
 							'arr_cart_data' => $arr_cart_data,
 							'setting_webshop_currency' => $setting_webshop_currency,
 						));
@@ -1495,11 +1499,22 @@ class mf_webshop
 
 								if($setting_webshop_swish_merchant_number != '')
 								{
+									$setting_webshop_swish_message = "Test";
+									$setting_webshop_currency = get_option('setting_webshop_currency');
+
+									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_merchant_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=".$setting_webshop_swish_message."&edit=msg&src=qr";
+
 									$out .= "<div class='payment_alternatives hide'>"
 										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
-											.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<span class='strong'>".$setting_webshop_swish_merchant_number."</span>"), 'value' => 1))
-											."<div".get_form_button_classes().">"
-												.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>
+											<div class='swish_manual_form hide'>
+												<div".apply_filters('get_flex_flow', "").">"
+													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_merchant_number."</a>"), 'value' => 1))
+													//."<div>QR code...</div>"
+												."</div>"
+												."<div".get_form_button_classes().">"
+													.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+												."</div>"
 											."</div>"
 										.get_toggler_container(array('type' => 'end'))
 									."</div>";
@@ -1854,8 +1869,9 @@ class mf_webshop
 											case 'DECLINED':
 												if($this->order_id == $arr_json['payeePaymentReference'])
 												{
-													// The payment was cancelled. Save it in the order
 													//$this->order_id
+
+													do_log(__FUNCTION__." - Cancelled: Save order status");
 												}
 
 												else
@@ -1867,8 +1883,9 @@ class mf_webshop
 											case 'ERROR':
 												if($this->order_id == $arr_json['payeePaymentReference'])
 												{
-													// The payment failed. Save it in the order
 													//$this->order_id
+
+													do_log(__FUNCTION__." - Failed: Save order status");
 												}
 
 												else
@@ -1882,8 +1899,9 @@ class mf_webshop
 												{
 													if((int)$arr_json['amount'] == (int)$total_sum)
 													{
-														// The paid amount is correct. Save it in the order
 														//$this->order_id
+
+														do_log(__FUNCTION__." - Wrong amount: Save order status");
 													}
 
 													else
@@ -4691,7 +4709,7 @@ class mf_webshop
 			case $this->post_type_orders:
 				$columns['products'] = __("Products", 'lang_webshop');
 				//$columns['details'] = __("Details", 'lang_webshop');
-				$columns['test_mode'] = __("Test Mode", 'lang_webshop');
+				$columns['order_status'] = __("Status", 'lang_webshop');
 				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
 				$columns['total_tax'] = __("Tax", 'lang_webshop');
@@ -5093,14 +5111,37 @@ class mf_webshop
 						}
 					break;
 
-					case 'test_mode':
+					case 'order_status':
 						if(get_post_status($post_id) == 'publish')
 						{
-							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+							$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
 
-							if($post_meta != 'no')
+							if($test_mode != 'no')
 							{
-								echo "<i class='fa fa-exclamation-triangle yellow'></i>";
+								echo "<span class='color_red nowrap'><i class='fa fa-exclamation-triangle yellow'></i> ".__("Test Mode", 'lang_webshop')."</span>";
+							}
+
+							else
+							{
+								$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
+
+								switch($order_status)
+								{
+									case 'paid':
+										echo "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".__("Paid", 'lang_webshop')."</span>";
+									break;
+
+									case 'cancelled':
+									case 'failed':
+									case 'wrong_amount':
+										// Display what?
+									break;
+
+									default:
+									case 'ordered':
+										echo "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".__("Ordered", 'lang_webshop')."</span>";
+									break;
+								}
 							}
 						}
 					break;
@@ -7241,6 +7282,7 @@ class mf_webshop
 						'payment_method' => $payment_method,
 						'payment_method_id' => $payment_method_id,
 						'test_mode' => $test_mode,
+						'order_status' => 'paid',
 						'arr_cart_data' => $arr_cart_data,
 						'setting_webshop_currency' => $setting_webshop_currency,
 					));
