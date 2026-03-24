@@ -2966,19 +2966,19 @@ class mf_webshop
 		{
 			return array(
 				'' => "-- ".__("Choose Here", 'lang_webshop')." --",
-				//'DKK' => __("Danish Krone", 'lang_form')." (DKK)",
-				'EUR' => __("Euro", 'lang_form')." (EUR)",
-				'USD' => __("US Dollar", 'lang_form')." (USD)",
-				//'GBP' => __("English Pound", 'lang_form')." (GBP)",
-				'SEK' => __("Swedish Krona", 'lang_form')." (SEK)",
-				//'AUD' => __("Australian Dollar", 'lang_form')." (AUD)",
-				//'CAD' => __("Canadian Dollar", 'lang_form')." (CAD)",
-				//'ISK' => __("Icelandic Krona", 'lang_form')." (ISK)",
-				//'JPY' => __("Japanese Yen", 'lang_form')." (JPY)",
-				//'NZD' => __("New Zealand Dollar", 'lang_form')." (NZD)",
-				//'NOK' => __("Norwegian Krone", 'lang_form')." (NOK)",
-				//'CHF' => __("Swiss Franc", 'lang_form')." (CHF)",
-				//'TRY' => __("Turkish Lira", 'lang_form')." (TRY)",
+				//'DKK' => __("Danish Krone", 'lang_webshop')." (DKK)",
+				'EUR' => __("Euro", 'lang_webshop')." (EUR)",
+				'USD' => __("US Dollar", 'lang_webshop')." (USD)",
+				//'GBP' => __("English Pound", 'lang_webshop')." (GBP)",
+				'SEK' => __("Swedish Krona", 'lang_webshop')." (SEK)",
+				//'AUD' => __("Australian Dollar", 'lang_webshop')." (AUD)",
+				//'CAD' => __("Canadian Dollar", 'lang_webshop')." (CAD)",
+				//'ISK' => __("Icelandic Krona", 'lang_webshop')." (ISK)",
+				//'JPY' => __("Japanese Yen", 'lang_webshop')." (JPY)",
+				//'NZD' => __("New Zealand Dollar", 'lang_webshop')." (NZD)",
+				//'NOK' => __("Norwegian Krone", 'lang_webshop')." (NOK)",
+				//'CHF' => __("Swiss Franc", 'lang_webshop')." (CHF)",
+				//'TRY' => __("Turkish Lira", 'lang_webshop')." (TRY)",
 			);
 		}
 
@@ -3815,6 +3815,19 @@ class mf_webshop
 		return $updated;
 	}
 
+	function get_order_status_for_select()
+	{
+		return array(
+			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
+			'cancelled' => __("Cancelled", 'lang_webshop'),
+			'failed' => __("Failed", 'lang_webshop'),
+			'wrong_amount' => __("Wrong Amount", 'lang_webshop'),
+			'ordered' => __("Ordered", 'lang_webshop'),
+			'paid' => __("Paid", 'lang_webshop'),
+			'sent' => __("Sent to Customer", 'lang_webshop'),
+		);
+	}
+
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $wpdb;
@@ -4455,6 +4468,25 @@ class mf_webshop
 			'context' => 'side',
 			'priority' => 'low',
 			'fields' => $arr_fields,
+		);
+		####################################
+
+		// Orders
+		####################################
+		$meta_boxes[] = array(
+			'id' => $this->meta_prefix.'orders',
+			'title' => __("Settings", 'lang_webshop'),
+			'post_types' => array($this->post_type_orders),
+			'context' => 'side',
+			'priority' => 'low',
+			'fields' => array(
+				array(
+					'name' => __("Order Status", 'lang_webshop'),
+					'id' => $this->meta_prefix.'order_status',
+					'type' => 'select',
+					'options' => $this->get_order_status_for_select(),
+				),
+			),
 		);
 		####################################
 
@@ -5125,10 +5157,15 @@ class mf_webshop
 							{
 								$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
 
+								if($order_status != '')
+								{
+									$arr_order_status = $this->get_order_status_for_select();
+								}
+
 								switch($order_status)
 								{
 									case 'paid':
-										echo "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".__("Paid", 'lang_webshop')."</span>";
+										echo "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".$arr_order_status[$order_status]."</span>";
 									break;
 
 									case 'cancelled':
@@ -5327,6 +5364,13 @@ class mf_webshop
 				}
 			}
 		}
+	}
+
+	function get_post_types_for_metabox($array)
+	{
+		$array[] = $this->post_type_orders;
+
+		return $array;
 	}
 
 	function wp_sitemaps_post_types($post_types)
