@@ -2572,17 +2572,11 @@ class mf_webshop
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'supports' => array('title', 'editor', 'excerpt', 'page-attributes'),
+			'show_in_rest' => true,
+			'supports' => array('title', 'editor', 'page-attributes', 'excerpt', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
-
-		$arr_supports = array('title', 'page-attributes', 'thumbnail', 'excerpt', 'revisions', 'author', 'editor');
-
-		/*if($this->get_post_name_for_type('content') == '')
-		{
-			$arr_supports[] = 'editor';
-		}*/
 
 		register_post_type($this->post_type_products, array(
 			'labels' => array(
@@ -2596,9 +2590,8 @@ class mf_webshop
 			),
 			'public' => true,
 			'show_in_menu' => false,
-			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
-			'supports' => $arr_supports,
+			'supports' => array('title', 'editor', 'page-attributes', 'thumbnail', 'excerpt', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'product'),
@@ -2618,7 +2611,8 @@ class mf_webshop
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
-			'supports' => array('title', 'page-attributes'),
+			'show_in_rest' => true,
+			'supports' => array('title', 'page-attributes', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
@@ -2637,6 +2631,7 @@ class mf_webshop
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
 			'supports' => array('title', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -2656,6 +2651,7 @@ class mf_webshop
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
 			'supports' => array('title', 'page-attributes'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -2673,7 +2669,9 @@ class mf_webshop
 			),
 			'public' => false,
 			'show_in_menu' => false,
-			'supports' => array('title'),
+			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
+			'supports' => array('title', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
@@ -2690,6 +2688,8 @@ class mf_webshop
 			),
 			'public' => false,
 			'show_in_menu' => false,
+			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
 			'supports' => array('title'),
 			'hierarchical' => true,
 			'has_archive' => false,
@@ -2709,7 +2709,7 @@ class mf_webshop
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
-			'supports' => array('title'),
+			'supports' => array('title', 'editor', 'revisions'),
 			'hierarchical' => false,
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'order'),
@@ -5640,7 +5640,8 @@ class mf_webshop
 					'products' => $arr_products,
 					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
 					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
-					'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
+					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
+					//'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
 					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
