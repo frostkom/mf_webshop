@@ -73,9 +73,12 @@ jQuery(function($)
 			dom_obj_widget.find(".proceed_to_checkout .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
 
-			var swish_link = dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('rel');
+			if(dom_obj_widget.find(".swish_manual").length > 0)
+			{
+				var swish_link = dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('rel');
 
-			dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link.replace('[total_sum]', response.total_sum_raw));
+				dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link.replace('[total_sum]', response.total_sum_raw));
+			}
 
 			dom_obj_widget.find(".cart_summary").removeClass('hide');
 		}

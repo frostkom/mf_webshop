@@ -581,6 +581,54 @@ class mf_webshop
 
 		if($obj_cron->is_running == false)
 		{
+			// Add filters if there are none
+			###########
+			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s LIMIT 0, 1", $this->post_type_document_type, 'publish'));
+
+			if($wpdb->num_rows == 0)
+			{
+				wp_insert_post(array(
+					'post_type' => $this->post_type_document_type,
+					'post_title' => __("In Stock", 'lang_webshop'),
+					'post_status' => 'publish',
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'document_type' => 'stock',
+						$this->meta_prefix.'document_public' => 'yes',
+					))
+				));
+
+				wp_insert_post(array(
+					'post_type' => $this->post_type_document_type,
+					'post_title' => __("Read More", 'lang_webshop'),
+					'post_status' => 'publish',
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'document_type' => 'read_more_button',
+						$this->meta_prefix.'document_public' => 'yes',
+					))
+				));
+
+				wp_insert_post(array(
+					'post_type' => $this->post_type_document_type,
+					'post_title' => __("Max Amount in Cart", 'lang_webshop'),
+					'post_status' => 'publish',
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'document_type' => 'cart_max',
+						$this->meta_prefix.'document_public' => 'no',
+					))
+				));
+
+				wp_insert_post(array(
+					'post_type' => $this->post_type_document_type,
+					'post_title' => __("Price", 'lang_webshop'),
+					'post_status' => 'publish',
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'document_type' => 'price',
+						$this->meta_prefix.'document_public' => 'yes',
+					))
+				));
+			}
+			###########
+
 			// Remove old non-fulfilled orders
 			###########
 			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
