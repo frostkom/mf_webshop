@@ -329,7 +329,7 @@ jQuery(function($)
 		}
 	});
 	/* ##################### */
-	
+
 	/* Swish (Manual) */
 	/* ##################### */
 	$(document).on('change', ".toggle_swish_manual input[type='checkbox']", function()

@@ -1328,7 +1328,7 @@ class mf_webshop
 				}
 			}
 		}
-		
+
 		if(isset($_POST['btnWebshopPaySwishManual']))
 		{
 			$payment_swished = check_var('payment_swished');

@@ -16,30 +16,10 @@ else
 
 $arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
 
-if(!isset($obj_webshop))
-{
-	$obj_webshop = new mf_webshop();
-}
-
 $setting_webshop_display_filter = get_option('setting_webshop_display_filter');
 
 $setting_color_info = get_option('setting_webshop_color_info');
 $setting_text_color_info = get_option('setting_webshop_text_color_info');
-
-/*echo ".info_text p, p.info_text, .info_text h3
-{
-	background: ".$setting_color_info.";
-	border-radius: .2em;
-	color: ".$setting_text_color_info.";
-	margin-bottom: 0;
-	padding: .5em;
-}
-
-	.info_text span
-	{
-		font-size: .8em;
-		font-weight: normal;
-	}";*/
 
 echo "li.is_disabled
 {
