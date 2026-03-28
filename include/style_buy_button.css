@@ -52,6 +52,30 @@
 			content: "\f061";
 		}
 
+	.widget .cart_buttons a.in_cart:hover .css_icon
+	{
+		transform: rotate(-765deg);
+	}
+
+		.widget .cart_buttons a.in_cart:hover .css_icon{}
+
+			.widget .cart_buttons a.in_cart:hover .css_icon.check > div:nth-child(1)
+			{
+				transform: rotate(-135deg) translate(0.1em, -0.2em);
+			}
+
+			/* Transform into chevron_right */
+			.widget .cart_buttons a.in_cart:hover .css_icon.check > div:nth-child(1)
+			{
+				transform: rotate(45deg) translate(-.4em, -.1em);
+			}
+
+			.widget .cart_buttons a.in_cart:hover .css_icon.check > div:nth-child(2)
+			{
+				transform: rotate(-45deg) translate(-.4em, 0em);
+				width: 1em;
+			}
+
 .widget.webshop_buy_button .cart_buttons a + a
 {
 	margin-left: .5em;

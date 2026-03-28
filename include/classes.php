@@ -54,7 +54,7 @@ class mf_webshop
 	var $meta_public;
 	var $meta_symbol;
 
-	var $order_id;
+	var $order_cart_hash;
 	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_co', 'address_zip', 'address_city']; //'address_country'
 	var $order_details;
 
@@ -712,10 +712,11 @@ class mf_webshop
 
 	function combined_head()
 	{
+		do_action('load_grid_columns');
+
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
-		mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
 		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
 		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
 		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
@@ -1216,7 +1217,7 @@ class mf_webshop
 
 			if($this->order_details[$meta_key] != '')
 			{
-				$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
+				$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
 			}
 		}
 
@@ -1251,6 +1252,141 @@ class mf_webshop
 		return $return_url;
 	}
 
+	function get_webshop_cart($json_output, $order_id = 0)
+	{
+		global $wpdb;
+
+		if($order_id > 0)
+		{
+			$this->order_cart_hash = $order_id;
+		}
+
+		else
+		{
+			if(!($this->order_cart_hash != ''))
+			{
+				$this->order_cart_hash = $this->get_cookie();
+			}
+		}
+
+		if($this->order_cart_hash != '')
+		{
+			$arr_products = [];
+			$product_increment = $total_sum = $total_tax = 0;
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+			foreach($result as $r)
+			{
+				$post_id = $r->ID;
+				$post_parent = $r->post_parent;
+				$post_modified = $r->post_modified;
+
+				if($post_parent > 0)
+				{
+					$arr_products_parents = get_post_meta($post_parent, $this->meta_prefix.'products', true);
+
+					// Get all sibling products aswell...
+
+					if(is_array($arr_products_parents))
+					{
+						foreach($arr_products_parents as $key => $arr_product)
+						{
+							$arr_products[$product_increment] = $arr_product;
+							$arr_products[$product_increment]['is_editable'] = false;
+
+							$product_increment++;
+						}
+					}
+				}
+
+				$arr_products_child = get_post_meta($post_id, $this->meta_prefix.'products', true);
+
+				if(is_array($arr_products_child))
+				{
+					foreach($arr_products_child as $key => $arr_product)
+					{
+						$arr_products[$product_increment] = $arr_product;
+						$arr_products[$product_increment]['is_editable'] = true;
+
+						$product_increment++;
+					}
+				}
+			}
+
+			if(is_array($arr_products))
+			{
+				foreach($arr_products as $key => $arr_product)
+				{
+					$arr_cart_values = $this->get_cart_values($arr_product['id']);
+
+					$product_amount_max = ($arr_product['amount'] + $arr_cart_values['product_amount_left']);
+
+					if($arr_cart_values['product_cart_max'] > 0 && $arr_cart_values['product_cart_max'] < $product_amount_max)
+					{
+						$product_amount_max = $arr_cart_values['product_cart_max'];
+					}
+
+					if($arr_product['is_editable'] == true)
+					{
+						$total_sum += $this->display_price(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
+					}
+
+					$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
+					$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
+					$arr_products[$key]['product_amount_max'] = $product_amount_max;
+					$arr_products[$key]['product_time_limit'] = ($arr_cart_values['product_stock_max'] > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+					$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
+					$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
+					$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
+				}
+
+				$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
+				$shipping_cost = 0;
+				$shipping_comment = "";
+
+				if($setting_webshop_shipping_free_limit > 0 && $total_sum < $setting_webshop_shipping_free_limit)
+				{
+					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
+					if($shipping_cost > 0)
+					{
+						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+
+						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+					}
+				}
+
+				$setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
+
+				$json_output['success'] = true;
+				$json_output['response_webshop_cart'] = array(
+					//'order_id' => $this->order_cart_hash,
+					'products' => $arr_products,
+					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
+					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
+					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
+					//'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
+					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
+					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
+					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
+					'total_tax_raw' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => false)),
+					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
+					//'debug' => $setting_webshop_shipping_free_limit.", ".$total_sum,
+				);
+			}
+
+			else
+			{
+				$json_output['error'] = __("Error", 'lang_webshop');
+			}
+		}
+
+		return $json_output;
+	}
+
 	function block_render_cart_callback($attributes)
 	{
 		global $wpdb, $error_text, $done_text;
@@ -1281,7 +1417,7 @@ class mf_webshop
 		$arr_header[] = __("Subtotal", 'lang_webshop');
 		$arr_header[] = "";
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$this->order_details = [];
@@ -1293,15 +1429,15 @@ class mf_webshop
 
 		if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayManual']))
 		{
-			$this->order_id = $this->get_cookie();
+			$this->order_cart_hash = $this->get_cookie();
 
 			$payment_method = 'manual';
 			$test_mode = 'no';
 
-			$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+			$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 			$setting_webshop_currency = get_option('setting_webshop_currency');
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -1341,15 +1477,15 @@ class mf_webshop
 
 			else
 			{
-				$this->order_id = $this->get_cookie();
+				$this->order_cart_hash = $this->get_cookie();
 
 				$payment_method = 'invoice';
 				$test_mode = 'no';
 
-				$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -1388,15 +1524,15 @@ class mf_webshop
 
 			else
 			{
-				$this->order_id = $this->get_cookie();
+				$this->order_cart_hash = $this->get_cookie();
 
 				$payment_method = 'swish_manual';
 				$test_mode = 'no';
 
-				$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -1663,7 +1799,7 @@ class mf_webshop
 														},
 														body: JSON.stringify(
 														{
-															order_id: '".$this->order_id."',
+															order_id: '".$this->order_cart_hash."',
 															payment_method_id: result.paymentMethod.id,
 															test_mode: '".$test_mode."'
 														})
@@ -1721,7 +1857,7 @@ class mf_webshop
 
 										/*$paymentRequest = [
 											"payeePaymentReference" => "unique_reference_123",
-											"callbackUrl" => "https://yourdomain.com/swish_callback",
+											"callbackUrl" => get_site_url()."/swish_callback",
 											"payeeAlias" => "1231181189",		  // your Swish merchant number
 											"payerAlias" => "46701234567",		 // customer's phone number
 											"amount" => "100",					 // amount in SEK as string
@@ -1797,7 +1933,7 @@ class mf_webshop
 										$setting_webshop_swish_certificate_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_certificate_file);
 										$setting_webshop_swish_key_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_key_file);
 
-										$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+										$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 										$total_sum = 0; // get total sum like in webshop_cart
 										$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
@@ -1806,7 +1942,7 @@ class mf_webshop
 										$action = "https://cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
 
 										$post_data = array(
-											'payeePaymentReference' => $this->order_id,
+											'payeePaymentReference' => $this->order_cart_hash,
 											'callbackUrl' => $base_callback_url."&callback",
 											//'payerAlias' => $telno, // This will only return Location and thus we can't send the mobile user to swish://...
 											'payeeAlias' => $setting_webshop_swish_merchant_number,
@@ -1881,7 +2017,7 @@ class mf_webshop
 
 									else if(isset($_GET['accept']))
 									{
-										$strPaymentStatus = ''; //$total_sum, $this->order_id
+										$strPaymentStatus = ''; //$total_sum, $this->order_cart_hash
 
 										switch($strPaymentStatus)
 										{
@@ -1915,9 +2051,9 @@ class mf_webshop
 										switch($arr_json['status'])
 										{
 											case 'DECLINED':
-												if($this->order_id == $arr_json['payeePaymentReference'])
+												if($this->order_cart_hash == $arr_json['payeePaymentReference'])
 												{
-													//$this->order_id
+													//$this->order_cart_hash
 
 													do_log(__FUNCTION__." - Cancelled: Save order status");
 												}
@@ -1929,9 +2065,9 @@ class mf_webshop
 											break;
 
 											case 'ERROR':
-												if($this->order_id == $arr_json['payeePaymentReference'])
+												if($this->order_cart_hash == $arr_json['payeePaymentReference'])
 												{
-													//$this->order_id
+													//$this->order_cart_hash
 
 													do_log(__FUNCTION__." - Failed: Save order status");
 												}
@@ -1943,11 +2079,11 @@ class mf_webshop
 											break;
 
 											case 'PAID':
-												if($this->order_id == $arr_json['payeePaymentReference'])
+												if($this->order_cart_hash == $arr_json['payeePaymentReference'])
 												{
 													if((int)$arr_json['amount'] == (int)$total_sum)
 													{
-														//$this->order_id
+														//$this->order_cart_hash
 
 														do_log(__FUNCTION__." - Wrong amount: Save order status");
 													}
@@ -2037,14 +2173,14 @@ class mf_webshop
 	{
 		global $wpdb, $obj_base;
 
-		if(!($this->order_id != ''))
+		if(!($this->order_cart_hash != ''))
 		{
-			$this->order_id = $this->get_cookie();
+			$this->order_cart_hash = $this->get_cookie();
 		}
 
 		$arr_products = [];
 
-		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		foreach($result as $r)
 		{
@@ -2060,9 +2196,9 @@ class mf_webshop
 
 		$out = 0;
 
-		$this->order_id = $this->get_cookie(false);
+		$this->order_cart_hash = $this->get_cookie(false);
 
-		if($product_id > 0 && $this->order_id != '')
+		if($product_id > 0 && $this->order_cart_hash != '')
 		{
 			$arr_products = $this->get_order_products();
 
@@ -2161,7 +2297,7 @@ class mf_webshop
 			'product_amount_left' => 100,
 		);
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$out['product_in_cart'] = $this->get_product_in_cart($product_id);
 
@@ -2257,11 +2393,11 @@ class mf_webshop
 
 		$out = 0;
 
-		$this->order_id = $this->get_cookie(false);
+		$this->order_cart_hash = $this->get_cookie(false);
 
-		if($this->order_id != '')
+		if($this->order_cart_hash != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
@@ -2286,7 +2422,7 @@ class mf_webshop
 
 		if(IS_SUPER_ADMIN || $cart_post_id > 0)
 		{
-			do_action('load_font_awesome');
+			//do_action('load_font_awesome');
 
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
@@ -2326,21 +2462,21 @@ class mf_webshop
 
 							if($search_post_id > 0)
 							{
-								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'><i class='fas fa-chevron-left' title='".__("Continue Shopping", 'lang_webshop')."'></i></a>";
+								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')."</a>";
 							}
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
-								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'plus')."</a>";
 							}
 
 							else
 							{
-								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>";
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><span>".__("Add", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'plus')."</a>";
 							}
 
 							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
-								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
+								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'check')."
 							</a>";
 
 							if($product_time_limit > 0)
@@ -2359,34 +2495,177 @@ class mf_webshop
 
 		return $out;
 	}
-
-	function block_render_order_confirmation_callback($attributes)
+	
+	function get_order_status($data)
 	{
-		global $wpdb, $post;
+		global $done_text, $error_text;
 
-		$post_id = $post->ID;
+		if(!isset($data['is_editable'])){		$data['is_editable'] = false;}
+
+		do_action('load_font_awesome');
 
 		$out = "";
 
-		if($post_id > 0)
+		$arr_order_status = $this->get_order_status_for_select();
+
+		$order_status = get_post_meta($data['order_id'], $this->meta_prefix.'order_status', true);
+
+		if(IS_EDITOR && $data['is_editable'] == true)
 		{
-			$plugin_base_include_url = plugins_url()."/mf_base/include/";
-			mf_enqueue_style('style_base_grid_columns', $plugin_base_include_url."style_grid_columns.php");
+			if(isset($_POST['btnWebshopOrderUpdate']))
+			{
+				//$order_id = check_var('order_id', 'int');
+				$order_status = check_var('order_status');
+
+				if(wp_verify_nonce($_POST['_wpnonce_order_update'], 'order_update_'.$data['order_id']))
+				{
+					update_post_meta($data['order_id'], $this->meta_prefix.'order_status', $order_status);
+
+					$done_text = __("The status was updated", 'lang_webshop');
+				}
+
+				else
+				{
+					$error_text = __("You were not allowed to change the status", 'lang_webshop');
+				}
+			}
+
+			$out .= "<form".apply_filters('get_form_attr', "").">"
+				.get_notification()
+				.show_select(array('data' => $arr_order_status, 'name' => 'order_status', 'text' => __("Status", 'lang_webshop'), 'value' => $order_status))
+				."<div".get_form_button_classes().">"
+					.show_button(array('name' => 'btnWebshopOrderUpdate', 'text' => __("Update", 'lang_webshop')))
+					//.input_hidden(array('name' => 'order_id', 'value' => $data['order_id']))
+					.wp_nonce_field('order_update_'.$data['order_id'], '_wpnonce_order_update', true, false)
+				."</div>"
+			."</form>";
+		}
+
+		else
+		{
+			switch($order_status)
+			{
+				case 'paid':
+					$out .= "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".$arr_order_status[$order_status]."</span>";
+				break;
+
+				case 'cancelled':
+				case 'failed':
+				case 'wrong_amount':
+					$out .= "<span class='color_red nowrap'><i class='fa fa-times red'></i> ".$arr_order_status[$order_status]."</span>";
+				break;
+
+				default:
+				case 'ordered':
+					$out .= "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".$arr_order_status[$order_status]."</span>";
+				break;
+			}
+		}
+
+		return $out;
+	}
+
+	function block_render_order_confirmation_callback($attributes)
+	{
+		global $wpdb, $post, $error_text;
+
+		$order_id = $post->ID;
+
+		$out = "";
+
+		if($order_id > 0)
+		{
+			if(isset($_POST['btnWebshopOrderChange']) || isset($_POST['btnWebshopOrderAddMore']))
+			{
+				if(isset($_POST['btnWebshopOrderChange']))
+				{
+					$has_correct_none = wp_verify_nonce($_POST['_wpnonce_order_change'], 'order_change_'.$order_id);
+				}
+
+				else
+				{
+					$has_correct_none = wp_verify_nonce($_POST['_wpnonce_order_add_more'], 'order_add_more_'.$order_id);
+				}
+
+				if($has_correct_none)
+				{
+					$this->order_cart_hash = $this->get_cookie();
+
+					$order_id_child = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+					if($order_id_child > 0)
+					{
+						if($order_id_child != $order_id)
+						{
+							$post_data = array(
+								'ID' => $order_id_child,
+								'post_parent' => $order_id,
+							);
+
+							if(wp_update_post($post_data) > 0)
+							{
+								if(isset($_POST['btnWebshopOrderChange']))
+								{
+									$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+								}
+
+								else
+								{
+									$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+								}
+
+								if($search_post_id > 0)
+								{
+									mf_redirect(get_the_permalink($search_post_id));
+								}
+
+								else
+								{
+									$error_text = __("I could not find a page to send you to", 'lang_webshop');
+								}
+							}
+
+							else
+							{
+								$error_text = __("I could not connect the order to a parent", 'lang_webshop');
+								$error_text .= " (".var_export($post_data, true).")";
+							}
+						}
+
+						else
+						{
+							$error_text = __("This order is already in use", 'lang_webshop');
+						}
+					}
+
+					else
+					{
+						$error_text = __("I could not find the order for you", 'lang_webshop');
+					}
+				}
+
+				else
+				{
+					$error_text = __("You were not allowed to change the order", 'lang_webshop');
+				}
+			}
+
+			do_action('load_grid_columns');
 
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
 
-			$post_date = get_post_field('post_date', $post_id);
+			$post_date = get_post_field('post_date', $order_id);
 
-			$order_number = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
-			$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
+			$order_number = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
+			$arr_products = get_post_meta($order_id, $this->meta_prefix.'products', true);
 
 			$obj_encryption = new mf_encryption(__CLASS__);
 			$this->order_details = [];
 
 			foreach($this->arr_meta_keys as $meta_key)
 			{
-				$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+				$this->order_details[$meta_key] = get_post_meta($order_id, $this->meta_prefix.$meta_key, true);
 
 				if($this->order_details[$meta_key] != '')
 				{
@@ -2397,25 +2676,16 @@ class mf_webshop
 			$out = "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">
 				<h1>"
 					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
-				."</h1>
-				<p>#".$order_number." @ ".format_date($post_date)."</p>
+				."</h1>"
+				.get_notification()
+				."<p>#".$order_number." @ ".format_date($post_date)."</p>
 				<ul class='grid_columns'>";
-
-					/*$out .= "<li>
-						<div class='content'>
-							<span class='grid_title'>".__("Order Info", 'lang_webshop')."</span>
-							<p class='text'>"
-								//."<strong>".__("Number", 'lang_webshop')."</strong> #".."<br>"
-								."<strong>".__("Date / Time", 'lang_webshop')."</strong> ".."
-							</p>
-						</div>
-					</li>";*/
 
 					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 					{
 						$out .= "<li>
 							<div class='content'>
-								<span class='grid_title'>".__("Billing Info", 'lang_webshop')."</span>
+								<span class='grid_title'>".__("Billing", 'lang_webshop')."</span>
 								<p class='text'>";
 
 									if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
@@ -2429,8 +2699,17 @@ class mf_webshop
 										.$this->order_details['address_zip']." ".$this->order_details['address_city'];
 									}
 
-								$out .= "</p>
-							</div>
+								$out .= "</p>";
+
+								$out .= "<form".apply_filters('get_form_attr', "").">"
+									."<div".get_form_button_classes().">"
+										.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
+										//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
+										.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
+									."</div>"
+								."</form>";
+
+							$out .= "</div>
 						</li>";
 					}
 
@@ -2438,7 +2717,7 @@ class mf_webshop
 					{
 						$out .= "<li>
 							<div class='content'>
-								<span class='grid_title'>".__("Contact Info", 'lang_webshop')."</span>
+								<span class='grid_title'>".__("Contact", 'lang_webshop')."</span>
 								<p class='text'>";
 
 									if($this->order_details['contact_phone'] != '')
@@ -2451,10 +2730,30 @@ class mf_webshop
 										$out .= "<a href='mailto:".$this->order_details['contact_email']."'>".$this->order_details['contact_email']."</a><br>";
 									}
 
-								$out .= "</p>
-							</div>
+								$out .= "</p>";
+
+								$out .= "<form".apply_filters('get_form_attr', "").">"
+									."<div".get_form_button_classes().">"
+										.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
+										//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
+										.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
+									."</div>"
+								."</form>";
+
+							$out .= "</div>
 						</li>";
 					}
+
+					$out .= "<li>
+						<div class='content'>
+							<span class='grid_title'>".__("Order", 'lang_webshop')."</span>
+							<p class='text'>"
+								//."#".$order_number."<br>"
+								.$post_date."<br>"
+								.$this->get_order_status(array('order_id' => $order_id, 'is_editable' => true))."<br>"
+							."</p>
+						</div>
+					</li>";
 
 				$out .= "</ul>";
 
@@ -2486,16 +2785,24 @@ class mf_webshop
 						$out .= "</tbody>
 					</table>";
 
-					$payment_method = get_post_meta($post_id, $this->meta_prefix.'payment_method', true);
-					$payment_method_id = get_post_meta($post_id, $this->meta_prefix.'payment_method_id', true);
-					$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
-					$shipping_cost = get_post_meta($post_id, $this->meta_prefix.'shipping_cost', true);
-					$invoice_cost = get_post_meta($post_id, $this->meta_prefix.'invoice_cost', true);
-					$total_sum_invoice = get_post_meta($post_id, $this->meta_prefix.'total_sum_invoice', true);
-					$total_sum = get_post_meta($post_id, $this->meta_prefix.'total_sum', true);
-					$total_tax = get_post_meta($post_id, $this->meta_prefix.'total_tax', true);
-					$paid_currency = get_post_meta($post_id, $this->meta_prefix.'paid_currency', true);
-					$paid_tax_display = get_post_meta_or_default($post_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
+					$out .= "<form".apply_filters('get_form_attr', "").">"
+						."<div".get_form_button_classes().">"
+							.show_button(array('name' => 'btnWebshopOrderAddMore', 'text' => __("Add more to this order", 'lang_webshop')))
+							//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
+							.wp_nonce_field('order_add_more_'.$order_id, '_wpnonce_order_add_more', true, false)
+						."</div>"
+					."</form>";
+
+					$payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
+					$payment_method_id = get_post_meta($order_id, $this->meta_prefix.'payment_method_id', true);
+					$test_mode = get_post_meta($order_id, $this->meta_prefix.'test_mode', true);
+					$shipping_cost = get_post_meta($order_id, $this->meta_prefix.'shipping_cost', true);
+					$invoice_cost = get_post_meta($order_id, $this->meta_prefix.'invoice_cost', true);
+					$total_sum_invoice = get_post_meta($order_id, $this->meta_prefix.'total_sum_invoice', true);
+					$total_sum = get_post_meta($order_id, $this->meta_prefix.'total_sum', true);
+					$total_tax = get_post_meta($order_id, $this->meta_prefix.'total_tax', true);
+					$paid_currency = get_post_meta($order_id, $this->meta_prefix.'paid_currency', true);
+					$paid_tax_display = get_post_meta_or_default($order_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
 
 					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
@@ -2572,7 +2879,7 @@ class mf_webshop
 		if($search_post_id > 0)
 		{
 			$out .= "<div class='wp-block-button'>
-				<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+				<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Go to the Shop", 'lang_webshop')."</a>
 			</div>";
 		}
 
@@ -5168,7 +5475,7 @@ class mf_webshop
 						$obj_encryption = new mf_encryption(__CLASS__);
 						$this->order_details = [];
 
-						$this->order_id = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+						$this->order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
 
 						foreach($this->arr_meta_keys as $meta_key)
 						{
@@ -5176,7 +5483,7 @@ class mf_webshop
 
 							if($this->order_details[$meta_key] != '')
 							{
-								$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_id));
+								$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
 							}
 						}
 
@@ -5203,30 +5510,7 @@ class mf_webshop
 
 							else
 							{
-								$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
-
-								if($order_status != '')
-								{
-									$arr_order_status = $this->get_order_status_for_select();
-								}
-
-								switch($order_status)
-								{
-									case 'paid':
-										echo "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".$arr_order_status[$order_status]."</span>";
-									break;
-
-									case 'cancelled':
-									case 'failed':
-									case 'wrong_amount':
-										// Display what?
-									break;
-
-									default:
-									case 'ordered':
-										echo "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".__("Ordered", 'lang_webshop')."</span>";
-									break;
-								}
+								echo $this->get_order_status(array('order_id' => $post_id));
 							}
 						}
 					break;
@@ -5501,9 +5785,9 @@ class mf_webshop
 	{
 		global $post;
 
-		$this->order_id = $this->get_cookie(false);
+		$this->order_cart_hash = $this->get_cookie(false);
 
-		if($this->order_id != '')
+		if($this->order_cart_hash != '')
 		{
 			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
@@ -5593,121 +5877,6 @@ class mf_webshop
 		return $data['price'];
 	}
 
-	function get_webshop_cart($json_output, $order_id = 0)
-	{
-		global $wpdb;
-
-		if($order_id > 0)
-		{
-			$this->order_id = $order_id;
-		}
-
-		else
-		{
-			if(!($this->order_id != ''))
-			{
-				$this->order_id = $this->get_cookie();
-			}
-		}
-
-		if($this->order_id != '')
-		{
-			$arr_products = [];
-			$total_sum = $total_tax = 0;
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
-
-			foreach($result as $r)
-			{
-				$post_id = $r->ID;
-				$post_modified = $r->post_modified;
-
-				$arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
-
-				if(is_array($arr_products))
-				{
-					foreach($arr_products as $key => $arr_product)
-					{
-						$arr_cart_values = $this->get_cart_values($arr_product['id']);
-
-						$product_amount_max = ($arr_product['amount'] + $arr_cart_values['product_amount_left']);
-
-						if($arr_cart_values['product_cart_max'] > 0 && $arr_cart_values['product_cart_max'] < $product_amount_max)
-						{
-							$product_amount_max = $arr_cart_values['product_cart_max'];
-						}
-
-						$total_sum += $this->display_price(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
-						$total_tax += $this->get_tax(array('price' => ($arr_product['price'] * $arr_product['amount']), 'suffix' => false));
-
-						$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
-						$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
-						$arr_products[$key]['product_amount_max'] = $product_amount_max;
-						$arr_products[$key]['product_time_limit'] = ($arr_cart_values['product_stock_max'] > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
-						$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
-						$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
-						$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
-					}
-				}
-
-				else
-				{
-					$arr_products = [];
-				}
-			}
-
-			if(IS_SUPER_ADMIN)
-			{
-				//$json_output['debug'] .= " (".$wpdb->last_query.")";
-			}
-
-			if(is_array($arr_products))
-			{
-				$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
-				$shipping_cost = 0;
-				$shipping_comment = "";
-
-				if($setting_webshop_shipping_free_limit > 0 && $total_sum < $setting_webshop_shipping_free_limit)
-				{
-					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
-
-					if($shipping_cost > 0)
-					{
-						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
-
-						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
-						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
-					}
-				}
-
-				$setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
-
-				$json_output['success'] = true;
-				$json_output['response_webshop_cart'] = array(
-					//'order_id' => $this->order_id,
-					'products' => $arr_products,
-					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
-					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
-					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
-					//'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
-					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
-					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
-					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
-					'total_tax_raw' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => false)),
-					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
-					//'debug' => $setting_webshop_shipping_free_limit.", ".$total_sum,
-				);
-			}
-
-			else
-			{
-				$json_output['error'] = __("Error", 'lang_webshop');
-			}
-		}
-
-		return $json_output;
-	}
-
 	function api_webshop_cart_icon()
 	{
 		global $wpdb;
@@ -5717,7 +5886,7 @@ class mf_webshop
 			'product_amount' => 0,
 		);
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$arr_products = $this->get_order_products();
 
@@ -5735,7 +5904,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$arr_cart_values = $this->get_cart_values($product_id);
 
@@ -5744,7 +5913,7 @@ class mf_webshop
 			$price_post_name = $this->get_post_name_for_type('price');
 			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -5821,9 +5990,9 @@ class mf_webshop
 				$post_data = array(
 					'post_type' => $this->post_type_orders,
 					'post_status' => 'draft',
-					'post_title' => $this->order_id,
+					'post_title' => $this->order_cart_hash,
 					'meta_input' => apply_filters('filter_meta_input', array(
-						$this->meta_prefix.'cart_hash' => $this->order_id,
+						$this->meta_prefix.'cart_hash' => $this->order_cart_hash,
 						$this->meta_prefix.'products' => $arr_products,
 					)),
 				);
@@ -6958,7 +7127,7 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$arr_fields = check_var('arr_fields');
 
@@ -6966,7 +7135,7 @@ class mf_webshop
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		foreach($result as $r)
 		{
@@ -6976,7 +7145,7 @@ class mf_webshop
 
 				if($order_detail != '')
 				{
-					$out[] = array('id' => $meta_key, 'value' => $obj_encryption->decrypt($order_detail, md5($this->order_id)));
+					$out[] = array('id' => $meta_key, 'value' => $obj_encryption->decrypt($order_detail, md5($this->order_cart_hash)));
 				}
 			}
 		}
@@ -7099,14 +7268,14 @@ class mf_webshop
 			'success' => false,
 		);
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		foreach($this->arr_meta_keys as $meta_key)
 		{
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -7122,7 +7291,7 @@ class mf_webshop
 				{
 					if($this->order_details[$meta_key] != '')
 					{
-						$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_id));
+						$this->order_details[$meta_key] = $obj_encryption->encrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
 					}
 
 					$post_data['meta_input'][$this->meta_prefix.$meta_key] = $this->order_details[$meta_key];
@@ -7180,14 +7349,14 @@ class mf_webshop
 			'success' => false,
 		);
 
-		$this->order_id = $this->get_cookie();
+		$this->order_cart_hash = $this->get_cookie();
 
 		$product_name = check_var('product_name');
 		$product_amount = check_var('product_amount');
 
 		list($product_rest, $product_id) = explode("_", $product_name);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -7263,9 +7432,9 @@ class mf_webshop
 			'success' => false,
 		);
 
-		$this->order_id = $this->get_cookie(false);
+		$this->order_cart_hash = $this->get_cookie(false);
 
-		if($this->order_id != '')
+		if($this->order_cart_hash != '')
 		{
 			$product_id = check_var('product_id');
 
@@ -7309,7 +7478,7 @@ class mf_webshop
 
 		$arr_json = json_decode($request->get_body(), true);
 
-		$this->order_id = sanitize_text_field($arr_json['order_id']);
+		$this->order_cart_hash = sanitize_text_field($arr_json['order_id']);
 		$payment_method = 'stripe';
 		$payment_method_id = sanitize_text_field($arr_json['payment_method_id']);
 		$test_mode = sanitize_text_field($arr_json['test_mode']);
@@ -7329,10 +7498,10 @@ class mf_webshop
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$secret_key = $obj_encryption->decrypt($secret_key, md5(AUTH_KEY));
 
-		$arr_cart_data = $this->get_webshop_cart([], $this->order_id);
+		$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 		$setting_webshop_currency = get_option('setting_webshop_currency');
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_id, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -7654,7 +7823,7 @@ class mf_webshop
 												<% } %>
 
 												<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
-												<% if(product_time_limit > 0)
+												<% if(product_in_cart > 0 && product_time_limit > 0)
 												{ %>
 													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
 														<i class='fa fa-clock <% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>'></i>
@@ -7718,14 +7887,32 @@ class mf_webshop
 							}
 
 							$out .= "<td>
-								<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>
+								<% if(is_editable == true)
+								{ %>
+									<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>
+								<% }
+
+								else
+								{ %>
+									<span><%= amount %></span>
+								<% } %>
 								<% if(product_time_limit > 0)
 								{ %>
 									<i class='fa fa-clock <% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
 								<% } %>
 							</td>
 							<td><%= product_total %></td>
-							<td><i class='fa fa-trash red'></i></td>
+							<td>
+								<% if(is_editable == true)
+								{ %>
+									<i class='fa fa-trash red'></i>
+								<% }
+
+								else
+								{ %>
+									<i class='fa fa-check green' title='".__("You have already paid for this", 'lang_webshop')."'></i>
+								<% } %>
+							</td>
 						</tr>
 					</script>";
 				break;

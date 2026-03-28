@@ -1,5 +1,13 @@
+.widget.webshop_cart .cart_products td > span
+{
+	padding-left: .4em;
+}
+
 .widget.webshop_cart .cart_products .mf_form_field[inputmode='numeric']
 {
+	margin-bottom: 0;
+	padding-top: .1em;
+	padding-bottom: .1em;
 	max-width: 4em;
 }
 
