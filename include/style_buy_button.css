@@ -1,3 +1,13 @@
+.widget .cart_buttons a
+{
+	padding: .5em 1em;
+}
+
+.widget .cart_buttons a + a
+{
+	margin-left: .5em;
+}
+
 .widget .cart_buttons a > span
 {
 	margin-right: .5em;
@@ -13,16 +23,6 @@
 		{
 			transform: rotate(1440deg);
 		}
-
-	/*.widget.webshop_search .cart_buttons a > span:last-of-type
-	{
-		display: none;
-	}
-
-		.widget.webshop_search .cart_buttons a:hover > span:last-of-type
-		{
-			display: inline-block;
-		}*/
 
 .widget .cart_buttons a, .widget .cart_buttons a i
 {
@@ -108,7 +108,7 @@
 		opacity: .5;
 	}
 
-		.widget .cart_buttons a.disabled i
+		.widget .cart_buttons a.disabled i, .widget .cart_buttons a.disabled .css_icon
 		{
 			transform: rotate(45deg);
 		}

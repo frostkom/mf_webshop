@@ -11,6 +11,11 @@
 	max-width: 4em;
 }
 
+	.widget.webshop_cart .cart_products .mf_form_field[inputmode='numeric'] + *
+	{
+		margin-left: .5em;
+	}
+
 .widget.webshop_cart .card_details
 {
 	margin-bottom: .8em;

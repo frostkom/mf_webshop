@@ -348,6 +348,7 @@ class mf_webshop
 	{
 		$arr_data = [
 			'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
+			'quote' => __("Quote", 'lang_webshop'),
 			'invoice' => __("Invoice", 'lang_webshop'),
 		];
 
@@ -739,6 +740,11 @@ class mf_webshop
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
 		$arr_breakpoints = apply_filters('get_layout_breakpoints', ['tablet' => 1200, 'mobile' => 930, 'suffix' => "px"]);
+
+		//mf_enqueue_style('style_webshop_cart_icon', $plugin_include_url."style_cart_icon.css");
+		mf_enqueue_script('script_webshop_cart_icon', $plugin_include_url."script_cart_icon.js", array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+		));
 
 		mf_enqueue_script('underscore');
 		mf_enqueue_script('backbone');
@@ -1346,13 +1352,16 @@ class mf_webshop
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
-				if($setting_webshop_shipping_free_limit > 0 && $total_sum < $setting_webshop_shipping_free_limit)
+				if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit) //$setting_webshop_shipping_free_limit > 0 && 
 				{
 					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
 					if($shipping_cost > 0)
 					{
-						$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+						if($setting_webshop_shipping_free_limit > 0)
+						{
+							$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+						}
 
 						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
 						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
@@ -1464,7 +1473,56 @@ class mf_webshop
 			}
 		}
 
-		if(isset($_POST['btnWebshopPayInvoice']))
+		else if(isset($_POST['btnWebshopPayQuote']))
+		{
+			$payment_ssn = check_var('payment_ssn');
+
+			$ssn_error = $this->check_product_ssn($payment_ssn);
+
+			if($ssn_error != '')
+			{
+				$error_text = $ssn_error;
+			}
+
+			else
+			{
+				$this->order_cart_hash = $this->get_cookie();
+
+				$payment_method = 'quote';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'order_status' => 'quoted',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+
+		else if(isset($_POST['btnWebshopPayInvoice']))
 		{
 			$payment_ssn = check_var('payment_ssn');
 
@@ -1513,7 +1571,7 @@ class mf_webshop
 			}
 		}
 
-		if(isset($_POST['btnWebshopPaySwishManual']))
+		else if(isset($_POST['btnWebshopPaySwishManual']))
 		{
 			$payment_swished = check_var('payment_swished');
 
@@ -1660,6 +1718,18 @@ class mf_webshop
 									.get_toggler_container(array('type' => 'start', 'id' => 'manual', 'text' => __("Manual", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'manual')))
 										."<div".get_form_button_classes().">"
 											.show_button(array('name' => 'btnWebshopPayManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
+							}
+
+							if(in_array('quote', $setting_webshop_payment_alternatives))
+							{
+								$out .= "<div class='payment_alternatives hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'quote', 'text' => __("Quote", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'quote')))
+										.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayQuote', 'text' => sprintf(__("Request quote for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 										."</div>"
 									.get_toggler_container(array('type' => 'end'))
 								."</div>";
@@ -2467,12 +2537,12 @@ class mf_webshop
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
-								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'plus')."</a>";
+								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'>".apply_filters('get_css_icon', 'plus')."</a>"; //<span>".__("Add", 'lang_webshop')."</span>
 							}
 
 							else
 							{
-								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><span>".__("Add", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'plus')."</a>";
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'>".apply_filters('get_css_icon', 'plus')."</a>"; //<span>".__("Add", 'lang_webshop')."</span>
 							}
 
 							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
@@ -2553,6 +2623,10 @@ class mf_webshop
 				case 'failed':
 				case 'wrong_amount':
 					$out .= "<span class='color_red nowrap'><i class='fa fa-times red'></i> ".$arr_order_status[$order_status]."</span>";
+				break;
+
+				case 'quoted':
+					$out .= "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".$arr_order_status[$order_status]."</span>";
 				break;
 
 				default:
@@ -4177,6 +4251,7 @@ class mf_webshop
 			'cancelled' => __("Cancelled", 'lang_webshop'),
 			'failed' => __("Failed", 'lang_webshop'),
 			'wrong_amount' => __("Wrong Amount", 'lang_webshop'),
+			'quoted' => __("Quoted", 'lang_webshop'),
 			'ordered' => __("Ordered", 'lang_webshop'),
 			'paid' => __("Paid", 'lang_webshop'),
 			'sent' => __("Sent to Customer", 'lang_webshop'),
@@ -7835,8 +7910,8 @@ class mf_webshop
 										else if(IS_SUPER_ADMIN)
 										{
 											$out .= "<div class='wp-block-button cart_buttons'>
-												<a href='#' class='wp-block-button__link' title='".__("You need to create a page for the Cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span><i class='fa fa-plus'></i></a>
-											</div>";
+												<a href='#' class='wp-block-button__link' title='".__("You need to create a page for the Cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
+											</div>"; //<span>".__("Add", 'lang_webshop')."</span>
 										}
 
 									$out .= "<% }
