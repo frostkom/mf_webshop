@@ -1231,7 +1231,7 @@ class mf_webshop
 		{
 			$mail_to = $this->order_details['contact_email'];
 			$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
-			$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+			$mail_content = sprintf(__("Go to %s to see your order. As long as the order is open, and not finalized, you can add to the order and change your information through this link.", 'lang_webshop'), $return_url);
 
 			$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
 		}
@@ -1413,6 +1413,7 @@ class mf_webshop
 		));
 
 		$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
+		$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
 		$arr_header[] = __("Product", 'lang_webshop');
 		$arr_header[] = __("Price", 'lang_webshop');
@@ -1638,12 +1639,17 @@ class mf_webshop
 				<div>
 					<h3>".__("Summary", 'lang_webshop')."</h3>
 					<table".apply_filters('get_table_attr', "", ['class' => ["cart_totals"]]).">
-						<tbody>
-							<tr>
-								<td>".__("Shipping Cost", 'lang_webshop')."</td>
-								<td class='shipping_cost'></td>
-							</tr>
-							<tr>
+						<tbody>";
+
+							if($setting_webshop_shipping_cost > 0)
+							{
+								$out .= "<tr>
+									<td>".__("Shipping Cost", 'lang_webshop')."</td>
+									<td class='shipping_cost'></td>
+								</tr>";
+							}
+
+							$out .= "<tr>
 								<td>".__("Total", 'lang_webshop')."</td>
 								<td class='total_sum'></td>
 							</tr>
@@ -2532,27 +2538,27 @@ class mf_webshop
 
 							if($search_post_id > 0)
 							{
-								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')."</a>";
+								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'><i class='fas fa-chevron-left'></i></a>"; //".apply_filters('get_css_icon', 'chevron_left')."
 							}
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
-								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'>".apply_filters('get_css_icon', 'plus')."</a>"; //<span>".__("Add", 'lang_webshop')."</span>
+								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>"; //<span>".__("Add", 'lang_webshop')."</span> //".apply_filters('get_css_icon', 'plus')."
 							}
 
 							else
 							{
-								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'>".apply_filters('get_css_icon', 'plus')."</a>"; //<span>".__("Add", 'lang_webshop')."</span>
+								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><i class='fa fa-plus'></i></a>"; //<span>".__("Add", 'lang_webshop')."</span> //".apply_filters('get_css_icon', 'plus')."
 							}
 
 							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
-								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span>".apply_filters('get_css_icon', 'check')."
-							</a>";
+								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
+							</a>"; //".apply_filters('get_css_icon', 'check')."
 
 							if($product_time_limit > 0)
 							{
 								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), $product_time_limit)."'>
-									<i class='fa fa-clock ".($product_time_limit <= floor($this->product_time_limit / 2) ? "red" : "grey")."'></i>
+									<i class='fa fa-clock".($product_time_limit <= floor($this->product_time_limit / 2) ? " red" : "")."'></i>
 								</a>";
 							}
 
@@ -2584,7 +2590,6 @@ class mf_webshop
 		{
 			if(isset($_POST['btnWebshopOrderUpdate']))
 			{
-				//$order_id = check_var('order_id', 'int');
 				$order_status = check_var('order_status');
 
 				if(wp_verify_nonce($_POST['_wpnonce_order_update'], 'order_update_'.$data['order_id']))
@@ -2605,7 +2610,6 @@ class mf_webshop
 				.show_select(array('data' => $arr_order_status, 'name' => 'order_status', 'text' => __("Status", 'lang_webshop'), 'value' => $order_status))
 				."<div".get_form_button_classes().">"
 					.show_button(array('name' => 'btnWebshopOrderUpdate', 'text' => __("Update", 'lang_webshop')))
-					//.input_hidden(array('name' => 'order_id', 'value' => $data['order_id']))
 					.wp_nonce_field('order_update_'.$data['order_id'], '_wpnonce_order_update', true, false)
 				."</div>"
 			."</form>";
@@ -2615,23 +2619,22 @@ class mf_webshop
 		{
 			switch($order_status)
 			{
-				case 'paid':
-					$out .= "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".$arr_order_status[$order_status]."</span>";
-				break;
-
 				case 'cancelled':
 				case 'failed':
 				case 'wrong_amount':
 					$out .= "<span class='color_red nowrap'><i class='fa fa-times red'></i> ".$arr_order_status[$order_status]."</span>";
 				break;
 
+				default:
 				case 'quoted':
+				case 'ordered':
 					$out .= "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".$arr_order_status[$order_status]."</span>";
 				break;
 
-				default:
-				case 'ordered':
-					$out .= "<span class='color_yellow nowrap'><i class='fa fa-check yellow'></i> ".$arr_order_status[$order_status]."</span>";
+				case 'paid':
+				case 'sent':
+				case 'finalized':
+					$out .= "<span class='color_green nowrap'><i class='fa fa-check green'></i> ".$arr_order_status[$order_status]."</span>";
 				break;
 			}
 		}
@@ -2649,7 +2652,9 @@ class mf_webshop
 
 		if($order_id > 0)
 		{
-			if(isset($_POST['btnWebshopOrderChange']) || isset($_POST['btnWebshopOrderAddMore']))
+			$order_status = get_post_meta($order_id, $this->meta_prefix.'order_status', true);
+
+			if(!in_array($order_status, ['sent', 'finalized']) && (isset($_POST['btnWebshopOrderChange']) || isset($_POST['btnWebshopOrderAddMore'])))
 			{
 				if(isset($_POST['btnWebshopOrderChange']))
 				{
@@ -2775,13 +2780,15 @@ class mf_webshop
 
 								$out .= "</p>";
 
-								$out .= "<form".apply_filters('get_form_attr', "").">"
-									."<div".get_form_button_classes().">"
-										.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
-										//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
-										.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
-									."</div>"
-								."</form>";
+								if(!in_array($order_status, ['sent', 'finalized']))
+								{
+									$out .= "<form".apply_filters('get_form_attr', "").">"
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
+											.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
+										."</div>"
+									."</form>";
+								}
 
 							$out .= "</div>
 						</li>";
@@ -2806,13 +2813,15 @@ class mf_webshop
 
 								$out .= "</p>";
 
-								$out .= "<form".apply_filters('get_form_attr', "").">"
-									."<div".get_form_button_classes().">"
-										.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
-										//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
-										.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
-									."</div>"
-								."</form>";
+								if(!in_array($order_status, ['sent', 'finalized']))
+								{
+									$out .= "<form".apply_filters('get_form_attr', "").">"
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
+											.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
+										."</div>"
+									."</form>";
+								}
 
 							$out .= "</div>
 						</li>";
@@ -2833,6 +2842,8 @@ class mf_webshop
 
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
+					$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
 					$out .= "<h2>".__("Products", 'lang_webshop')."</h2>
 					<table".apply_filters('get_table_attr', "").">";
 
@@ -2859,13 +2870,15 @@ class mf_webshop
 						$out .= "</tbody>
 					</table>";
 
-					$out .= "<form".apply_filters('get_form_attr', "").">"
-						."<div".get_form_button_classes().">"
-							.show_button(array('name' => 'btnWebshopOrderAddMore', 'text' => __("Add more to this order", 'lang_webshop')))
-							//.input_hidden(array('name' => 'order_id', 'value' => $order_id))
-							.wp_nonce_field('order_add_more_'.$order_id, '_wpnonce_order_add_more', true, false)
-						."</div>"
-					."</form>";
+					if(!in_array($order_status, ['sent', 'finalized']))
+					{
+						$out .= "<form".apply_filters('get_form_attr', "").">"
+							."<div".get_form_button_classes().">"
+								.show_button(array('name' => 'btnWebshopOrderAddMore', 'text' => __("Add more to this order", 'lang_webshop')))
+								.wp_nonce_field('order_add_more_'.$order_id, '_wpnonce_order_add_more', true, false)
+							."</div>"
+						."</form>";
+					}
 
 					$payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
 					$payment_method_id = get_post_meta($order_id, $this->meta_prefix.'payment_method_id', true);
@@ -2898,7 +2911,7 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($shipping_cost != '')
+							if($setting_webshop_shipping_cost > 0 || $shipping_cost > 0)
 							{
 								$out .= "<tr>
 									<td>".__("Shipping Cost", 'lang_webshop')."</td>
@@ -4255,6 +4268,7 @@ class mf_webshop
 			'ordered' => __("Ordered", 'lang_webshop'),
 			'paid' => __("Paid", 'lang_webshop'),
 			'sent' => __("Sent to Customer", 'lang_webshop'),
+			'finalized' => __("Finalized", 'lang_webshop'),
 		);
 	}
 
@@ -7901,7 +7915,7 @@ class mf_webshop
 												<% if(product_in_cart > 0 && product_time_limit > 0)
 												{ %>
 													<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
-														<i class='fa fa-clock <% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>'></i>
+														<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>'></i>
 													</a>
 												<% } %>
 											</div>";
@@ -7973,7 +7987,7 @@ class mf_webshop
 								<% } %>
 								<% if(product_time_limit > 0)
 								{ %>
-									<i class='fa fa-clock <% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %>red<% } else { %>grey<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+									<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
 								<% } %>
 							</td>
 							<td><%= product_total %></td>
