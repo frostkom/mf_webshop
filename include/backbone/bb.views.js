@@ -379,6 +379,8 @@ var WebshopView = Backbone.View.extend(
 			dom_obj_parent.find(".add_to_cart").addClass('disabled').removeClass('add_to_cart').attr('title', response.is_allowed_to_buy_reason);
 		}
 
+		dom_obj_parent.find(".product_amount_left").text(response.product_amount_left);
+
 		update_cart_icon();
 	},
 
