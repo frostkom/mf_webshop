@@ -38,7 +38,7 @@ class mf_webshop
 	var $price_amount;
 	var $number_amount;
 	var $search_url;
-	var $product_social;
+	//var $product_social;
 	var $product_coordinates;
 	var $product_map;
 	var $product_categories;
@@ -703,7 +703,7 @@ class mf_webshop
 			replace_post_type(array('old' => 'mf_delivery_type', 'new' => 'mf_delivery'));
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search', 'setting_webshop_map_placement', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_map_info', 'setting_webshop_map_button_placement', 'setting_webshop_replace_email_favorites', 'setting_webshop_share_email_content', 'setting_webshop_share_email_subject', 'setting_webshop_replace_favorites_info', 'setting_webshop_switch_icon_off', 'setting_webshop_switch_icon_on', 'setting_quote_form_popup', 'setting_webshop_replace_hide_map', 'setting_webshop_replace_show_map', 'setting_webshop_allow_multiple_categories'),
+				'options' => array('setting_webshop_option_types', 'setting_webshop_display_images', 'setting_webshop_max_file_uploads', 'setting_webshop_user_updated_notification', 'setting_webshop_user_updated_notification_subject', 'setting_webshop_user_updated_notification_content', 'setting_webshop_title_fields_amount', 'setting_webshop_replace_product_title', 'setting_webshop_replace_product_description', 'setting_webshop_replace_title_information', 'setting_webshop_replace_title_settings', 'setting_webshop_replace_title_contact_info', 'setting_webshop_replace_title_quick_info', 'setting_webshop_replace_title_properties', 'setting_local_storage', 'settings_color_button_hover', 'settings_text_color_button_hover', 'settings_color_button_2_hover', 'setting_webshop_mobile_breakpoint', 'setting_webshop_require_payment', 'setting_webshop_allow_individual_contant', 'setting_product_default_image', 'setting_ghost_title', 'setting_ghost_image', 'setting_ghost_text', 'setting_webshop_color_button', 'setting_webshop_text_color_button', 'setting_webshop_color_button_2', 'setting_color_button_negative', 'setting_show_categories', 'setting_webshop_activate_frontend_admin', 'setting_webshop_payment_form', 'setting_webshop_product_template', 'setting_quote_form_single', 'setting_quote_form', 'setting_webshop_replace_categories_slug', 'setting_webshop_replace_products_slug', 'setting_webshop_replace_webshop', 'setting_webshop_replace_doc_types', 'setting_webshop_replace_categories', 'setting_webshop_replace_enter_title_here', 'setting_webshop_replace_products', 'setting_webshop_replace_product', 'setting_webshop_display_breadcrumbs', 'setting_replace_search_result_info', 'setting_webshop_replace_filter_products', 'setting_replace_return_to_search', 'setting_webshop_replace_too_many', 'setting_replace_quote_request', 'setting_webshop_replace_none_checked', 'setting_require_search', 'setting_replace_send_request_for_quote', 'setting_webshop_force_individual_contact', 'setting_replace_search_for_another', 'setting_replace_remove_from_search', 'setting_replace_add_to_search', 'setting_webshop_map_placement', 'setting_webshop_symbol_inactive', 'setting_webshop_symbol_inactive_image', 'setting_webshop_symbol_active', 'setting_webshop_symbol_active_image', 'setting_ghost_inactive_image', 'setting_ghost_active_image', 'setting_map_info', 'setting_webshop_map_button_placement', 'setting_webshop_replace_email_favorites', 'setting_webshop_share_email_content', 'setting_webshop_share_email_subject', 'setting_webshop_replace_favorites_info', 'setting_webshop_switch_icon_off', 'setting_webshop_switch_icon_on', 'setting_quote_form_popup', 'setting_webshop_replace_hide_map', 'setting_webshop_replace_show_map', 'setting_webshop_allow_multiple_categories', 'setting_webshop_color_info', 'setting_webshop_text_color_info'),
 				'tables' => array('webshop_order', 'webshop_product2user', 'webshop_sent'),
 			));
 		}
@@ -719,7 +719,8 @@ class mf_webshop
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
 		mf_enqueue_style('style_webshop_buy_button', $plugin_include_url."style_buy_button.css");
-		mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
+		//mf_enqueue_style('style_webshop', $plugin_include_url."style.php");
+		mf_enqueue_style('style_webshop', $plugin_include_url."style.css");
 		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
 	}
 
@@ -793,10 +794,10 @@ class mf_webshop
 
 					if($setting_webshop_display_filter != 'no')
 					{
-						if($setting_webshop_display_filter == 'button')
+						/*if($setting_webshop_display_filter == 'button')
 						{
 							$out .= get_toggler_container(array('type' => 'start', 'id' => 'filter', 'text' => __("Filter", 'lang_webshop')));
-						}
+						}*/
 
 							//$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 							$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_searchable'", 'where_key' => "meta_value = %s", 'where_value' => 'yes', 'order' => "menu_order ASC"));
@@ -1001,16 +1002,16 @@ class mf_webshop
 								}
 							}
 
-						if($setting_webshop_display_filter == 'button')
+						/*if($setting_webshop_display_filter == 'button')
 						{
 							$out .= get_toggler_container(array('type' => 'end'));
-						}
+						}*/
 					}
 
 					//$out .= $this->get_search_result_info(array('type' => 'matches'));
 				}
 
-				$out .= "<ul class='product_list webshop_item_list grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
+				$out .= "<ul class='grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
 			."</form>"
 			.$this->get_templates(array('type' => 'products'))
 		."</div>";
@@ -2609,7 +2610,7 @@ class mf_webshop
 
 		return $out;
 	}
-	
+
 	function get_order_status($data)
 	{
 		global $done_text, $error_text;
@@ -3290,9 +3291,8 @@ class mf_webshop
 			'setting_webshop_display_sort' => __("Display Sort", 'lang_webshop'),
 			'setting_webshop_sort_default' => __("Sort Default", 'lang_webshop'),
 			'setting_webshop_display_filter' => __("Display Filter", 'lang_webshop'),
+			'setting_show_all_min' => __("Min results to show number", 'lang_webshop'),
 		);
-
-		$arr_settings['setting_show_all_min'] = __("Min results to show number", 'lang_webshop');
 
 		if($this->get_post_name_for_type('interval') != '')
 		{
@@ -3517,13 +3517,13 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option_or_default($setting_key, 'yes');
 
-			$arr_data = array(
+			/*$arr_data = array(
 				'yes' => __("Yes", 'lang_webshop'),
 				'button' => __("Yes", 'lang_webshop')." (".__("Hidden behind a button", 'lang_webshop').")",
 				'no' => __("No", 'lang_webshop'),
-			);
+			);*/
 
-			echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
 	function settings_webshop_shipping_callback()
@@ -7744,7 +7744,7 @@ class mf_webshop
 
 	function get_spinner_template($data)
 	{
-		return "<".$data['tag']." class='widget_spinner'>"
+		return "<".$data['tag'].">" // class='widget_spinner'
 			.apply_filters('get_loading_animation', '', ['class' => $data['size']])
 		."</".$data['tag'].">";
 	}
@@ -7794,14 +7794,8 @@ class mf_webshop
 								{ %>
 									<div class='custom_category custom_category_<%= custom_category_id %>'></div>
 								<% } %>
-								<h2>";
-
-									/*$out .= "<% if(category_icon != '')
-									{ %>
-										<i class='<%= category_icon %>' title='<%= category_title %>'></i>
-									<% } %>";*/
-
-									$out .= "<% if(product_url != '#')
+								<h2>
+									<% if(product_url != '#')
 									{ %>
 										<a href='<%= product_url %>'><%= product_title %></a>
 									<% }
@@ -7809,21 +7803,9 @@ class mf_webshop
 									else
 									{ %>
 										<%= product_title %>
-									<% } %>";
-
-									/*$out .= "<% if(product_location != '')
-									{ %>
-										<span>(<%= product_location %>)</span>
-									<% } %>";*/
-
-								$out .= "</h2>";
-
-								/*$out .= "<% if(product_address != '')
-								{ %>
-									<span class='location'><i class='fas fa-map-marker-alt'></i> <%= product_address %></span>
-								<% } %>";*/
-
-								$out .= "<% if(product_info != '')
+									<% } %>
+								</h2>
+								<% if(product_info != '')
 								{ %>
 									<p><%= product_info %></p>
 								<% } %>
@@ -8022,7 +8004,7 @@ class mf_webshop
 							</td>
 						</tr>
 					</script>
-					
+
 					<script type='text/template' id='template_webshop_checkout_information'>"
 						.show_textfield(array('name' => '<%= checkout_name %>_<%= product_id %>_<%= product_number %>', 'text' => "<%= checkout_label %>", 'value' => "<%= checkout_value %>"))
 					."</script>";
@@ -8716,12 +8698,12 @@ class mf_webshop
 		$this->product_has_email = false;
 		$this->number_amount = $this->price_amount = $this->size_amount = 0;
 
-		$this->product_address = $this->product_categories = $this->product_map = $this->product_coordinates = $this->product_social = $this->search_url = "";
+		$this->product_address = $this->product_categories = $this->product_map = $this->product_coordinates = $this->search_url = ""; // = $this->product_social
 
 		if($data['single'] == true)
 		{
-			$this->product_form_buy = "";
-			$this->arr_product_property = $this->arr_product_quick = [];
+			//$this->product_form_buy = "";
+			//$this->arr_product_property = $this->arr_product_quick = [];
 		}
 
 		else
