@@ -6507,7 +6507,7 @@ class mf_webshop
 
 	function api_webshop_call()
 	{
-		global $wpdb;
+		global $wpdb, $obj_base;
 
 		$json_output = array(
 			'success' => false,
@@ -7093,6 +7093,9 @@ class mf_webshop
 				/*$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key = '".$this->meta_prefix.'searchable'."'";
 				$query_where .= " AND (searchable.meta_value IS null OR searchable.meta_value = 'yes')";*/
 
+				$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key =		'".$obj_base->meta_prefix.'page_index'."'";
+				$query_where .= " AND (searchable.meta_value IS NULL OR searchable.meta_value != 'no')";
+
 				switch($order)
 				{
 					default:
@@ -7141,6 +7144,7 @@ class mf_webshop
 				if(IS_SUPER_ADMIN)
 				{
 					$json_output['debug'] .= ", ".$wpdb->last_query;
+					//do_log($wpdb->last_query);
 				}
 
 				foreach($result as $r)
