@@ -18,6 +18,11 @@
 			{
 				'type': 'string',
 				'default': ''
+			},
+			'webshop_search':
+			{
+				'type': 'string',
+				'default': ''
 			}
 		},
 		'supports':
@@ -53,6 +58,22 @@
 				'div',
 				{className: 'wp_mf_block_container'},
 				[
+					el(
+						InspectorControls,
+						'div',
+						el(
+							SelectControl,
+							{
+								label: script_webshop_block_wp.webshop_search_label,
+								value: props.attributes.webshop_search,
+								options: convert_php_array_to_block_js(script_webshop_block_wp.yes_no_for_select),
+								onChange: function(value)
+								{
+									props.setAttributes({webshop_search: value});
+								}
+							}
+						)
+					),
 					el(
 						'strong',
 						{className: props.className},

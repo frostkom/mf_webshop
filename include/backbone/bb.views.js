@@ -51,11 +51,6 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	show_results_view: function()
-	{
-		jQuery(".search_result_info").show();
-	},
-
 	show_no_results_view: function()
 	{
 		jQuery(".favorite_result").addClass('hide');
@@ -325,14 +320,14 @@ var WebshopView = Backbone.View.extend(
 
 		jQuery(".show_if_results").removeClass('hide');
 
-		this.update_total_amount();
+		/*this.update_total_amount();*/
 		this.update_quote_amount();
 	},
 
-	update_total_amount: function()
+	/*update_total_amount: function()
 	{
 		jQuery(".search_result_info > span").html(this.model.get('products_total'));
-	},
+	},*/
 
 	update_quote_amount: function()
 	{
