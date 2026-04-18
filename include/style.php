@@ -406,11 +406,6 @@ echo ".webshop_search .grid_columns > li.loading
 			margin-top: .5em;
 		}";
 
-			/*echo "#product_result_form .read_more_button
-			{
-				display: none;
-			}";*/
-
 		/*echo ".product_quick, .product_quick ul
 		{
 			list-style: none;

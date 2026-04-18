@@ -23,7 +23,6 @@ class mf_webshop
 	var $product_meta;
 	var $product_title;
 	var $product_description;
-	//var $product_has_read_more;
 	var $product_has_content;
 	var $arr_category_id;
 	var $product_image;
@@ -331,7 +330,7 @@ class mf_webshop
 				//'gps' => __("Map", 'lang_webshop'),
 			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
 				'divider' => __("Divider", 'lang_webshop'),
-				'read_more_button' => __("Read More Button", 'lang_webshop'),
+				//'read_more_button' => __("Read More Button", 'lang_webshop'),
 				//'container_start' => __("Start of Container", 'lang_webshop'),
 				//'container_end' => __("End of Container", 'lang_webshop'),
 			//'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
@@ -598,7 +597,7 @@ class mf_webshop
 					))
 				));
 
-				wp_insert_post(array(
+				/*wp_insert_post(array(
 					'post_type' => $this->post_type_document_type,
 					'post_title' => __("Read More", 'lang_webshop'),
 					'post_status' => 'publish',
@@ -606,7 +605,7 @@ class mf_webshop
 						$this->meta_prefix.'document_type' => 'read_more_button',
 						$this->meta_prefix.'document_public' => 'yes',
 					))
-				));
+				));*/
 
 				wp_insert_post(array(
 					'post_type' => $this->post_type_document_type,
@@ -992,7 +991,6 @@ class mf_webshop
 									$out .= "<hr".$custom_class.">";
 								break;
 
-								case 'read_more_button':
 								case 'overlay':
 									// Do nothing
 								break;
@@ -1263,6 +1261,112 @@ class mf_webshop
 			'first_name' => __("First Name", 'lang_webshop'),
 			'last_name' => __("Last Name", 'lang_webshop'),
 		);
+	}
+
+	function get_cart_values($product_id)
+	{
+		global $wpdb;
+
+		$out = array(
+			'is_visible' => true,
+			'is_allowed_to_buy' => false,
+			'is_allowed_to_buy_reason' => __("There are no more left in stock", 'lang_webshop'),
+			'product_stock_max' => 0,
+			'product_cart_max' => 0,
+			'product_in_cart' => 0,
+			'product_amount_left' => 100,
+		);
+
+		$this->order_cart_hash = $this->get_cookie();
+
+		$out['product_in_cart'] = $this->get_product_in_cart($product_id);
+
+		$cart_max_post_name = $this->get_post_name_for_type('cart_max');
+
+		if($cart_max_post_name != '')
+		{
+			$out['product_cart_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
+		}
+
+		$stock_post_name = $this->get_post_name_for_type('stock');
+
+		if($stock_post_name != '')
+		{
+			$out['product_stock_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
+
+			if($out['product_stock_max'] > 0)
+			{
+				$out['product_amount_left'] = ($out['product_stock_max'] - $this->get_amount_in_carts($product_id));
+			}
+		}
+
+		if($out['product_amount_left'] > 0)
+		{
+			$out['is_allowed_to_buy'] = (($out['product_cart_max'] <= 0 || $out['product_cart_max'] > $out['product_in_cart']));
+
+			if($out['is_allowed_to_buy'] == false)
+			{
+				$out['is_allowed_to_buy_reason'] = __("You have reached the maximum amount in your cart", 'lang_webshop');
+			}
+		}
+
+		if($out['is_allowed_to_buy'] == true)
+		{
+			$product_parent = get_post_field('post_parent', $product_id);
+
+			if($product_parent > 0)
+			{
+				$out['is_visible'] = false;
+				$out['is_allowed_to_buy'] = false;
+				$out['is_allowed_to_buy_reason'] = sprintf(__("You have to buy %s first", 'lang_webshop'), get_the_title($product_parent));
+
+				$arr_products = $this->get_order_products();
+
+				if(is_array($arr_products) && count($arr_products) > 0)
+				{
+					foreach($arr_products as $key => $arr_product)
+					{
+						if($arr_product['id'] == $product_parent)
+						{
+							$out['is_visible'] = true;
+							$out['is_allowed_to_buy'] = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		/*if($out['is_allowed_to_buy'] == true)
+		{
+			if(!isset($arr_products))
+			{
+				$arr_products = $this->get_order_products();
+			}
+
+			if(is_array($arr_products) && count($arr_products) > 0)
+			{
+				// All good. You are allowed to continue
+			}
+
+			else
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL ".$this->cart_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+				$count_temp = $wpdb->num_rows;
+
+				if($count_temp >= $this->cart_amount_limit)
+				{
+					// Get my order created time and modified time
+					// Get amount of orders that has a created time and modified time before me in the queue
+					$number_of_visitors_before_you = 10;
+
+					$out['is_allowed_to_buy'] = false;
+					$out['is_allowed_to_buy_reason'] = sprintf(__("There are already %d people making their orders. And you are number %d in the queue after that.", 'lang_webshop'), $count_temp, $number_of_visitors_before_you);
+				}
+			}
+		}*/
+
+		return $out;
 	}
 
 	function get_webshop_cart($json_output, $order_id = 0)
@@ -1848,7 +1952,7 @@ class mf_webshop
 					{
 						do_action('load_notification');
 
-						$this->order_cart_hash = $this->get_cookie();
+						//$this->order_cart_hash = $this->get_cookie();
 
 						$out .= "<div class='payment_alternatives hide'>"
 							.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
@@ -1879,6 +1983,26 @@ class mf_webshop
 												iconColor: '#fa755a'
 											}
 										};
+										
+										var order_cart_hash = '';
+
+										$.ajax(
+										{
+											url: '".admin_url('admin-ajax.php')."',
+											type: 'post',
+											dataType: 'json',
+											data:
+											{
+												action: 'api_webshop_get_order_cart_hash'
+											},
+											success: function(data)
+											{
+												if(data.success)
+												{
+													order_cart_hash = data.order_cart_hash;
+												}
+											}
+										});
 
 										var stripe = Stripe('".$public_key."'),
 											elements = stripe.elements(),
@@ -1912,7 +2036,7 @@ class mf_webshop
 														},
 														body: JSON.stringify(
 														{
-															order_id: '".$this->order_cart_hash."',
+															order_id: order_cart_hash,
 															payment_method_id: result.paymentMethod.id,
 															test_mode: '".$test_mode."'
 														})
@@ -2395,109 +2519,6 @@ class mf_webshop
 		}
 
 		return $data['price'];
-	}
-
-	function get_cart_values($product_id)
-	{
-		global $wpdb;
-
-		$out = array(
-			'is_allowed_to_buy' => false,
-			'is_allowed_to_buy_reason' => __("There are no more left in stock", 'lang_webshop'),
-			'product_stock_max' => 0,
-			'product_cart_max' => 0,
-			'product_in_cart' => 0,
-			'product_amount_left' => 100,
-		);
-
-		$this->order_cart_hash = $this->get_cookie();
-
-		$out['product_in_cart'] = $this->get_product_in_cart($product_id);
-
-		$cart_max_post_name = $this->get_post_name_for_type('cart_max');
-
-		if($cart_max_post_name != '')
-		{
-			$out['product_cart_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$cart_max_post_name, true, 0);
-		}
-
-		$stock_post_name = $this->get_post_name_for_type('stock');
-
-		if($stock_post_name != '')
-		{
-			$out['product_stock_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
-
-			if($out['product_stock_max'] > 0)
-			{
-				$out['product_amount_left'] = ($out['product_stock_max'] - $this->get_amount_in_carts($product_id));
-			}
-		}
-
-		if($out['product_amount_left'] > 0)
-		{
-			$out['is_allowed_to_buy'] = (($out['product_cart_max'] <= 0 || $out['product_cart_max'] > $out['product_in_cart']));
-
-			if($out['is_allowed_to_buy'] == false)
-			{
-				$out['is_allowed_to_buy_reason'] = __("You have reached the maximum amount in your cart", 'lang_webshop');
-			}
-		}
-
-		if($out['is_allowed_to_buy'] == true)
-		{
-			$product_parent = get_post_field('post_parent', $product_id);
-
-			if($product_parent > 0)
-			{
-				$out['is_allowed_to_buy'] = false;
-				$out['is_allowed_to_buy_reason'] = sprintf(__("You have to buy %s first", 'lang_webshop'), get_the_title($product_parent));
-
-				$arr_products = $this->get_order_products();
-
-				if(is_array($arr_products) && count($arr_products) > 0)
-				{
-					foreach($arr_products as $key => $arr_product)
-					{
-						if($arr_product['id'] == $product_parent)
-						{
-							$out['is_allowed_to_buy'] = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		/*if($out['is_allowed_to_buy'] == true)
-		{
-			if(!isset($arr_products))
-			{
-				$arr_products = $this->get_order_products();
-			}
-
-			if(is_array($arr_products) && count($arr_products) > 0)
-			{
-				// All good. You are allowed to continue
-			}
-
-			else
-			{
-				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL ".$this->cart_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
-				$count_temp = $wpdb->num_rows;
-
-				if($count_temp >= $this->cart_amount_limit)
-				{
-					// Get my order created time and modified time
-					// Get amount of orders that has a created time and modified time before me in the queue
-					$number_of_visitors_before_you = 10;
-
-					$out['is_allowed_to_buy'] = false;
-					$out['is_allowed_to_buy_reason'] = sprintf(__("There are already %d people making their orders. And you are number %d in the queue after that.", 'lang_webshop'), $count_temp, $number_of_visitors_before_you);
-				}
-			}
-		}*/
-
-		return $out;
 	}
 
 	function get_product_time_limit($product_stock_max)
@@ -3777,7 +3798,7 @@ class mf_webshop
 
 		switch($pagenow)
 		{
-			case 'options-general.php':
+			/*case 'options-general.php':
 				if(check_var('page') == 'settings_mf_base')
 				{
 					mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
@@ -3786,7 +3807,7 @@ class mf_webshop
 						'cleared_message' => sprintf(__("%s was successfully cleared on this device", 'lang_webshop'), "Local Storage"),
 					));
 				}
-			break;
+			break;*/
 
 			case 'admin.php':
 				if(check_var('page') == 'mf_webshop/stats/index.php')
@@ -4361,7 +4382,7 @@ class mf_webshop
 			),
 		);
 
-		$arr_doc_types_ignore = array('heading', 'label', 'categories', 'categories_v2', 'divider', 'read_more_button', 'container_start', 'container_end');
+		$arr_doc_types_ignore = array('heading', 'label', 'categories', 'categories_v2', 'divider', 'container_start', 'container_end'); //, 'read_more_button'
 
 		$result = $this->get_document_types(array('select' => "ID, post_title, post_name, post_parent", 'order' => "menu_order ASC"));
 
@@ -4622,7 +4643,7 @@ class mf_webshop
 				'attributes' => array(
 					'condition_type' => 'hide_this_if',
 					'condition_selector' => $this->meta_prefix.'document_type',
-					'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay"',
 				),
 			),
 			/*array(
@@ -4634,7 +4655,7 @@ class mf_webshop
 				'attributes' => array(
 					'condition_type' => 'hide_this_if',
 					'condition_selector' => $this->meta_prefix.'document_type',
-					'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay"',
 				),
 			),
 			array(
@@ -4646,7 +4667,7 @@ class mf_webshop
 				'attributes' => array(
 					'condition_type' => 'hide_this_if',
 					'condition_selector' => $this->meta_prefix.'document_type',
-					'condition_value' => '"categories_v2", "description", "color", "gps", "read_more_button", "overlay"',
+					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay"',
 				),
 			),
 			array(
@@ -4658,7 +4679,7 @@ class mf_webshop
 				'attributes' => array(
 					'condition_type' => 'hide_this_if',
 					'condition_selector' => $this->meta_prefix.'document_type',
-					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay", "heading", "categories", "categories_v2", "event", "container_start", "container_end", "read_more_button", "file_advanced", "event", "coordinates", "divider"',
+					'condition_value' => '"categories_v2", "description", "color", "gps", "overlay", "heading", "categories", "categories_v2", "event", "container_start", "container_end", "file_advanced", "event", "coordinates", "divider"',
 				),
 			),*/
 		);
@@ -5462,7 +5483,7 @@ class mf_webshop
 								case 'property':
 									$post_document_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
-									$hide = (in_array($post_document_type, array('categories_v2', 'description', 'color', 'gps', 'overlay', 'heading', 'categories', 'event', 'container_start', 'container_end', 'read_more_button', 'file_advanced', 'event', 'coordinates', 'divider', 'education')));
+									$hide = (in_array($post_document_type, array('categories_v2', 'description', 'color', 'gps', 'overlay', 'heading', 'categories', 'event', 'container_start', 'container_end', 'file_advanced', 'event', 'coordinates', 'divider', 'education'))); //, 'read_more_button'
 									//$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_input_required', true);
 
 									echo "<span class='fa-stack fa-2x'".($hide ? " style='visibility: hidden'" : "")." title='".__("Required", 'lang_webshop')." (".__("Input", 'lang_webshop').")'>
@@ -6014,12 +6035,25 @@ class mf_webshop
 
 						$arr_cart_values = $this->get_cart_values($product_id);
 
+						$trigger_reload = 'no';
+
+						if($product_amount_temp == 1)
+						{
+							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent = '%d' LIMIT 0, 1", $this->post_type_products, 'publish', $product_id));
+
+							if($wpdb->num_rows > 0)
+							{
+								$trigger_reload = 'yes';
+							}
+						}
+
 						$json_output['response_add_to_cart'] = array(
 							'product_id' => $product_id,
 							'product_amount' => $product_amount_temp,
 							'product_amount_left' => $arr_cart_values['product_amount_left'],
 							'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
 							'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
+							'trigger_reload' => $trigger_reload,
 						);
 					}
 
@@ -6179,13 +6213,6 @@ class mf_webshop
 							$post_meta = "";
 						}
 					}
-				break;
-
-				case 'read_more_button':
-					/*if($this->product_has_content && $this->product_url != "#")
-					{
-						$this->product_has_read_more = true;
-					}*/
 				break;
 
 				default:
@@ -6478,30 +6505,32 @@ class mf_webshop
 
 			$arr_cart_values = $this->get_cart_values($this->product_id);
 
-			$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
+			if($arr_cart_values['is_visible'] == true)
+			{
+				$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
 
-			$json_output['product_response'][] = array(
-				'product_id' => $this->product_id,
-				'product_title' => $this->product_title,
-				'product_clock' => ($this->product_clock),
-				'product_address' => $this->product_address,
-				'product_data' => $this->product_data,
-				'product_category' => $product_category,
-				'product_location' => $this->product_location,
-				'product_url' => $this->product_url,
-				'product_price' => $this->product_price,
-				'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
-				'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
-				'product_in_cart' => $arr_cart_values['product_in_cart'],
-				'product_time_limit' => $product_time_limit,
-				//'product_has_read_more' => $this->product_has_read_more,
-				'product_image' => $product_image,
-				'product_meta' => $this->product_meta,
-				'product_description' => apply_filters('the_content', $this->product_description),
-				'product_has_email' => $this->product_has_email,
-				'product_map' => $this->product_map,
-				'product_timestamp' => current_time('mysql'),
-			);
+				$json_output['product_response'][] = array(
+					'product_id' => $this->product_id,
+					'product_title' => $this->product_title,
+					'product_clock' => ($this->product_clock),
+					'product_address' => $this->product_address,
+					'product_data' => $this->product_data,
+					'product_category' => $product_category,
+					'product_location' => $this->product_location,
+					'product_url' => $this->product_url,
+					'product_price' => $this->product_price,
+					'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+					'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
+					'product_in_cart' => $arr_cart_values['product_in_cart'],
+					'product_time_limit' => $product_time_limit,
+					'product_image' => $product_image,
+					'product_meta' => $this->product_meta,
+					'product_description' => apply_filters('the_content', $this->product_description),
+					'product_has_email' => $this->product_has_email,
+					'product_map' => $this->product_map,
+					'product_timestamp' => current_time('mysql'),
+				);
+			}
 		}
 	}
 
@@ -7445,6 +7474,27 @@ class mf_webshop
 		else
 		{
 			$json_output['error'] = "No order found (".$wpdb->last_query.")";
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($json_output);
+		die();
+	}
+
+	function api_webshop_get_order_cart_hash()
+	{
+		global $wpdb;
+
+		$json_output = array(
+			'success' => false,
+		);
+
+		$this->order_cart_hash = $this->get_cookie();
+
+		if($this->order_cart_hash != '')
+		{
+			$json_output['success'] = true;
+			$json_output['order_cart_hash'] = $this->order_cart_hash;
 		}
 
 		header('Content-Type: application/json');
@@ -8583,9 +8633,9 @@ class mf_webshop
 					}
 				break;
 
-				case 'read_more_button':
+				/*case 'read_more_button':
 					$content = $data['meta'];
-				break;
+				break;*/
 
 				/*case 'container_start':
 					$content = "<ul>";
@@ -8672,7 +8722,7 @@ class mf_webshop
 			$this->product_description = shorten_text(array('string' => strip_tags($post->post_content), 'limit' => 120));
 		}
 
-		$this->product_has_content = false; //$this->product_has_read_more = 
+		$this->product_has_content = false;
 		$this->product_price = $this->product_image = $this->arr_category_id = '';
 		$this->product_url = "#";
 

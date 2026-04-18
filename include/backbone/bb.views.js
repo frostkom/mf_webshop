@@ -23,8 +23,8 @@ var WebshopView = Backbone.View.extend(
 	{
 		/* Template Search */
 		"click .webshop_search .grid_columns .products": "products_change",
-		"change .widget.webshop_search form input[type=range]": "filter_distance",
-		"submit .widget.webshop_search form": "submit_form",
+		/*"change .widget.webshop_search form input[type=range]": "filter_distance",*/
+		/*"submit .widget.webshop_search form": "submit_form",*/
 
 		/* Result List */
 		"keyup .widget.webshop_search form input": "search_products_delay",
@@ -35,7 +35,7 @@ var WebshopView = Backbone.View.extend(
 		"mouseleave .webshop_search .grid_columns > li": "section_unhover",
 		/*"change .webshop_form form select": "search_product_amount",*/
 		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
-		"click .webshop_search .grid_columns > li": "set_last_product",
+		/*"click .webshop_search .grid_columns > li": "set_last_product",*/
 		"click .webshop_search .grid_columns > li .add_to_cart": "add_to_cart",
 		"click .webshop_search .grid_columns > li .disabled": "disabled",
 
@@ -51,11 +51,11 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	show_no_results_view: function()
+	/*show_no_results_view: function()
 	{
 		jQuery(".favorite_result").addClass('hide');
 		jQuery(".favorite_fallback").removeClass('hide');
-	},
+	},*/
 
 	if_search_view: function()
 	{
@@ -175,11 +175,11 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	set_hash: function()
+	set_hash: function(hash)
 	{
 		var form_serialized = jQuery(".widget.webshop_search form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
-		location.hash = "webshop/" + form_serialized;
+		location.hash = "webshop/" + form_serialized + (hash != '' ? "&hash=" + hash : "");
 	},
 
 	set_products: function()
@@ -209,10 +209,10 @@ var WebshopView = Backbone.View.extend(
 	{
 		this.set_products();
 
-		this.show_quote_request_button();
+		/*this.show_quote_request_button();*/
 	},
 
-	get_coordinates_from_string: function(string)
+	/*get_coordinates_from_string: function(string)
 	{
 		return string.replace("(", "").replace(")", "").split(", ");
 	},
@@ -258,9 +258,9 @@ var WebshopView = Backbone.View.extend(
 				}
 			});
 		}
-	},
+	},*/
 
-	submit_form: function(e)
+	/*submit_form: function(e)
 	{
 		if(this.model.get('products_checked') == 0)
 		{
@@ -277,14 +277,14 @@ var WebshopView = Backbone.View.extend(
 
 			return false;
 		}
-	},
+	},*/
 
 	product_form_has_changed: function()
 	{
 		return (jQuery(".widget.webshop_search form .form_select:first-of-type select").val() != '' || jQuery(".widget.webshop_search form .form_checkbox input").is(":checked"));
 	},
 
-	show_quote_request_button: function()
+	/*show_quote_request_button: function()
 	{
 		var self = this,
 			products_total = 0,
@@ -320,24 +320,24 @@ var WebshopView = Backbone.View.extend(
 
 		jQuery(".show_if_results").removeClass('hide');
 
-		/*this.update_total_amount();*/
+		this.update_total_amount();
 		this.update_quote_amount();
-	},
+	},*/
 
 	/*update_total_amount: function()
 	{
 		jQuery(".search_result_info > span").html(this.model.get('products_total'));
 	},*/
 
-	update_quote_amount: function()
+	/*update_quote_amount: function()
 	{
 		jQuery(".form_button .show_if_results span, .wp-block-button .show_if_results span").html(this.model.get('products_checked'));
-	},
+	},*/
 
-	set_last_product: function(e)
+	/*set_last_product: function(e)
 	{
 		var last_product = jQuery(e.currentTarget).attr('id').replace('product_', '');
-	},
+	},*/
 
 	add_to_cart: function(e)
 	{
@@ -377,6 +377,11 @@ var WebshopView = Backbone.View.extend(
 		dom_obj_parent.find(".product_amount_left").text(response.product_amount_left);
 
 		update_cart_icon();
+
+		if(response.trigger_reload == 'yes')
+		{
+			this.set_hash(response.product_id);
+		}
 	},
 
 	show_products: function()
@@ -408,7 +413,7 @@ var WebshopView = Backbone.View.extend(
 				jQuery(".webshop_search .grid_columns").html(html);
 			}
 
-			this.show_quote_request_button();
+			/*this.show_quote_request_button();*/
 		}
 	},
 

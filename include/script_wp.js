@@ -14,7 +14,7 @@ jQuery(function($)
 
 		$.Storage.remove('form_products');
 		$.Storage.remove('form_serialized');
-		$.Storage.remove('last_product');
+		/*$.Storage.remove('last_product');*/
 
 		$("button[name=btnLocalStorageClear]").addClass('is_disabled');
 		$("#storage_response").html(script_webshop_wp.cleared_message);
