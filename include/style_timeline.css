@@ -1,0 +1,82 @@
+:root
+{
+	--webshop-timeline-color-progress: #ccc;
+	--webshop-timeline-color-done: #0a0;
+}
+
+.webshop_timeline ul
+{
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+	.webshop_timeline li
+	{
+		flex: 1;
+		/*text-align: center;*/
+		position: relative;
+	}
+
+		.webshop_timeline li:before, .webshop_timeline li:after
+		{
+			background-color: var(--webshop-timeline-color-progress);
+			bottom: 1.8em;
+			content: "";
+			display: block;
+			height: .3em;
+			position: absolute;
+			width: 50%;
+			z-index: -1;
+		}
+
+			.webshop_timeline li:first-child:before, .webshop_timeline li:last-child:after
+			{
+				width: 0;
+			}
+
+			.webshop_timeline li:before
+			{
+				left: 0;
+			}
+
+			.webshop_timeline li:after
+			{
+				right: 0;
+			}
+
+		.webshop_timeline li.done:after, .webshop_timeline li.done + .webshop_timeline li:before
+		{
+			background-color: var(--webshop-timeline-color-done);
+		}
+
+		.webshop_timeline li a
+		{
+			background-color: #fff;
+			border: .2em solid var(--webshop-timeline-color-progress);
+			border-radius: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 3em;
+			margin: .3em auto;
+			text-decoration: none;
+			position: relative;
+			width: 3em;
+		}
+
+			.webshop_timeline li a i
+			{
+				color: var(--webshop-timeline-color-progress);
+			}
+
+			.webshop_timeline li.done a
+			{
+				border-color: var(--webshop-timeline-color-done);
+			}
+
+				.webshop_timeline li.done a i
+				{
+					color: var(--webshop-timeline-color-done);
+				}

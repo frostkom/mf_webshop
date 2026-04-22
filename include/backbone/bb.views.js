@@ -1,4 +1,4 @@
-var my_lat, my_lon, search_timeout;
+var search_timeout; /*my_lat, my_lon, */
 
 var WebshopView = Backbone.View.extend(
 {
@@ -8,7 +8,6 @@ var WebshopView = Backbone.View.extend(
 	{
 		/* Product */
 		this.model.on("change:product_response", this.show_products, this);
-		/*this.model.on("change:product_amount", this.show_product_amount, this);*/
 		this.model.on("change:response_add_to_cart", this.show_add_to_cart, this);
 
 		this.has_product_result = (jQuery(".webshop_search .grid_columns").length > 0);
@@ -16,26 +15,22 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
 		this.if_search_view();
-		this.if_product_view();
+		/*this.if_product_view();*/
 	},
 
 	events:
 	{
 		/* Template Search */
 		"click .webshop_search .grid_columns .products": "products_change",
-		/*"change .widget.webshop_search form input[type=range]": "filter_distance",*/
-		/*"submit .widget.webshop_search form": "submit_form",*/
 
 		/* Result List */
 		"keyup .widget.webshop_search form input": "search_products_delay",
 		"change .widget.webshop_search form input": "search_products_delay",
 		"change .widget.webshop_search form select": "search_products",
 		"blur .widget.webshop_search form input[type!='checkbox']": "search_products",
-		"mouseenter .webshop_search .grid_columns > li": "section_hover",
+		/*"mouseenter .webshop_search .grid_columns > li": "section_hover",
 		"mouseleave .webshop_search .grid_columns > li": "section_unhover",
-		/*"change .webshop_form form select": "search_product_amount",*/
-		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",
-		/*"click .webshop_search .grid_columns > li": "set_last_product",*/
+		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",*/
 		"click .webshop_search .grid_columns > li .add_to_cart": "add_to_cart",
 		"click .webshop_search .grid_columns > li .disabled": "disabled",
 
@@ -51,12 +46,6 @@ var WebshopView = Backbone.View.extend(
 		}
 	},
 
-	/*show_no_results_view: function()
-	{
-		jQuery(".favorite_result").addClass('hide');
-		jQuery(".favorite_fallback").removeClass('hide');
-	},*/
-
 	if_search_view: function()
 	{
 		if(jQuery(".widget.webshop_search form").length > 0)
@@ -64,7 +53,7 @@ var WebshopView = Backbone.View.extend(
 			this.get_hash();
 			this.search_products();
 
-			var dom_obj_range = jQuery(".widget.webshop_search form input[type=range]");
+			/*var dom_obj_range = jQuery(".widget.webshop_search form input[type=range]");
 
 			if(dom_obj_range.length > 0)
 			{
@@ -80,16 +69,11 @@ var WebshopView = Backbone.View.extend(
 						dom_obj_range.parent(".form_textfield").addClass('hide');
 					});
 				}
-			}
+			}*/
 		}
-
-		/*if(jQuery(".webshop_form .product_filtered_amount").length > 0)
-		{
-			this.search_product_amount();
-		}*/
 	},
 
-	if_product_view: function()
+	/*if_product_view: function()
 	{
 		var dom_product_buttons = jQuery(".widget.webshop_search form.form_button_container");
 
@@ -131,19 +115,9 @@ var WebshopView = Backbone.View.extend(
 						}
 					}
 				}
-
-				/*if(html != "")
-				{
-					jQuery(".product_previous_next").html(html).removeClass('hide');
-				}
-
-				else
-				{
-					jQuery(".product_previous_next").addClass('hide');
-				}*/
 			}
 		}
-	},
+	},*/
 
 	get_hash: function()
 	{
@@ -156,7 +130,6 @@ var WebshopView = Backbone.View.extend(
 			{
 				var arr_values = value.split('=');
 
-				/* Filter product[] etc. */
 				if(arr_values[0].indexOf('%5B') === -1)
 				{
 					var dom_obj = jQuery("#" + arr_values[0]);
@@ -179,7 +152,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var form_serialized = jQuery(".widget.webshop_search form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
-		location.hash = "webshop/" + form_serialized + (hash != '' ? "&hash=" + hash : "");
+		location.hash = "webshop/" + form_serialized + (hash != '' && typeof hash != 'undefined' ? "&hash=" + hash : "");
 	},
 
 	set_products: function()
@@ -208,136 +181,12 @@ var WebshopView = Backbone.View.extend(
 	products_change: function()
 	{
 		this.set_products();
-
-		/*this.show_quote_request_button();*/
 	},
-
-	/*get_coordinates_from_string: function(string)
-	{
-		return string.replace("(", "").replace(")", "").split(", ");
-	},
-
-	get_distance: function(lat1, lon1, lat2, lon2, unit)
-	{
-		var radlat1 = (Math.PI * lat1 / 180),
-			radlat2 = (Math.PI * lat2 / 180),
-			theta = (lon1 - lon2),
-			radtheta = (Math.PI * theta / 180),
-			dist = (Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta));
-
-		dist = Math.acos(dist);
-		dist = (dist * 180 / Math.PI);
-		dist = (dist * 60 * 1.1515 * 1.609344);
-
-		return dist;
-	},
-
-	filter_distance: function(e)
-	{
-		if(typeof my_lat != 'undefined' && typeof my_lon != 'undefined')
-		{
-			var self = this,
-				dom_val = jQuery(e.currentTarget).val();
-
-			jQuery(".webshop_search .grid_columns .map_coordinates").each(function()
-			{
-				var dom_obj = jQuery(this),
-					dom_parent = dom_obj.parents("li"),
-					dom_coordinates = dom_obj.val(),
-					arr_coordinates = self.get_coordinates_from_string(dom_coordinates),
-					distance = self.get_distance(my_lat, my_lon, arr_coordinates[0], arr_coordinates[1]);
-
-				if(distance < dom_val)
-				{
-					dom_parent.removeClass('hide');
-				}
-
-				else
-				{
-					dom_parent.addClass('hide');
-				}
-			});
-		}
-	},*/
-
-	/*submit_form: function(e)
-	{
-		if(this.model.get('products_checked') == 0)
-		{
-			jQuery(e.currentTarget).find(".show_if_none_checked").removeClass('hide');
-
-			return false;
-		}
-
-		if(this.model.get('products_checked') > script_webshop_views.search_max || this.product_form_has_changed() == false)
-		{
-			jQuery(e.currentTarget).find(".show_if_too_many").removeClass('hide');
-
-			jQuery("html, body").animate({scrollTop: 0}, 800);
-
-			return false;
-		}
-	},*/
 
 	product_form_has_changed: function()
 	{
 		return (jQuery(".widget.webshop_search form .form_select:first-of-type select").val() != '' || jQuery(".widget.webshop_search form .form_checkbox input").is(":checked"));
 	},
-
-	/*show_quote_request_button: function()
-	{
-		var self = this,
-			products_total = 0,
-			products_checked = 0;
-
-		jQuery(".webshop_search .grid_columns .products").each(function()
-		{
-			var dom_obj = jQuery(this),
-				dom_parent = dom_obj.parents("li"),
-				is_hidden = dom_parent.hasClass('hide'),
-				is_checked = dom_obj.is(":checked");
-
-			if(!is_hidden && is_checked)
-			{
-				products_checked++;
-
-				dom_parent.addClass('active');
-			}
-
-			else
-			{
-				dom_parent.removeClass('active');
-			}
-
-			if(!is_hidden)
-			{
-				products_total++;
-			}
-		});
-
-		self.model.set('products_total', products_total);
-		self.model.set('products_checked', products_checked);
-
-		jQuery(".show_if_results").removeClass('hide');
-
-		this.update_total_amount();
-		this.update_quote_amount();
-	},*/
-
-	/*update_total_amount: function()
-	{
-		jQuery(".search_result_info > span").html(this.model.get('products_total'));
-	},*/
-
-	/*update_quote_amount: function()
-	{
-		jQuery(".form_button .show_if_results span, .wp-block-button .show_if_results span").html(this.model.get('products_checked'));
-	},*/
-
-	/*set_last_product: function(e)
-	{
-		var last_product = jQuery(e.currentTarget).attr('id').replace('product_', '');
-	},*/
 
 	add_to_cart: function(e)
 	{
@@ -412,23 +261,8 @@ var WebshopView = Backbone.View.extend(
 
 				jQuery(".webshop_search .grid_columns").html(html);
 			}
-
-			/*this.show_quote_request_button();*/
 		}
 	},
-
-	/*show_product_amount: function()
-	{
-		var response = this.model.get('product_amount'),
-			html = "";
-
-		if(response > script_webshop_views.show_all_min)
-		{
-			html = " " + response;
-		}
-
-		jQuery(".webshop_form .product_filtered_amount").html(html);
-	},*/
 
 	search_products_delay: function()
 	{
@@ -447,12 +281,7 @@ var WebshopView = Backbone.View.extend(
 		this.set_hash();
 	},
 
-	/*search_product_amount: function()
-	{
-		this.model.getPage("type=amount&" + jQuery('.webshop_form form').serialize());
-	},*/
-
-	product_add_to_search_or_not: function(e)
+	/*product_add_to_search_or_not: function(e)
 	{
 		var product_id = jQuery(e.target).attr('product_id');
 
@@ -526,7 +355,7 @@ var WebshopView = Backbone.View.extend(
 	section_unhover: function(e)
 	{
 		jQuery(e.currentTarget).removeClass('hover');
-	},
+	},*/
 
 	load_filter_products: function(dom_obj)
 	{

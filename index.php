@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: Adds functionality for a webshop
-Version: 2.2.9.14
+Version: 2.2.9.18
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -40,6 +40,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
 		add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
+
+		add_filter('post_row_actions', array($obj_webshop, 'post_row_actions'), 10, 2);
 
 		add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5);
 		add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
@@ -104,7 +106,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	function uninstall_webshop()
 	{
-		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_gmaps_api', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_search_max', 'setting_show_all_min', 'setting_webshop_icon', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_invoice_cost', 'setting_webshop_stripe_secret_key_test', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_certificate_password', 'setting_webshop_swish_key_file');
+		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_gmaps_api', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_webshop_icon', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_invoice_cost', 'setting_webshop_stripe_secret_key_test', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_certificate_password', 'setting_webshop_swish_key_file');
 
 		mf_uninstall_plugin(array(
 			'options' => $arr_options,

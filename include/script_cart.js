@@ -83,8 +83,9 @@ jQuery(function($)
 			dom_obj_widget.find(".cart_summary").removeClass('hide');
 
 			var html = "",
-				product_number_temp = -1,
-				count_temp = response.checkout_information.length;
+				product_title_temp = '',
+				product_number_temp = '',
+				count_temp = response.checkout_fields.length;
 
 			if(count_temp > 0)
 			{
@@ -92,20 +93,21 @@ jQuery(function($)
 
 				for(var i = 0; i < count_temp; i++)
 				{
-					if(product_number_temp != response.checkout_information[i].product_number)
+					if(product_title_temp != response.checkout_fields[i].product_title || product_number_temp != response.checkout_fields[i].product_number)
 					{
-						html += "<h4>" + response.checkout_information[i].product_title + " #" + response.checkout_information[i].product_number + "</h4>";
+						html += "<h4>" + response.checkout_fields[i].product_title + " #" + response.checkout_fields[i].product_number + "</h4>";
 					}
 
-					html += _.template(dom_template)(response.checkout_information[i]);
+					html += _.template(dom_template)(response.checkout_fields[i]);
 
-					product_number_temp = response.checkout_information[i].product_number;
+					product_title_temp = response.checkout_fields[i].product_title;
+					product_number_temp = response.checkout_fields[i].product_number;
 				}
 			}
 
 			if(html != '')
 			{
-				dom_obj_widget.find(".checkout_information").removeClass('hide').children("div").html(html);
+				dom_obj_widget.find(".checkout_fields").removeClass('hide').children("div").html(html);
 			}
 		}
 
