@@ -727,46 +727,55 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		do_action('load_font_awesome');
-
-		$plugin_include_url = plugin_dir_url(__FILE__);
-		mf_enqueue_style('style_webshop_cart_icon', $plugin_include_url."style_timeline.css");
+		$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_timeline", 'attributes' => $attributes)).">";
 
-			if(IS_ADMINISTRATOR)
+			if($search_post_id > 0 || $cart_post_id > 0)
 			{
-				$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-				$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+				do_action('load_font_awesome');
 
-				if($search_post_id > 0 || $cart_post_id > 0)
-				{
-					$out .= "<ul>";
+				$plugin_include_url = plugin_dir_url(__FILE__);
+				mf_enqueue_style('style_webshop_timeline', $plugin_include_url."style_timeline.css");
+				mf_enqueue_script('script_webshop_timeline', $plugin_include_url."script_timeline.js", array(
+					'ajax_url' => admin_url('admin-ajax.php'),
+				));
 
-						if($search_post_id > 0)
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent > '0' LIMIT 0, 1", $this->post_type_products, 'publish'));
+
+				$shop_has_addon = ($wpdb->num_rows > 0);
+
+				$out .= "<ul data-search_post_id='".$search_post_id."' data-cart_post_id='".$cart_post_id."' data-shop_has_addon='".$shop_has_addon."'>";
+
+					if($search_post_id > 0)
+					{
+						$search_post_url = get_the_permalink($search_post_id);
+
+						$out .= "<li>
+							<a href='".$search_post_url."'><i class='fas fa-sitemap fa-lg' title='".__("Products", 'lang_webshop')."'></i></a>
+						</li>";
+
+						if($shop_has_addon)
 						{
-							$out .= "<li class='done'>
-								<a href='".get_the_permalink($search_post_id)."'><i class='fas fa-sitemap fa-lg'></i></a>
-							</li>";
-
 							$out .= "<li>
-								<a href='".get_the_permalink($search_post_id)."'><i class='fas fa-puzzle-piece fa-lg'></i></a>
+								<a href='".$search_post_url."'><i class='fas fa-puzzle-piece fa-lg' title='".__("Add-ons", 'lang_webshop')."'></i></a>
 							</li>";
 						}
+					}
 
-						if($cart_post_id > 0)
-						{
-							$out .= "<li>
-								<a href='".get_the_permalink($cart_post_id)."'><i class='fas fa-shopping-cart fa-lg'></i></a>
-							</li>";
+					if($cart_post_id > 0)
+					{
+						$out .= "<li>
+							<a href='".get_the_permalink($cart_post_id)."'><i class='fas fa-shopping-cart fa-lg' title='".__("Cart", 'lang_webshop')."'></i></a>
+						</li>";
 
-							$out .= "<li>
-								<a href='#'><i class='fas fa-receipt fa-lg'></i></a>
-							</li>";
-						}
+						$out .= "<li>
+							<a href='#'><i class='fas fa-receipt fa-lg' title='".__("Order Confirmation", 'lang_webshop')."'></i></a>
+						</li>";
+					}
 
-					$out .= "</ul>";
-				}
+				$out .= "</ul>";
 			}
 
 		$out .= "</div>";
@@ -822,7 +831,7 @@ class mf_webshop
 				}
 
 				/*$name_choose_here = "-- ".__("Choose Here", 'lang_webshop')." --";
-				
+
 				$setting_webshop_display_sort = get_option('setting_webshop_display_sort');
 				$setting_webshop_display_filter = get_option('setting_webshop_display_filter');
 
@@ -1338,6 +1347,27 @@ class mf_webshop
 		}
 
 		return $arr_data;
+	}
+
+	function get_order_products()
+	{
+		global $wpdb, $obj_base;
+
+		if(!($this->order_cart_hash != ''))
+		{
+			$this->order_cart_hash = $this->get_cookie();
+		}
+
+		$arr_products = [];
+
+		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+		foreach($result as $r)
+		{
+			$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
+		}
+
+		return $arr_products;
 	}
 
 	function get_cart_values($product_id)
@@ -2061,7 +2091,7 @@ class mf_webshop
 												iconColor: '#fa755a'
 											}
 										};
-										
+
 										var order_cart_hash = '';
 
 										$.ajax(
@@ -2484,27 +2514,6 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_order_products()
-	{
-		global $wpdb, $obj_base;
-
-		if(!($this->order_cart_hash != ''))
-		{
-			$this->order_cart_hash = $this->get_cookie();
-		}
-
-		$arr_products = [];
-
-		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
-
-		foreach($result as $r)
-		{
-			$arr_products = get_post_meta_or_default($r->ID, $this->meta_prefix.'products', true, []);
-		}
-
-		return $arr_products;
-	}
-
 	function get_product_in_cart($product_id)
 	{
 		global $wpdb;
@@ -2879,7 +2888,6 @@ class mf_webshop
 			$order_number = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
 			$arr_products = get_post_meta($order_id, $this->meta_prefix.'products', true);
 
-			
 			$this->order_details = [];
 
 			foreach($this->arr_meta_keys as $meta_key)
@@ -4402,7 +4410,7 @@ class mf_webshop
 		{
 			$post_type = get_post_type($post_id);
 		}
-		
+
 		else
 		{
 			global $post;
@@ -6101,6 +6109,84 @@ class mf_webshop
 		foreach($arr_products as $key => $arr_product)
 		{
 			$json_output['product_amount'] += $arr_product['amount'];
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($json_output);
+		die();
+	}
+
+	function get_timeline()
+	{
+
+	}
+
+	function api_webshop_timeline()
+	{
+		global $wpdb;
+
+		$json_output = array(
+			'success' => true,
+			'html' => "",
+		);
+
+		$search_post_id = check_var('search_post_id');
+		$cart_post_id = check_var('cart_post_id');
+		$shop_has_addon = check_var('shop_has_addon');
+
+		if($search_post_id > 0 || $cart_post_id > 0)
+		{
+			$this->order_cart_hash = $this->get_cookie();
+
+			$arr_products = $this->get_order_products();
+
+			if($search_post_id > 0)
+			{
+				$cart_has_product = $cart_has_addons = false;
+
+				if(is_array($arr_products) && count($arr_products) > 0)
+				{
+					$cart_has_product = true;
+				}
+
+				$search_post_url = get_the_permalink($search_post_id);
+
+				$json_output['html'] .= "<li".($cart_has_product ? " class='done'" : "").">
+					<a href='".$search_post_url."'><i class='fas fa-sitemap fa-lg' title='".__("Products", 'lang_webshop')."'></i></a>
+				</li>";
+
+				if($shop_has_addon)
+				{
+					if(is_array($arr_products) && count($arr_products) > 0)
+					{
+						foreach($arr_products as $key => $arr_product)
+						{
+							$product_parent = get_post_field('post_parent', $arr_product['id']);
+
+							if($product_parent > 0)
+							{
+								$cart_has_addons = true;
+								break;
+							}
+						}
+					}
+
+					$json_output['html'] .= "<li".($cart_has_addons ? " class='done'" : "").">
+						<a href='".$search_post_url."'><i class='fas fa-puzzle-piece fa-lg' title='".__("Add-ons", 'lang_webshop')."'></i></a>
+					</li>";
+				}
+			}
+
+			if($cart_post_id > 0)
+			{
+				$json_output['html'] .= "<li>
+					<a href='".get_the_permalink($cart_post_id)."'><i class='fas fa-shopping-cart fa-lg' title='".__("Cart", 'lang_webshop')."'></i></a>
+				</li>";
+
+				$json_output['html'] .= "<li>
+					<a href='#'><i class='fas fa-receipt fa-lg' title='".__("Order Confirmation", 'lang_webshop')."'></i></a>
+				</li>";
+			}
 		}
 
 		header('Content-Type: application/json');

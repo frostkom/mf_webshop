@@ -3,6 +3,11 @@
 	text-align: center;
 }*/
 
+.widget.webshop_search form #search_text
+{
+	margin: 0;
+}
+
 	/*.widget.webshop_search form .flex_flow > *
 	{
 		margin-right: 1em;
