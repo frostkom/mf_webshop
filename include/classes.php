@@ -1586,6 +1586,7 @@ class mf_webshop
 									'product_title' => $arr_products[$key]['product_title'],
 									'product_number' => $i,
 									'checkout_type' => $arr_checkout_information[$checkout_key]['type'],
+									'checkout_data' => (isset($arr_checkout_information[$checkout_key]['data']) ? $arr_checkout_information[$checkout_key]['data'] : []),
 									'checkout_name' => $checkout_key,
 									'checkout_label' => $arr_checkout_information[$checkout_key]['name'],
 									'checkout_value' => $order_detail,
@@ -8281,13 +8282,28 @@ class mf_webshop
 						</tr>
 					</script>
 
-					<script type='text/template' id='template_webshop_checkout_information'>"
-						//.show_textfield(array('type' => '<%= checkout_type %>', 'name' => '<%= checkout_name %>_<%= product_id %>_<%= product_number %>', 'text' => "<%= checkout_label %>", 'value' => "<%= checkout_value %>"))
-						."<div class='form_textfield'>
-							<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-							<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field'>
-						</div>"
-					."</script>";
+					<script type='text/template' id='template_webshop_checkout_information'>
+						<% if(checkout_type == 'select' || checkout_type == 'select_multiple')
+						{ %>
+							<div class='form_<%= checkout_type %>'>
+								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
+								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple<% } %>>
+									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
+									{ %>
+										<option value='<%= meta_option_key %>'><%= meta_option_value %></option>
+									<% }); %>
+								</select>
+							</div>
+						<% }
+
+						else
+						{ %>
+							<div class='form_textfield'>
+								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
+								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field'>
+							</div>
+						<% } %>
+					</script>";
 
 					/*switch($data['type'])
 					{
