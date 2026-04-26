@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: Adds functionality for a webshop
-Version: 2.2.9.21
+Version: 2.2.9.22
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -109,11 +109,13 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	function uninstall_webshop()
 	{
-		$arr_options = array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_map_visibility', 'setting_map_visibility_mobile', 'setting_gmaps_api', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_webshop_icon', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_invoice_cost', 'setting_webshop_stripe_secret_key_test', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_certificate_password', 'setting_webshop_swish_key_file');
+		include_once("include/classes.php");
+
+		$obj_webshop = new mf_webshop();
 
 		mf_uninstall_plugin(array(
-			'options' => $arr_options,
-			'user_meta' => array('meta_orders_viewed', 'meta_webshop_session', 'meta_webshop_reminder_sent'),
+			'options' => array('setting_webshop_display_sort', 'setting_webshop_sort_default', 'setting_webshop_display_filter', 'setting_range_min_default', 'setting_range_choices', 'settings_filter_diff', 'setting_webshop_icon', 'setting_webshop_currency', 'setting_webshop_tax_rate', 'setting_webshop_tax_enter', 'setting_webshop_tax_display', 'setting_webshop_shipping_cost', 'setting_webshop_shipping_free_limit', 'setting_webshop_invoice_cost', 'setting_webshop_stripe_secret_key_test', 'setting_webshop_stripe_secret_key', 'setting_webshop_swish_merchant_number', 'setting_webshop_swish_certificate_file', 'setting_webshop_swish_key_file'),
+			'user_meta' => array('meta_ots_viewed_'.$obj_webshop->post_type_orders),
 		));
 	}
 }

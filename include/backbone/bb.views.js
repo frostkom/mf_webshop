@@ -1,4 +1,4 @@
-var search_timeout; /*my_lat, my_lon, */
+var search_timeout;
 
 var WebshopView = Backbone.View.extend(
 {
@@ -15,7 +15,6 @@ var WebshopView = Backbone.View.extend(
 		this.model.on("change:filter_products_hash", this.show_filter_products, this);
 
 		this.if_search_view();
-		/*this.if_product_view();*/
 	},
 
 	events:
@@ -28,9 +27,6 @@ var WebshopView = Backbone.View.extend(
 		"change .widget.webshop_search form input": "search_products_delay",
 		"change .widget.webshop_search form select": "search_products",
 		"blur .widget.webshop_search form input[type!='checkbox']": "search_products",
-		/*"mouseenter .webshop_search .grid_columns > li": "section_hover",
-		"mouseleave .webshop_search .grid_columns > li": "section_unhover",
-		"click .widget.webshop_search form.form_button_container .form_button button, .widget.webshop_search form.form_button_container .wp-block-button button": "product_add_to_search_or_not",*/
 		"click .webshop_search .grid_columns > li .add_to_cart": "add_to_cart",
 		"click .webshop_search .grid_columns > li .disabled": "disabled",
 
@@ -52,72 +48,8 @@ var WebshopView = Backbone.View.extend(
 		{
 			this.get_hash();
 			this.search_products();
-
-			/*var dom_obj_range = jQuery(".widget.webshop_search form input[type=range]");
-
-			if(dom_obj_range.length > 0)
-			{
-				if(navigator.geolocation)
-				{
-					navigator.geolocation.getCurrentPosition(function(position)
-					{
-						my_lat = position.coords.latitude;
-						my_lon = position.coords.longitude;
-					},
-					function(msg)
-					{
-						dom_obj_range.parent(".form_textfield").addClass('hide');
-					});
-				}
-			}*/
 		}
 	},
-
-	/*if_product_view: function()
-	{
-		var dom_product_buttons = jQuery(".widget.webshop_search form.form_button_container");
-
-		if(dom_product_buttons.length > 0)
-		{
-			dom_product_buttons.find(".has_searched").addClass('hide');
-			dom_product_buttons.find(".has_not_searched").removeClass('hide');
-
-			var response = JSON.parse(jQuery.Storage.get('result_products')),
-				products_amount = response.length;
-
-			if(products_amount > 0)
-			{
-				var current_product_id = jQuery(".has_searched button").attr('product_id'),
-					html = "";
-
-				for(var i = 0; i < products_amount; i++)
-				{
-					if(response[i]['product_id'] == current_product_id)
-					{
-						for(var j = 1; (i - j) >= 0; j++)
-						{
-							if(response[(i - j)]['product_url'] != '#')
-							{
-								html += "<a href='" + response[(i - j)]['product_url'] + "' class='product_previous'><i class='fa fa-chevron-left'></i><span>" + response[(i - j)]['product_title'] + "</span></a>";
-
-								break;
-							}
-						}
-
-						for(var j = 1; (i + j) < products_amount; j++)
-						{
-							if(response[(i + j)]['product_url'] != '#')
-							{
-								html += "<a href='" + response[(i + j)]['product_url'] + "' class='product_next'><span>" + response[(i + j)]['product_title'] + "</span><i class='fa fa-chevron-right'></i></a>";
-
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	},*/
 
 	get_hash: function()
 	{
@@ -280,82 +212,6 @@ var WebshopView = Backbone.View.extend(
 	{
 		this.set_hash();
 	},
-
-	/*product_add_to_search_or_not: function(e)
-	{
-		var product_id = jQuery(e.target).attr('product_id');
-
-		if(typeof product_id !== 'undefined' && product_id > 0)
-		{
-			if(jQuery(e.target).hasClass('send_request_for_quote'))
-			{
-				var form_url = jQuery(e.target).attr('form_url');
-
-				if(typeof form_url !== 'undefined' && form_url != '' && form_url != '#')
-				{
-					location.href = form_url + "?products=" + product_id;
-					return false;
-				}
-
-				else
-				{
-					location.href = script_webshop_views.site_url;
-					return false;
-				}
-			}
-
-			else
-			{
-				var form_products = this.form_products;
-
-				if(jQuery(e.target).hasClass('remove_from_search'))
-				{
-					var form_products_new = "";
-
-					jQuery.each(form_products.split(','), function(index, value)
-					{
-						if(value != product_id && value != 'undefined')
-						{
-							form_products_new += (form_products_new != '' ? "," : "") + value;
-						}
-					});
-
-					form_products = form_products_new;
-				}
-
-				else
-				{
-					form_products += (form_products != '' ? "," : "") + product_id;
-				}
-
-				this.form_products = form_products;
-			}
-		}
-
-		var search_url = jQuery(e.target).attr('search_url');
-
-		if(typeof search_url !== 'undefined' && search_url != '')
-		{
-			location.href = search_url;
-			return false;
-		}
-
-		else
-		{
-			location.href = script_webshop_views.site_url;
-			return false;
-		}
-	},
-
-	section_hover: function(e)
-	{
-		jQuery(e.currentTarget).addClass('hover');
-	},
-
-	section_unhover: function(e)
-	{
-		jQuery(e.currentTarget).removeClass('hover');
-	},*/
 
 	load_filter_products: function(dom_obj)
 	{
