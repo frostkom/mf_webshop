@@ -658,9 +658,9 @@ class mf_webshop
 					{
 						foreach($arr_products as $key => $arr_product)
 						{
-							$product_stock_max = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+							$product_stock_max = get_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, true);
 
-							if($product_stock_max > 0)
+							if($product_stock_max != '')
 							{
 								unset($arr_products[$key]);
 							}
@@ -1232,9 +1232,9 @@ class mf_webshop
 
 					foreach($arr_products as $key => $arr_product)
 					{
-						$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+						$product_stock = get_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, true);
 
-						if($product_stock > 0 && $arr_product['amount'] > 0)
+						if($product_stock != '' && $arr_product['amount'] > 0)
 						{
 							update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock - $arr_product['amount']));
 						}
@@ -1383,9 +1383,9 @@ class mf_webshop
 
 		if($stock_post_name != '')
 		{
-			$out['product_stock_max'] = get_post_meta_or_default($product_id, $this->meta_prefix.$stock_post_name, true, 0);
+			$out['product_stock_max'] = get_post_meta($product_id, $this->meta_prefix.$stock_post_name, true);
 
-			if($out['product_stock_max'] > 0)
+			if($out['product_stock_max'] != '')
 			{
 				$out['product_amount_left'] = ($out['product_stock_max'] - $this->get_amount_in_carts($product_id));
 			}
@@ -2760,7 +2760,7 @@ class mf_webshop
 									{
 										$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
 
-										if($product_stock > 0 && $arr_product['amount'] > 0)
+										if($product_stock != '' && $arr_product['amount'] > 0)
 										{
 											update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock + $arr_product['amount']));
 										}
