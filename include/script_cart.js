@@ -300,7 +300,7 @@ jQuery(function($)
 
 	/* Save Order Details */
 	/* ##################### */
-	dom_obj_widget.on('blur', ".proceed_to_checkout .order_details input", function()
+	dom_obj_widget.on('blur change', ".proceed_to_checkout .order_details input, .proceed_to_checkout .order_details select", function()
 	{
 		var form_data = $(this).closest("form").serialize();
 

@@ -14,83 +14,88 @@ echo "<div class='wrap'>
 
 	foreach($result as $r)
 	{
-		$post_id = $r->ID;
+		$order_id = $r->ID;
 
-		$payment_method = get_post_meta($post_id, $obj_webshop->meta_prefix.'payment_method', true);
-		$test_mode = get_post_meta($post_id, $obj_webshop->meta_prefix.'test_mode', true);
-		$shipping_cost = get_post_meta($post_id, $obj_webshop->meta_prefix.'shipping_cost', true);
+		$order_status = get_post_meta($order_id, $obj_webshop->meta_prefix.'order_status', true);
 
-		if($payment_method == 'invoice')
+		if(in_array($order_status, array('paid', 'sent', 'finalized')))
 		{
-			$invoice_cost = get_post_meta($post_id, $obj_webshop->meta_prefix.'invoice_cost', true);
-			$total_sum_invoice = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_sum_invoice', true);
-		}
+			$payment_method = get_post_meta($order_id, $obj_webshop->meta_prefix.'payment_method', true);
+			$test_mode = get_post_meta($order_id, $obj_webshop->meta_prefix.'test_mode', true);
+			$shipping_cost = get_post_meta($order_id, $obj_webshop->meta_prefix.'shipping_cost', true);
 
-		$total_sum = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_sum', true);
-		//$total_tax = get_post_meta($post_id, $obj_webshop->meta_prefix.'total_tax', true);
-		$paid_currency = get_post_meta($post_id, $obj_webshop->meta_prefix.'paid_currency', true);
-		$paid_tax_display = get_post_meta_or_default($post_id, $obj_webshop->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
-
-		if($shipping_cost > 0)
-		{
-			if(!isset($shipping_cost_total[$test_mode]))
+			if($payment_method == 'invoice')
 			{
-				$shipping_cost_total[$test_mode] = 0;
+				$invoice_cost = get_post_meta($order_id, $obj_webshop->meta_prefix.'invoice_cost', true);
+				$total_sum_invoice = get_post_meta($order_id, $obj_webshop->meta_prefix.'total_sum_invoice', true);
 			}
 
-			$shipping_cost_total[$test_mode] += $shipping_cost;
-		}
+			$total_sum = get_post_meta($order_id, $obj_webshop->meta_prefix.'total_sum', true);
+			//$total_tax = get_post_meta($order_id, $obj_webshop->meta_prefix.'total_tax', true);
+			$paid_currency = get_post_meta($order_id, $obj_webshop->meta_prefix.'paid_currency', true);
+			$paid_tax_display = get_post_meta_or_default($order_id, $obj_webshop->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
 
-		if($payment_method == 'invoice')
-		{
-			if($invoice_cost > 0)
+			if($shipping_cost > 0)
 			{
-				if(!isset($invoice_cost_total[$test_mode]))
+				if(!isset($shipping_cost_total[$test_mode]))
 				{
-					$invoice_cost_total[$test_mode] = 0;
+					$shipping_cost_total[$test_mode] = 0;
 				}
 
-				$invoice_cost_total[$test_mode] += $invoice_cost;
+				$shipping_cost_total[$test_mode] += $shipping_cost;
 			}
 
-			else if(($total_sum_invoice - $total_sum) > 0)
+			if($payment_method == 'invoice')
 			{
-				if(!isset($invoice_cost_total[$test_mode]))
+				if($invoice_cost > 0)
 				{
-					$invoice_cost_total[$test_mode] = 0;
+					if(!isset($invoice_cost_total[$test_mode]))
+					{
+						$invoice_cost_total[$test_mode] = 0;
+					}
+
+					$invoice_cost_total[$test_mode] += $invoice_cost;
 				}
 
-				$invoice_cost_total[$test_mode] += ($total_sum_invoice - $total_sum);
+				else if(($total_sum_invoice - $total_sum) > 0)
+				{
+					if(!isset($invoice_cost_total[$test_mode]))
+					{
+						$invoice_cost_total[$test_mode] = 0;
+					}
+
+					$invoice_cost_total[$test_mode] += ($total_sum_invoice - $total_sum);
+				}
 			}
-		}
 
-		$arr_products = get_post_meta($post_id, $obj_webshop->meta_prefix.'products', true);
+			$arr_products = get_post_meta($order_id, $obj_webshop->meta_prefix.'products', true);
 
-		if(is_array($arr_products))
-		{
-			foreach($arr_products as $key => $arr_product)
+			if(is_array($arr_products))
 			{
-				if(!isset($arr_total_products_type[$test_mode][$arr_product['id']]))
+				foreach($arr_products as $key => $arr_product)
 				{
-					$arr_total_products_type[$test_mode][$arr_product['id']] = array(
-						'total_amount' => 0,
-						'total_price' => 0,
-						'paid_currency' => $paid_currency,
-						'paid_tax_display' => $paid_tax_display,
-					);
-				}
+					if(!isset($arr_total_products_type[$test_mode][$arr_product['id']]))
+					{
+						$arr_total_products_type[$test_mode][$arr_product['id']] = array(
+							'total_amount' => 0,
+							'total_price' => 0,
+							'paid_currency' => $paid_currency,
+							'paid_tax_display' => $paid_tax_display,
+						);
+					}
 
-				$arr_total_products_type[$test_mode][$arr_product['id']]['total_amount'] += $arr_product['amount'];
-				$arr_total_products_type[$test_mode][$arr_product['id']]['total_price'] += ($arr_product['price'] * $arr_product['amount']);
+					$arr_total_products_type[$test_mode][$arr_product['id']]['total_amount'] += $arr_product['amount'];
+					$arr_total_products_type[$test_mode][$arr_product['id']]['total_price'] += ($arr_product['price'] * $arr_product['amount']);
 
-				if($paid_currency != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'])
-				{
-					$error_text = __("Paid currency is not the same on all orders!", 'lang_webshop')." (".$paid_currency." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'].")";
-				}
+					if($paid_currency != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'])
+					{
+						$error_text = __("Paid currency is not the same on all orders!", 'lang_webshop')." (".$paid_currency." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'].")";
+					}
 
-				else if($paid_tax_display != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'])
-				{
-					$error_text = __("Paid tax is not the same on all orders!", 'lang_webshop')." (".$paid_tax_display." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'].")";
+					else if($paid_tax_display != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'])
+					{
+						$error_text = __("Paid tax is not the same on all orders!", 'lang_webshop')." (".$paid_tax_display." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'].")";
+					}
 				}
 			}
 		}
