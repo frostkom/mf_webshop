@@ -7737,7 +7737,7 @@ class mf_webshop
 						{
 							foreach($arr_product_checkout_information as $checkout_name)
 							{
-								do_log($checkout_name.": ".var_export($_REQUEST[$checkout_name.'_'.$arr_product['id'].'_'.$i])." -> ".check_var($checkout_name.'_'.$arr_product['id'].'_'.$i, 'array'));
+								//do_log(__FUNCTION__." - ".$checkout_name.": ".var_export($_REQUEST[$checkout_name.'_'.$arr_product['id'].'_'.$i])." -> ".check_var($checkout_name.'_'.$arr_product['id'].'_'.$i, 'array'));
 
 								if($arr_checkout_information[$checkout_name]['type'] == 'select_multiple')
 								{
@@ -7830,7 +7830,7 @@ class mf_webshop
 		$this->order_cart_hash = $this->get_cookie();
 
 		$product_name = check_var('product_name');
-		$product_amount = check_var('product_amount');
+		$product_amount = check_var('product_amount', 'int');
 
 		list($product_rest, $product_id) = explode("_", $product_name);
 
@@ -7850,15 +7850,10 @@ class mf_webshop
 						{
 							$arr_cart_values = $this->get_cart_values($product_id);
 
-							if($arr_cart_values['is_allowed_to_buy'])
+							if($arr_cart_values['is_allowed_to_buy'] || $product_amount < $arr_products[$key]['amount'])
 							{
 								$arr_products[$key]['amount'] = $product_amount;
 							}
-
-							/*else
-							{
-								$arr_products[$key]['amount']--;
-							}*/
 						}
 
 						else
