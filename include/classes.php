@@ -824,6 +824,7 @@ class mf_webshop
 		$this->combined_head();
 
 		do_action('load_font_awesome');
+		do_action('load_image_fallback');
 
 		$plugin_base_include_url = plugins_url()."/mf_base/include/";
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -863,7 +864,7 @@ class mf_webshop
 
 				if(is_array($setting_webshop_display_sort) && count($setting_webshop_display_sort) > 1)
 				{
-					$setting_webshop_sort_default = get_option('setting_webshop_sort_default', 'alphabetical');
+					$setting_webshop_sort_default = get_option('setting_webshop_sort_default', 'menu_order');
 
 					$out .= show_form_alternatives(array('data' => $this->get_sort_for_select($setting_webshop_display_sort), 'name' => 'order', 'text' => __("Sort By", 'lang_webshop'), 'value' => $setting_webshop_sort_default));
 				}
@@ -3565,7 +3566,7 @@ class mf_webshop
 
 		//Search
 		############################
-		/*$options_area = $options_area_orig."_search";
+		$options_area = $options_area_orig."_search";
 
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
@@ -3580,7 +3581,7 @@ class mf_webshop
 			$arr_settings['setting_range_choices'] = __("Custom range choices", 'lang_webshop');
 		}
 
-		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));*/
+		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
 
 		// Shipping
@@ -7444,7 +7445,7 @@ class mf_webshop
 
 			case 'amount':
 			default:
-				$order = check_var('order', 'char', true, get_option('setting_webshop_sort_default', 'alphabetical'));
+				$order = check_var('order', 'char', true, get_option('setting_webshop_sort_default', 'menu_order'));
 
 				$query_select = $query_join = $query_where = $query_group = $query_order = "";
 

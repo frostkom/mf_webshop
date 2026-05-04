@@ -217,7 +217,7 @@ var WebshopView = Backbone.View.extend(
 	{
 		var widget_id = dom_obj.attr('id'),
 			category = dom_obj.attr('data-category'),
-			order_by = (dom_obj.attr('data-order_by') || 'alphabetical'),
+			order_by = (dom_obj.attr('data-order_by') || 'menu_order'),
 			link_product = (dom_obj.attr('data-link_product') || ''),
 			limit = dom_obj.attr('data-limit'),
 			amount = dom_obj.attr('data-amount'),
