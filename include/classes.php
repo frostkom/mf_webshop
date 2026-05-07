@@ -2275,18 +2275,18 @@ class mf_webshop
 
 										Callback:
 										{
-										  "id": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
-										  "paymentRequestId": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
-										  "status": "PAID",
-										  "amount": "100",
-										  "currency": "SEK",
-										  "payeeAlias": "1231181189",
-										  "payerAlias": "46701234567",
-										  "message": "Order #1234",
-										  "created": "2025-08-29T10:00:00.000Z",
-										  "updated": "2025-08-29T10:01:00.000Z",
-										  "payeePaymentReference": "unique_reference_123",
-										  "errorCode": null
+											"id": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
+											"paymentRequestId": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
+											"status": "PAID",
+											"amount": "100",
+											"currency": "SEK",
+											"payeeAlias": "1231181189",
+											"payerAlias": "46701234567",
+											"message": "Order #1234",
+											"created": "2025-08-29T10:00:00.000Z",
+											"updated": "2025-08-29T10:01:00.000Z",
+											"payeePaymentReference": "unique_reference_123",
+											"errorCode": null
 										}*/
 
 										list($upload_path, $upload_url) = get_uploads_folder();
