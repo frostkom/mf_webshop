@@ -62,7 +62,8 @@ class mf_webshop
 	function __construct()
 	{
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
-		$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_current_visitor_ip', ""));
+		//$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_current_visitor_ip', ""));
+		$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""));
 	}
 
 	function set_cookie()
@@ -6452,6 +6453,18 @@ class mf_webshop
 			}
 		}
 
+		else
+		{
+			$json_output['response_add_to_cart'] = array(
+				'product_id' => $product_id,
+				//'product_amount' => $product_amount_temp,
+				'product_amount_left' => $arr_cart_values['product_amount_left'],
+				'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
+				'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
+				'trigger_reload' => 'no', // This will reload the search page and show the visitor if stocks has run out or another reason for not being able to add to cart anymore
+			);
+		}
+
 		return $json_output;
 	}
 
@@ -7411,7 +7424,7 @@ class mf_webshop
 				}
 			break;
 
-			case 'filter_products':
+			/*case 'filter_products':
 				$id = check_var('id', 'char');
 				$category = check_var('category', 'char');
 				$order_by = check_var('order_by');
@@ -7433,7 +7446,7 @@ class mf_webshop
 					'limit' => $limit,
 					'amount' => $amount,
 				));
-			break;
+			break;*/
 
 			case 'add_to_cart':
 				$json_output = $this->add_to_cart($json_output, $product_id);
@@ -8104,7 +8117,7 @@ class mf_webshop
 		{
 			switch($data['type'])
 			{
-				case 'filter_products':
+				/*case 'filter_products':
 					if($data['button_text'] != '')
 					{
 						$filter_products_load_more_button_text = sprintf($data['button_text']." (%s)", "<%= filter_products_rest %>");
@@ -8117,15 +8130,15 @@ class mf_webshop
 
 					$out .= "<script type='text/template' id='template_filter_products_spinner'>"
 						.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
-					."</script>
+					."</script>";
 
-					<script type='text/template' id='template_filter_products_message'>
+					$out .= "<script type='text/template' id='template_filter_products_message'>
 						<li>
 							<div class='content'>".sprintf(__("I could not find any %s", 'lang_webshop'), __("Products", 'lang_webshop'))."</div>
 						</li>
-					</script>
+					</script>";
 
-					<script type='text/template' id='template_filter_products_item'>
+					$out .= "<script type='text/template' id='template_filter_products_item'>
 						<li class='list_item list_item_<%= product_id %><% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
 							<div>
 								<% if(custom_category_id > 0)
@@ -8172,14 +8185,14 @@ class mf_webshop
 								))
 							."<% } %>
 						</li>
-					</script>
+					</script>";
 
-					<script type='text/template' id='template_filter_products_load_more'>
+					$out .= "<script type='text/template' id='template_filter_products_load_more'>
 						<li".get_form_button_classes("widget_load_more").">"
 							.show_button(array('text' => $filter_products_load_more_button_text, 'class' => "button"))
 						."</li>
 					</script>";
-				break;
+				break;*/
 
 				case 'products':
 					$out .= "<script type='text/template' id='template_product_message'>
@@ -8488,7 +8501,7 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_filter_products($data)
+	/*function get_filter_products($data)
 	{
 		global $wpdb, $obj_font_icons;
 
@@ -8638,10 +8651,6 @@ class mf_webshop
 								$post_meta = "<span>".$post_meta_symbol.$post_meta."</span>";
 							break;
 
-							/*case 'email':
-								$post_meta = apply_filters('the_content', "<a href='mailto:".$post_meta."'>".$post_meta_symbol.$post_meta."</a>");
-							break;*/
-
 							case 'phone':
 								$post_meta_marker = "[url=".format_phone_no($post_meta)."]".$post_meta_symbol.$post_meta."[/url]";
 								$post_meta = "<a href='".format_phone_no($post_meta)."'>".$post_meta_symbol.$post_meta."</a>";
@@ -8703,7 +8712,7 @@ class mf_webshop
 		$out['success'] = true;
 
 		return $out;
-	}
+	}*/
 
 	function get_type_occurrence($data)
 	{

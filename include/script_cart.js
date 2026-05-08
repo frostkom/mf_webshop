@@ -115,7 +115,7 @@ jQuery(function($)
 		{
 			dom_obj_widget.find(".cart_products tbody tr").html(_.template($("#template_webshop_cart_empty").html())());
 
-			dom_obj_widget.find(".cart_summary").addClass('hide');
+			dom_obj_widget.find(".cart_countdown, .cart_summary").addClass('hide');
 
 			update_cart_icon();
 		}

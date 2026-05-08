@@ -12,7 +12,7 @@ var WebshopView = Backbone.View.extend(
 
 		this.has_product_result = (jQuery(".webshop_search .grid_columns").length > 0);
 
-		this.model.on("change:filter_products_hash", this.show_filter_products, this);
+		/*this.model.on("change:filter_products_hash", this.show_filter_products, this);*/
 
 		this.if_search_view();
 	},
@@ -31,7 +31,7 @@ var WebshopView = Backbone.View.extend(
 		"click .webshop_search .grid_columns > li .disabled": "disabled",
 
 		/* Filter Products */
-		"click .webshop_widget .widget_load_more button": "load_more_button"
+		/*"click .webshop_widget .widget_load_more button": "load_more_button"*/
 	},
 
 	loadPage: function(tab_active)
@@ -141,18 +141,21 @@ var WebshopView = Backbone.View.extend(
 		var response = this.model.get('response_add_to_cart'),
 			dom_obj_parent = jQuery(".webshop_search .grid_columns > li#product_" + response.product_id);
 
-		dom_obj_parent.find(".add_to_cart").removeClass('loading');
-
-		dom_obj_parent.find(".in_cart").removeClass('hide').find("span:first-of-type").addClass('updating');
-
-		setTimeout(function()
-		{
-			dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
-		}, 250);
-
 		if(response.is_allowed_to_buy == false)
 		{
 			dom_obj_parent.find(".add_to_cart").addClass('disabled').removeClass('add_to_cart').attr('title', response.is_allowed_to_buy_reason);
+		}
+
+		else if(response.product_amount > 0)
+		{
+			dom_obj_parent.find(".add_to_cart").removeClass('loading');
+
+			dom_obj_parent.find(".in_cart").removeClass('hide').find("span:first-of-type").addClass('updating');
+
+			setTimeout(function()
+			{
+				dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
+			}, 250);
 		}
 
 		dom_obj_parent.find(".product_amount_left").text(response.product_amount_left);
@@ -211,7 +214,7 @@ var WebshopView = Backbone.View.extend(
 	search_products: function()
 	{
 		this.set_hash();
-	},
+	}/*,
 
 	load_filter_products: function(dom_obj)
 	{
@@ -346,7 +349,7 @@ var WebshopView = Backbone.View.extend(
 		this.load_filter_products(dom_list);
 
 		return false;
-	}
+	}*/
 });
 
 var myWebshopView = new WebshopView({model: new WebshopModel()});
