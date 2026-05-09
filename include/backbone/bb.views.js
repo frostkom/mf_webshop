@@ -146,7 +146,7 @@ var WebshopView = Backbone.View.extend(
 			dom_obj_parent.find(".add_to_cart").addClass('disabled').removeClass('add_to_cart').attr('title', response.is_allowed_to_buy_reason);
 		}
 
-		else if(response.product_amount > 0)
+		if(response.product_amount > 0)
 		{
 			dom_obj_parent.find(".add_to_cart").removeClass('loading');
 
@@ -156,6 +156,8 @@ var WebshopView = Backbone.View.extend(
 			{
 				dom_obj_parent.find(".in_cart span:first-of-type").text(response.product_amount).removeClass('updating');
 			}, 250);
+
+			dom_obj_parent.find(".has_time_limit").removeClass('hide');
 		}
 
 		dom_obj_parent.find(".product_amount_left").text(response.product_amount_left);

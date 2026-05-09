@@ -73,11 +73,33 @@ jQuery(function($)
 			dom_obj_widget.find(".proceed_to_checkout .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
 
-			if(dom_obj_widget.find(".swish_manual").length > 0)
+			if(dom_obj_widget.find(".swish_manual_form").length > 0)
 			{
 				var swish_link = dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('rel');
 
-				dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link.replace('[total_sum]', response.total_sum_raw));
+				swish_link = swish_link.replace('[total_sum]', response.total_sum_raw);
+				swish_link = swish_link.replace('[order_number]', response.order_number)
+
+				dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link);
+
+				if(dom_obj_widget.find(".swish_manual_qr_code").length > 0)
+				{
+					$.ajax(
+					{
+						url: script_webshop_cart.ajax_url,
+						type: 'post',
+						dataType: 'json',
+						data: {
+							action: 'api_qr_code_image',
+							post_url: swish_link,
+							output_type: 'image',
+						},
+						success: function(data)
+						{
+							dom_obj_widget.find(".swish_manual_qr_code").html(data.html);
+						}
+					});
+				}
 			}
 
 			dom_obj_widget.find(".cart_summary").removeClass('hide');

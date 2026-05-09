@@ -45,27 +45,26 @@ jQuery(function($)
 			},
 			success: function(data)
 			{
-				if(data.success)
+				var response = data.response_add_to_cart;
+
+				if(response.is_allowed_to_buy == false)
+				{
+					dom_obj.addClass('disabled').removeClass('add_to_cart');
+				}
+
+				if(response.product_amount > 0)
 				{
 					dom_obj.removeClass('loading').siblings(".in_cart").removeClass('hide').find("span:first-of-type").addClass('updating');
 
 					setTimeout(function()
 					{
-						dom_obj.siblings(".in_cart").find("span:first-of-type").text(data.response_add_to_cart.product_amount).removeClass('updating');
+						dom_obj.siblings(".in_cart").find("span:first-of-type").text(response.product_amount).removeClass('updating');
 					}, 250);
 
-					if(data.response_add_to_cart.is_allowed_to_buy == false)
-					{
-						dom_obj.addClass('disabled').removeClass('add_to_cart');
-					}
-
-					update_cart_icon();
+					dom_obj.siblings(".has_time_limit").removeClass('hide');
 				}
 
-				/*else if(data.data.redirect_url)
-				{
-					window.location.href = data.data.redirect_url;
-				}*/
+				update_cart_icon();
 			}
 		});
 

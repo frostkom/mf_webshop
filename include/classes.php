@@ -1250,7 +1250,6 @@ class mf_webshop
 				$this->meta_prefix.'order_status' => $data['order_status'],
 				$this->meta_prefix.'shipping_cost' => $data['arr_cart_data']['response_webshop_cart']['shipping_cost_raw'],
 				$this->meta_prefix.'invoice_cost' => $data['arr_cart_data']['response_webshop_cart']['invoice_cost_raw'],
-				//$this->meta_prefix.'total_sum_invoice' => $data['arr_cart_data']['response_webshop_cart']['total_sum_invoice_raw'],
 				$this->meta_prefix.'total_sum' => $data['arr_cart_data']['response_webshop_cart']['total_sum_raw'],
 				$this->meta_prefix.'total_tax' => $data['arr_cart_data']['response_webshop_cart']['total_tax_raw'],
 				$this->meta_prefix.'paid_currency' => $data['setting_webshop_currency'],
@@ -1622,7 +1621,7 @@ class mf_webshop
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
-				if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit) //$setting_webshop_shipping_free_limit > 0 && 
+				if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit)
 				{
 					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
@@ -1642,19 +1641,17 @@ class mf_webshop
 
 				$json_output['success'] = true;
 				$json_output['response_webshop_cart'] = array(
-					//'order_id' => $this->order_cart_hash,
+					'order_number' => $this->order_cart_hash,
 					'products' => $arr_products,
 					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
 					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
 					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
-					//'total_sum_invoice_raw' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false, 'suffix' => false)),
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
 					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
 					'total_tax_raw' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => false)),
 					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
 					'checkout_fields' => $arr_checkout_fields,
-					//'debug' => $setting_webshop_shipping_free_limit.", ".$total_sum,
 				);
 			}
 
@@ -2029,19 +2026,23 @@ class mf_webshop
 
 								if($setting_webshop_swish_merchant_number != '')
 								{
-									$setting_webshop_swish_message = "Test";
 									$setting_webshop_currency = get_option('setting_webshop_currency');
 
-									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_merchant_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=".$setting_webshop_swish_message."&edit=msg&src=qr";
+									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_merchant_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&edit=msg&src=qr";
 
 									$out .= "<div class='payment_alternatives hide'>"
 										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
 											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>
 											<div class='swish_manual_form hide'>
 												<div".apply_filters('get_flex_flow', "").">"
-													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_merchant_number."</a>"), 'value' => 1))
-													//."<div>QR code...</div>"
-												."</div>"
+													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_merchant_number."</a>"), 'value' => 1));
+
+													if(IS_SUPER_ADMIN && is_plugin_active("mf_qr_code/index.php"))
+													{
+														$out .= "<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
+													}
+
+												$out .= "</div>"
 												."<div".get_form_button_classes().">"
 													.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 												."</div>"
@@ -2302,7 +2303,7 @@ class mf_webshop
 
 										$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
-										$total_sum = 0; // get total sum like in webshop_cart
+										$total_sum = 0;
 										$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
 
 										//$action = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/";
@@ -2384,7 +2385,7 @@ class mf_webshop
 
 									else if(isset($_GET['accept']))
 									{
-										$strPaymentStatus = ''; //$total_sum, $this->order_cart_hash
+										$strPaymentStatus = '';
 
 										switch($strPaymentStatus)
 										{
@@ -2724,7 +2725,7 @@ class mf_webshop
 
 							if($product_time_limit > 0)
 							{
-								$out .= "<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), $product_time_limit)."'>
+								$out .= "<a href='#' class='wp-block-button__link has_time_limit".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), $product_time_limit)."'>
 									<i class='fa fa-clock".($product_time_limit <= floor($this->product_time_limit / 2) ? " red" : "")."'></i>
 								</a>";
 							}
@@ -6457,7 +6458,7 @@ class mf_webshop
 		{
 			$json_output['response_add_to_cart'] = array(
 				'product_id' => $product_id,
-				//'product_amount' => $product_amount_temp,
+				'product_amount' => $arr_cart_values['product_in_cart'],
 				'product_amount_left' => $arr_cart_values['product_amount_left'],
 				'is_allowed_to_buy' => $arr_cart_values['is_allowed_to_buy'],
 				'is_allowed_to_buy_reason' => $arr_cart_values['is_allowed_to_buy_reason'],
@@ -8261,9 +8262,9 @@ class mf_webshop
 											<% } %>
 
 											<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
-											<% if(product_in_cart > 0 && product_time_limit > 0)
+											<% if(product_time_limit > 0)
 											{ %>
-												<a href='#' class='wp-block-button__link' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
+												<a href='#' class='wp-block-button__link has_time_limit<% if(!(product_in_cart > 0)){ %> hide<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
 													<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>'></i>
 												</a>
 											<% } %>
