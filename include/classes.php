@@ -62,7 +62,6 @@ class mf_webshop
 	function __construct()
 	{
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
-		//$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_current_visitor_ip', ""));
 		$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""));
 	}
 
@@ -362,14 +361,14 @@ class mf_webshop
 			$arr_data['stripe'] = __("Card", 'lang_webshop');
 		}
 
-		if(get_option('setting_webshop_swish_merchant_number') != '')
+		if(get_option('setting_webshop_swish_company_number') != '')
 		{
 			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")";
+		}
 
-			if(get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
-			{
-				$arr_data['swish'] = __("Swish", 'lang_webshop');
-			}
+		if(get_option('setting_webshop_swish_merchant_number') != '' && get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
+		{
+			$arr_data['swish'] = __("Swish", 'lang_webshop');
 		}
 
 		return $arr_data;
@@ -1924,21 +1923,21 @@ class mf_webshop
 								<td class='total_tax'></td>
 							</tr>
 						</tbody>
-					</table>
-					<br>
-					<div class='is-layout-flex wp-block-buttons-is-layout-flex'>";
+					</table>";
 
-						$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+					$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 
-						if($search_post_id > 0)
-						{
-							$out .= "<div class='wp-block-button'>
+					if($search_post_id > 0)
+					{
+						$out .= "<br>
+						<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
+							<div class='wp-block-button'>
 								<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
-							</div>";
-						}
+							</div>
+						</div>";
+					}
 
-					$out .= "</div>
-				</div>
+				$out .= "</div>
 				<div class='proceed_to_checkout'>"
 					."<form".apply_filters('get_form_attr', " action='#'").">
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>"
@@ -2022,22 +2021,22 @@ class mf_webshop
 
 							if(in_array('swish_manual', $setting_webshop_payment_alternatives))
 							{
-								$setting_webshop_swish_merchant_number = get_option('setting_webshop_swish_merchant_number');
+								$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
 
-								if($setting_webshop_swish_merchant_number != '')
+								if($setting_webshop_swish_company_number != '')
 								{
 									$setting_webshop_currency = get_option('setting_webshop_currency');
 
-									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_merchant_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&edit=msg&src=qr";
+									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&edit=msg&src=qr";
 
 									$out .= "<div class='payment_alternatives hide'>"
 										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
 											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>
 											<div class='swish_manual_form hide'>
 												<div".apply_filters('get_flex_flow', "").">"
-													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_merchant_number."</a>"), 'value' => 1));
+													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_company_number."</a>"), 'value' => 1));
 
-													if(IS_SUPER_ADMIN && is_plugin_active("mf_qr_code/index.php"))
+													if(is_plugin_active("mf_qr_code/index.php"))
 													{
 														$out .= "<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
 													}
@@ -2084,8 +2083,6 @@ class mf_webshop
 					{
 						do_action('load_notification');
 
-						//$this->order_cart_hash = $this->get_cookie();
-
 						$out .= "<div class='payment_alternatives hide'>"
 							.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
 							."<script src='https://js.stripe.com/v3/'></script>
@@ -2093,7 +2090,7 @@ class mf_webshop
 									<div class='notification hide'><div class='error'><p></p></div></div>
 									<div id='card-element' class='card_details'></div>"
 									."<div".get_form_button_classes().">"
-										.show_button(array('text' => $button_title, 'xtra' => "id='submit'")) // 'name' => 'btnWebshopPayCard'
+										.show_button(array('text' => $button_title, 'xtra' => "id='submit'"))
 									."</div>
 								</form>
 
@@ -2159,7 +2156,7 @@ class mf_webshop
 
 												else
 												{
-													fetch('/wp-json/".__CLASS__."/charge',
+													fetch('/wp-json/".__CLASS__."/process_stripe_payment',
 													{
 														method: 'POST',
 														headers:
@@ -2191,17 +2188,6 @@ class mf_webshop
 									});
 								</script>";
 
-								/*$out .= "<div class='card_details'>"
-									.show_textfield(array('name' => 'payment_card_no', 'placeholder' => __("Card Number", 'lang_webshop'), 'value' => "", 'maxlength' => 19))
-									."<div".apply_filters('get_flex_flow', "").">"
-										.show_textfield(array('name' => 'payment_card_expires', 'placeholder' => __("Expires (MM/YY)", 'lang_webshop'), 'value' => "", 'maxlength' => 5))
-										.show_textfield(array('type' => 'number', 'name' => 'payment_card_cvc', 'placeholder' => __("CVC", 'lang_webshop'), 'value' => "", 'maxlength' => 3))
-									."</div>
-								</div>
-								<div".get_form_button_classes().">"
-									.show_button(array('name' => 'btnWebshopPayCard', 'text' => sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
-								."</div>";*/
-
 								if($test_mode != 'no')
 								{
 									$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
@@ -2223,73 +2209,6 @@ class mf_webshop
 									if(isset($_POST['btnWebshopPaySwish']))
 									{
 										$base_callback_url = $_SERVER['HTTP_REFERER'];
-
-										/*$paymentRequest = [
-											"payeePaymentReference" => "unique_reference_123",
-											"callbackUrl" => get_site_url()."/swish_callback",
-											"payeeAlias" => "1231181189",		  // your Swish merchant number
-											"payerAlias" => "46701234567",		 // customer's phone number
-											"amount" => "100",					 // amount in SEK as string
-											"currency" => "SEK",
-											"message" => "Order #1234"
-										];
-
-										$payload = json_encode($paymentRequest);
-
-										// Paths to your client certificate and private key (PEM or P12 with passphrase)
-										$certFile = "/path/to/Swish_Merchant_TestCertificate_1234679304.p12";
-										$certPassword = "your_cert_password";
-										$keyFile = "/path/to/Swish_Merchant_TestCertificate_1234679304.key";
-
-										// Swish API endpoint for payment requests
-										$url = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
-
-										// Initialize cURL
-										$ch = curl_init();
-
-										curl_setopt($ch, CURLOPT_URL, $url);
-										curl_setopt($ch, CURLOPT_PORT, 443);
-										curl_setopt($ch, CURLOPT_SSLCERT, $certFile);
-										curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $certPassword);
-										curl_setopt($ch, CURLOPT_SSLKEY, $keyFile);
-										curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $certPassword);
-										curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-										curl_setopt($ch, CURLOPT_POST, true);
-										curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-										curl_setopt($ch, CURLOPT_HTTPHEADER, [
-											'Content-Type: application/json',
-										]);
-
-										// Execute request
-										$content = curl_exec($ch);
-										$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-										if(curl_errno($ch))
-										{
-											echo 'Curl error: '.curl_error($ch);
-										}
-
-										else
-										{
-											echo 'HTTP status: '.$httpCode."n";
-											echo 'Response: '.$content."n";
-										}
-
-										Callback:
-										{
-											"id": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
-											"paymentRequestId": "6e633f92-4a2a-47e1-9e10-47f93b9f1123",
-											"status": "PAID",
-											"amount": "100",
-											"currency": "SEK",
-											"payeeAlias": "1231181189",
-											"payerAlias": "46701234567",
-											"message": "Order #1234",
-											"created": "2025-08-29T10:00:00.000Z",
-											"updated": "2025-08-29T10:01:00.000Z",
-											"payeePaymentReference": "unique_reference_123",
-											"errorCode": null
-										}*/
 
 										list($upload_path, $upload_url) = get_uploads_folder();
 
@@ -2360,7 +2279,7 @@ class mf_webshop
 													$out .= "<form method='post' action='".$action."'>
 														<div".get_form_button_classes().">"
 															//."<p>".$action."</p>"
-															.show_button(array('text' => __("Open the App", 'lang_webshop'))) //'name' => 'btnWebshopPaySwish',
+															.show_button(array('text' => __("Open the App", 'lang_webshop')))
 														."</div>
 													</form>";
 												}
@@ -3612,6 +3531,7 @@ class mf_webshop
 			'setting_webshop_stripe_secret_key_test' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
 			'setting_webshop_stripe_public_key' => __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")",
 			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
+			'setting_webshop_swish_company_number' => __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")",
 			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 		);
 
@@ -3851,6 +3771,14 @@ class mf_webshop
 			$option = $obj_encryption->decrypt($option, md5(AUTH_KEY));
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
+		}
+
+		function setting_webshop_swish_company_number_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_swish_merchant_number_callback()
@@ -7425,30 +7353,6 @@ class mf_webshop
 				}
 			break;
 
-			/*case 'filter_products':
-				$id = check_var('id', 'char');
-				$category = check_var('category', 'char');
-				$order_by = check_var('order_by');
-				$link_product = check_var('link_product');
-				$latitude = check_var('latitude');
-				$longitude = check_var('longitude');
-				$initial = check_var('initial');
-				$limit = check_var('limit', 'int', true, '0');
-				$amount = check_var('amount', 'int');
-
-				$json_output = $this->get_filter_products(array(
-					'id' => $id,
-					'category' => $category,
-					'link_product' => $link_product,
-					'order_by' => $order_by,
-					'latitude' => $latitude,
-					'longitude' => $longitude,
-					'initial' => $initial,
-					'limit' => $limit,
-					'amount' => $amount,
-				));
-			break;*/
-
 			case 'add_to_cart':
 				$json_output = $this->add_to_cart($json_output, $product_id);
 			break;
@@ -7467,9 +7371,6 @@ class mf_webshop
 				{
 					$query_where .= " AND (post_title LIKE '%".esc_sql($search_text)."%' OR post_content LIKE '%".esc_sql($search_text)."%')";
 				}
-
-				/*$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key = '".$this->meta_prefix.'searchable'."'";
-				$query_where .= " AND (searchable.meta_value IS null OR searchable.meta_value = 'yes')";*/
 
 				$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key =		'".$obj_base->meta_prefix.'page_index'."'";
 				$query_where .= " AND (searchable.meta_value IS NULL OR searchable.meta_value != 'no')";
@@ -7958,7 +7859,7 @@ class mf_webshop
 		die();
 	}
 
-	function process_payment(WP_REST_Request $request)
+	function process_stripe_payment(WP_REST_Request $request)
 	{
 		global $wpdb;
 
@@ -8058,45 +7959,16 @@ class mf_webshop
 
 	function rest_api_init()
 	{
-		register_rest_route(__CLASS__, '/charge', [
+		register_rest_route(__CLASS__, '/process_stripe_payment', [
 			'methods' => 'POST',
-			'callback' => array($this, 'process_payment'),
+			'callback' => array($this, 'process_stripe_payment'),
 			'permission_callback' => '__return_true',
 		]);
 	}
 
-	/*function get_search_result_info($data)
-	{
-		if(!isset($data['type'])){		$data['type'] = '';}
-
-		$out = "";
-
-		switch($data['type'])
-		{
-			case 'filter':
-				$text = __("Filter amongst %s products", 'lang_webshop');
-			break;
-
-			case 'matches':
-				$text = __("Your search matches %s products", 'lang_webshop');
-			break;
-
-			default:
-				$text = '';
-			break;
-		}
-
-		if(strlen($text) > 2)
-		{
-			$out = "<div class='search_result_info'>".sprintf($text, "<span>0</span>")."</div>";
-		}
-
-		return $out;
-	}*/
-
 	function get_spinner_template($data)
 	{
-		return "<".$data['tag'].">" // class='widget_spinner'
+		return "<".$data['tag'].">"
 			.apply_filters('get_loading_animation', '', ['class' => $data['size']])
 		."</".$data['tag'].">";
 	}
@@ -8118,83 +7990,6 @@ class mf_webshop
 		{
 			switch($data['type'])
 			{
-				/*case 'filter_products':
-					if($data['button_text'] != '')
-					{
-						$filter_products_load_more_button_text = sprintf($data['button_text']." (%s)", "<%= filter_products_rest %>");
-					}
-
-					else
-					{
-						$filter_products_load_more_button_text = sprintf(__("Display More %s (%s)", 'lang_webshop'), __("Products", 'lang_webshop'), "<%= filter_products_rest %>");
-					}
-
-					$out .= "<script type='text/template' id='template_filter_products_spinner'>"
-						.$this->get_spinner_template(array('tag' => 'li', 'size' => "fa-3x"))
-					."</script>";
-
-					$out .= "<script type='text/template' id='template_filter_products_message'>
-						<li>
-							<div class='content'>".sprintf(__("I could not find any %s", 'lang_webshop'), __("Products", 'lang_webshop'))."</div>
-						</li>
-					</script>";
-
-					$out .= "<script type='text/template' id='template_filter_products_item'>
-						<li class='list_item list_item_<%= product_id %><% if(category_id > 0){ %> category_<%= category_id %><% } %>'>
-							<div>
-								<% if(custom_category_id > 0)
-								{ %>
-									<div class='custom_category custom_category_<%= custom_category_id %>'></div>
-								<% } %>
-								<h2>
-									<% if(product_url != '#')
-									{ %>
-										<a href='<%= product_url %>'><%= product_title %></a>
-									<% }
-
-									else
-									{ %>
-										<%= product_title %>
-									<% } %>
-								</h2>
-								<% if(product_info != '')
-								{ %>
-									<p><%= product_info %></p>
-								<% } %>
-							</div>
-							<% if(product_url != '#')
-							{ %>
-								<div class='list_url'>
-									<a href='<%= product_url %>' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
-								</div>
-							<% }
-
-							if(product_coordinates != '')
-							{ %>"
-								.input_hidden(array(
-									'value' => "<%= product_coordinates %>",
-									'xtra' => "class='map_coordinates' data-id='<%= product_id %>' data-name='<%= product_title %>'"
-										."<% if(product_marker_info != '')
-										{ %>"
-											." data-text='<%= product_marker_info %>'"
-										."<% } %>"
-										."<% if(product_url != '#')
-										{ %>"
-											." data-url='<%= product_url %>' data-link_text='".__("Read More", 'lang_webshop')."'"
-										."<% } %>"
-										.(IS_ADMINISTRATOR ? " data-type='products_coordinates'" : ""),
-								))
-							."<% } %>
-						</li>
-					</script>";
-
-					$out .= "<script type='text/template' id='template_filter_products_load_more'>
-						<li".get_form_button_classes("widget_load_more").">"
-							.show_button(array('text' => $filter_products_load_more_button_text, 'class' => "button"))
-						."</li>
-					</script>";
-				break;*/
-
 				case 'products':
 					$out .= "<script type='text/template' id='template_product_message'>
 						<li>
@@ -8501,219 +8296,6 @@ class mf_webshop
 
 		return $out;
 	}
-
-	/*function get_filter_products($data)
-	{
-		global $wpdb, $obj_font_icons;
-
-		if(!isset($data['id'])){			$data['id'] = "";}
-		if(!isset($data['category'])){		$data['category'] = "";}
-		if(!isset($data['order_by'])){		$data['order_by'] = "";}
-		if(!isset($data['link_product'])){	$data['link_product'] = 'yes';}
-		if(!isset($data['latitude'])){		$data['latitude'] = "";}
-		if(!isset($data['longitude'])){		$data['longitude'] = "";}
-		if(!isset($data['initial'])){		$data['initial'] = false;}
-		if(!isset($data['limit'])){			$data['limit'] = 0;}
-
-		if($data['category'] != 'undefined' && $data['category'] != '')
-		{
-			$arr_categories = explode(",", $data['category']);
-		}
-
-		else
-		{
-			$arr_categories = [];
-		}
-
-		$out = [];
-
-		if($data['id'] != '')
-		{
-			$out['widget_id'] = $data['id'];
-			$out['filter_products_hash'] = md5(var_export($data, true).date("YmdHis"));
-		}
-
-		$out['filter_products_response'] = [];
-
-		$query_select = $query_join = $query_where = $query_order = $query_limit = "";
-
-		if($data['latitude'] != '' && $data['longitude'] != '' && ($data['order_by'] == 'distance' || $data['order_by'] == 'map_center'))
-		{
-			$query_select .= ", (6371 * acos(
-				cos( radians(".$data['latitude'].") )
-				* cos( radians( latitude.meta_value ) )
-				* cos( radians( longitude.meta_value ) - radians(".$data['longitude'].") )
-				+ sin( radians(".$data['latitude'].") )
-				* sin( radians( latitude.meta_value ) )
-			)) AS distance";
-
-			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS latitude ON ".$wpdb->posts.".ID = latitude.post_id AND latitude.meta_key = '".$this->meta_prefix."latitude'";
-			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS longitude ON ".$wpdb->posts.".ID = longitude.post_id AND longitude.meta_key = '".$this->meta_prefix."longitude'";
-
-			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."distance ASC";
-		}
-
-		else if($data['order_by'] == 'alphabetical')
-		{
-			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_title ASC";
-		}
-
-		else if($data['order_by'] == 'menu_order')
-		{
-			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."menu_order ASC";
-		}
-
-		else //latest
-		{
-			$query_order .= ($query_order != '' ? ", " : " ORDER BY ")."post_modified DESC";
-		}
-
-		if(count($arr_categories) > 0)
-		{
-			$query_join .= " INNER JOIN ".$wpdb->postmeta." AS postmeta_category ON ".$wpdb->posts.".ID = postmeta_category.post_id";
-			$query_where .= " AND postmeta_category.meta_key = '".$this->meta_prefix.'category'."' AND postmeta_category.meta_value IN('".implode("','", $arr_categories)."')";
-		}
-
-		if($data['limit'] > 0)
-		{
-			$query_limit = " LIMIT ".$data['limit'].", 1000";
-		}
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s".$query_where." GROUP BY ID".$query_order.$query_limit, $this->post_type_products, 'publish'));
-
-		$out['filter_products_amount'] = $wpdb->num_rows;
-
-		$i = 0;
-
-		foreach($result as $r)
-		{
-			if(isset($data['amount']) && $i >= $data['amount'])
-			{
-				break;
-			}
-
-			$post_id = $r->ID;
-			$post_title = stripslashes(stripslashes($r->post_title));
-			$category_id = get_post_meta($post_id, $this->meta_prefix.'category', true);
-
-			$custom_category_id = $product_marker_info = $post_url = $product_info = $post_address = "";
-
-			$custom_categories = $this->get_post_name_for_type('custom_categories');
-
-			if($custom_categories != '')
-			{
-				$custom_category_id = get_post_meta($post_id, $this->meta_prefix.$custom_categories, true);
-			}
-
-			if($data['link_product'] == 'yes')
-			{
-				$post_url = get_permalink($post_id);
-			}
-
-			$post_location = get_post_meta($post_id, $this->meta_prefix.'location', true);
-
-			if($post_location > 0)
-			{
-				$post_location = get_the_title($post_location);
-			}
-
-			if(is_user_logged_in())
-			{
-				$result_doc_type = $wpdb->get_results($wpdb->prepare("SELECT ID, post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID ORDER BY menu_order ASC", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_public', 'yes'));
-
-				foreach($result_doc_type as $r)
-				{
-					$post_meta_marker = $post_meta = get_post_meta($post_id, $this->meta_prefix.$r->post_name, true);
-
-					if($post_meta != '')
-					{
-						$post_document_type = get_post_meta($r->ID, $this->meta_prefix.'document_type', true);
-						$post_document_symbol = get_post_meta($r->ID, $this->meta_prefix.'document_symbol', true);
-
-						$post_meta_symbol = "";
-
-						if($post_document_symbol != '')
-						{
-							if(!isset($obj_font_icons))
-							{
-								$obj_font_icons = new mf_font_icons();
-							}
-
-							$post_meta_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $post_document_symbol))." ";
-						}
-
-						switch($post_document_type)
-						{
-							case 'address':
-								$post_meta = "<span class='location'>".$post_meta_symbol.$post_meta."</span>";
-							break;
-
-							case 'city':
-								$post_meta = "<span>".$post_meta_symbol.$post_meta."</span>";
-							break;
-
-							case 'phone':
-								$post_meta_marker = "[url=".format_phone_no($post_meta)."]".$post_meta_symbol.$post_meta."[/url]";
-								$post_meta = "<a href='".format_phone_no($post_meta)."'>".$post_meta_symbol.$post_meta."</a>";
-							break;
-
-							case 'url':
-								$parsed_url = parse_url($post_meta);
-
-								$post_meta_marker = "[url=".$post_meta."]".(isset($parsed_url['host']) ? str_replace("www.", "", $parsed_url['host']) : $post_meta)."[/url]";
-								$post_meta = "<a href='".$post_meta."'>".($post_meta_symbol != '' ? $post_meta_symbol : (isset($parsed_url['host']) ? str_replace("www.", "", $parsed_url['host']) : $post_meta))."</a>";
-							break;
-
-							default:
-								$post_meta = "";
-							break;
-						}
-
-						if($post_meta != '')
-						{
-							$product_marker_info .= ($product_marker_info != '' ? " | " : "").$post_meta_marker;
-							$product_info .= ($product_info != '' ? " | " : "").$post_meta;
-						}
-					}
-				}
-			}
-
-			else
-			{
-				$address_post_name = $this->get_post_name_for_type('address');
-
-				if($address_post_name != '')
-				{
-					$post_address = get_post_meta($post_id, $this->meta_prefix.$address_post_name, true);
-				}
-
-				if($post_address != '')
-				{
-					$product_marker_info .= ($product_info != '' ? " | " : "").$post_address;
-					$product_info .= ($product_info != '' ? " | " : "")."<span class='location'><i class='fas fa-map-marker-alt'></i> ".$post_address."</span>";
-				}
-			}
-
-			$out['filter_products_response'][] = array(
-				'category_id' => $category_id,
-				'custom_category_id' => $custom_category_id,
-				'product_id' => $post_id,
-				'product_title' => $post_title,
-				'product_marker_info' => $product_marker_info,
-				'product_url' => $post_url,
-				'product_location' => $post_location,
-				//'product_address' => $post_address,
-				'product_info' => $product_info,
-				'product_coordinates' => get_post_meta($post_id, $this->meta_prefix.'coordinates', true),
-			);
-
-			$i++;
-		}
-
-		$out['success'] = true;
-
-		return $out;
-	}*/
 
 	function get_type_occurrence($data)
 	{

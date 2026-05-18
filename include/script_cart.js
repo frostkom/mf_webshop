@@ -78,7 +78,7 @@ jQuery(function($)
 				var swish_link = dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('rel');
 
 				swish_link = swish_link.replace('[total_sum]', response.total_sum_raw);
-				swish_link = swish_link.replace('[order_number]', response.order_number)
+				swish_link = swish_link.replace('[order_number]', response.order_number);
 
 				dom_obj_widget.find(".proceed_to_checkout .swish_manual_form a").attr('href', swish_link);
 
