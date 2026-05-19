@@ -4392,7 +4392,7 @@ class mf_webshop
 			add_menu_page($name_webshop, $name_webshop, $menu_capability, $menu_start, '', 'dashicons-cart', 21);
 		}
 
-		if(IS_EDITOR)
+		if(IS_ADMINISTRATOR)
 		{
 			$menu_title = __("Settings", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_webshop"));
@@ -5758,16 +5758,29 @@ class mf_webshop
 					case 'order_status':
 						if(get_post_status($post_id) == 'publish')
 						{
-							$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
+							$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
 
-							if($test_mode != 'no')
+							switch($order_status)
 							{
-								echo "<span class='color_red nowrap'><i class='fa fa-exclamation-triangle yellow'></i> ".__("Test Mode", 'lang_webshop')."</span>";
-							}
+								case 'cancelled':
+								case 'failed':
+								case 'wrong_amount':
+									echo $this->get_order_status(array('order_id' => $post_id));
+								break;
 
-							else
-							{
-								echo $this->get_order_status(array('order_id' => $post_id));
+								default:
+									$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
+
+									if($test_mode != 'no')
+									{
+										echo "<span class='color_red nowrap'><i class='fa fa-exclamation-triangle yellow'></i> ".__("Test Mode", 'lang_webshop')."</span>";
+									}
+
+									else
+									{
+										echo $this->get_order_status(array('order_id' => $post_id));
+									}
+								break;
 							}
 						}
 					break;
