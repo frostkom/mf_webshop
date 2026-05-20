@@ -2027,7 +2027,7 @@ class mf_webshop
 								{
 									$setting_webshop_currency = get_option('setting_webshop_currency');
 
-									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&edit=msg&src=qr";
+									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&src=qr"; //&edit=msg
 
 									$out .= "<div class='payment_alternatives hide'>"
 										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
