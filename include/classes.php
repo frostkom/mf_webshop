@@ -2027,26 +2027,40 @@ class mf_webshop
 								{
 									$setting_webshop_currency = get_option('setting_webshop_currency');
 
-									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&src=qr"; //&edit=msg
+									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&src=qr";
 
 									$out .= "<div class='payment_alternatives hide'>"
 										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
-											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>
-											<div class='swish_manual_form hide'>
-												<div".apply_filters('get_flex_flow', "").">"
-													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid %s from %s to %s", 'lang_webshop'), "<span class='total_sum strong'></span>", "<span class='contact_phone strong'>".__("unknown", 'lang_webshop')."</span>", "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>".$setting_webshop_swish_company_number."</a>"), 'value' => 1));
+											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>";
 
-													if(is_plugin_active("mf_qr_code/index.php"))
-													{
-														$out .= "<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
-													}
+											$out .= "<div class='swish_manual_form hide'>";
 
-												$out .= "</div>"
-												."<div".get_form_button_classes().">"
-													.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
-												."</div>"
-											."</div>"
-										.get_toggler_container(array('type' => 'end'))
+												$step_number = 1;
+
+												if(is_plugin_active("mf_qr_code/index.php"))
+												{
+													$out .= "<strong>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</strong>
+													<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
+
+													$step_number++;
+												}
+
+												$out .= "<strong>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</strong>"
+												."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
+
+												$step_number++;
+
+												$out .= "<div>
+													<strong>".sprintf(__("%d. Confirm that you have paid", 'lang_webshop'), $step_number)."</strong>"
+													.show_checkbox(array('name' => 'payment_swished', 'text' => __("I have paid according to the instructions above", 'lang_webshop'), 'value' => 1))
+													."<div".get_form_button_classes().">"
+														.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+													."</div>
+												</div>";
+
+											$out .= "</div>";
+
+										$out .= get_toggler_container(array('type' => 'end'))
 									."</div>";
 								}
 							}
