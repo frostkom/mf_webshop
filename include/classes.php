@@ -295,6 +295,7 @@ class mf_webshop
 				'description' => __("Description", 'lang_webshop'),
 				'content' => __("Content", 'lang_webshop'),
 				//'label' => __("Label", 'lang_webshop'),
+				'product_type' => __("Product Type", 'lang_webshop'),
 			'group_input' => "-- ".__("Input", 'lang_webshop')." --",
 				'text' => __("Text", 'lang_webshop'),
 				//'textarea' => __("Textarea", 'lang_webshop'),
@@ -330,12 +331,6 @@ class mf_webshop
 				//'gps' => __("Map", 'lang_webshop'),
 			'group_formatting' => "-- ".__("Formatting", 'lang_webshop')." --",
 				'divider' => __("Divider", 'lang_webshop'),
-				//'read_more_button' => __("Read More Button", 'lang_webshop'),
-				//'container_start' => __("Start of Container", 'lang_webshop'),
-				//'container_end' => __("End of Container", 'lang_webshop'),
-			//'group_settings' => "-- ".__("Settings", 'lang_webshop')." --",
-				//'ghost' => __("Hide Information", 'lang_webshop'),
-				//'global_code' => __("Global Code", 'lang_webshop'),
 		);
 
 		$arr_data = apply_filters('get_webshop_filters_for_select', $arr_data);
@@ -597,19 +592,9 @@ class mf_webshop
 					))
 				));
 
-				/*wp_insert_post(array(
-					'post_type' => $this->post_type_document_type,
-					'post_title' => __("Read More", 'lang_webshop'),
-					'post_status' => 'publish',
-					'meta_input' => apply_filters('filter_meta_input', array(
-						$this->meta_prefix.'document_type' => 'read_more_button',
-						$this->meta_prefix.'document_public' => 'yes',
-					))
-				));*/
-
 				wp_insert_post(array(
 					'post_type' => $this->post_type_document_type,
-					'post_title' => __("Max Amount in Cart", 'lang_webshop'),
+					'post_title' => __("Cart Max", 'lang_webshop'),
 					'post_status' => 'publish',
 					'meta_input' => apply_filters('filter_meta_input', array(
 						$this->meta_prefix.'document_type' => 'cart_max',
@@ -1049,14 +1034,6 @@ class mf_webshop
 
 							case 'label':
 								$out .= "<label".$custom_class.">".$post_title."</label>";
-							break;
-
-							case 'container_start':
-								$out .= "<div".$custom_class.">";
-							break;
-
-							case 'container_end':
-								$out .= "</div>";
 							break;
 
 							case 'divider':
@@ -1562,6 +1539,10 @@ class mf_webshop
 			{
 				$arr_checkout_fields = [];
 
+				$has_physical_product = false;
+
+				$product_type_post_name = $this->get_post_name_for_type('product_type');
+
 				foreach($arr_products as $key => $arr_product)
 				{
 					$arr_cart_values = $this->get_cart_values($arr_product['id']);
@@ -1571,6 +1552,16 @@ class mf_webshop
 					if($arr_cart_values['product_cart_max'] > 0 && $arr_cart_values['product_cart_max'] < $product_amount_max)
 					{
 						$product_amount_max = $arr_cart_values['product_cart_max'];
+					}
+
+					if($has_physical_product == false && $product_type_post_name != '')
+					{
+						$product_type = get_post_meta($arr_product['id'], $this->meta_prefix.$product_type_post_name, true);
+
+						if($product_type == 'physical')
+						{
+							$has_physical_product = true;
+						}
 					}
 
 					if($arr_product['is_editable'] == true)
@@ -1616,23 +1607,27 @@ class mf_webshop
 					}
 				}
 
-				$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
-				if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit)
+				if($has_physical_product == true)
 				{
-					$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+					$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
 
-					if($shipping_cost > 0)
+					if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit)
 					{
-						if($setting_webshop_shipping_free_limit > 0)
-						{
-							$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
-						}
+						$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
-						$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
-						$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+						if($shipping_cost > 0)
+						{
+							if($setting_webshop_shipping_free_limit > 0)
+							{
+								$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
+							}
+
+							$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+							$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+						}
 					}
 				}
 
@@ -4059,6 +4054,15 @@ class mf_webshop
 
 		return false;
 	}
+	
+	function get_product_types()
+	{
+		return [
+			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
+			'digital' => __("Digital", 'lang_webshop'),
+			'physical' => __("Physical", 'lang_webshop'),
+		];
+	}
 
 	function filter_fields_array($post_id, &$fields_array, $type)
 	{
@@ -4086,6 +4090,12 @@ class mf_webshop
 				{
 					$arr_attributes['maxlength'] = $post_document_max_length;
 				}
+			break;
+
+			case 'product_type':
+				$fields_array['type'] = 'select';
+				$fields_array['options'] = $this->get_product_types();
+				$fields_array['multiple'] = false;
 			break;
 
 			case 'location':
@@ -4125,7 +4135,6 @@ class mf_webshop
 			case 'color':
 			case 'event':
 			//case 'file_advanced':
-			case 'ghost':
 			case 'categories':
 			case 'categories_v2':
 			case 'number':
@@ -4563,7 +4572,7 @@ class mf_webshop
 					),
 				);
 
-				$arr_doc_types_ignore = array('heading', 'label', 'categories', 'categories_v2', 'divider', 'container_start', 'container_end'); //, 'read_more_button'
+				$arr_doc_types_ignore = array('heading', 'label', 'categories', 'categories_v2', 'divider');
 
 				$result = $this->get_document_types(array('select' => "ID, post_title, post_name, post_parent", 'order' => "menu_order ASC"));
 
@@ -5296,7 +5305,7 @@ class mf_webshop
 					$columns['category'] = __("Categories", 'lang_webshop');
 				}
 
-				$arr_columns = array('price', 'stock');
+				$arr_columns = array('price', 'stock', 'product_type');
 
 				foreach($arr_columns as $column)
 				{
@@ -5308,7 +5317,7 @@ class mf_webshop
 					}
 				}
 
-				$arr_columns = array('ghost', 'location', 'local_address', 'email', 'phone', 'event'); //address
+				$arr_columns = array('location', 'local_address', 'email', 'phone'); //'address', 'event'
 				$arr_columns_admin = array('email', 'phone');
 
 				foreach($arr_columns as $column)
@@ -5520,13 +5529,13 @@ class mf_webshop
 						}
 					break;
 
-					case 'ghost':
+					case 'product_type':
 						$post_name = $this->get_post_name_for_type($column);
-						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true); 
 
-						if($post_meta == true)
+						if($post_meta != '')
 						{
-							echo "<i class='fa ".($post_meta == true ? "fa-eye-slash" : "fa-eye")." fa-lg'></i>";
+							echo $this->get_product_types()[$post_meta];
 						}
 					break;
 
@@ -5682,7 +5691,7 @@ class mf_webshop
 								case 'property':
 									$post_document_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
 
-									$hide = (in_array($post_document_type, array('categories_v2', 'description', 'color', 'gps', 'overlay', 'heading', 'categories', 'event', 'container_start', 'container_end', 'file_advanced', 'event', 'coordinates', 'divider', 'education'))); //, 'read_more_button'
+									$hide = (in_array($post_document_type, array('categories_v2', 'description', 'color', 'gps', 'overlay', 'heading', 'categories', 'event', 'file_advanced', 'event', 'coordinates', 'divider', 'education')));
 									//$post_meta = get_post_meta($post_id, $this->meta_prefix.'document_input_required', true);
 
 									echo "<span class='fa-stack fa-2x'".($hide ? " style='visibility: hidden'" : "")." title='".__("Required", 'lang_webshop')." (".__("Input", 'lang_webshop').")'>
@@ -6722,9 +6731,9 @@ class mf_webshop
 							break;
 
 							case 'cart_max':
-							case 'ghost':
 							case 'overlay':
 							case 'phone':
+							case 'product_type':
 							case 'social':
 							case 'stock':
 							case 'text':
@@ -6761,19 +6770,6 @@ class mf_webshop
 
 		if($this->show_in_result == true)
 		{
-			$ghost_post_name = $this->get_post_name_for_type('ghost');
-
-			if($ghost_post_name != '' && get_post_meta($this->product_id, $this->meta_prefix.$ghost_post_name, true) == true)
-			{
-				$this->product_url = '#';
-				$this->product_meta = array(
-					array(
-						'class' => 'description',
-						'content' => $this->product_description,
-					)
-				);
-			}
-
 			if($this->product_image != '')
 			{
 				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
@@ -7078,6 +7074,7 @@ class mf_webshop
 														case 'location':
 														case 'select':
 														case 'select3':
+														case 'select':
 															if($multiple_temp)
 															{
 																$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
@@ -8545,14 +8542,6 @@ class mf_webshop
 					}
 				break;
 
-				/*case 'container_start':
-					$content = "<ul>";
-				break;
-
-				case 'container_end':
-					$content = "</ul>";
-				break;*/
-
 				case 'divider':
 					$content = "<hr>";
 				break;
@@ -8572,10 +8561,6 @@ class mf_webshop
 					{
 						$content = $symbol_code."<a href='".$data['meta']."'>".$data['title']."</a>";
 					}
-				break;
-
-				case 'global_code':
-					$content = $symbol_code.$data['meta'];
 				break;
 
 				case 'location':
@@ -8796,7 +8781,6 @@ if(class_exists('mf_import'))
 		var $arr_actions = array('import');
 		var $columns = [];
 		var $arr_type = array(
-			'ghost',
 			'description',
 			'number',
 			'price',
