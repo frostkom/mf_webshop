@@ -130,6 +130,11 @@ jQuery(function($)
 			if(html != '')
 			{
 				dom_obj_widget.find(".checkout_fields").removeClass('hide').children("div").html(html);
+
+				if(typeof render_required === 'function')
+				{
+					render_required();
+				}
 			}
 		}
 

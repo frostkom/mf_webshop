@@ -358,12 +358,12 @@ class mf_webshop
 
 		if(get_option('setting_webshop_swish_company_number') != '')
 		{
-			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")";
+			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")";
 		}
 
 		if(get_option('setting_webshop_swish_merchant_number') != '' && get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
 		{
-			$arr_data['swish'] = __("Swish", 'lang_webshop');
+			$arr_data['swish'] = __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")";
 		}
 
 		return $arr_data;
@@ -1662,10 +1662,11 @@ class mf_webshop
 	{
 		global $wpdb, $error_text, $done_text;
 
-		$plugin_include_url = plugin_dir_url(__FILE__);
+		do_action('load_script_required');
 
 		$arr_webshop_input_type = array('first_name', 'last_name', 'email', 'telno', 'address', 'co', 'zip', 'city', 'country');
 
+		$plugin_include_url = plugin_dir_url(__FILE__);
 		mf_enqueue_script('underscore');
 		mf_enqueue_style('style_webshop_cart', $plugin_include_url."style_cart.css");
 		mf_enqueue_script('script_webshop_cart', $plugin_include_url."script_cart.js", array(
@@ -2025,7 +2026,7 @@ class mf_webshop
 									$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&src=qr";
 
 									$out .= "<div class='payment_alternatives hide'>"
-										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop')." (".__("Manual", 'lang_webshop').")", 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual')))
+										.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual'))) //." (".__("Manual", 'lang_webshop').")"
 											."<p class='swish_manual_message italic'>".__("You need to enter your phone number above", 'lang_webshop')."</p>";
 
 											$out .= "<div class='swish_manual_form hide'>";
@@ -2047,7 +2048,7 @@ class mf_webshop
 
 												$out .= "<div>
 													<strong>".sprintf(__("%d. Confirm that you have paid", 'lang_webshop'), $step_number)."</strong>"
-													.show_checkbox(array('name' => 'payment_swished', 'text' => __("I have paid according to the instructions above", 'lang_webshop'), 'value' => 1))
+													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid from %s according to the instructions above", 'lang_webshop'), "<span class='contact_phone'></span>"), 'value' => 1))
 													."<div".get_form_button_classes().">"
 														.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 													."</div>
@@ -2627,15 +2628,9 @@ class mf_webshop
 
 					$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
 
-					$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
-						<div class='wp-block-button cart_buttons'>";
+					//$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>";
 
-							$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-
-							if($search_post_id > 0)
-							{
-								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'><i class='fas fa-chevron-left'></i></a>"; //".apply_filters('get_css_icon', 'chevron_left')."
-							}
+						$out .= "<div class='wp-block-button cart_buttons'>";
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
@@ -2659,7 +2654,18 @@ class mf_webshop
 							}
 
 						$out .= "</div>
-					</div>";
+						<div class='wp-block-button'>";
+
+							$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+							if($search_post_id > 0)
+							{
+								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')." ".__("Continue Shopping", 'lang_webshop')."</a>";
+							}
+
+						$out .= "</div>";
+
+					//$out .= "</div>";
 				}
 
 			$out .= "</div>";
@@ -8181,7 +8187,7 @@ class mf_webshop
 						{ %>
 							<div class='form_<%= checkout_type %>'>
 								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } %>>
+								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } %> required>
 									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
 									{
 										var keyStr = String(meta_option_key);
@@ -8206,7 +8212,7 @@ class mf_webshop
 						{ %>
 							<div class='form_textfield'>
 								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field'>
+								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field' required>
 							</div>
 						<% } %>
 					</script>";
@@ -8237,9 +8243,7 @@ class mf_webshop
 
 					if($data['required'])
 					{
-						$plugin_include_url = plugin_dir_url(__FILE__);
-
-						mf_enqueue_script('script_base_required', $plugin_include_url."script_required.js", array('confirm_question' => __("Are you sure?", 'lang_base')));
+						do_action('load_script_required');
 
 						$out .= " required";
 					}*/

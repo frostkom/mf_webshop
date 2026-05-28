@@ -76,6 +76,11 @@
 				width: 1em;
 			}
 
+.widget.webshop_buy_button .cart_buttons
+{
+	margin-bottom: .5em;
+}
+
 .widget.webshop_buy_button .cart_buttons a + a
 {
 	margin-left: .5em;
