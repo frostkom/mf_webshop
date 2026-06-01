@@ -2104,10 +2104,12 @@ class mf_webshop
 									."</div>
 								</form>
 
-								<script>
-									jQuery(function($)
-									{
-										var style = {
+								<script>";
+
+									/*$out .= "jQuery(function($)
+									{";*/
+
+										$out .= "var style = {
 											base: {
 												border: '.1em solid #4a90e2',
 												color: '#32325d',
@@ -2123,9 +2125,9 @@ class mf_webshop
 											}
 										};
 
-										var order_cart_hash = '';
+										var order_cart_hash = '';";
 
-										$.ajax(
+										/*$out .= "$.ajax(
 										{
 											url: '".admin_url('admin-ajax.php')."',
 											type: 'post',
@@ -2141,9 +2143,25 @@ class mf_webshop
 													order_cart_hash = data.order_cart_hash;
 												}
 											}
-										});
+										});";*/
 
-										var stripe = Stripe('".$public_key."'),
+										$out .= "fetch('".admin_url('admin-ajax.php')."', {
+											method: 'POST',
+											headers: {
+												'Content-Type': 'application/x-www-form-urlencoded',
+											},
+											body: new URLSearchParams({
+												action: 'api_webshop_get_order_cart_hash'
+											})
+										})
+										.then(response => response.json())
+										.then(data => {
+											if (data.success) {
+												order_cart_hash = data.order_cart_hash;
+											}
+										});";
+
+										$out .= "var stripe = Stripe('".$public_key."'),
 											elements = stripe.elements(),
 											card = elements.create('card', { style: style });
 
@@ -2194,9 +2212,11 @@ class mf_webshop
 													});
 												}
 											});
-										});
-									});
-								</script>";
+										});";
+
+									//$out .= "});";
+
+								$out .= "</script>";
 
 								if($test_mode != 'no')
 								{
