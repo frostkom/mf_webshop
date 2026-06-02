@@ -4585,6 +4585,31 @@ class mf_webshop
 					//'desc' => $meta_description,
 				);
 
+				$arr_data = [];
+				get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type_products, 'exclude' [$post_id]), $arr_data);
+
+				$fields_settings[] = array(
+					'name' => __("Related Products", 'lang_webshop'),
+					'id' => $this->meta_prefix.'related_products',
+					'type' => 'select',
+					'options' => $arr_data,
+					'multiple' => true,
+					'attributes' => array(
+						'size' => get_select_size(array('count' => count($arr_data))),
+					),
+				);
+
+				$fields_settings[] = array(
+					'name' => __("Parent Products", 'lang_webshop'),
+					'id' => $this->meta_prefix.'parent_products',
+					'type' => 'select',
+					'options' => $arr_data,
+					'multiple' => true,
+					'attributes' => array(
+						'size' => get_select_size(array('count' => count($arr_data))),
+					),
+				);
+
 				$arr_checkout_information_for_select = $this->get_checkout_information_for_select();
 
 				$fields_settings[] = array(
