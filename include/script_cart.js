@@ -72,6 +72,7 @@ jQuery(function($)
 
 			dom_obj_widget.find(".proceed_to_checkout .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
+			dom_obj_widget.find(".proceed_to_checkout .order_number").html(response.order_number);
 
 			if(dom_obj_widget.find(".swish_manual_form").length > 0)
 			{
@@ -390,13 +391,24 @@ jQuery(function($)
 
 	/* Swish (Manual) */
 	/* ##################### */
-	$(document).on('change', ".toggle_swish_manual input[type='checkbox']", function()
+	$(document).on('change', ".toggle_swish_manual #payment_confirmed", function()
 	{
 		var dom_checked = this.checked,
 			has_phone_number_val = $(".proceed_to_checkout input[name='contact_phone']").val(),
 			is_disabled = (!dom_checked || has_phone_number_val == '');
 
-		$(".toggle_swish_manual button[name='btnWebshopPaySwishManual']").attr('disabled', is_disabled);
+		$(".toggle_swish_manual button").attr('disabled', is_disabled);
+	}).trigger('change');
+	/* ##################### */
+
+	/* Bank Transfer */
+	/* ##################### */
+	$(document).on('change', ".toggle_bank_transfer #payment_confirmed", function()
+	{
+		var dom_checked = this.checked,
+			is_disabled = (!dom_checked);
+
+		$(".toggle_bank_transfer button").attr('disabled', is_disabled);
 	}).trigger('change');
 	/* ##################### */
 

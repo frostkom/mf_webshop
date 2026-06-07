@@ -366,6 +366,11 @@ class mf_webshop
 			$arr_data['swish'] = __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")";
 		}
 
+		if(get_option('setting_webshop_bank_transfer_number') != '')
+		{
+			$arr_data['bank_transfer'] = __("Bank Transfer Number", 'lang_webshop');
+		}
+
 		return $arr_data;
 	}
 
@@ -1835,9 +1840,9 @@ class mf_webshop
 
 		else if(isset($_POST['btnWebshopPaySwishManual']))
 		{
-			$payment_swished = check_var('payment_swished');
+			$payment_confirmed = check_var('payment_confirmed');
 
-			if($payment_swished != 1)
+			if($payment_confirmed != 1)
 			{
 				$error_text = __("You have to pay with Swish first", 'lang_webshop');
 			}
@@ -1847,6 +1852,53 @@ class mf_webshop
 				$this->order_cart_hash = $this->get_cookie();
 
 				$payment_method = 'swish_manual';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'order_status' => 'ordered',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+
+		else if(isset($_POST['btnWebshopPayBankTransfer']))
+		{
+			$payment_confirmed = check_var('payment_confirmed');
+
+			if($payment_confirmed != 1)
+			{
+				$error_text = __("You have to pay with Bank Transfer first", 'lang_webshop');
+			}
+
+			else
+			{
+				$this->order_cart_hash = $this->get_cookie();
+
+				$payment_method = 'bank_transfer';
 				$test_mode = 'no';
 
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
@@ -2048,7 +2100,7 @@ class mf_webshop
 
 												$out .= "<div>
 													<strong>".sprintf(__("%d. Confirm that you have paid", 'lang_webshop'), $step_number)."</strong>"
-													.show_checkbox(array('name' => 'payment_swished', 'text' => sprintf(__("I have paid from %s according to the instructions above", 'lang_webshop'), "<span class='contact_phone'></span>"), 'value' => 1))
+													.show_checkbox(array('name' => 'payment_confirmed', 'text' => sprintf(__("I have paid from %s according to the instructions above", 'lang_webshop'), "<span class='contact_phone strong'></span>"), 'value' => 1))
 													."<div".get_form_button_classes().">"
 														.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 													."</div>
@@ -2057,6 +2109,24 @@ class mf_webshop
 											$out .= "</div>";
 
 										$out .= get_toggler_container(array('type' => 'end'))
+									."</div>";
+								}
+							}
+
+							if(IS_SUPER_ADMIN && in_array('bank_transfer', $setting_webshop_payment_alternatives))
+							{
+								$setting_webshop_bank_transfer_number = get_option('setting_webshop_bank_transfer_number');
+
+								if($setting_webshop_bank_transfer_number != '')
+								{
+									$out .= "<div class='payment_alternatives'>"
+										.get_toggler_container(array('type' => 'start', 'id' => 'bank_transfer', 'text' => __("Bank Transfer Number", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'bank_transfer')))
+											."<strong>".__("Confirm that you have paid", 'lang_webshop')."</strong>"
+											.show_checkbox(array('name' => 'payment_confirmed', 'text' => sprintf(__("I have paid %s to %s with the message %s", 'lang_webshop'), "<span class='total_sum'></span>", "<span class='strong'>".$setting_webshop_bank_transfer_number."</span>", "<span class='order_number strong'></span>"), 'value' => 1))
+											."<div".get_form_button_classes().">"
+												.show_button(array('name' => 'btnWebshopPayBankTransfer', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+											."</div>"
+										.get_toggler_container(array('type' => 'end'))
 									."</div>";
 								}
 							}
@@ -3562,26 +3632,49 @@ class mf_webshop
 
 		$arr_settings = array(
 			'setting_webshop_invoice_cost' => __("Invoice Cost", 'lang_webshop'),
-			'setting_webshop_stripe_public_key_test' => __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
-			'setting_webshop_stripe_secret_key_test' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")",
-			'setting_webshop_stripe_public_key' => __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")",
-			'setting_webshop_stripe_secret_key' => __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")",
-			'setting_webshop_swish_company_number' => __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")",
-			'setting_webshop_swish_merchant_number' => __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")",
 		);
-
-		if(get_option('setting_webshop_swish_merchant_number') != '')
-		{
-			$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
-			$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
-			$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
-		}
 
 		$arr_settings['setting_webshop_payment_alternatives'] = __("Payment Alternatives", 'lang_webshop');
 
-		if(count(get_option_or_default('setting_webshop_payment_alternatives', [])) > 1)
+		$setting_webshop_payment_alternatives = get_option_or_default('setting_webshop_payment_alternatives', []);
+
+		if(count($setting_webshop_payment_alternatives) > 1)
 		{
 			$arr_settings['setting_webshop_prefered_payment_alternative'] = " - ".__("Prefered", 'lang_webshop');
+		}
+
+		if(in_array('stripe_test', $setting_webshop_payment_alternatives))
+		{
+			$arr_settings['setting_webshop_stripe_public_key_test'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
+			$arr_settings['setting_webshop_stripe_secret_key_test'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
+		}
+
+		if(in_array('stripe', $setting_webshop_payment_alternatives))
+		{
+			$arr_settings['setting_webshop_stripe_public_key'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")";
+			$arr_settings['setting_webshop_stripe_secret_key'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")";
+		}
+
+		if(in_array('swish_manual', $setting_webshop_payment_alternatives))
+		{
+			$arr_settings['setting_webshop_swish_company_number'] = __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")";
+		}
+
+		if(in_array('swish', $setting_webshop_payment_alternatives))
+		{
+			$arr_settings['setting_webshop_swish_merchant_number'] = __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")";
+			
+			if(get_option('setting_webshop_swish_merchant_number') != '')
+			{
+				$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
+				$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
+				$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
+			}
+		}		
+
+		if(in_array('bank_transfer', $setting_webshop_payment_alternatives))
+		{
+			$arr_settings['setting_webshop_bank_transfer_number'] = __("Bank Transfer Number", 'lang_webshop');
 		}
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
@@ -3867,6 +3960,14 @@ class mf_webshop
 			}
 
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
+		}
+
+		function setting_webshop_bank_transfer_number_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'text', 'name' => $setting_key, 'value' => $option));
 		}
 
 		function setting_webshop_payment_alternatives_callback()
@@ -5368,7 +5469,7 @@ class mf_webshop
 					}
 				}
 
-				$arr_columns = array('location', 'local_address', 'email', 'phone'); //'address', 'event'
+				/*$arr_columns = array('location', 'local_address', 'email', 'phone'); //'address', 'event'
 				$arr_columns_admin = array('email', 'phone');
 
 				foreach($arr_columns as $column)
@@ -5391,7 +5492,9 @@ class mf_webshop
 							$columns[$column] = $column_title;
 						}
 					}
-				}
+				}*/
+				
+				$columns['relations'] = __("Relation", 'lang_webshop');
 			break;
 
 			case $this->post_type_custom_categories:
@@ -5590,7 +5693,7 @@ class mf_webshop
 						}
 					break;
 
-					case 'location':
+					/*case 'location':
 						$post_name = $this->get_post_name_for_type($column);
 						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, false);
 						$count_temp = count($post_meta);
@@ -5639,6 +5742,45 @@ class mf_webshop
 						else
 						{
 							do_log("MF Calendar does not seam to be activated");
+						}
+					break;*/
+
+					case 'relations':
+						$arr_relation_types = array(
+							'related_products' => __("Related Products", 'lang_webshop'),
+							'parent_products' => __("Parent Products", 'lang_webshop'),
+						);
+
+						foreach($arr_relation_types as $meta_key => $meta_name)
+						{
+							$arr_post_meta = get_post_meta($post_id, $this->meta_prefix.$meta_key, false);
+
+							if(count($arr_post_meta) > 0)
+							{
+								switch($meta_key)
+								{
+									case 'related_products':
+										$icon_class = "fas fa-link";
+									break;
+
+									case 'parent_products':
+										$icon_class = "fas fa-project-diagram";
+									break;
+								}
+
+								$icon_title = $meta_name.": ";
+
+								$i = 0;
+
+								foreach($arr_post_meta as $post_id_temp)
+								{
+									$icon_title .= ($i > 0 ? ", " : "").get_the_title($post_id_temp);
+
+									$i++;
+								}
+
+								echo "<i class='".$icon_class." fa-lg' title='".$icon_title."'></i> ";
+							}
 						}
 					break;
 				}
