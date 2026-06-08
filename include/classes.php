@@ -2764,13 +2764,18 @@ class mf_webshop
 		return $out;
 	}
 
-	function get_order_status_for_select($arr_exclude = array())
+	function get_order_status_for_select($data = array())
 	{
+		if(!isset($data['current'])){	$data['current'] = '';}
+		if(!isset($data['exclude'])){	$data['exclude'] = array();}
+
 		$arr_out = array(
 			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
 			'cancelled' => __("Cancelled", 'lang_webshop'),
 			'failed' => __("Failed", 'lang_webshop'),
 			'wrong_amount' => __("Wrong Amount", 'lang_webshop'),
+			'cancel_purchase' => __("Cancel Purchase", 'lang_webshop'),
+			'repaid' => __("Repaid", 'lang_webshop'),
 			'quoted' => __("Quoted", 'lang_webshop'),
 			'ordered' => __("Ordered", 'lang_webshop'),
 			'paid' => __("Paid", 'lang_webshop'),
@@ -2778,9 +2783,21 @@ class mf_webshop
 			'finalized' => __("Finalized", 'lang_webshop'),
 		);
 
-		if(count($arr_exclude) > 0)
+		if(count($data['exclude']) > 0)
 		{
-			$arr_out = array_diff_key($arr_out, array_flip($arr_exclude));
+			$current_value = '';
+
+			if(isset($arr_out[$data['current']]))
+			{
+				$current_value = $arr_out[$data['current']];
+			}
+
+			$arr_out = array_diff_key($arr_out, array_flip($data['exclude']));
+
+			if($data['current'] != '' && $current_value != '')
+			{
+				$arr_out[$data['current']] = $current_value;
+			}
 		}
 
 		return $arr_out;
@@ -2796,11 +2813,19 @@ class mf_webshop
 
 		$out = "";
 
-		$arr_order_status = $this->get_order_status_for_select(['failed', 'wrong_amount']);
-
 		$order_status_orig = $order_status = get_post_meta($data['order_id'], $this->meta_prefix.'order_status', true);
 
-		if(IS_EDITOR && $data['is_editable'] == true)
+		if(IS_EDITOR)
+		{
+			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['failed', 'wrong_amount', 'cancel_purchase']]);
+		}
+
+		else
+		{
+			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['cancelled', 'failed', 'wrong_amount', 'repaid', 'quoted', 'ordered', 'paid', 'sent', 'finalized']]);
+		}
+
+		if($data['is_editable'] == true)
 		{
 			if(isset($_POST['btnWebshopOrderUpdate']))
 			{
