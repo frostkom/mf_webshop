@@ -118,7 +118,7 @@ jQuery(function($)
 				{
 					if(product_title_temp != response.checkout_fields[i].product_title || product_number_temp != response.checkout_fields[i].product_number)
 					{
-						html += "<h4>" + response.checkout_fields[i].product_title + " #" + response.checkout_fields[i].product_number + "</h4>";
+						html += "<h4>" + response.checkout_fields[i].product_title + " #" + (response.checkout_fields[i].product_number + 1) + "</h4>";
 					}
 
 					html += _.template(dom_template)(response.checkout_fields[i]);

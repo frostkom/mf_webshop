@@ -1627,6 +1627,21 @@ class mf_webshop
 
 								$order_detail = get_post_meta($order_id, $this->meta_prefix.'checkout_name_'.$meta_key, true);
 
+								/*$checkout_xtra = "";
+
+								if($order_detail == '')
+								{
+									switch($checkout_name)
+									{
+										case 'first_name':
+										case 'last_name':
+											//$checkout_xtra = " data-fetch_info='".$checkout_name."'";
+											//do_log("Get ".$checkout_name." from already entered value");
+											$order_detail = get_post_meta($order_id, $this->meta_prefix.$checkout_name, true);
+										break;
+									}
+								}*/
+
 								$arr_checkout_fields[] = array(
 									'product_id' => $arr_product['id'],
 									'product_title' => $arr_products[$key]['product_title'],
@@ -1636,6 +1651,7 @@ class mf_webshop
 									'checkout_name' => $checkout_name,
 									'checkout_label' => $arr_checkout_information[$checkout_name]['name'],
 									'checkout_value' => $order_detail,
+									//'checkout_xtra' => $checkout_xtra,
 								);
 							}
 						}
@@ -2030,20 +2046,20 @@ class mf_webshop
 						.get_notification(array('add_container' => true))
 						."<div class='order_details'>
 							<div".apply_filters('get_flex_flow', "").">"
-								.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'xtra' => " data-fetch_info='first_name'", 'required' => true)) //, 'value' => $this->order_details['first_name']
-								.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'xtra' => " data-fetch_info='last_name'", 'required' => true)) //, 'value' => $this->order_details['last_name']
+								.show_textfield(array('name' => 'first_name', 'text' => __("First Name", 'lang_webshop'), 'xtra' => " data-fetch_info='first_name'", 'required' => true))
+								.show_textfield(array('name' => 'last_name', 'text' => __("Last Name", 'lang_webshop'), 'xtra' => " data-fetch_info='last_name'", 'required' => true))
 							."</div>"
 							."<div".apply_filters('get_flex_flow', "").">"
-								.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'xtra' => " data-fetch_info='email'", 'required' => true)) //, 'value' => $this->order_details['contact_email']
-								.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'xtra' => " data-fetch_info='telno'")) //, 'value' => $this->order_details['contact_phone']
+								.show_textfield(array('name' => 'contact_email', 'text' => __("E-mail", 'lang_webshop'), 'xtra' => " data-fetch_info='email'", 'required' => true))
+								.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'xtra' => " data-fetch_info='telno'"))
 							."</div>"
-							.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_webshop'), 'xtra' => " data-fetch_info='address'", 'required' => true)) //, 'value' => $this->order_details['address_street']
-							.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'xtra' => " data-fetch_info='co'")) //, 'value' => $this->order_details['address_co']
+							.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_webshop'), 'xtra' => " data-fetch_info='address'", 'required' => true))
+							.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'xtra' => " data-fetch_info='co'"))
 							."<div".apply_filters('get_flex_flow', "").">"
-								.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_webshop'), 'xtra' => " data-fetch_info='zip'", 'required' => true)) //, 'value' => $this->order_details['address_zip']
-								.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_webshop'), 'xtra' => " data-fetch_info='city'", 'required' => true)) //, 'value' => $this->order_details['address_city']
+								.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_webshop'), 'xtra' => " data-fetch_info='zip'", 'required' => true))
+								.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_webshop'), 'xtra' => " data-fetch_info='city'", 'required' => true))
 							."</div>"
-							//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_webshop'), 'xtra' => " data-fetch_info='country'")) //, 'value' => $this->order_details['address_country']
+							//.show_select(array('data' => $this->get_countries_for_select(), 'name' => 'address_country', 'text' => __("Country", 'lang_webshop'), 'xtra' => " data-fetch_info='country'"))
 							."<div class='checkout_fields hide'>
 								<h3>".__("More Information", 'lang_webshop')."</h3>
 								<div></div>
@@ -2212,119 +2228,138 @@ class mf_webshop
 									."</div>
 								</form>
 
-								<script>";
-
-									/*$out .= "jQuery(function($)
-									{";*/
-
-										$out .= "var style = {
-											base: {
-												border: '.1em solid #4a90e2',
-												color: '#32325d',
-												fontFamily: 'inherit',
-												fontSize: '1em',
-												'::placeholder': {
-													color: '#aab7c4'
-												}
-											},
-											invalid: {
-												color: '#fa755a',
-												iconColor: '#fa755a'
+								<script>
+									var style = {
+										base: {
+											border: '.1em solid #4a90e2',
+											color: '#32325d',
+											fontFamily: 'inherit',
+											fontSize: '1em',
+											'::placeholder': {
+												color: '#aab7c4'
 											}
-										};
+										},
+										invalid: {
+											color: '#fa755a',
+											iconColor: '#fa755a'
+										}
+									};
 
-										var order_cart_hash = '';";
+									var order_cart_hash = '';
 
-										/*$out .= "$.ajax(
+									fetch('".admin_url('admin-ajax.php')."', {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/x-www-form-urlencoded',
+										},
+										body: new URLSearchParams({
+											action: 'api_webshop_get_order_cart_hash'
+										})
+									})
+									.then(response => response.json())
+									.then(data => {
+										if(data.success)
 										{
-											url: '".admin_url('admin-ajax.php')."',
-											type: 'post',
-											dataType: 'json',
-											data:
+											order_cart_hash = data.order_cart_hash;
+										}
+									});";
+
+									$out .= "var stripe = Stripe('".$public_key."'),
+										elements = stripe.elements(),
+										card = elements.create('card', { style: style });
+
+									card.mount('#card-element');
+
+									var form = document.getElementById('payment-form');
+
+									form.addEventListener('submit', function(event)
+									{
+										document.querySelector('#submit .total_sum').innerHTML = \"".apply_filters('get_loading_animation', '', ['class' => ''])."\";
+										event.preventDefault();
+										stripe.createPaymentMethod('card', card).then(function(result)
+										{
+											if(result.error)
 											{
-												action: 'api_webshop_get_order_cart_hash'
-											},
-											success: function(data)
+												document.querySelector('.notification').classList.remove('hide');
+												document.querySelector('.notification p').textContent = result.error.message;
+											}
+											else
 											{
+												fetch('/wp-json/".__CLASS__."/process_stripe_payment',
+												{
+													method: 'POST',
+													headers:
+													{
+														'Content-Type': 'application/json'
+													},
+													body: JSON.stringify(
+													{
+														order_id: order_cart_hash,
+														payment_method_id: result.paymentMethod.id,
+														test_mode: '".$test_mode."'
+													})
+												})
+												.then(response => response.json())
+												.then(data => {
+													if(data.success)
+													{
+														location.href = data.return_url;
+													}
+													else
+													{
+														document.querySelector('.notification').classList.remove('hide');
+														document.querySelector('.notification p').textContent = data.error;
+													}
+												});
+											}
+										});
+									});
+								</script>";
+
+								/*form.addEventListener('submit', function(event)
+								{
+									$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
+
+									event.preventDefault();
+
+									stripe.createPaymentMethod('card', card).then(function(result)
+									{
+										if(result.error)
+										{
+											$('.notification').removeClass('hide').find('p').text(result.error.message);
+										}
+
+										else
+										{
+											fetch('/wp-json/".__CLASS__."/process_stripe_payment',
+											{
+												method: 'POST',
+												headers:
+												{
+													'Content-Type': 'application/json'
+												},
+												body: JSON.stringify(
+												{
+													order_id: order_cart_hash,
+													payment_method_id: result.paymentMethod.id,
+													test_mode: '".$test_mode."'
+												})
+											})
+											.then(response => response.json())
+											.then(data => {
 												if(data.success)
 												{
-													order_cart_hash = data.order_cart_hash;
-												}
-											}
-										});";*/
-
-										$out .= "fetch('".admin_url('admin-ajax.php')."', {
-											method: 'POST',
-											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded',
-											},
-											body: new URLSearchParams({
-												action: 'api_webshop_get_order_cart_hash'
-											})
-										})
-										.then(response => response.json())
-										.then(data => {
-											if (data.success) {
-												order_cart_hash = data.order_cart_hash;
-											}
-										});";
-
-										$out .= "var stripe = Stripe('".$public_key."'),
-											elements = stripe.elements(),
-											card = elements.create('card', { style: style });
-
-										card.mount('#card-element');
-
-										var form = document.getElementById('payment-form');
-
-										form.addEventListener('submit', function(event)
-										{
-											$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
-
-											event.preventDefault();
-
-											stripe.createPaymentMethod('card', card).then(function(result)
-											{
-												if(result.error)
-												{
-													$('.notification').removeClass('hide').find('p').text(result.error.message);
+													location.href = data.return_url;
 												}
 
 												else
 												{
-													fetch('/wp-json/".__CLASS__."/process_stripe_payment',
-													{
-														method: 'POST',
-														headers:
-														{
-															'Content-Type': 'application/json'
-														},
-														body: JSON.stringify(
-														{
-															order_id: order_cart_hash,
-															payment_method_id: result.paymentMethod.id,
-															test_mode: '".$test_mode."'
-														})
-													})
-													.then(response => response.json())
-													.then(data => {
-														if(data.success)
-														{
-															location.href = data.return_url;
-														}
-
-														else
-														{
-															$('.notification').removeClass('hide').find('p').text(data.error);
-														}
-													});
+													$('.notification').removeClass('hide').find('p').text(data.error);
 												}
 											});
-										});";
-
-									//$out .= "});";
-
-								$out .= "</script>";
+										}
+									});
+								});*/
 
 								if($test_mode != 'no')
 								{
@@ -7746,6 +7781,95 @@ class mf_webshop
 		die();
 	}
 
+	function get_user_info($type)
+	{
+		$out = "";
+
+		switch($type)
+		{
+			case 'address':
+				if(is_user_logged_in())
+				{
+					$out = get_the_author_meta('profile_address_street', get_current_user_id());
+				}
+			break;
+
+			case 'city':
+				if(is_user_logged_in())
+				{
+					$out = get_the_author_meta('profile_address_city', get_current_user_id());
+				}
+			break;
+
+			case 'country':
+				if(is_user_logged_in())
+				{
+					$out = get_the_author_meta('profile_country', get_current_user_id());
+
+					if($out > 0 && is_plugin_active("mf_address/index.php"))
+					{
+						global $obj_address;
+
+						$out = $obj_address->get_countries_for_select()[$out];
+					}
+				}
+			break;
+
+			case 'email':
+				if(is_user_logged_in())
+				{
+					$user_data = get_userdata(get_current_user_id());
+
+					$out = $user_data->user_email;
+				}
+			break;
+
+			/*case 'name':
+				if(is_user_logged_in())
+				{
+					$user_data = get_userdata(get_current_user_id());
+
+					$out = $user_data->display_name;
+				}
+			break;*/
+
+			case 'first_name':
+				if(is_user_logged_in())
+				{
+					$user_data = get_userdata(get_current_user_id());
+
+					$out = $user_data->first_name;
+				}
+			break;
+
+			case 'last_name':
+				if(is_user_logged_in())
+				{
+					$user_data = get_userdata(get_current_user_id());
+
+					$out = $user_data->last_name;
+				}
+			break;
+
+			//case 'tel':
+			case 'telno':
+				if(is_user_logged_in())
+				{
+					$out = get_the_author_meta('profile_phone', get_current_user_id());
+				}
+			break;
+
+			case 'zip':
+				if(is_user_logged_in())
+				{
+					$out = get_the_author_meta('profile_address_zipcode', get_current_user_id());
+				}
+			break;
+		}
+
+		return $out;
+	}
+
 	function api_webshop_fetch_info()
 	{
 		global $wpdb;
@@ -7783,89 +7907,7 @@ class mf_webshop
 		{
 			foreach($arr_fields as $key => $arr_value)
 			{
-				$value_temp = "";
-
-				switch($arr_value[1])
-				{
-					case 'address':
-						if(is_user_logged_in())
-						{
-							$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
-						}
-					break;
-
-					case 'city':
-						if(is_user_logged_in())
-						{
-							$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
-						}
-					break;
-
-					case 'country':
-						if(is_user_logged_in())
-						{
-							$value_temp = get_the_author_meta('profile_country', get_current_user_id());
-
-							if($value_temp > 0 && is_plugin_active("mf_address/index.php"))
-							{
-								global $obj_address;
-
-								$value_temp = $obj_address->get_countries_for_select()[$value_temp];
-							}
-						}
-					break;
-
-					case 'email':
-						if(is_user_logged_in())
-						{
-							$user_data = get_userdata(get_current_user_id());
-
-							$value_temp = $user_data->user_email;
-						}
-					break;
-
-					/*case 'name':
-						if(is_user_logged_in())
-						{
-							$user_data = get_userdata(get_current_user_id());
-
-							$value_temp = $user_data->display_name;
-						}
-					break;*/
-
-					case 'first_name':
-						if(is_user_logged_in())
-						{
-							$user_data = get_userdata(get_current_user_id());
-
-							$value_temp = $user_data->first_name;
-						}
-					break;
-
-					case 'last_name':
-						if(is_user_logged_in())
-						{
-							$user_data = get_userdata(get_current_user_id());
-
-							$value_temp = $user_data->last_name;
-						}
-					break;
-
-					//case 'tel':
-					case 'telno':
-						if(is_user_logged_in())
-						{
-							$value_temp = get_the_author_meta('profile_phone', get_current_user_id());
-						}
-					break;
-
-					case 'zip':
-						if(is_user_logged_in())
-						{
-							$value_temp = get_the_author_meta('profile_address_zipcode', get_current_user_id());
-						}
-					break;
-				}
+				$value_temp = $this->get_user_info($arr_value[1]);
 
 				if($value_temp == '')
 				{
@@ -8457,7 +8499,7 @@ class mf_webshop
 
 										else
 										{
-											selected = String(checkout_value) === keyStr;
+											selected = (String(checkout_value) === keyStr);
 										} %>
 										<option value='<%= meta_option_key %>' <% if (selected) { %>selected<% } %>><%= meta_option_value %>
 									<% }); %>
@@ -8472,7 +8514,7 @@ class mf_webshop
 								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field' required>
 							</div>
 						<% } %>
-					</script>";
+					</script>"; //<%= checkout_xtra %>
 
 					/*switch($data['type'])
 					{
