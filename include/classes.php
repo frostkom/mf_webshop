@@ -346,27 +346,27 @@ class mf_webshop
 			'invoice' => __("Invoice", 'lang_webshop'),
 		];
 
-		if(get_option('setting_webshop_stripe_secret_key_test') != '')
+		if(1 == 1 || get_option('setting_webshop_stripe_secret_key_test') != '')
 		{
 			$arr_data['stripe_test'] = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
 		}
 
-		if(get_option('setting_webshop_stripe_secret_key') != '')
+		if(1 == 1 || get_option('setting_webshop_stripe_secret_key') != '')
 		{
 			$arr_data['stripe'] = __("Card", 'lang_webshop');
 		}
 
-		if(get_option('setting_webshop_swish_company_number') != '')
+		if(1 == 1 || get_option('setting_webshop_swish_company_number') != '')
 		{
 			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")";
 		}
 
-		if(get_option('setting_webshop_swish_merchant_number') != '' && get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
+		if(1 == 1 || get_option('setting_webshop_swish_merchant_number') != '' && get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
 		{
 			$arr_data['swish'] = __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")";
 		}
 
-		if(get_option('setting_webshop_bank_transfer_number') != '')
+		if(1 == 1 || get_option('setting_webshop_bank_transfer_number') != '')
 		{
 			$arr_data['bank_transfer'] = __("Bank Transfer Number", 'lang_webshop');
 		}
@@ -854,13 +854,15 @@ class mf_webshop
 
 		mf_enqueue_script('underscore');
 		mf_enqueue_script('backbone');
-		mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
+		//mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
 		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js");
+
 		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js");
 		mf_enqueue_script('script_webshop_models', $plugin_include_url."backbone/bb.models.js", array('ajax_url' => admin_url('admin-ajax.php')));
 		mf_enqueue_script('script_webshop_views', $plugin_include_url."backbone/bb.views.js", array(
 			'site_url' => get_site_url(),
 		));
+
 		mf_enqueue_script('script_base_init', $plugin_base_include_url."backbone/bb.init.js");
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_widget square webshop_search", 'attributes' => $attributes)).">
@@ -1700,13 +1702,16 @@ class mf_webshop
 		$arr_webshop_input_type = array('first_name', 'last_name', 'email', 'telno', 'address', 'co', 'zip', 'city', 'country');
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		mf_enqueue_script('underscore');
+		//mf_enqueue_script('underscore');
 		mf_enqueue_style('style_webshop_cart', $plugin_include_url."style_cart.css");
+		mf_enqueue_script('script_webshop_cart_icon', $plugin_include_url."script_cart_icon.js", array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+		));
 		mf_enqueue_script('script_webshop_cart', $plugin_include_url."script_cart.js", array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'arr_webshop_input_type' => $arr_webshop_input_type,
 			'unknown_label' => __("unknown", 'lang_webshop'),
-		));
+		), array('jquery', 'underscore'));
 
 		$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
 		$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
@@ -1993,12 +1998,17 @@ class mf_webshop
 							$out .= "<tr>
 								<td>".__("Total", 'lang_webshop')."</td>
 								<td class='total_sum'></td>
-							</tr>
-							<tr>
-								<td>".__("Tax", 'lang_webshop')."</td>
-								<td class='total_tax'></td>
-							</tr>
-						</tbody>
+							</tr>";
+
+							if(get_option('setting_webshop_tax_display') == 'yes')
+							{
+								$out .= "<tr>
+									<td>".__("Tax", 'lang_webshop')."</td>
+									<td class='total_tax'></td>
+								</tr>";
+							}
+
+						$out .= "</tbody>
 					</table>";
 
 					$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
@@ -8434,7 +8444,7 @@ class mf_webshop
 						{ %>
 							<div class='form_<%= checkout_type %>'>
 								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } %> required>
+								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } else { %> required<% } %>>
 									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
 									{
 										var keyStr = String(meta_option_key);

@@ -210,7 +210,13 @@ var WebshopView = Backbone.View.extend(
 
 	search_products: function()
 	{
-		this.set_hash();
+		var hash = location.hash.replace('#', '');
+		hash = hash.replace('webshop/', '');
+
+		if(hash == '')
+		{
+			this.set_hash();
+		}
 	}
 });
 
