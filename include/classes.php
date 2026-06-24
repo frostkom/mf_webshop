@@ -3273,6 +3273,7 @@ class mf_webshop
 
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
+					$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
 					$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
 
 					$out .= "<h2>".__("Products", 'lang_webshop')."</h2>
@@ -3281,8 +3282,12 @@ class mf_webshop
 						$arr_header[] = __("Product", 'lang_webshop');
 						$arr_header[] = __("Amount", 'lang_webshop');
 						$arr_header[] = __("Price", 'lang_webshop');
-						$arr_header[] = __("Tax", 'lang_webshop');
-						$arr_header[] = __("Subtotal", 'lang_webshop');
+
+						if($setting_webshop_tax_display == 'yes')
+						{
+							$arr_header[] = __("Tax", 'lang_webshop');
+							$arr_header[] = __("Subtotal", 'lang_webshop');
+						}
 
 						$out .= show_table_header($arr_header)
 						."<tbody>";
@@ -3292,10 +3297,15 @@ class mf_webshop
 								$out .= "<tr>
 									<td><a href='".get_the_permalink($arr_product['id'])."'>".get_the_title($arr_product['id'])."</a></td>
 									<td>".$arr_product['amount']."</td>
-									<td>".$this->display_price(array('price' => $arr_product['price']))."</td>
-									<td>".$this->get_tax(array('price' => $arr_product['price'], 'suffix' => true))."</td>
-									<td>".$this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']))."</td>
-								</tr>";
+									<td>".$this->display_price(array('price' => $arr_product['price']))."</td>";
+
+									if($setting_webshop_tax_display == 'yes')
+									{
+										$out .= "<td>".$this->get_tax(array('price' => $arr_product['price'], 'suffix' => true))."</td>
+										<td>".$this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']))."</td>";
+									}
+
+								$out .= "</tr>";
 							}
 
 						$out .= "</tbody>
@@ -3377,7 +3387,7 @@ class mf_webshop
 								</tr>";
 							}
 
-							if($total_tax != '')
+							if($setting_webshop_tax_display == 'yes' && $total_tax != '')
 							{
 								$out .= "<tr>
 									<td>".__("Tax", 'lang_webshop')."</td>
