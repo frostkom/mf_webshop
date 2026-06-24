@@ -773,12 +773,12 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+		$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+		$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
 		$out = "<div".parse_block_attributes(array('class' => "widget webshop_timeline", 'attributes' => $attributes)).">";
 
-			if($search_post_id > 0 || $cart_post_id > 0)
+			if($post_id_search > 0 || $post_id_cart > 0)
 			{
 				do_action('load_font_awesome');
 
@@ -790,8 +790,8 @@ class mf_webshop
 
 				$shop_has_addon = $this->does_shop_have_addon();
 
-				$out .= "<ul data-search_post_id='".$search_post_id."' data-cart_post_id='".$cart_post_id."' data-shop_has_addon='".$shop_has_addon."'>"
-					.$this->get_timeline_icons(['search_post_id' => $search_post_id, 'shop_has_addon' => $shop_has_addon, 'cart_post_id' => $cart_post_id])
+				$out .= "<ul data-search_post_id='".$post_id_search."' data-cart_post_id='".$post_id_cart."' data-shop_has_addon='".$shop_has_addon."'>"
+					.$this->get_timeline_icons(['search_post_id' => $post_id_search, 'shop_has_addon' => $shop_has_addon, 'cart_post_id' => $post_id_cart])
 				."</ul>";
 			}
 
@@ -2027,20 +2027,23 @@ class mf_webshop
 						$out .= "</tbody>
 					</table>";
 
-					$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+					$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 
-					if($search_post_id > 0)
+					if($post_id_search > 0)
 					{
 						$out .= "<br>
 						<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
 							<div class='wp-block-button'>
-								<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+								<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
 							</div>
 						</div>";
 					}
 
-				$out .= "</div>
-				<div class='proceed_to_checkout'>"
+				$out .= "</div>";
+
+				do_action('get_form_radio_multiple');
+
+				$out .= "<div class='proceed_to_checkout'>"
 					."<form".apply_filters('get_form_attr', " action='#'").">
 						<h3>".__("Complete Your Purchase", 'lang_webshop')."</h3>"
 						.get_notification(array('add_container' => true))
@@ -2754,9 +2757,9 @@ class mf_webshop
 
 		$out = "";
 
-		$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+		$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-		if(IS_SUPER_ADMIN || $cart_post_id > 0)
+		if(IS_SUPER_ADMIN || $post_id_cart > 0)
 		{
 			//do_action('load_font_awesome');
 
@@ -2785,7 +2788,7 @@ class mf_webshop
 					}
 				}
 
-				if($cart_post_id > 0)
+				if($post_id_cart > 0)
 				{
 					$arr_cart_values = $this->get_cart_values($product_id);
 
@@ -2805,7 +2808,7 @@ class mf_webshop
 								$out .= "<a href='#' class='wp-block-button__link disabled' title='".$arr_cart_values['is_allowed_to_buy_reason']."'><i class='fa fa-plus'></i></a>"; //<span>".__("Add", 'lang_webshop')."</span> //".apply_filters('get_css_icon', 'plus')."
 							}
 
-							$out .= "<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
+							$out .= "<a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link in_cart".($arr_cart_values['product_in_cart'] > 0 ? "" : " hide")."' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'>
 								<span>".$arr_cart_values['product_in_cart']."</span><span>".__("in Cart", 'lang_webshop')."</span><i class='fa fa-check'></i>
 							</a>"; //".apply_filters('get_css_icon', 'check')."
 
@@ -2819,11 +2822,18 @@ class mf_webshop
 						$out .= "</div>
 						<div class='wp-block-button'>";
 
-							$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+							$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 
-							if($search_post_id > 0)
+							if($post_id_search > 0)
 							{
-								$out .= "<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')." ".__("Continue Shopping", 'lang_webshop')."</a>";
+								$out .= "<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')." ".__("Continue Shopping", 'lang_webshop')."</a>";
+							}
+
+							$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
+
+							if($post_id_cart > 0)
+							{
+								$out .= " <a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link'>".__("Go to your cart", 'lang_webshop')." ".apply_filters('get_css_icon', 'chevron_right')."</a>";
 							}
 
 						$out .= "</div>";
@@ -3026,17 +3036,17 @@ class mf_webshop
 							{
 								if(isset($_POST['btnWebshopOrderChange']))
 								{
-									$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+									$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopcart');
 								}
 
 								else
 								{
-									$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+									$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 								}
 
-								if($search_post_id > 0)
+								if($post_id_redirect > 0)
 								{
-									mf_redirect(get_the_permalink($search_post_id));
+									mf_redirect(get_the_permalink($post_id_redirect));
 								}
 
 								else
@@ -3408,12 +3418,12 @@ class mf_webshop
 			<p>".__("I am sorry, but I could not find the order for you. Please try again, and contact an admin if the problem persists.", 'lang_webshop')."</p>";
 		}
 
-		$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+		$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 
-		if($search_post_id > 0)
+		if($post_id_search > 0)
 		{
 			$out .= "<div class='wp-block-button'>
-				<a href='".get_the_permalink($search_post_id)."' class='wp-block-button__link'>".__("Go to the Shop", 'lang_webshop')."</a>
+				<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Go to the Shop", 'lang_webshop')."</a>
 			</div>";
 		}
 
@@ -6383,9 +6393,9 @@ class mf_webshop
 
 		if($this->order_cart_hash != '')
 		{
-			$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+			$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-			if($cart_post_id > 0 && (!isset($post->ID) || $cart_post_id != $post->ID))
+			if($post_id_cart > 0 && (!isset($post->ID) || $post_id_cart != $post->ID))
 			{
 				//do_action('load_font_awesome');
 
@@ -6396,7 +6406,7 @@ class mf_webshop
 					'ajax_url' => admin_url('admin-ajax.php'),
 				));
 
-				$this->footer_output .= "<a href='".get_the_permalink($cart_post_id)."' class='webshop_cart_icon hide' rel='nofollow'>"
+				$this->footer_output .= "<a href='".get_the_permalink($post_id_cart)."' class='webshop_cart_icon hide' rel='nofollow'>"
 					//."<i class='fa fa-shopping-cart fa-lg'></i>"
 					.'<svg viewBox="0 0 24 24" fill="none">
 						<g>
@@ -6508,15 +6518,15 @@ class mf_webshop
 			'html' => "",
 		);
 
-		$search_post_id = check_var('search_post_id');
-		$cart_post_id = check_var('cart_post_id');
+		$post_id_search = check_var('search_post_id');
+		$post_id_cart = check_var('cart_post_id');
 		$shop_has_addon = check_var('shop_has_addon');
 
-		if($search_post_id > 0 || $cart_post_id > 0)
+		if($post_id_search > 0 || $post_id_cart > 0)
 		{
 			$cart_has_product = $cart_has_addons = false;
 
-			if($search_post_id > 0)
+			if($post_id_search > 0)
 			{
 				$this->order_cart_hash = $this->get_cookie();
 
@@ -6542,7 +6552,7 @@ class mf_webshop
 				}
 			}
 
-			$json_output['html'] .= $this->get_timeline_icons(['search_post_id' => $search_post_id, 'cart_has_product' => $cart_has_product, 'shop_has_addon' => $shop_has_addon, 'cart_has_addons' => $cart_has_addons, 'cart_post_id' => $cart_post_id]);
+			$json_output['html'] .= $this->get_timeline_icons(['search_post_id' => $post_id_search, 'cart_has_product' => $cart_has_product, 'shop_has_addon' => $shop_has_addon, 'cart_has_addons' => $cart_has_addons, 'cart_post_id' => $post_id_cart]);
 		}
 
 		header('Content-Type: application/json');
@@ -8380,9 +8390,9 @@ class mf_webshop
 								<% if(product_price != '')
 								{ %>";
 
-									$cart_post_id = apply_filters('get_block_search', 0, 'mf/webshopcart');
+									$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
 
-									if($cart_post_id > 0)
+									if($post_id_cart > 0)
 									{
 										$out .= "<div class='wp-block-button cart_buttons'>
 											<% if(is_allowed_to_buy)
@@ -8395,7 +8405,7 @@ class mf_webshop
 												<a href='#' class='wp-block-button__link disabled' title='<%= is_allowed_to_buy_reason %>'><i class='fa fa-plus'></i></a>
 											<% } %>
 
-											<a href='".get_the_permalink($cart_post_id)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
+											<a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
 											<% if(product_time_limit > 0)
 											{ %>
 												<a href='#' class='wp-block-button__link has_time_limit<% if(!(product_in_cart > 0)){ %> hide<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'>
@@ -8429,16 +8439,16 @@ class mf_webshop
 				break;
 
 				case 'webshop_cart':
-					$search_post_id = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+					$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
 
 					$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
 
 					$out .= "<script type='text/template' id='template_webshop_cart_empty'>
 						<td colspan='".($setting_webshop_tax_display == 'yes' ? 6 : 5)."'>";
 
-							if($search_post_id > 0)
+							if($post_id_search > 0)
 							{
-								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($search_post_id)."'>", "</a>");
+								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($post_id_search)."'>", "</a>");
 							}
 
 							else
@@ -8514,6 +8524,40 @@ class mf_webshop
 										<option value='<%= meta_option_key %>' <% if (selected) { %>selected<% } %>><%= meta_option_value %>
 									<% }); %>
 								</select>
+							</div>
+						<% }
+						
+						else if(checkout_type == 'checkbox_multiple')
+						{ %>
+							<div class='form_checkbox_multiple'>
+								<label><%= checkout_label %></label>
+								<ul>
+									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
+									{
+										var keyStr = String(meta_option_key);
+										var selected = false;
+										if(Array.isArray(checkout_value))
+										{
+											selected = _.some(checkout_value, function(v){ return String(v) === keyStr; });
+										}
+										else
+										{
+											selected = (String(checkout_value) === keyStr);
+										} %>
+										<li class='form_checkbox'>
+											<input 
+												type='checkbox'
+												id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>_<%= meta_option_key %>'
+												name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>[]'
+												value='<%= meta_option_key %>'
+												<% if (selected) { %>checked<% } %>
+											>
+											<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>_<%= meta_option_key %>'>
+												<%= meta_option_value %>
+											</label>
+										</li>
+									<% }); %>
+								</ul>
 							</div>
 						<% }
 
