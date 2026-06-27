@@ -6547,6 +6547,17 @@ class mf_webshop
 								$cart_has_addons = true;
 								break;
 							}
+
+							else
+							{
+								$post_meta_parent_products = get_post_meta($arr_product['id'], $this->meta_prefix.'parent_products', false);
+
+								if(count($post_meta_parent_products) > 0)
+								{
+									$cart_has_addons = true;
+									break;
+								}
+							}
 						}
 					}
 				}
