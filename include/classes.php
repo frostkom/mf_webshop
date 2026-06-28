@@ -338,37 +338,36 @@ class mf_webshop
 		return $arr_data;
 	}
 
-	function get_payment_alternatives_for_select()
+	function get_payment_alternatives_for_select($type)
 	{
-		$arr_data = [
-			'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
-			'quote' => __("Quote", 'lang_webshop'),
-			'invoice' => __("Invoice", 'lang_webshop'),
-		];
-
-		if(1 == 1 || get_option('setting_webshop_stripe_secret_key_test') != '')
+		switch($type)
 		{
-			$arr_data['stripe_test'] = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
-		}
+			case 'admin':
+				$arr_data = [
+					'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
+					'quote' => __("Quote", 'lang_webshop'),
+					'invoice' => __("Invoice", 'lang_webshop'),
+					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
+					'stripe' => __("Card", 'lang_webshop'),
+					'swish_manual' => __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")",
+					'swish' => __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")",
+					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
+				];
+			break;
 
-		if(1 == 1 || get_option('setting_webshop_stripe_secret_key') != '')
-		{
-			$arr_data['stripe'] = __("Card", 'lang_webshop');
-		}
-
-		if(1 == 1 || get_option('setting_webshop_swish_company_number') != '')
-		{
-			$arr_data['swish_manual'] = __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")";
-		}
-
-		if(1 == 1 || get_option('setting_webshop_swish_merchant_number') != '' && get_option('setting_webshop_swish_certificate_root_file') != '' && get_option('setting_webshop_swish_certificate_file') != '' && get_option('setting_webshop_swish_key_file') != '')
-		{
-			$arr_data['swish'] = __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")";
-		}
-
-		if(1 == 1 || get_option('setting_webshop_bank_transfer_number') != '')
-		{
-			$arr_data['bank_transfer'] = __("Bank Transfer Number", 'lang_webshop');
+			default:
+			case 'user':
+				$arr_data = [
+					'manual' => __("Manual", 'lang_webshop'),
+					'quote' => __("Quote", 'lang_webshop'),
+					'invoice' => __("Invoice", 'lang_webshop'),
+					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
+					'stripe' => __("Card", 'lang_webshop'),
+					'swish_manual' => __("Swish", 'lang_webshop'),
+					'swish' => __("Swish", 'lang_webshop'),
+					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
+				];
+			break;
 		}
 
 		return $arr_data;
@@ -378,7 +377,7 @@ class mf_webshop
 	{
 		$out = "";
 
-		$arr_payment_alternatives = $this->get_payment_alternatives_for_select();
+		$arr_payment_alternatives = $this->get_payment_alternatives_for_select('user');
 
 		if($string != '' && isset($arr_payment_alternatives[$string]))
 		{
@@ -1934,7 +1933,7 @@ class mf_webshop
 			}
 		}
 
-		else if(isset($_POST['btnWebshopPayBankTransfer']))
+		else if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayBankTransfer']))
 		{
 			$payment_confirmed = check_var('payment_confirmed');
 
@@ -4093,7 +4092,7 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, array('invoice'));
 
-			echo show_select(array('data' => $this->get_payment_alternatives_for_select(), 'name' => $setting_key."[]", 'value' => $option));
+			echo show_select(array('data' => $this->get_payment_alternatives_for_select('admin'), 'name' => $setting_key."[]", 'value' => $option));
 		}
 
 		function setting_webshop_prefered_payment_alternative_callback()
