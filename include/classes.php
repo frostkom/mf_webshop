@@ -344,28 +344,28 @@ class mf_webshop
 		{
 			case 'admin':
 				$arr_data = [
+					'swish_manual' => __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")",
+					'swish' => __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")",
+					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
+					'stripe' => __("Card", 'lang_webshop'),
+					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
 					'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
 					'quote' => __("Quote", 'lang_webshop'),
 					'invoice' => __("Invoice", 'lang_webshop'),
-					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
-					'stripe' => __("Card", 'lang_webshop'),
-					'swish_manual' => __("Swish", 'lang_webshop')." (".__("Company", 'lang_webshop').")",
-					'swish' => __("Swish", 'lang_webshop')." (".__("Merchant", 'lang_webshop').")",
-					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
 				];
 			break;
 
 			default:
 			case 'user':
 				$arr_data = [
+					'swish_manual' => __("Swish", 'lang_webshop'),
+					'swish' => __("Swish", 'lang_webshop'),
+					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
+					'stripe' => __("Card", 'lang_webshop'),
+					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
 					'manual' => __("Manual", 'lang_webshop'),
 					'quote' => __("Quote", 'lang_webshop'),
 					'invoice' => __("Invoice", 'lang_webshop'),
-					'stripe_test' => __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")",
-					'stripe' => __("Card", 'lang_webshop'),
-					'swish_manual' => __("Swish", 'lang_webshop'),
-					'swish' => __("Swish", 'lang_webshop'),
-					'bank_transfer' => __("Bank Transfer Number", 'lang_webshop'),
 				];
 			break;
 		}
@@ -1751,7 +1751,101 @@ class mf_webshop
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}*/
 
-		if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayManual']))
+		if(isset($_POST['btnWebshopPaySwishManual']))
+		{
+			$payment_confirmed = check_var('payment_confirmed');
+
+			if($payment_confirmed != 1)
+			{
+				$error_text = __("You have to pay with Swish first", 'lang_webshop');
+			}
+
+			else
+			{
+				$this->order_cart_hash = $this->get_cookie();
+
+				$payment_method = 'swish_manual';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'order_status' => 'ordered',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+
+		else if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayBankTransfer']))
+		{
+			$payment_confirmed = check_var('payment_confirmed');
+
+			if($payment_confirmed != 1)
+			{
+				$error_text = __("You have to pay with Bank Transfer first", 'lang_webshop');
+			}
+
+			else
+			{
+				$this->order_cart_hash = $this->get_cookie();
+
+				$payment_method = 'bank_transfer';
+				$test_mode = 'no';
+
+				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'order_status' => 'ordered',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+
+		else if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayManual']))
 		{
 			$this->order_cart_hash = $this->get_cookie();
 
@@ -1853,100 +1947,6 @@ class mf_webshop
 				$this->order_cart_hash = $this->get_cookie();
 
 				$payment_method = 'invoice';
-				$test_mode = 'no';
-
-				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
-				$setting_webshop_currency = get_option('setting_webshop_currency');
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
-
-				if($wpdb->num_rows > 0)
-				{
-					foreach($result as $r)
-					{
-						$post_id = $r->ID;
-
-						$return_url = $this->save_payment_success(array(
-							'post_id' => $post_id,
-							'payment_method' => $payment_method,
-							'test_mode' => $test_mode,
-							'order_status' => 'ordered',
-							'arr_cart_data' => $arr_cart_data,
-							'setting_webshop_currency' => $setting_webshop_currency,
-						));
-
-						mf_redirect($return_url);
-					}
-				}
-
-				else
-				{
-					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
-				}
-			}
-		}
-
-		else if(isset($_POST['btnWebshopPaySwishManual']))
-		{
-			$payment_confirmed = check_var('payment_confirmed');
-
-			if($payment_confirmed != 1)
-			{
-				$error_text = __("You have to pay with Swish first", 'lang_webshop');
-			}
-
-			else
-			{
-				$this->order_cart_hash = $this->get_cookie();
-
-				$payment_method = 'swish_manual';
-				$test_mode = 'no';
-
-				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
-				$setting_webshop_currency = get_option('setting_webshop_currency');
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
-
-				if($wpdb->num_rows > 0)
-				{
-					foreach($result as $r)
-					{
-						$post_id = $r->ID;
-
-						$return_url = $this->save_payment_success(array(
-							'post_id' => $post_id,
-							'payment_method' => $payment_method,
-							'test_mode' => $test_mode,
-							'order_status' => 'ordered',
-							'arr_cart_data' => $arr_cart_data,
-							'setting_webshop_currency' => $setting_webshop_currency,
-						));
-
-						mf_redirect($return_url);
-					}
-				}
-
-				else
-				{
-					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
-				}
-			}
-		}
-
-		else if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayBankTransfer']))
-		{
-			$payment_confirmed = check_var('payment_confirmed');
-
-			if($payment_confirmed != 1)
-			{
-				$error_text = __("You have to pay with Bank Transfer first", 'lang_webshop');
-			}
-
-			else
-			{
-				$this->order_cart_hash = $this->get_cookie();
-
-				$payment_method = 'bank_transfer';
 				$test_mode = 'no';
 
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
@@ -2088,41 +2088,6 @@ class mf_webshop
 						{
 							$out .= "<p class='italic payment_require_information'>".__("The payment alterantives will be loaded as soon as you have entered all required fields.", 'lang_webshop')."</p>";
 
-							if(IS_SUPER_ADMIN && in_array('manual', $setting_webshop_payment_alternatives))
-							{
-								$out .= "<div class='payment_alternatives hide'>"
-									.get_toggler_container(array('type' => 'start', 'id' => 'manual', 'text' => __("Manual", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'manual')))
-										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopPayManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>")))
-										."</div>"
-									.get_toggler_container(array('type' => 'end'))
-								."</div>";
-							}
-
-							if(in_array('quote', $setting_webshop_payment_alternatives))
-							{
-								$out .= "<div class='payment_alternatives hide'>"
-									.get_toggler_container(array('type' => 'start', 'id' => 'quote', 'text' => __("Quote", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'quote')))
-										.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
-										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopPayQuote', 'text' => sprintf(__("Request quote for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
-										."</div>"
-									.get_toggler_container(array('type' => 'end'))
-								."</div>";
-							}
-
-							if(in_array('invoice', $setting_webshop_payment_alternatives))
-							{
-								$out .= "<div class='payment_alternatives hide'>"
-									.get_toggler_container(array('type' => 'start', 'id' => 'invoice', 'text' => __("Invoice", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'invoice')))
-										.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
-										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopPayInvoice', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum_invoice'></span>"), 'xtra' => "disabled"))
-										."</div>"
-									.get_toggler_container(array('type' => 'end'))
-								."</div>";
-							}
-
 							if(in_array('swish_manual', $setting_webshop_payment_alternatives))
 							{
 								$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
@@ -2185,6 +2150,41 @@ class mf_webshop
 										.get_toggler_container(array('type' => 'end'))
 									."</div>";
 								}
+							}
+
+							if(IS_SUPER_ADMIN && in_array('manual', $setting_webshop_payment_alternatives))
+							{
+								$out .= "<div class='payment_alternatives hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'manual', 'text' => __("Manual", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'manual')))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>")))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
+							}
+
+							if(in_array('quote', $setting_webshop_payment_alternatives))
+							{
+								$out .= "<div class='payment_alternatives hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'quote', 'text' => __("Quote", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'quote')))
+										.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayQuote', 'text' => sprintf(__("Request quote for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
+							}
+
+							if(in_array('invoice', $setting_webshop_payment_alternatives))
+							{
+								$out .= "<div class='payment_alternatives hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'invoice', 'text' => __("Invoice", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'invoice')))
+										.show_textfield(array('name' => 'payment_ssn', 'text' => __("Corporate Identity Number", 'lang_webshop')." / ".__("Social Security Number", 'lang_webshop'), 'placeholder' => __("YYMMDDXXXX", 'lang_webshop'), 'value' => "", 'maxlength' => 10))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayInvoice', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum_invoice'></span>"), 'xtra' => "disabled"))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
 							}
 						}
 
