@@ -12,7 +12,8 @@ jQuery(function($)
 		{
 			var html = "",
 				dom_template = $("#template_webshop_cart_item").html(),
-				product_time_limit = 0;
+				product_time_limit = 0,
+				editable_products = 0;
 
 			for(var i = 0; i < count_temp; i++)
 			{
@@ -21,6 +22,11 @@ jQuery(function($)
 				if(response.products[i].product_time_limit > product_time_limit)
 				{
 					product_time_limit = response.products[i].product_time_limit;
+				}
+
+				if(response.products[i].is_editable == true)
+				{
+					editable_products++;
 				}
 			}
 
@@ -136,6 +142,16 @@ jQuery(function($)
 				{
 					render_required();
 				}
+			}
+
+			if(editable_products > 0)
+			{
+				dom_obj_widget.find(".cart_totals, .order_payment").removeClass('hide');
+			}
+
+			else
+			{
+				dom_obj_widget.find(".cart_totals, .order_payment").addClass('hide');
 			}
 		}
 

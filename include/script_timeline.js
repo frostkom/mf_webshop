@@ -10,6 +10,7 @@ jQuery(function($)
 		data:
 		{
 			action: 'api_webshop_timeline',
+			product_id: dom_obj.data('product_id'),
 			search_post_id: dom_obj.data('search_post_id'),
 			cart_post_id: dom_obj.data('cart_post_id'),
 			shop_has_addon: dom_obj.data('shop_has_addon')

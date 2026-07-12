@@ -70,6 +70,16 @@
 				color: var(--webshop-timeline-color-progress);
 			}
 
+			.webshop_timeline li.current a
+			{
+				border-color: #000;
+			}
+
+				.webshop_timeline li.current a i
+				{
+					color: #000;
+				}
+
 			.webshop_timeline li.done a
 			{
 				border-color: var(--webshop-timeline-color-done);
