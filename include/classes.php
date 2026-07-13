@@ -1567,12 +1567,12 @@ class mf_webshop
 			foreach($result as $r)
 			{
 				$order_id = $r->ID;
-				$post_parent = $r->post_parent;
-				$post_modified = $r->post_modified;
+				$order_parent = $r->post_parent;
+				$order_modified = $r->post_modified;
 
-				if($post_parent > 0)
+				if($order_parent > 0)
 				{
-					$arr_products_parents = get_post_meta($post_parent, $this->meta_prefix.'products', true);
+					$arr_products_parents = get_post_meta($order_parent, $this->meta_prefix.'products', true);
 
 					// Get all sibling products aswell...
 
@@ -1640,7 +1640,7 @@ class mf_webshop
 					$arr_products[$key]['product_title'] = get_the_title($arr_product['id']);
 					$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
 					$arr_products[$key]['product_amount_max'] = $product_amount_max;
-					$arr_products[$key]['product_time_limit'] = ($arr_cart_values['product_stock_max'] > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
+					$arr_products[$key]['product_time_limit'] = ($arr_cart_values['product_stock_max'] > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $order_modified, 'end' => current_time('mysql'), 'type' => 'ceil', 'return' => 'minutes'))) : 0);
 					$arr_products[$key]['product_tax'] = $this->get_tax(array('price' => $arr_product['price'], 'suffix' => true));
 					$arr_products[$key]['product_total'] = $this->display_price(array('price' => $arr_product['price'] * $arr_product['amount']));
 					$arr_products[$key]['price'] = $this->display_price(array('price' => $arr_product['price']));
@@ -1657,22 +1657,24 @@ class mf_webshop
 							{
 								$meta_key = $checkout_name.'_'.$arr_product['id'].'_'.$i;
 
-								$order_detail = get_post_meta($order_id, $this->meta_prefix.'checkout_name_'.$meta_key, true);
+								$order_detail = "";
 
-								/*$checkout_xtra = "";
-
-								if($order_detail == '')
+								if($order_parent > 0)
 								{
-									switch($checkout_name)
+									$order_detail_temp = get_post_meta($order_parent, $this->meta_prefix.'checkout_name_'.$meta_key, true);
+
+									if($order_detail_temp != '')
 									{
-										case 'first_name':
-										case 'last_name':
-											//$checkout_xtra = " data-fetch_info='".$checkout_name."'";
-											//do_log("Get ".$checkout_name." from already entered value");
-											$order_detail = get_post_meta($order_id, $this->meta_prefix.$checkout_name, true);
-										break;
+										$order_detail = $order_detail_temp;
 									}
-								}*/
+								}
+
+								$order_detail_temp = get_post_meta($order_id, $this->meta_prefix.'checkout_name_'.$meta_key, true);
+
+								if($order_detail_temp != '')
+								{
+									$order_detail = $order_detail_temp;
+								}
 
 								$arr_checkout_fields[] = array(
 									'product_id' => $arr_product['id'],
@@ -2778,9 +2780,9 @@ class mf_webshop
 
 			foreach($result as $r)
 			{
-				$post_modified = $r->post_modified;
+				$order_modified = $r->post_modified;
 
-				$out = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $post_modified, 'end' => current_time('mysql'), 'type' => 'floor', 'return' => 'minutes'))) : 0);
+				$out = ($product_stock_max > 0 ? ($this->product_time_limit - time_between_dates(array('start' => $order_modified, 'end' => current_time('mysql'), 'type' => 'floor', 'return' => 'minutes'))) : 0);
 			}
 		}
 
@@ -3144,7 +3146,8 @@ class mf_webshop
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
 
-			$post_date = get_post_field('post_date', $order_id);
+			$order_parent = get_post_field('post_parent', $order_id);
+			$order_date = get_post_field('post_date', $order_id);
 
 			$order_number = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
 			$arr_products = get_post_meta($order_id, $this->meta_prefix.'products', true);
@@ -3166,7 +3169,7 @@ class mf_webshop
 					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
 				."</h1>"
 				.get_notification()
-				."<p>#".$order_number." @ ".format_date($post_date)."</p>
+				."<p>#".$order_number." @ ".format_date($order_date)."</p>
 				<ul class='grid_columns'>";
 
 					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
@@ -3241,7 +3244,7 @@ class mf_webshop
 							<span class='grid_title'>".__("Order", 'lang_webshop')."</span>
 							<p class='text'>"
 								//."#".$order_number."<br>"
-								.$post_date."<br>"
+								.$order_date."<br>"
 								.$this->get_order_status(array('order_id' => $order_id, 'is_editable' => true))."<br>"
 							."</p>
 						</div>
@@ -3249,23 +3252,15 @@ class mf_webshop
 
 					// More Information
 					########################
-					$arr_products = get_post_meta_or_default($order_id, $this->meta_prefix.'products', true, []);
-
-					/*foreach($arr_products as $key => $arr_product)
+					if($order_parent > 0)
 					{
-						$arr_product_checkout_information = get_post_meta($arr_product['id'], $this->meta_prefix.'product_checkout_information', false);
+						$arr_products = get_post_meta_or_default($order_parent, $this->meta_prefix.'products', true, []);
+					}
 
-						if(is_array($arr_product_checkout_information) && count($arr_product_checkout_information) > 0)
-						{
-							for($i = 0; $i < $arr_product['amount']; $i++)
-							{
-								foreach($arr_product_checkout_information as $checkout_name)
-								{
-									//$post_data['meta_input'][$this->meta_prefix.'checkout_name_'.$checkout_name.'_'.$arr_product['id'].'_'.$i] = check_var($checkout_name.'_'.$arr_product['id'].'_'.$i);
-								}
-							}
-						}
-					}*/
+					else
+					{
+						$arr_products = get_post_meta_or_default($order_id, $this->meta_prefix.'products', true, []);
+					}
 
 					foreach($arr_products as $key => $arr_product)
 					{
@@ -3290,7 +3285,7 @@ class mf_webshop
 
 									$out .= "<li>
 										<div class='content'>
-											<span class='grid_title'>".get_the_title($arr_product['id'])." #".$i."</span>
+											<span class='grid_title'>".get_the_title($arr_product['id'])." #".($i + 1)."</span>
 											<p class='text'>";
 								}
 
@@ -8054,7 +8049,7 @@ class mf_webshop
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -8063,6 +8058,7 @@ class mf_webshop
 			foreach($result as $r)
 			{
 				$order_id = $r->ID;
+				$order_parent = $r->post_parent;
 
 				$post_data = array('meta_input' => array());
 
@@ -8078,7 +8074,15 @@ class mf_webshop
 
 				// More Information
 				########################
-				$arr_products = get_post_meta_or_default($order_id, $this->meta_prefix.'products', true, []);
+				if($order_parent > 0)
+				{
+					$arr_products = get_post_meta_or_default($order_parent, $this->meta_prefix.'products', true, []);
+				}
+
+				else
+				{
+					$arr_products = get_post_meta_or_default($order_id, $this->meta_prefix.'products', true, []);
+				}
 
 				foreach($arr_products as $key => $arr_product)
 				{
