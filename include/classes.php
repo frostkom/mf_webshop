@@ -620,7 +620,7 @@ class mf_webshop
 
 			// Remove old non-fulfilled orders
 			###########
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent = '0' AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
@@ -3475,6 +3475,11 @@ class mf_webshop
 		{
 			$out .= "<h1>".__("Order Confirmation", 'lang_webshop')."</h1>
 			<p>".__("I am sorry, but I could not find the order for you. Please try again, and contact an admin if the problem persists.", 'lang_webshop')."</p>";
+
+			if(IS_SUPER_ADMIN)
+			{
+				$out .= "<p>".$order_id." == ".$obj_encryption->decrypt($order_key, md5(AUTH_KEY))." (".$order_key.")</p>";
+			}
 		}
 
 		$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
@@ -3672,7 +3677,7 @@ class mf_webshop
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
 			'supports' => array('title', 'editor', 'revisions'),
-			'hierarchical' => false,
+			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'order'),
 		));
@@ -8560,15 +8565,15 @@ class mf_webshop
 								<% if(is_editable == true)
 								{ %>
 									<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>
+									<% if(product_time_limit > 0)
+									{ %>
+										<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+									<% } %>
 								<% }
 
 								else
 								{ %>
 									<span><%= amount %></span>
-								<% } %>
-								<% if(product_time_limit > 0)
-								{ %>
-									<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
 								<% } %>
 							</td>
 							<td><%= product_total %></td>

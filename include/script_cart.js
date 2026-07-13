@@ -34,7 +34,10 @@ jQuery(function($)
 
 			if(product_time_limit > 0)
 			{
-				$(".cart_countdown").removeClass('hide');
+				if(editable_products > 0)
+				{
+					$(".cart_countdown").removeClass('hide');
+				}
 
 				var totalSeconds = (product_time_limit * 60),
 					dom_countdown = $(".cart_countdown").find("span");
@@ -146,12 +149,12 @@ jQuery(function($)
 
 			if(editable_products > 0)
 			{
-				dom_obj_widget.find(".cart_totals, .order_payment").removeClass('hide');
+				dom_obj_widget.find(".cart_countdown, .cart_totals, .order_payment").removeClass('hide');
 			}
 
 			else
 			{
-				dom_obj_widget.find(".cart_totals, .order_payment").addClass('hide');
+				dom_obj_widget.find(".cart_countdown, .cart_totals, .order_payment").addClass('hide');
 			}
 		}
 
