@@ -37,7 +37,6 @@ class mf_webshop
 	var $price_amount;
 	var $number_amount;
 	var $search_url;
-	//var $product_social;
 	var $product_coordinates;
 	var $product_map;
 	var $product_categories;
@@ -4218,7 +4217,8 @@ class mf_webshop
 
 		$last_viewed = date("Y-m-d H:i:s", strtotime(get_user_meta(get_current_user_id(), 'meta_webshop_viewed_'.$post_type, true)));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_date > %s", $post_type, 'publish', $last_viewed));
+		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_date > %s", $post_type, 'publish', $last_viewed));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_date > %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish', $last_viewed));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -5582,7 +5582,7 @@ class mf_webshop
 		}
 	}
 
-	function post_row_actions($arr_actions, $post)
+	function page_row_actions($arr_actions, $post)
 	{
 		switch($post->post_type)
 		{
@@ -5696,7 +5696,7 @@ class mf_webshop
 
 			case $this->post_type_orders:
 				$columns['products'] = __("Products", 'lang_webshop');
-				//$columns['details'] = __("Details", 'lang_webshop');
+				$columns['details'] = __("Details", 'lang_webshop');
 				$columns['order_status'] = __("Status", 'lang_webshop');
 				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
@@ -9095,7 +9095,7 @@ class mf_webshop
 		$this->product_has_email = false;
 		$this->number_amount = $this->price_amount = $this->size_amount = 0;
 
-		$this->product_address = $this->product_categories = $this->product_map = $this->product_coordinates = $this->search_url = ""; // = $this->product_social
+		$this->product_address = $this->product_categories = $this->product_map = $this->product_coordinates = $this->search_url = "";
 
 		if($data['single'] == true)
 		{
