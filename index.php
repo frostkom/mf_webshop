@@ -43,6 +43,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_filter('page_row_actions', array($obj_webshop, 'page_row_actions'), 10, 2);
 
+		add_filter('posts_orderby', array($obj_webshop, 'posts_orderby'), 10, 2);
+
 		add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5);
 		add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
 

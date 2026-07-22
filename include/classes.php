@@ -2836,7 +2836,7 @@ class mf_webshop
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
-								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>"; //<span>".__("Add", 'lang_webshop')."</span> //".apply_filters('get_css_icon', 'plus')."
+								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span> <i class='fa fa-plus'></i></a>"; // //".apply_filters('get_css_icon', 'plus')."
 							}
 
 							else
@@ -5599,6 +5599,23 @@ class mf_webshop
 		return $arr_actions;
 	}
 
+	function posts_orderby($orderby_statement, $wp_query)
+	{
+		global $wpdb;
+
+		if($wp_query->is_main_query() && check_var('orderby') == '')
+		{
+			switch($wp_query->get('post_type'))
+			{
+				case $this->post_type_orders:
+					$orderby_statement = $wpdb->posts.".post_date DESC";
+				break;
+			}
+		}
+
+		return $orderby_statement;
+	}
+
 	function column_header($columns)
 	{
 		global $post_type, $obj_font_icons;
@@ -5634,7 +5651,7 @@ class mf_webshop
 					$columns['category'] = __("Categories", 'lang_webshop');
 				}
 
-				$arr_columns = array('price', 'stock', 'product_type');
+				$arr_columns = array('price', 'stock', 'cart_max', 'product_type');
 
 				foreach($arr_columns as $column)
 				{
@@ -5857,6 +5874,16 @@ class mf_webshop
 							{
 								echo " / ".$post_meta;
 							}
+						}
+					break;
+
+					case 'cart_max':
+						$post_name = $this->get_post_name_for_type($column);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true); 
+
+						if($post_meta > 0)
+						{
+							echo $post_meta;
 						}
 					break;
 
