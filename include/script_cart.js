@@ -1,7 +1,8 @@
 jQuery(function($)
 {
 	var dom_obj_widget = $(".widget.webshop_cart"),
-		countdown_interval;
+		countdown_interval,
+		dom_total_sum = 0;
 
 	function render_cart(data)
 	{
@@ -73,6 +74,8 @@ jQuery(function($)
 				clearInterval(countdown_interval);
 				countdown_interval = setInterval(tick, 1000);
 			}
+
+			dom_total_sum = response.total_sum_raw;
 
 			dom_obj_widget.find(".cart_totals .shipping_cost").html(response.shipping_cost);
 			dom_obj_widget.find(".cart_totals .total_sum_invoice").html(response.total_sum_invoice);
@@ -156,6 +159,8 @@ jQuery(function($)
 			{
 				dom_obj_widget.find(".cart_countdown, .cart_totals, .order_payment").addClass('hide');
 			}
+
+			display_payment_alternatives_or_not();
 		}
 
 		else
@@ -206,7 +211,18 @@ jQuery(function($)
 		if(is_all_entered == true)
 		{
 			$(".payment_require_information").addClass('hide');
-			$(".payment_alternatives").removeClass('hide');
+
+			if(dom_total_sum > 0)
+			{
+				$(".payment_alternatives:not(.payment_alternative_free)").removeClass('hide');
+				$(".payment_alternatives.payment_alternative_free").addClass('hide');
+			}
+
+			else
+			{
+				$(".payment_alternatives:not(.payment_alternative_free)").addClass('hide');
+				$(".payment_alternatives.payment_alternative_free").removeClass('hide');
+			}
 		}
 
 		else

@@ -351,6 +351,7 @@ class mf_webshop
 					'manual' => __("Manual", 'lang_webshop')." (".__("Only for Administrators", 'lang_webshop').")",
 					'quote' => __("Quote", 'lang_webshop'),
 					'invoice' => __("Invoice", 'lang_webshop'),
+					'save' => __("Saved", 'lang_webshop')." (".__("Without Cost", 'lang_webshop').")",
 				];
 			break;
 
@@ -365,6 +366,7 @@ class mf_webshop
 					'manual' => __("Manual", 'lang_webshop'),
 					'quote' => __("Quote", 'lang_webshop'),
 					'invoice' => __("Invoice", 'lang_webshop'),
+					'save' => __("Saved", 'lang_webshop'),
 				];
 			break;
 		}
@@ -1879,6 +1881,52 @@ class mf_webshop
 			}
 		}
 
+		else if(isset($_POST['btnWebshopPayFree']))
+		{
+			$this->order_cart_hash = $this->get_cookie();
+
+			$payment_method = 'save';
+			$test_mode = 'no';
+
+			$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+
+			if($arr_cart_data['response_webshop_cart']['total_sum_raw'] > 0)
+			{
+				$error_text = __("I am sorry but you are not allowed to save an order with a cost", 'lang_webshop');
+			}
+
+			else
+			{
+				$setting_webshop_currency = get_option('setting_webshop_currency');
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$post_id = $r->ID;
+
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $post_id,
+							'payment_method' => $payment_method,
+							'test_mode' => $test_mode,
+							'order_status' => 'paid',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						mf_redirect($return_url);
+					}
+				}
+
+				else
+				{
+					$error_text = __("I am sorry but I could not find an order to process", 'lang_webshop');
+				}
+			}
+		}
+
 		else if(IS_SUPER_ADMIN && isset($_POST['btnWebshopPayManual']))
 		{
 			$this->order_cart_hash = $this->get_cookie();
@@ -2124,6 +2172,14 @@ class mf_webshop
 							if($count_temp > 0)
 							{
 								$out .= "<p class='italic payment_require_information'>".__("The payment alterantives will be loaded as soon as you have entered all required fields.", 'lang_webshop')."</p>";
+
+								$out .= "<div class='payment_alternatives payment_alternative_free hide'>"
+									.get_toggler_container(array('type' => 'start', 'id' => 'save', 'text' => __("Order", 'lang_webshop'), 'is_open' => true))
+										."<div".get_form_button_classes().">"
+											.show_button(array('name' => 'btnWebshopPayFree', 'text' => __("Save", 'lang_webshop')))
+										."</div>"
+									.get_toggler_container(array('type' => 'end'))
+								."</div>";
 
 								if(in_array('swish_manual', $setting_webshop_payment_alternatives))
 								{
