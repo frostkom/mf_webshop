@@ -4215,10 +4215,10 @@ class mf_webshop
 
 		$count_message = "";
 
-		$last_viewed = date("Y-m-d H:i:s", strtotime(get_user_meta(get_current_user_id(), 'meta_webshop_viewed_'.$post_type, true)));
+		//$last_viewed = date("Y-m-d H:i:s", strtotime(get_user_meta(get_current_user_id(), 'meta_webshop_viewed_'.$post_type, true)));
 
-		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_date > %s", $post_type, 'publish', $last_viewed));
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_date > %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish', $last_viewed));
+		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_date > %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish', $last_viewed));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish'));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -4270,26 +4270,7 @@ class mf_webshop
 			}
 		}
 
-		/*global $menu, $submenu;
-
-		foreach($menu as $key => $menu_item)
-		{
-			if(isset($menu_item[2]) && $menu_item[2] == 'themes.php' && isset($submenu[$menu_item[2]]))
-			{
-				foreach($submenu[$menu_item[2]] as $submenu_key => $submenu_item)
-				{
-					if(isset($submenu[$menu_item[2]][$submenu_key][2]) && $submenu[$menu_item[2]][$submenu_key][2] == 'site-editor.php')
-					{
-						do_action('load_font_awesome');
-
-						$submenu[$menu_item[2]][$submenu_key][0] .= " <i class='fa fa-exclamation-triangle yellow' title='".__("This site is using a template site and any changes in the editor might be overriden", 'lang_site_manager')."'></i>";
-						break;
-					}
-				}
-			}
-		}*/
-
-		switch($pagenow)
+		/*switch($pagenow)
 		{
 			case 'edit.php':
 				$post_type = check_var('post_type');
@@ -4301,7 +4282,7 @@ class mf_webshop
 					break;
 				}
 			break;
-		}
+		}*/
 
 		if(function_exists('wp_add_privacy_policy_content'))
 		{
@@ -5717,7 +5698,11 @@ class mf_webshop
 				$columns['order_status'] = __("Status", 'lang_webshop');
 				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
-				$columns['total_tax'] = __("Tax", 'lang_webshop');
+
+				if(get_option('setting_webshop_tax_display') == 'yes')
+				{
+					$columns['total_tax'] = __("Tax", 'lang_webshop');
+				}
 			break;
 
 			case $this->post_type_location:
