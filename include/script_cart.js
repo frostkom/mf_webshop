@@ -152,7 +152,12 @@ jQuery(function($)
 
 			if(editable_products > 0)
 			{
-				dom_obj_widget.find(".cart_countdown, .cart_totals, .order_payment").removeClass('hide');
+				if(product_time_limit > 0)
+				{
+					dom_obj_widget.find(".cart_countdown").removeClass('hide');
+				}
+
+				dom_obj_widget.find(".cart_totals, .order_payment").removeClass('hide');
 			}
 
 			else

@@ -53,7 +53,7 @@ class mf_webshop
 	var $meta_symbol;
 
 	var $order_cart_hash;
-	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_co', 'address_zip', 'address_city']; //'address_country'
+	var $arr_meta_keys = ['first_name', 'last_name', 'contact_phone', 'contact_email', 'address_street', 'address_zip', 'address_city']; //, 'address_co', 'address_country'
 	var $order_details;
 
 	var $footer_output;
@@ -1746,7 +1746,7 @@ class mf_webshop
 
 	function block_render_cart_callback($attributes)
 	{
-		global $wpdb, $error_text, $done_text;
+		global $wpdb, $error_text, $done_text, $notice_text;
 
 		do_action('load_script_required');
 
@@ -2140,7 +2140,7 @@ class mf_webshop
 								.show_textfield(array('name' => 'contact_phone', 'text' => __("Phone Number", 'lang_webshop'), 'xtra' => " data-fetch_info='telno'"))
 							."</div>"
 							.show_textfield(array('name' => 'address_street', 'text' => __("Address", 'lang_webshop'), 'xtra' => " data-fetch_info='address'", 'required' => true))
-							.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'xtra' => " data-fetch_info='co'"))
+							//.show_textfield(array('name' => 'address_co', 'text' => __("C/O", 'lang_webshop'), 'xtra' => " data-fetch_info='co'"))
 							."<div".apply_filters('get_flex_flow', "").">"
 								.show_textfield(array('type' => 'number', 'name' => 'address_zip', 'text' => __("Zip Code", 'lang_webshop'), 'xtra' => " data-fetch_info='zip'", 'required' => true))
 								.show_textfield(array('name' => 'address_city', 'text' => __("City", 'lang_webshop'), 'xtra' => " data-fetch_info='city'", 'required' => true))
@@ -2467,7 +2467,7 @@ class mf_webshop
 							."</div>";
 						}
 
-						if(IS_SUPER_ADMIN && in_array('swish', $setting_webshop_payment_alternatives))
+						if((IS_SUPER_ADMIN || isset($_GET['callback'])) && in_array('swish', $setting_webshop_payment_alternatives))
 						{
 							$setting_webshop_swish_merchant_number = get_option('setting_webshop_swish_merchant_number');
 
@@ -2478,6 +2478,8 @@ class mf_webshop
 
 										if(isset($_POST['btnWebshopPaySwish']))
 										{
+											$this->order_cart_hash = $this->get_cookie();
+
 											$base_callback_url = $_SERVER['HTTP_REFERER'];
 
 											list($upload_path, $upload_url) = get_uploads_folder();
@@ -2492,89 +2494,175 @@ class mf_webshop
 
 											$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
-											$total_sum = 0;
-											$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
-
-											//$action = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/";
-											$action = "https://cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
-
-											$post_data = array(
-												'payeePaymentReference' => $this->order_cart_hash,
-												'callbackUrl' => $base_callback_url."&callback",
-												//'payerAlias' => $telno, // This will only return Location and thus we can't send the mobile user to swish://...
-												'payeeAlias' => $setting_webshop_swish_merchant_number,
-												'amount' => $total_sum,
-												'currency' => $setting_webshop_currency,
-												'message' => "Order #".$post_id,
-											);
-
-											$data = array(
-												'url' => $action,
-												'content_type' => "application/json",
-												'catch_head' => true,
-												'post_data' => json_encode($post_data),
-												'ca_path' => $setting_webshop_swish_certificate_root_file,
-												'ssl_cert_path' => $setting_webshop_swish_certificate_file,
-												'ssl_key_path' => $setting_webshop_swish_key_file,
-											);
-
-											list($content, $headers) = get_url_content($data);
-
-											//do_log("Swish: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
-
-											switch($headers['http_code'])
+											if($post_id > 0)
 											{
-												case 200:
-												case 201:
-													//$arr_json = json_decode($content, true);
+												$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+												$total_sum = $arr_cart_data['response_webshop_cart']['total_sum_raw'];
+												$setting_webshop_currency = get_option('setting_webshop_currency', 'SEK');
 
-													$arr_json = array();
+												$instruction_uuid = strtoupper(bin2hex(random_bytes(16)));
 
-													foreach(explode("\n", $content) as $row)
-													{
-														@list($row_key, $row_value) = explode(":", $row, 2);
+												//$action = "https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/";
+												//$action = "https://cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests";
+												$action = "https://cpc.getswish.net/swish-cpcapi/api/v2/paymentrequests/".$instruction_uuid;
+												//$action = "https://cpc.getswish.net/swish-cpcapi/api/v2/paymentrequests/".$this->order_cart_hash;
 
-														$arr_json[trim($row_key)] = trim($row_value);
-													}
+												update_post_meta($post_id, $this->meta_prefix.'swish_instruction_uuid', $instruction_uuid);
+												//do_log("Saved: ".$post_id.", ".$this->meta_prefix.'swish_instruction_uuid'." = ".$instruction_uuid);
 
-													//$out .= "Successful: ".var_export($arr_json, true)." (".var_export($headers, true).")";
+												$post_data = array(
+													'payeePaymentReference' => $instruction_uuid,
+													'callbackUrl' => $base_callback_url.(strpos($base_callback_url, "?") ? "&" : "?")."callback",
+													'payeeAlias' => $setting_webshop_swish_merchant_number,
+													'amount' => (string)$total_sum,
+													'currency' => $setting_webshop_currency,
+													'message' => "Order ".$this->order_cart_hash,
+												);
 
-													if(isset($arr_json['PaymentRequestToken']))
-													{
-														$token = $arr_json['PaymentRequestToken'];
-														$callback = $base_callback_url."&accept";
+												$data = array(
+													'url' => $action,
+													'request' => 'put',
+													'content_type' => "application/json",
+													'catch_head' => true,
+													'post_data' => json_encode($post_data),
+													'ca_path' => $setting_webshop_swish_certificate_root_file,
+													'ssl_cert_path' => $setting_webshop_swish_certificate_file,
+													'ssl_key_path' => $setting_webshop_swish_key_file,
+												);
 
-														$action = "swish://paymentrequest?token=".$token."&callbackurl=".urlencode($callback);
+												list($content, $headers) = get_url_content($data);
 
-														$out .= "<form method='post' action='".$action."'>
-															<div".get_form_button_classes().">"
-																//."<p>".$action."</p>"
-																.show_button(array('text' => __("Open the App", 'lang_webshop')))
-															."</div>
-														</form>";
-													}
+												//do_log("Swish PUT body: ".json_encode($post_data)." -> response: ".$content);
 
-													else
-													{
-														$error_text = __("I could not find a token in the answer", 'lang_webshop')." (".htmlspecialchars($content).")";
+												//do_log("Swish: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
+
+												switch($headers['http_code'])
+												{
+													case 200:
+													case 201:
+														//$out .= "Successful: ".var_export($arr_json, true)." (".var_export($headers, true).")";
+
+														if(isset($headers['PaymentRequestToken']))
+														{
+															$token = $headers['PaymentRequestToken'];
+															$callback = $base_callback_url.(strpos($base_callback_url, "?") ? "&" : "?")."check_payment_status=".urlencode($instruction_uuid);
+
+															$action = "swish://paymentrequest?token=".$token."&callbackurl=".urlencode($callback);
+
+															$out .= "<form method='post' action='".$action."'>
+																<div".get_form_button_classes().">"
+																	.show_button(array('text' => __("Open the App", 'lang_webshop')))
+																."</div>
+															</form>
+															<script>
+																jQuery(function($)
+																{
+																	setTimeout(function()
+																	{
+																		var el = $('#toggle_swish');
+
+																		if(el.length)
+																		{
+																			el.closest('.payment_alternatives').removeClass('hide');
+
+																			$('html, body').animate({scrollTop: el.offset().top - 40}, 800);
+																		}
+																	}, 1000);
+																});
+															</script>";
+														}
+
+														else
+														{
+															$error_text = __("I could not find a token in the answer", 'lang_webshop')." (".htmlspecialchars($content).")";
+
+															$out .= get_notification();
+														}
+													break;
+
+													default:
+														$error_text = sprintf(__("I am sorry, but I did not get the correct answer from %s to proceed to payment. An admin has been notified about this.", 'lang_webshop'), "Swish");
+
+														if(IS_SUPER_ADMIN)
+														{
+															$error_text .= " ("
+																.var_export($headers, true)
+																//." -> ".$headers['http_code']
+																//.", root=".$setting_webshop_swish_certificate_root_file
+																//.", cert=".$setting_webshop_swish_certificate_file
+																//.", key=".$setting_webshop_swish_key_file
+																//.", exists=".var_export(file_exists($setting_webshop_swish_certificate_root_file), true)
+															.")";
+														}
+
+														else
+														{
+															do_log("Unsuccessful Swish payment: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
+														}
 
 														$out .= get_notification();
-													}
-												break;
+													break;
+												}
+											}
 
-												default:
-													$error_text = sprintf(__("I am sorry, but I did not get the correct answer from %s to proceed to payment. An admin has been notified about this.", 'lang_webshop'), "Swish")." (".var_export($headers, true)." -> ".$headers['http_code'].")";
+											else
+											{
+												$error_text = __("Something went wrong with the payment. I could not get the order for you.", 'lang_webshop');
 
-													$out .= get_notification();
+												if(IS_SUPER_ADMIN)
+												{
+													$error_text .= " (".$wpdb->last_query.")";
+												}
 
-													do_log("Unsuccessful Swish payment: ".str_replace(array("\n", "\r"), "", var_export($data, true))." -> ".str_replace(array("\n", "\r"), "", var_export($headers, true))." -> ".str_replace(array("\n", "\r"), "", var_export($content, true)));
-												break;
+												$out .= get_notification();
 											}
 										}
 
-										else if(isset($_GET['accept']))
+										else if(isset($_GET['check_payment_status']))
 										{
 											$strPaymentStatus = '';
+											$instruction_uuid = check_var('check_payment_status');
+
+											if($instruction_uuid != '')
+											{
+												list($upload_path, $upload_url) = get_uploads_folder();
+
+												$setting_webshop_swish_certificate_root_file = str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_certificate_root_file'));
+												$setting_webshop_swish_certificate_file = str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_certificate_file'));
+												$setting_webshop_swish_key_file = str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_key_file'));
+
+												$data = array(
+													'url' => "https://cpc.getswish.net/swish-cpcapi/api/v2/paymentrequests/".$instruction_uuid,
+													'request' => 'get',
+													'content_type' => "application/json",
+													'catch_head' => true,
+													'ca_path' => $setting_webshop_swish_certificate_root_file,
+													'ssl_cert_path' => $setting_webshop_swish_certificate_file,
+													'ssl_key_path' => $setting_webshop_swish_key_file,
+												);
+
+												list($content, $headers) = get_url_content($data);
+
+												if($headers['http_code'] == 200)
+												{
+													$arr_json = json_decode($content, true);
+
+													switch($arr_json['status'])
+													{
+														case 'PAID':
+															$strPaymentStatus = 'paid';
+														break;
+
+														case 'DECLINED':
+															$strPaymentStatus = 'cancelled';
+														break;
+
+														case 'ERROR':
+															$strPaymentStatus = 'failed';
+														break;
+													}
+												}
+											}
 
 											switch($strPaymentStatus)
 											{
@@ -2605,61 +2693,73 @@ class mf_webshop
 
 											$arr_json = json_decode($response_body, true);
 
-											switch($arr_json['status'])
+											$instruction_uuid = (isset($arr_json['payeePaymentReference']) ? $arr_json['payeePaymentReference'] : '');
+
+											$post_id = ($instruction_uuid != '' ? $wpdb->get_var($wpdb->prepare("SELECT post_id FROM ".$wpdb->postmeta." WHERE meta_key = %s AND meta_value = %s LIMIT 0, 1", $this->meta_prefix.'swish_instruction_uuid', $instruction_uuid)) : null);
+
+											if(!$post_id)
 											{
-												case 'DECLINED':
-													if($this->order_cart_hash == $arr_json['payeePaymentReference'])
-													{
-														//$this->order_cart_hash
+												do_log("Swish callback: no order found for instruction_uuid ".$instruction_uuid." (".$wpdb->last_query.")");
+												http_response_code(404);
+												exit;
+											}
 
-														do_log(__FUNCTION__." - Cancelled: Save order status");
+											$payment_method = 'swish';
+											$test_mode = 'no';
+
+											$arr_cart_data = $this->get_webshop_cart([], get_post_meta($post_id, $this->meta_prefix.'cart_hash', true));
+											$setting_webshop_currency = get_option('setting_webshop_currency');
+
+											$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $instruction_uuid, $this->post_type_orders, 'draft'));
+
+											if($wpdb->num_rows > 0)
+											{
+												foreach($result as $r)
+												{
+													$post_id = $r->ID;
+
+													$order_status = 'unknown';
+
+													switch($arr_json['status'])
+													{
+														case 'DECLINED':
+															$order_status = 'cancelled';
+														break;
+
+														case 'ERROR':
+															$order_status = 'failed';
+														break;
+
+														case 'PAID':
+															$total_sum = $arr_cart_data['response_webshop_cart']['total_sum_raw'];
+
+															$order_status = ($arr_json['amount'] == $total_sum ? 'paid' : 'wrong_amount');
+														break;
+
+														default:
+															$order_status = 'unknown';
+															//do_log("Swish Status Unknown (".$arr_json['status']."): ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
+														break;
 													}
 
-													else
-													{
-														do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
-													}
-												break;
+													$return_url = $this->save_payment_success(array(
+														'post_id' => $post_id,
+														'payment_method' => $payment_method,
+														'test_mode' => $test_mode,
+														'order_status' => $order_status,
+														'arr_cart_data' => $arr_cart_data,
+														'setting_webshop_currency' => $setting_webshop_currency,
+													));
+												}
 
-												case 'ERROR':
-													if($this->order_cart_hash == $arr_json['payeePaymentReference'])
-													{
-														//$this->order_cart_hash
+												http_response_code(200);
+												exit;
+											}
 
-														do_log(__FUNCTION__." - Failed: Save order status");
-													}
-
-													else
-													{
-														do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
-													}
-												break;
-
-												case 'PAID':
-													if($this->order_cart_hash == $arr_json['payeePaymentReference'])
-													{
-														if((int)$arr_json['amount'] == (int)$total_sum)
-														{
-															//$this->order_cart_hash
-
-															do_log(__FUNCTION__." - Wrong amount: Save order status");
-														}
-
-														else
-														{
-															do_log("Swish Incorrect Amount: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
-														}
-													}
-
-													else
-													{
-														do_log("Swish Incorrect Reference: ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
-													}
-												break;
-
-												default:
-													do_log("Swish Status Unknown (".$arr_json['status']."): ".str_replace(array("\n", "\r"), "", var_export($response_request, true)).", ".str_replace(array("\n", "\r"), "", var_export($response_body, true)));
-												break;
+											else
+											{
+												http_response_code(404);
+												exit;
 											}
 										}
 
@@ -2946,6 +3046,7 @@ class mf_webshop
 
 		$arr_out = array(
 			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
+			'unknown' => __("Unknown", 'lang_webshop'),
 			'cancelled' => __("Cancelled", 'lang_webshop'),
 			'failed' => __("Failed", 'lang_webshop'),
 			'wrong_amount' => __("Wrong Amount", 'lang_webshop'),
@@ -2992,7 +3093,7 @@ class mf_webshop
 
 		if(IS_EDITOR)
 		{
-			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['failed', 'wrong_amount', 'cancel_purchase']]);
+			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['unknown', 'failed', 'wrong_amount', 'cancel_purchase']]);
 		}
 
 		else
@@ -3058,6 +3159,7 @@ class mf_webshop
 		{
 			switch($order_status)
 			{
+				case 'unknown':
 				case 'cancelled':
 				case 'failed':
 				case 'wrong_amount':
@@ -3726,7 +3828,7 @@ class mf_webshop
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
-			'supports' => array('title', 'editor', 'revisions'),
+			'supports' => array('title', 'editor', 'page-attributes', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'order'),
@@ -6223,6 +6325,7 @@ class mf_webshop
 
 							switch($order_status)
 							{
+								case 'unknown':
 								case 'cancelled':
 								case 'failed':
 								case 'wrong_amount':
