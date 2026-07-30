@@ -3470,7 +3470,7 @@ class mf_webshop
 
 									$out .= "<strong>".$arr_checkout_information[$checkout_name]['name'].":</strong> ";
 
-										if($arr_checkout_information[$checkout_name]['type'] == 'select_multiple')
+										if(in_array($arr_checkout_information[$checkout_name]['type'], ['checkbox_multiple', 'select_multiple']))
 										{
 											$j = 0;
 
@@ -3480,8 +3480,6 @@ class mf_webshop
 
 												$j++;
 											}
-
-											//$out .= var_export($arr_checkout_information, true)." + ".var_export($order_detail, true);
 										}
 
 										else

@@ -110,7 +110,10 @@ echo "<div class='wrap'>
 			$total_price = 0;
 			$paid_currency = $paid_tax_display_prefix = "";
 
-			echo "<h3>".__("Test Mode", 'lang_webshop').": ".$test_mode."</h3>";
+			if($test_mode == 'yes')
+			{
+				echo "<h3>".__("Test Mode", 'lang_webshop').": ".$test_mode."</h3>";
+			}
 
 			echo "<table".apply_filters('get_table_attr', "").">";
 
@@ -137,7 +140,7 @@ echo "<div class='wrap'>
 					}
 
 					echo "<tr>
-						<th></th>
+						<th class='strong'>".__("Total Price", 'lang_webshop')."</th>
 						<th></th>
 						<th>".$total_price." ".$paid_currency." ".$paid_tax_display_prefix."</th>
 					</tr>";
