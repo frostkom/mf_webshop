@@ -1277,6 +1277,27 @@ class mf_webshop
 
 		return $post_url.(strpos($post_url, "?") ? "&" : "?")."order_key=".$obj_encryption->encrypt($post_id, md5(AUTH_KEY));
 	}
+	
+	function send_confirmation_buyer($data)
+	{
+		$mail_to = $this->order_details['contact_email'];
+		$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
+		$mail_content = sprintf(__("Go to %s to see your order. As long as the order is open, and not finalized, you can add to the order and change your information through this link.", 'lang_webshop'), $data['return_url']);
+
+		$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+
+		if($sent)
+		{
+			//echo "Sent: ".$mail_to.", ".$mail_subject.", ".$mail_content;
+
+			update_post_meta($data['post_id'], $this->meta_prefix.'order_confirmation_buyer_sent', date("Y-m-d H:i:s"));
+		}
+
+		/*else
+		{
+			echo "NOT sent: ".$mail_to.", ".$mail_subject.", ".$mail_content;
+		}*/
+	}
 
 	function save_payment_success($data)
 	{
@@ -1329,8 +1350,7 @@ class mf_webshop
 			do_log(__FUNCTION__.": The payment was successful but the order was not updated correctly (".var_export($post_data, true).")");
 		}
 
-		//$return_url = get_permalink($data['post_id']);
-		$return_url = $this->get_order_url($data['post_id']);
+		$data['return_url'] = $this->get_order_url($data['post_id']);
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$this->order_details = [];
@@ -1347,11 +1367,7 @@ class mf_webshop
 
 		if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
 		{
-			$mail_to = $this->order_details['contact_email'];
-			$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
-			$mail_content = sprintf(__("Go to %s to see your order. As long as the order is open, and not finalized, you can add to the order and change your information through this link.", 'lang_webshop'), $return_url);
-
-			$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
+			$this->send_confirmation_buyer($data);
 		}
 
 		if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
@@ -1361,19 +1377,19 @@ class mf_webshop
 			if($data['test_mode'] != 'no')
 			{
 				$mail_subject = __("A TEST order has been placed", 'lang_webshop');
-				$mail_content = sprintf(__("Go to %s to see the order. But be aware that it is only a TEST order.", 'lang_webshop'), $return_url);
+				$mail_content = sprintf(__("Go to %s to see the order. But be aware that it is only a TEST order.", 'lang_webshop'), $data['return_url']);
 			}
 
 			else
 			{
 				$mail_subject = __("An order has been placed", 'lang_webshop');
-				$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $return_url);
+				$mail_content = sprintf(__("Go to %s to see the order", 'lang_webshop'), $data['return_url']);
 			}
 
 			$sent = send_email(array('to' => $setting_webshop_order_confirmation_email, 'subject' => $mail_subject, 'content' => $mail_content));
 		}
 
-		return $return_url;
+		return $data['return_url'];
 	}
 
 	function get_checkout_information()
@@ -5861,6 +5877,11 @@ class mf_webshop
 				{
 					$columns['total_tax'] = __("Tax", 'lang_webshop');
 				}
+
+				if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
+				{
+					$columns['order_confirmation_buyer_sent'] = __("Confirmation", 'lang_webshop');
+				}
 			break;
 
 			case $this->post_type_location:
@@ -6370,6 +6391,48 @@ class mf_webshop
 							$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
 							echo $post_meta." ".$paid_currency." ".$paid_tax_display_prefix;
+						}
+					break;
+
+					case 'order_confirmation_buyer_sent':
+						if(get_post_status($post_id) == 'publish')
+						{
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+							if(isset($_GET['btnConfirmationBuyerSend']) && wp_verify_nonce($_REQUEST['_wpnonce_confirmation_buyer_send'], 'confirmation_buyer_send_'.$post_id) && !($post_meta > DEFAULT_DATE))
+							{
+								$return_url = $this->get_order_url($post_id);
+
+								$obj_encryption = new mf_encryption(__CLASS__);
+								$this->order_details = [];
+
+								foreach($this->arr_meta_keys as $meta_key)
+								{
+									$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+									if($this->order_details[$meta_key] != '')
+									{
+										$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
+									}
+								}
+
+								$this->send_confirmation_buyer(['post_id' => $post_id, 'return_url' => $return_url]);
+
+								$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+							}
+
+							if($post_meta > DEFAULT_DATE)
+							{
+								echo format_date($post_meta);
+							}
+
+							else
+							{
+								echo "<i class='fa fa-times red'></i>
+								<div class='row-actions'>
+									<a href='".wp_nonce_url("edit.php?post_type=".$this->post_type_orders."&paged=".check_var('paged', 'int', true, 1)."&btnConfirmationBuyerSend", 'confirmation_buyer_send_'.$post_id, '_wpnonce_confirmation_buyer_send')."'".make_link_confirm().">".__("Send", 'lang_webshop')."</a>
+								</div>";
+							}
 						}
 					break;
 
