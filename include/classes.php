@@ -3342,8 +3342,8 @@ class mf_webshop
 					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
 				."</h1>"
 				.get_notification()
-				."<p>#".$order_number." @ ".format_date($order_date)."</p>
-				<ul class='grid_columns'>";
+				."<p>#".$order_id."</p>
+				<ul class='grid_columns'>"; // @ ".format_date($order_date)."
 
 					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 					{
@@ -3474,11 +3474,14 @@ class mf_webshop
 										{
 											$j = 0;
 
-											foreach($order_detail as $key => $value)
+											if(is_array($order_detail))
 											{
-												$out .= ($j > 0 ? ", " : "").$arr_checkout_information[$checkout_name]['data'][$value];
+												foreach($order_detail as $key => $value)
+												{
+													$out .= ($j > 0 ? ", " : "").$arr_checkout_information[$checkout_name]['data'][$value];
 
-												$j++;
+													$j++;
+												}
 											}
 										}
 
@@ -5735,6 +5738,49 @@ class mf_webshop
 		}
 	}
 
+	function the_title($title, $post_id)
+	{
+		// Only touch this in wp-admin, on the list table for our post type
+		if(!is_admin() || !function_exists('get_current_screen'))
+		{
+			return $title;
+		}
+
+		$screen = get_current_screen();
+
+		if($screen && $screen->id === 'edit-'.$this->post_type_orders && $screen->post_type === $this->post_type_orders)
+		{
+			$post = get_post($post_id);
+
+			if($post && $post->post_type === $this->post_type_orders)
+			{
+				$title = "#".$post_id;
+
+				$obj_encryption = new mf_encryption(__CLASS__);
+				$this->order_details = [];
+
+				$this->order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+
+				foreach($this->arr_meta_keys as $meta_key)
+				{
+					$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+					if($this->order_details[$meta_key] != '')
+					{
+						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
+					}
+				}
+
+				if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+				{
+					$title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
+				}
+			}
+		}
+
+		return $title;
+	}
+
 	function page_row_actions($arr_actions, $post)
 	{
 		switch($post->post_type)
@@ -5866,7 +5912,7 @@ class mf_webshop
 
 			case $this->post_type_orders:
 				$columns['products'] = __("Products", 'lang_webshop');
-				$columns['details'] = __("Details", 'lang_webshop');
+				//$columns['details'] = __("Details", 'lang_webshop');
 				$columns['order_status'] = __("Status", 'lang_webshop');
 				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
@@ -6326,10 +6372,10 @@ class mf_webshop
 							}
 						}
 
-						if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+						/*if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
 						{
 							echo "<p>".$this->order_details['first_name']." ".$this->order_details['last_name']."</p>";
-						}
+						}*/
 
 						if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 						{

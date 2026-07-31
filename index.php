@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: Adds functionality for a webshop
-Version: 2.2.10.16
+Version: 2.2.10.17
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -41,15 +41,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('restrict_manage_posts', array($obj_webshop, 'restrict_manage_posts'));
 		add_action('pre_get_posts', array($obj_webshop, 'pre_get_posts'));
 
+		add_filter('the_title', array($obj_webshop, 'the_title'), 10, 2);
+
 		add_filter('page_row_actions', array($obj_webshop, 'page_row_actions'), 10, 2);
 
 		add_filter('posts_orderby', array($obj_webshop, 'posts_orderby'), 10, 2);
 
 		add_filter('manage_posts_columns', array($obj_webshop, 'column_header'), 5);
 		add_action('manage_pages_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
-
-		//add_filter('manage_'.$obj_webshop->post_type_orders.'_posts_columns', array($obj_webshop, 'column_header'), 5);
-		//add_action('manage_'.$obj_webshop->post_type_orders.'_posts_custom_column', array($obj_webshop, 'column_cell'), 5, 2);
 
 		add_filter('display_post_states', array($obj_webshop, 'display_post_states'), 10, 2);
 
