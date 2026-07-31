@@ -3572,12 +3572,53 @@ class mf_webshop
 
 					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
+					$payment_method_name = $this->get_payment_method_name($payment_method);
+
 					$out .= "<h2>".__("Summary", 'lang_webshop')."</h2>
 					<table".apply_filters('get_table_attr', "").">
 						<tbody>
 							<tr>
 								<td>".__("Payment Method", 'lang_webshop')."</td>
-								<td>".$this->get_payment_method_name($payment_method)."</td>
+								<td>"
+									.$payment_method_name;
+
+									switch($payment_method)
+									{
+										case 'swish_manual':
+											if($order_status == 'ordered')
+											{
+												//$out .= "<p>".__()."</p>";
+
+												$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
+
+												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".$order_number."&src=qr";
+
+												$out .= "<div class='swish_manual_form'>";
+
+													$step_number = 1;
+
+													if(is_plugin_active("mf_qr_code/index.php"))
+													{
+														mf_enqueue_script('script_webshop_order_confirmation_swish_manual', $plugin_include_url."script_order_confirmation_swish_manual.js", array(
+															'ajax_url' => admin_url('admin-ajax.php'),
+															'swish_link' => $swish_link,
+														));
+
+														$out .= "<p class='strong'>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</p>
+														<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
+
+														$step_number++;
+													}
+
+													$out .= "<p class='strong'>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</p>"
+													."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
+
+												$out .= "</div>";
+											}
+										break;
+									}
+
+								$out .= "</td>
 							</tr>";
 
 							if(IS_SUPER_ADMIN && $test_mode != 'no')
@@ -9303,7 +9344,7 @@ class mf_webshop
 				case 'stock':
 					$product_amount_left = ($data['meta'] - $this->get_amount_in_carts($this->product_id));
 
-					$content = "<strong>".$symbol_code.$data['title']."</strong><span class='product_amount_left'>".$product_amount_left."</span>";
+					$content = "<strong>".$symbol_code.$data['title']."</strong><span class='product_amount_left'>".($product_amount_left > 0 ? $product_amount_left : 0)."</span>";
 				break;
 
 				default:
