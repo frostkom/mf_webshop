@@ -1305,8 +1305,29 @@ class mf_webshop
 
 		$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
 
+		$post_title = "#".$data['post_id'];
+
+		$obj_encryption = new mf_encryption(__CLASS__);
+		$this->order_details = [];
+
+		foreach($this->arr_meta_keys as $meta_key)
+		{
+			$this->order_details[$meta_key] = get_post_meta($data['post_id'], $this->meta_prefix.$meta_key, true);
+
+			if($this->order_details[$meta_key] != '')
+			{
+				$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
+			}
+		}
+
+		if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+		{
+			$post_title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
+		}
+
 		$post_data = array(
 			'ID' => $data['post_id'],
+			'post_title' => $post_title,
 			'post_status' => 'publish',
 			'meta_input' => array(
 				$this->meta_prefix.'payment_method_id' => $data['payment_method_id'],
@@ -1351,19 +1372,6 @@ class mf_webshop
 		}
 
 		$data['return_url'] = $this->get_order_url($data['post_id']);
-
-		$obj_encryption = new mf_encryption(__CLASS__);
-		$this->order_details = [];
-
-		foreach($this->arr_meta_keys as $meta_key)
-		{
-			$this->order_details[$meta_key] = get_post_meta($data['post_id'], $this->meta_prefix.$meta_key, true);
-
-			if($this->order_details[$meta_key] != '')
-			{
-				$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
-			}
-		}
 
 		if(get_option('setting_webshop_order_confirmation_buyer') == 'yes')
 		{
@@ -3113,7 +3121,7 @@ class mf_webshop
 			}
 
 			$out .= "<form".apply_filters('get_form_attr', "").">"
-				.get_notification()
+				.get_notification(array('add_container' => true))
 				.show_select(array('data' => $arr_order_status, 'name' => 'order_status', 'text' => __("Status", 'lang_webshop'), 'value' => $order_status))
 				."<div".get_form_button_classes().">"
 					.show_button(array('name' => 'btnWebshopOrderUpdate', 'text' => __("Update", 'lang_webshop')))
@@ -3127,6 +3135,7 @@ class mf_webshop
 			switch($order_status)
 			{
 				case 'unknown':
+				case 'repaid':
 				case 'cancelled':
 				case 'failed':
 				case 'wrong_amount':
@@ -3189,6 +3198,7 @@ class mf_webshop
 						$post_data = array(
 							'post_type' => $this->post_type_orders,
 							'post_status' => 'draft',
+							//'post_title' => $this->order_cart_hash,
 							'post_title' => $this->order_cart_hash,
 							'meta_input' => apply_filters('filter_meta_input', array(
 								$this->meta_prefix.'cart_hash' => $this->order_cart_hash,
@@ -3316,16 +3326,6 @@ class mf_webshop
 
 								$out .= "</p>";
 
-								if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']))
-								{
-									$out .= "<form".apply_filters('get_form_attr', "").">"
-										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
-											.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
-										."</div>"
-									."</form>";
-								}
-
 							$out .= "</div>
 						</li>";
 					}
@@ -3348,16 +3348,6 @@ class mf_webshop
 									}
 
 								$out .= "</p>";
-
-								if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']))
-								{
-									$out .= "<form".apply_filters('get_form_attr', "").">"
-										."<div".get_form_button_classes().">"
-											.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change", 'lang_webshop')))
-											.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
-										."</div>"
-									."</form>";
-								}
 
 							$out .= "</div>
 						</li>";
@@ -3460,6 +3450,16 @@ class mf_webshop
 
 				$out .= "</ul>";
 
+				if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']))
+				{
+					$out .= "<form".apply_filters('get_form_attr', "").">"
+						."<div".get_form_button_classes().">"
+							.show_button(array('name' => 'btnWebshopOrderChange', 'text' => __("Change Information", 'lang_webshop')))
+							.wp_nonce_field('order_change_'.$order_id, '_wpnonce_order_change', true, false)
+						."</div>"
+					."</form>";
+				}
+
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
 					$setting_webshop_tax_display = get_option('setting_webshop_tax_display');
@@ -3538,8 +3538,6 @@ class mf_webshop
 										case 'swish_manual':
 											if($order_status == 'ordered')
 											{
-												//$out .= "<p>".__()."</p>";
-
 												$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
 
 												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".$order_number."&src=qr";
@@ -5727,15 +5725,29 @@ class mf_webshop
 					);
 				}
 			}
+
+			else if(substr($post_type, 0, strlen($this->post_type_orders)) == $this->post_type_orders)
+			{
+				// Has to be decrypted first
+				/*$wp_query->query_vars['meta_query'] = array(
+					array(
+						'key' => $this->meta_prefix.'first_name',
+						'value' => 'yes',
+						'compare' => '=',
+					),
+				);*/
+			}
 		}
 	}
 
-	function the_title($title, $post_id)
+	/*function the_title($post_title, $post_id) // This can all be removed later
 	{
+		global $wpdb;
+
 		// Only touch this in wp-admin, on the list table for our post type
 		if(!is_admin() || !function_exists('get_current_screen'))
 		{
-			return $title;
+			return $post_title;
 		}
 
 		$screen = get_current_screen();
@@ -5744,9 +5756,9 @@ class mf_webshop
 		{
 			$post = get_post($post_id);
 
-			if($post && $post->post_type === $this->post_type_orders)
+			if($post && $post->post_type === $this->post_type_orders && substr($post_title, 0, 1) != "#")
 			{
-				$title = "#".$post_id;
+				$post_title = "#".$post_id;
 
 				$obj_encryption = new mf_encryption(__CLASS__);
 				$this->order_details = [];
@@ -5765,13 +5777,16 @@ class mf_webshop
 
 				if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
 				{
-					$title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
+					$post_title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
+
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->posts." SET post_title = %s WHERE ID = '%d'", $post_title, $post_id));
+					//wp_update_post(array('ID' => $post_id, 'post_title' => $post_title), true);
 				}
 			}
 		}
 
-		return $title;
-	}
+		return $post_title;
+	}*/
 
 	function page_row_actions($arr_actions, $post)
 	{
@@ -8659,7 +8674,9 @@ class mf_webshop
 
 				else
 				{
-					return new WP_REST_Response(['error' => __("I am sorry. The payment failed or requires action", 'lang_webshop')], 400);
+					do_log(__FUNCTION__." - Unknown response: ".var_export($arr_json, true));
+
+					return new WP_REST_Response(['error' => __("I am sorry. The payment failed or requires action", 'lang_webshop')." (".$arr_json['status'].")"], 400);
 				}
 			}
 		}

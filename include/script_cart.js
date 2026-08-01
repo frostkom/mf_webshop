@@ -2,7 +2,44 @@ jQuery(function($)
 {
 	var dom_obj_widget = $(".widget.webshop_cart"),
 		countdown_interval,
-		dom_total_sum = 0;
+		dom_total_sum;
+
+	function display_payment_alternatives_or_not()
+	{
+		var is_all_entered = true;
+
+		$(".order_details input[required]").each(function()
+		{
+			if($(this).val().trim() === '')
+			{
+				is_all_entered = false;
+				return false;
+			}
+		});
+
+		if(is_all_entered == true)
+		{
+			$(".payment_require_information").addClass('hide');
+
+			if(dom_total_sum > 0)
+			{
+				$(".payment_alternatives:not(.payment_alternative_free)").removeClass('hide');
+				$(".payment_alternatives.payment_alternative_free").addClass('hide');
+			}
+
+			else if(dom_total_sum === 0)
+			{
+				$(".payment_alternatives:not(.payment_alternative_free)").addClass('hide');
+				$(".payment_alternatives.payment_alternative_free").removeClass('hide');
+			}
+		}
+
+		else
+		{
+			$(".payment_alternatives").addClass('hide');
+			$(".payment_require_information").removeClass('hide');
+		}
+	}
 
 	function render_cart(data)
 	{
@@ -157,12 +194,12 @@ jQuery(function($)
 					dom_obj_widget.find(".cart_countdown").removeClass('hide');
 				}
 
-				dom_obj_widget.find(".cart_totals, .order_payment").removeClass('hide');
+				dom_obj_widget.find(".cart_totals").removeClass('hide');
 			}
 
 			else
 			{
-				dom_obj_widget.find(".cart_countdown, .cart_totals, .order_payment").addClass('hide');
+				dom_obj_widget.find(".cart_countdown, .cart_totals").addClass('hide');
 			}
 
 			display_payment_alternatives_or_not();
@@ -198,43 +235,6 @@ jQuery(function($)
 				}
 			}
 		});
-	}
-
-	function display_payment_alternatives_or_not()
-	{
-		var is_all_entered = true;
-
-		$(".order_details input[required]").each(function()
-		{
-			if($(this).val().trim() === '')
-			{
-				is_all_entered = false;
-				return false;
-			}
-		});
-
-		if(is_all_entered == true)
-		{
-			$(".payment_require_information").addClass('hide');
-
-			if(dom_total_sum > 0)
-			{
-				$(".payment_alternatives:not(.payment_alternative_free)").removeClass('hide');
-				$(".payment_alternatives.payment_alternative_free").addClass('hide');
-			}
-
-			else
-			{
-				$(".payment_alternatives:not(.payment_alternative_free)").addClass('hide');
-				$(".payment_alternatives.payment_alternative_free").removeClass('hide');
-			}
-		}
-
-		else
-		{
-			$(".payment_alternatives").addClass('hide');
-			$(".payment_require_information").removeClass('hide');
-		}
 	}
 
 	function get_webshop_cart()
