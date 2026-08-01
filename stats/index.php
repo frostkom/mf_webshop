@@ -18,7 +18,7 @@ echo "<div class='wrap'>
 
 		$order_status = get_post_meta($order_id, $obj_webshop->meta_prefix.'order_status', true);
 
-		if(in_array($order_status, array('paid', 'sent', 'finalized')))
+		if(in_array($order_status, array('ordered', 'paid', 'sent', 'finalized')))
 		{
 			$payment_method = get_post_meta($order_id, $obj_webshop->meta_prefix.'payment_method', true);
 			$test_mode = get_post_meta($order_id, $obj_webshop->meta_prefix.'test_mode', true);
@@ -74,9 +74,9 @@ echo "<div class='wrap'>
 			{
 				foreach($arr_products as $key => $arr_product)
 				{
-					if(!isset($arr_total_products_type[$test_mode][$arr_product['id']]))
+					if(!isset($arr_total_products_type[$order_status][$test_mode][$arr_product['id']]))
 					{
-						$arr_total_products_type[$test_mode][$arr_product['id']] = array(
+						$arr_total_products_type[$order_status][$test_mode][$arr_product['id']] = array(
 							'total_amount' => 0,
 							'total_price' => 0,
 							'paid_currency' => $paid_currency,
@@ -84,17 +84,17 @@ echo "<div class='wrap'>
 						);
 					}
 
-					$arr_total_products_type[$test_mode][$arr_product['id']]['total_amount'] += $arr_product['amount'];
-					$arr_total_products_type[$test_mode][$arr_product['id']]['total_price'] += ($arr_product['price'] * $arr_product['amount']);
+					$arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['total_amount'] += $arr_product['amount'];
+					$arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['total_price'] += ($arr_product['price'] * $arr_product['amount']);
 
-					if($paid_currency != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'])
+					if($paid_currency != $arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['paid_currency'])
 					{
-						$error_text = __("Paid currency is not the same on all orders!", 'lang_webshop')." (".$paid_currency." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_currency'].")";
+						$error_text = __("Paid currency is not the same on all orders!", 'lang_webshop')." (".$paid_currency." != ".$arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['paid_currency'].")";
 					}
 
-					else if($paid_tax_display != $arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'])
+					else if($paid_tax_display != $arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['paid_tax_display'])
 					{
-						$error_text = __("Paid tax is not the same on all orders!", 'lang_webshop')." (".$paid_tax_display." != ".$arr_total_products_type[$test_mode][$arr_product['id']]['paid_tax_display'].")";
+						$error_text = __("Paid tax is not the same on all orders!", 'lang_webshop')." (".$paid_tax_display." != ".$arr_total_products_type[$order_status][$test_mode][$arr_product['id']]['paid_tax_display'].")";
 					}
 				}
 			}
@@ -105,57 +105,64 @@ echo "<div class='wrap'>
 
 	if(count($arr_total_products_type) > 0)
 	{
-		foreach($arr_total_products_type as $test_mode => $arr_total_products)
+		$arr_order_statuses = $obj_webshop->get_order_status_for_select();
+
+		foreach($arr_total_products_type as $order_status => $arr_total_products_status)
 		{
-			$total_price = 0;
-			$paid_currency = $paid_tax_display_prefix = "";
+			echo "<h3>".$arr_order_statuses[$order_status]."</h3>";
 
-			if($test_mode == 'yes')
+			foreach($arr_total_products_status as $test_mode => $arr_total_products)
 			{
-				echo "<h3>".__("Test Mode", 'lang_webshop').": ".$test_mode."</h3>";
-			}
+				$total_price = 0;
+				$paid_currency = $paid_tax_display_prefix = "";
 
-			echo "<table".apply_filters('get_table_attr', "").">";
+				if($test_mode == 'yes')
+				{
+					echo "<h4>".__("Test Mode", 'lang_webshop').": ".$test_mode."</h4>";
+				}
 
-				$arr_header = [];
-				$arr_header[] = __("Product", 'lang_webshop');
-				$arr_header[] = __("Amount", 'lang_webshop');
-				$arr_header[] = __("Total Price", 'lang_webshop');
+				echo "<table".apply_filters('get_table_attr', "").">";
 
-				echo show_table_header($arr_header)
-				."<tbody>";
+					$arr_header = [];
+					$arr_header[] = __("Product", 'lang_webshop');
+					$arr_header[] = __("Amount", 'lang_webshop');
+					$arr_header[] = __("Total Price", 'lang_webshop');
 
-					foreach($arr_total_products as $product_id => $arr_product_total)
-					{
-						$paid_currency = $arr_product_total['paid_currency'];
-						$paid_tax_display_prefix = ($arr_product_total['paid_tax_display'] == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+					echo show_table_header($arr_header)
+					."<tbody>";
+
+						foreach($arr_total_products as $product_id => $arr_product_total)
+						{
+							$paid_currency = $arr_product_total['paid_currency'];
+							$paid_tax_display_prefix = ($arr_product_total['paid_tax_display'] == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+
+							echo "<tr>
+								<td>".get_the_title($product_id)."</td>
+								<td>".$arr_product_total['total_amount']."</td>
+								<td>".$arr_product_total['total_price']." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+							</tr>";
+
+							$total_price += $arr_product_total['total_price'];
+						}
 
 						echo "<tr>
-							<td>".get_the_title($product_id)."</td>
-							<td>".$arr_product_total['total_amount']."</td>
-							<td>".$arr_product_total['total_price']." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+							<th class='strong'>".__("Total Price", 'lang_webshop')."</th>
+							<th></th>
+							<th>".$total_price." ".$paid_currency." ".$paid_tax_display_prefix."</th>
 						</tr>";
 
-						$total_price += $arr_product_total['total_price'];
-					}
+					echo "</tbody>
+				</table>";
 
-					echo "<tr>
-						<th class='strong'>".__("Total Price", 'lang_webshop')."</th>
-						<th></th>
-						<th>".$total_price." ".$paid_currency." ".$paid_tax_display_prefix."</th>
-					</tr>";
+				if(isset($shipping_cost_total[$test_mode]))
+				{
+					echo "<p>".__("Shipping Cost", 'lang_webshop').": ".$shipping_cost_total[$test_mode]." ".$paid_currency." ".$paid_tax_display_prefix."</p>";
+				}
 
-				echo "</tbody>
-			</table>";
-
-			if(isset($shipping_cost_total[$test_mode]))
-			{
-				echo "<p>".__("Shipping Cost", 'lang_webshop').": ".$shipping_cost_total[$test_mode]." ".$paid_currency." ".$paid_tax_display_prefix."</p>";
-			}
-
-			if(isset($invoice_cost_total[$test_mode]))
-			{
-				echo "<p>".__("Invoice Cost", 'lang_webshop').": ".$invoice_cost_total[$test_mode]." ".$paid_currency." ".$paid_tax_display_prefix."</p>";
+				if(isset($invoice_cost_total[$test_mode]))
+				{
+					echo "<p>".__("Invoice Cost", 'lang_webshop').": ".$invoice_cost_total[$test_mode]." ".$paid_currency." ".$paid_tax_display_prefix."</p>";
+				}
 			}
 		}
 	}

@@ -3,7 +3,7 @@
 Plugin Name: MF Webshop
 Plugin URI: https://github.com/frostkom/mf_webshop
 Description: Adds functionality for a webshop
-Version: 2.2.10.18
+Version: 2.2.10.19
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -106,6 +106,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('wp_ajax_nopriv_api_webshop_get_order_cart_hash', array($obj_webshop, 'api_webshop_get_order_cart_hash'));
 	}
 
+	add_filter('filter_rest_authentication_errors', array($obj_webshop, 'filter_rest_authentication_errors'));
 	add_action('rest_api_init', array($obj_webshop, 'rest_api_init'));
 
 	function uninstall_webshop()

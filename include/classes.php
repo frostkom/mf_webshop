@@ -1769,7 +1769,6 @@ class mf_webshop
 		$arr_webshop_input_type = array('first_name', 'last_name', 'email', 'telno', 'address', 'co', 'zip', 'city', 'country');
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		//mf_enqueue_script('underscore');
 		mf_enqueue_style('style_webshop_cart', $plugin_include_url."style_cart.css");
 		mf_enqueue_script('script_webshop_cart_icon', $plugin_include_url."script_cart_icon.js", array(
 			'ajax_url' => admin_url('admin-ajax.php'),
@@ -2088,8 +2087,6 @@ class mf_webshop
 				</tbody>
 			</table>";
 
-			//do_action('load_notification'); // Does not load anyway
-
 			$out .= "<div class='cart_countdown hide notice notice-warning'>
 				<p>".sprintf(__("You have %s left to complete the purchase. If you change the content of your cart or update your information, the counter will restart.", 'lang_webshop'), "<span></span>")."</p>
 			</div>";
@@ -2333,11 +2330,11 @@ class mf_webshop
 							$out .= "<div class='payment_alternatives hide'>"
 								.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
 								."<script src='https://js.stripe.com/v3/'></script>
-									<form id='payment-form'>
+									<form id='form_stripe' class='mf_form'>
 										<div class='notification hide'><div class='error'><p></p></div></div>
-										<div id='card-element' class='card_details'></div>"
+										<div class='card_details'></div>"
 										."<div".get_form_button_classes().">"
-											.show_button(array('text' => $button_title, 'xtra' => "id='submit'"))
+											.show_button(array('text' => $button_title, 'xtra' => "disabled"))
 										."</div>
 									</form>
 
@@ -2358,7 +2355,10 @@ class mf_webshop
 											}
 										};
 
-										var order_cart_hash = '';
+										var order_cart_hash = '',
+											stripe_obj = Stripe('".$public_key."'),
+											card_obj = stripe_obj.elements().create('card', { style: style }),
+											form_obj = document.getElementById('form_stripe');
 
 										fetch('".admin_url('admin-ajax.php')."', {
 											method: 'POST',
@@ -2374,22 +2374,17 @@ class mf_webshop
 											if(data.success)
 											{
 												order_cart_hash = data.order_cart_hash;
+												document.querySelector('#form_stripe .wp-block-button__link').disabled = false;
 											}
-										});";
+										});
 
-										$out .= "var stripe = Stripe('".$public_key."'),
-											elements = stripe.elements(),
-											card = elements.create('card', { style: style });
+										card_obj.mount('.card_details');
 
-										card.mount('#card-element');
-
-										var form = document.getElementById('payment-form');
-
-										form.addEventListener('submit', function(event)
+										form_obj.addEventListener('submit', function(event)
 										{
-											document.querySelector('#submit .total_sum').innerHTML = \"".apply_filters('get_loading_animation', '', ['class' => ''])."\";
+											document.querySelector('#form_stripe .wp-block-button__link .total_sum').innerHTML = \"".apply_filters('get_loading_animation', '', ['class' => ''])."\";
 											event.preventDefault();
-											stripe.createPaymentMethod('card', card).then(function(result)
+											stripe_obj.createPaymentMethod('card', card_obj).then(function(result)
 											{
 												if(result.error)
 												{
@@ -2429,52 +2424,7 @@ class mf_webshop
 										});
 									</script>";
 
-									/*form.addEventListener('submit', function(event)
-									{
-										$('#submit .total_sum').html(\"".apply_filters('get_loading_animation', '', ['class' => ''])."\");
-
-										event.preventDefault();
-
-										stripe.createPaymentMethod('card', card).then(function(result)
-										{
-											if(result.error)
-											{
-												$('.notification').removeClass('hide').find('p').text(result.error.message);
-											}
-
-											else
-											{
-												fetch('/wp-json/".__CLASS__."/process_stripe_payment',
-												{
-													method: 'POST',
-													headers:
-													{
-														'Content-Type': 'application/json'
-													},
-													body: JSON.stringify(
-													{
-														order_id: order_cart_hash,
-														payment_method_id: result.paymentMethod.id,
-														test_mode: '".$test_mode."'
-													})
-												})
-												.then(response => response.json())
-												.then(data => {
-													if(data.success)
-													{
-														location.href = data.return_url;
-													}
-
-													else
-													{
-														$('.notification').removeClass('hide').find('p').text(data.error);
-													}
-												});
-											}
-										});
-									});*/
-
-									if($test_mode != 'no')
+									if($test_mode == 'yes')
 									{
 										$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
 									}
@@ -3130,6 +3080,7 @@ class mf_webshop
 						switch($order_status)
 						{
 							case 'cancelled':
+							case 'repaid':
 								$stock_post_name = $this->get_post_name_for_type('stock');
 
 								if($stock_post_name != '')
@@ -8717,6 +8668,18 @@ class mf_webshop
 		{
 			return new WP_REST_Response(['error' => __("I am sorry but I could not find an order to process", 'lang_webshop')], 400);
 		}
+	}
+
+	function filter_rest_authentication_errors($out)
+	{
+		$request_uri = $_SERVER['REQUEST_URI'];
+
+		if(strpos($request_uri, '/wp-json/'.__CLASS__.'/process_stripe_payment') !== false)
+		{
+			$out = true;
+		}
+
+		return $out;
 	}
 
 	function rest_api_init()

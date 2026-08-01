@@ -29,7 +29,7 @@
 		.webshop_search .grid_columns .product_meta
 		{
 			list-style: inside;
-			padding: 0;
+			padding: .5em 0 0;
 		}
 
 		.webshop_search .grid_columns .product_meta strong
@@ -50,6 +50,11 @@
 				{
 					font-weight: bold;
 				}
+
+		.webshop_search ul.grid_columns .grid_buttons .wp-block-button
+		{
+			margin-top: 0;
+		}
 
 		.webshop_search .grid_columns .read_more_button
 		{
