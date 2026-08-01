@@ -2344,9 +2344,9 @@ class mf_webshop
 										."<div".get_form_button_classes().">"
 											.show_button(array('text' => $button_title, 'xtra' => "disabled"))
 										."</div>
-									</form>
+									</form>";
 
-									<script>
+									$out .= "<script>
 										var style = {
 											base: {
 												border: '.1em solid #4a90e2',
@@ -2362,7 +2362,6 @@ class mf_webshop
 												iconColor: '#fa755a'
 											}
 										};
-
 										var order_cart_hash = '',
 											stripe_obj = Stripe('".$public_key."'),
 											card_obj = stripe_obj.elements().create('card', { style: style }),
@@ -2399,37 +2398,72 @@ class mf_webshop
 													document.querySelector('.notification').classList.remove('hide');
 													document.querySelector('.notification p').textContent = result.error.message;
 												}
+
 												else
 												{
-													fetch('/wp-json/".__CLASS__."/process_stripe_payment',
-													{
-														method: 'POST',
-														headers:
-														{
-															'Content-Type': 'application/json'
-														},
-														body: JSON.stringify(
-														{
-															order_id: order_cart_hash,
-															payment_method_id: result.paymentMethod.id,
-															test_mode: '".$test_mode."'
-														})
-													})
-													.then(response => response.json())
-													.then(data => {
-														if(data.success)
-														{
-															location.href = data.return_url;
-														}
-														else
-														{
-															document.querySelector('.notification').classList.remove('hide');
-															document.querySelector('.notification p').textContent = data.error;
-														}
+													sendPaymentRequest({
+														order_id: order_cart_hash,
+														payment_method_id: result.paymentMethod.id,
+														test_mode: '".$test_mode."'
 													});
 												}
 											});
 										});
+
+										function sendPaymentRequest(payload)
+										{
+											fetch('/wp-json/".__CLASS__."/process_stripe_payment',
+											{
+												method: 'POST',
+												headers:
+												{
+													'Content-Type': 'application/json'
+												},
+												body: JSON.stringify(payload)
+											})
+											.then(response => response.json())
+											.then(handlePaymentResponse)
+											.catch(function(error)
+											{
+												document.querySelector('.notification').classList.remove('hide');
+												document.querySelector('.notification p').textContent = 'Something went wrong. Please try again.';
+											});
+										}
+
+										function handlePaymentResponse(data)
+										{
+											if(data.success)
+											{
+												location.href = data.return_url;
+											}
+
+											else if(data.requires_action)
+											{
+												stripe_obj.confirmCardPayment(data.payment_intent_client_secret).then(function(result)
+												{
+													if(result.error)
+													{
+														document.querySelector('.notification').classList.remove('hide');
+														document.querySelector('.notification p').textContent = result.error.message;
+													}
+
+													else
+													{
+														// result.paymentIntent.status is now 'succeeded' (or possibly 'requires_action' again in rare multi-step 3DS cases)
+														sendPaymentRequest({
+															order_id: order_cart_hash,
+															payment_intent_id: result.paymentIntent.id,
+															test_mode: '".$test_mode."'
+														});
+													}
+												});
+											}
+											else
+											{
+												document.querySelector('.notification').classList.remove('hide');
+												document.querySelector('.notification p').textContent = data.error;
+											}
+										}
 									</script>";
 
 									if($test_mode == 'yes')
@@ -8597,8 +8631,9 @@ class mf_webshop
 
 		$this->order_cart_hash = sanitize_text_field($arr_json['order_id']);
 		$payment_method = 'stripe';
-		$payment_method_id = sanitize_text_field($arr_json['payment_method_id']);
 		$test_mode = sanitize_text_field($arr_json['test_mode']);
+		$payment_intent_id = (isset($arr_json['payment_intent_id']) ? sanitize_text_field($arr_json['payment_intent_id']) : null);
+		$payment_method_id = (isset($arr_json['payment_method_id']) ? sanitize_text_field($arr_json['payment_method_id']) : null);
 
 		if($test_mode != 'no' && in_array('stripe_test', $setting_webshop_payment_alternatives))
 		{
@@ -8620,16 +8655,29 @@ class mf_webshop
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
-		if($wpdb->num_rows > 0)
+		if($wpdb->num_rows == 0)
 		{
-			foreach($result as $r)
-			{
-				$order_id = $r->ID;
-				$return_url = get_permalink($order_id);
+			return new WP_REST_Response(['error' => __("I am sorry but I could not find an order to process", 'lang_webshop')], 400);
+		}
 
+		foreach($result as $r)
+		{
+			$order_id = $r->ID;
+			$return_url = get_permalink($order_id);
+
+			if($payment_intent_id)
+			{
+				// Stage 2: payment was already confirmed client-side via confirmCardPayment.
+				// Just retrieve its current status.
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents/'.$payment_intent_id);
+				curl_setopt($ch, CURLOPT_HTTPGET, true);
+			}
+			else
+			{
+				// Stage 1: creating + attempting a new PaymentIntent
 				$ch = curl_init();
 				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
 					'amount' => ($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
@@ -8639,27 +8687,19 @@ class mf_webshop
 					'confirm' => 'true',
 					'return_url' => $return_url,
 				]));
+			}
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer '.$secret_key]);
+			$content = curl_exec($ch);
+			$arr_json = json_decode($content, true);
 
-				curl_setopt($ch, CURLOPT_HTTPHEADER,
-				[
-					'Authorization: Bearer '.$secret_key,
-				]);
-
-				$content = curl_exec($ch);
-
-				$arr_json = json_decode($content, true);
-
-				if(isset($arr_json['error']))
-				{
-					return new WP_REST_Response(['error' => $arr_json['error']['message']], 400);
-				}
-
-				else if($arr_json['status'] === 'succeeded')
-				{
+			switch($arr_json['status'])
+			{
+				case 'succeeded':
 					$return_url = $this->save_payment_success(array(
 						'post_id' => $order_id,
 						'payment_method' => $payment_method,
-						'payment_method_id' => $payment_method_id,
+						'payment_method_id' => $arr_json['payment_method'],
 						'test_mode' => $test_mode,
 						'order_status' => 'paid',
 						'arr_cart_data' => $arr_cart_data,
@@ -8670,20 +8710,29 @@ class mf_webshop
 						'success' => true,
 						'return_url' => $return_url,
 					];
-				}
+				break;
 
-				else
-				{
-					do_log(__FUNCTION__." - Unknown response: ".var_export($arr_json, true));
+				case 'requires_action':
+					return new WP_REST_Response([
+						'requires_action' => true,
+						'payment_intent_client_secret' => $arr_json['client_secret'],
+						'order_id' => $order_id,
+					], 200);
+				break;
 
-					return new WP_REST_Response(['error' => __("I am sorry. The payment failed or requires action", 'lang_webshop')." (".$arr_json['status'].")"], 400);
-				}
+				default:
+					if(isset($arr_json['error']))
+					{
+						return new WP_REST_Response(['error' => $arr_json['error']['message']], 400);
+					}
+
+					else
+					{
+						do_log(__FUNCTION__." - Unknown response: ".var_export($arr_json, true));
+						return new WP_REST_Response(['error' => __("I am sorry but the payment failed. An administrator has been notified about this.", 'lang_webshop')], 400);
+					}
+				break;
 			}
-		}
-
-		else
-		{
-			return new WP_REST_Response(['error' => __("I am sorry but I could not find an order to process", 'lang_webshop')], 400);
 		}
 	}
 
