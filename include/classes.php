@@ -1288,15 +1288,66 @@ class mf_webshop
 
 		if($sent)
 		{
-			//echo "Sent: ".$mail_to.", ".$mail_subject.", ".$mail_content;
-
 			update_post_meta($data['post_id'], $this->meta_prefix.'order_confirmation_buyer_sent', date("Y-m-d H:i:s"));
+
+			//echo "<p>Sent: ".$mail_to.", ".$mail_subject.", ".$mail_content."</p>";
 		}
 
-		/*else
+		else
 		{
-			echo "NOT sent: ".$mail_to.", ".$mail_subject.", ".$mail_content;
-		}*/
+			//echo "<p>NOT sent: ".$mail_to.", ".$mail_subject.", ".$mail_content."<p>";
+
+			if(get_option('setting_webshop_order_confirmation_buyer_sms') == 'yes' && is_plugin_active("mf_sms/index.php"))
+			{
+				global $obj_sms;
+
+				if(!isset($obj_sms))
+				{
+					$obj_sms = new mf_sms();
+				}
+
+				$setting_sms_senders = get_option('setting_sms_senders');
+
+				if($setting_sms_senders != '')
+				{
+					foreach(array_map('trim', explode(",", $setting_sms_senders)) as $sender)
+					{
+						if($sender != '')
+						{
+							$sms_from = $obj_sms->shorten_sender_name($sender);
+							break;
+						}
+					}
+				}
+
+				else
+				{
+					$sms_from = get_the_author_meta('profile_phone', get_current_user_id());
+
+					if($sms_from == '')
+					{
+						$sms_from = get_user_meta(get_current_user_id(), 'meta_sms_phone', true);
+					}
+				}
+
+				$sms_to = $this->order_details['contact_phone'];
+				$sms_text = $mail_content;
+
+				list($json_output['success'], $json_output['message']) = $obj_sms->send_sms(array('from' => $sms_from, 'to' => $sms_to, 'text' => $sms_text));
+
+				if($json_output['success'])
+				{
+					update_post_meta($data['post_id'], $this->meta_prefix.'order_confirmation_buyer_sent', date("Y-m-d H:i:s"));
+
+					//echo "<p>Sent: ".$sms_from." -> ".$sms_to.", ".$sms_text."</p>";
+				}
+
+				else
+				{
+					//echo "<p>NOT sent: ".$sms_from." -> ".$sms_to.", ".$sms_text." (".var_export($data, true)." -> ".var_export($this->order_details, true).")</p>";
+				}
+			}
+		}
 	}
 
 	function save_payment_success($data)
@@ -4063,8 +4114,14 @@ class mf_webshop
 
 		$arr_settings = array(
 			'setting_webshop_order_confirmation_buyer' => __("Send to Buyer", 'lang_webshop'),
-			'setting_webshop_order_confirmation_admin' => __("Send to Admin", 'lang_webshop'),
 		);
+
+		if(get_option('setting_webshop_order_confirmation_buyer') == 'yes' && is_plugin_active("mf_sms/index.php"))
+		{
+			$arr_settings['setting_webshop_order_confirmation_buyer_sms'] = " - ".__("Send SMS as backup", 'lang_webshop');
+		}
+
+		$arr_settings['setting_webshop_order_confirmation_admin'] = __("Send to Admin", 'lang_webshop');
 
 		if(get_option('setting_webshop_order_confirmation_admin') == 'yes')
 		{
@@ -4369,6 +4426,14 @@ class mf_webshop
 	}
 
 		function setting_webshop_order_confirmation_buyer_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, 'no');
+
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_order_confirmation_buyer_sms_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key, 'no');
@@ -6487,6 +6552,7 @@ class mf_webshop
 							if(isset($_GET['btnConfirmationBuyerSend']) && wp_verify_nonce($_REQUEST['_wpnonce_confirmation_buyer_send'], 'confirmation_buyer_send_'.$post_id) && !($post_meta > DEFAULT_DATE))
 							{
 								$return_url = $this->get_order_url($post_id);
+								$order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
 
 								$obj_encryption = new mf_encryption(__CLASS__);
 								$this->order_details = [];
@@ -6497,7 +6563,7 @@ class mf_webshop
 
 									if($this->order_details[$meta_key] != '')
 									{
-										$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
+										$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_cart_hash));
 									}
 								}
 
