@@ -684,6 +684,47 @@ class mf_webshop
 			}
 			###########
 
+			// Confirm payments
+			###################
+			$payment_status = 'ordered';
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value = %s", $this->meta_prefix.'order_status', $this->post_type_orders, 'publish', $payment_status));
+
+			//do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
+
+			foreach($result as $r)
+			{
+				$order_id = $r->ID;
+
+				$order_cart_hash = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
+				//$order_payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
+				$order_total_sum = get_post_meta($order_id, $this->meta_prefix.'total_sum', true);
+
+				if($order_cart_hash != '' && $order_total_sum > 0)
+				{
+					$data_temp = array('payment_hash' => $order_cart_hash, 'payment_amount' => $order_total_sum, 'info' => $this->post_type_orders.":".$order_id);
+
+					$payment_status_new = apply_filters('get_payment_status', $payment_status, $data_temp);
+
+					if($payment_status_new != $payment_status)
+					{
+						//do_log(__FUNCTION__.": Update #".$order_id." - ".$payment_status." -> ".$payment_status_new);
+						update_post_meta($order_id, $this->meta_prefix.'order_status', $payment_status_new);
+					}
+
+					else
+					{
+						//do_log(__FUNCTION__.": Same status #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
+					}
+				}
+
+				else
+				{
+					//do_log(__FUNCTION__.": No hash or sum #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
+				}
+			}
+			###################
+
 			replace_post_type(array('old' => 'mf_categories', 'new' => 'mf_category'));
 			replace_post_type(array('old' => 'mf_products', 'new' => 'mf_product'));
 			replace_post_type(array('old' => 'mf_custom_categories', 'new' => 'mf_cust_cat'));
@@ -1282,7 +1323,8 @@ class mf_webshop
 	{
 		$mail_to = $this->order_details['contact_email'];
 		$mail_subject = ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
-		$mail_content = sprintf(__("Go to %s to see your order. As long as the order is open, and not finalized, you can add to the order and change your information through this link.", 'lang_webshop'), $data['return_url']);
+		//$mail_content = sprintf(__("Go to %s to see your order. As long as the order is open, and not finalized, you can add to the order and change your information through this link.", 'lang_webshop'), $data['return_url']);
+		$mail_content = sprintf(__("Thank you for your order! If you want to make changes, go to %s", 'lang_webshop'), $data['return_url']);
 
 		$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content));
 
@@ -3627,27 +3669,31 @@ class mf_webshop
 
 												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".$order_number."&src=qr";
 
-												$out .= "<div class='swish_manual_form'>";
+												$out .= get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Not sure that you have paid?", 'lang_webshop')));
 
-													$step_number = 1;
+													$out .= "<div class='swish_manual_form'>";
 
-													if(is_plugin_active("mf_qr_code/index.php"))
-													{
-														mf_enqueue_script('script_webshop_order_confirmation_swish_manual', $plugin_include_url."script_order_confirmation_swish_manual.js", array(
-															'ajax_url' => admin_url('admin-ajax.php'),
-															'swish_link' => $swish_link,
-														));
+														$step_number = 1;
 
-														$out .= "<p class='strong'>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</p>
-														<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
+														if(is_plugin_active("mf_qr_code/index.php"))
+														{
+															mf_enqueue_script('script_webshop_order_confirmation_swish_manual', $plugin_include_url."script_order_confirmation_swish_manual.js", array(
+																'ajax_url' => admin_url('admin-ajax.php'),
+																'swish_link' => $swish_link,
+															));
 
-														$step_number++;
-													}
+															$out .= "<p class='strong'>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</p>
+															<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
 
-													$out .= "<p class='strong'>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</p>"
-													."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
+															$step_number++;
+														}
 
-												$out .= "</div>";
+														$out .= "<p class='strong'>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</p>"
+														."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
+
+													$out .= "</div>";
+
+												$out .= get_toggler_container(array('type' => 'end'));
 											}
 										break;
 									}
@@ -5839,54 +5885,6 @@ class mf_webshop
 		}
 	}
 
-	/*function the_title($post_title, $post_id) // This can all be removed later
-	{
-		global $wpdb;
-
-		// Only touch this in wp-admin, on the list table for our post type
-		if(!is_admin() || !function_exists('get_current_screen'))
-		{
-			return $post_title;
-		}
-
-		$screen = get_current_screen();
-
-		if($screen && $screen->id === 'edit-'.$this->post_type_orders && $screen->post_type === $this->post_type_orders)
-		{
-			$post = get_post($post_id);
-
-			if($post && $post->post_type === $this->post_type_orders && substr($post_title, 0, 1) != "#")
-			{
-				$post_title = "#".$post_id;
-
-				$obj_encryption = new mf_encryption(__CLASS__);
-				$this->order_details = [];
-
-				$this->order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
-
-				foreach($this->arr_meta_keys as $meta_key)
-				{
-					$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
-
-					if($this->order_details[$meta_key] != '')
-					{
-						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
-					}
-				}
-
-				if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
-				{
-					$post_title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
-
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->posts." SET post_title = %s WHERE ID = '%d'", $post_title, $post_id));
-					//wp_update_post(array('ID' => $post_id, 'post_title' => $post_title), true);
-				}
-			}
-		}
-
-		return $post_title;
-	}*/
-
 	function page_row_actions($arr_actions, $post)
 	{
 		switch($post->post_type)
@@ -6018,7 +6016,7 @@ class mf_webshop
 
 			case $this->post_type_orders:
 				$columns['products'] = __("Products", 'lang_webshop');
-				//$columns['details'] = __("Details", 'lang_webshop');
+				$columns['details'] = __("Details", 'lang_webshop');
 				$columns['order_status'] = __("Status", 'lang_webshop');
 				$columns['payment_method'] = __("Payment", 'lang_webshop');
 				$columns['total_sum'] = __("Total", 'lang_webshop');
@@ -6483,9 +6481,19 @@ class mf_webshop
 							echo "<p>".$this->order_details['first_name']." ".$this->order_details['last_name']."</p>";
 						}*/
 
+						if($this->order_details['contact_email'] != '')
+						{
+							echo "<a href='mailto:".$this->order_details['contact_email']."' title='".$this->order_details['contact_email']."'><i class='fa fa-paper-plane fa-lg'></i></a> ";
+						}
+
+						if($this->order_details['contact_phone'] != '')
+						{
+							echo "<a href='".format_phone_no($this->order_details['contact_phone'])."' title='".$this->order_details['contact_phone']."'><i class='fa fa-phone fa-lg'></i></a> ";
+						}
+
 						if($this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 						{
-							echo "<p>".$this->order_details['address_street'].", ".$this->order_details['address_zip']." ".$this->order_details['address_city']."</p>";
+							echo "<i class='fa fa-home blue fa-lg' title='".$this->order_details['address_street'].", ".$this->order_details['address_zip']." ".$this->order_details['address_city']."'></i> ";
 						}
 					break;
 
