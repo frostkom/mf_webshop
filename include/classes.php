@@ -702,7 +702,7 @@ class mf_webshop
 
 				if($order_cart_hash != '' && $order_total_sum > 0)
 				{
-					$data_temp = array('payment_hash' => $order_cart_hash, 'payment_amount' => $order_total_sum, 'info' => $this->post_type_orders.":".$order_id);
+					$data_temp = array('payment_hash' => $order_id."-".$order_cart_hash, 'payment_amount' => $order_total_sum, 'info' => $this->post_type_orders.":".$order_id);
 
 					$payment_status_new = apply_filters('get_payment_status', $payment_status, $data_temp);
 
@@ -1838,6 +1838,7 @@ class mf_webshop
 
 				$json_output['success'] = true;
 				$json_output['response_webshop_cart'] = array(
+					'order_id' => $order_id,
 					'order_number' => $this->order_cart_hash,
 					'products' => $arr_products,
 					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
@@ -2302,8 +2303,9 @@ class mf_webshop
 									if($setting_webshop_swish_company_number != '')
 									{
 										$setting_webshop_currency = get_option('setting_webshop_currency');
+										$setting_webshop_swish_company_prefix = get_option('setting_webshop_swish_company_prefix');
 
-										$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=[order_number]&src=qr";
+										$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=[total_sum]&cur=".$setting_webshop_currency."&msg=".($setting_webshop_swish_company_prefix != '' ? $setting_webshop_swish_company_prefix." " : "")."[order_id]-[order_number]&src=qr";
 
 										$out .= "<div class='payment_alternatives hide'>"
 											.get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Swish", 'lang_webshop'), 'is_open' => ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'swish_manual'))) //." (".__("Manual", 'lang_webshop').")"
@@ -3666,8 +3668,9 @@ class mf_webshop
 											if($order_status == 'ordered')
 											{
 												$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
+												$setting_webshop_swish_company_prefix = get_option('setting_webshop_swish_company_prefix');
 
-												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".$order_number."&src=qr";
+												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".($setting_webshop_swish_company_prefix != '' ? $setting_webshop_swish_company_prefix." " : "").$order_id."-".$order_number."&src=qr";
 
 												$out .= get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Not sure that you have paid?", 'lang_webshop')));
 
@@ -4130,6 +4133,7 @@ class mf_webshop
 		if(in_array('swish_manual', $setting_webshop_payment_alternatives))
 		{
 			$arr_settings['setting_webshop_swish_company_number'] = __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")";
+			$arr_settings['setting_webshop_swish_company_prefix'] = " - ".__("Payment Prefix", 'lang_webshop');
 		}
 
 		if(in_array('swish', $setting_webshop_payment_alternatives))
@@ -4385,6 +4389,14 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_swish_company_prefix_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('name' => $setting_key, 'value' => $option, 'xtra' => "maxlength='3'"));
 		}
 
 		function setting_webshop_swish_merchant_number_callback()
@@ -5802,29 +5814,39 @@ class mf_webshop
 	{
 		global $post_type;
 
-		if(isset($post_type) && substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
+		if(isset($post_type))
 		{
-			$location_post_name = $this->get_post_name_for_type('location');
-
-			if($location_post_name != '')
+			if(substr($post_type, 0, strlen($this->post_type_products)) == $this->post_type_products)
 			{
-				$strFilterLocation = check_var('strFilterLocation');
+				$location_post_name = $this->get_post_name_for_type('location');
 
-				$arr_data = [];
-				get_post_children(array('post_type' => $this->post_type_location, 'post_status' => '', 'add_choose_here' => true), $arr_data);
-
-				if(count($arr_data) > 2)
+				if($location_post_name != '')
 				{
-					echo show_select(array('data' => $arr_data, 'name' => 'strFilterLocation', 'value' => $strFilterLocation));
+					$strFilterLocation = check_var('strFilterLocation');
+
+					$arr_data = [];
+					get_post_children(array('post_type' => $this->post_type_location, 'post_status' => '', 'add_choose_here' => true), $arr_data);
+
+					if(count($arr_data) > 2)
+					{
+						echo show_select(array('data' => $arr_data, 'name' => 'strFilterLocation', 'value' => $strFilterLocation));
+					}
 				}
 			}
-		}
 
-		else if(isset($post_type) && substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
-		{
-			$strFilterPlacement = check_var('strFilterPlacement');
+			else if(substr($post_type, 0, strlen($this->post_type_document_type)) == $this->post_type_document_type)
+			{
+				$strFilterPlacement = check_var('strFilterPlacement');
 
-			echo show_select(array('data' => $this->get_doc_types_for_select(), 'name' => 'strFilterPlacement', 'value' => $strFilterPlacement));
+				echo show_select(array('data' => $this->get_doc_types_for_select(), 'name' => 'strFilterPlacement', 'value' => $strFilterPlacement));
+			}
+
+			else if(substr($post_type, 0, strlen($this->post_type_orders)) == $this->post_type_orders)
+			{
+				$strFilterStatus = check_var('strFilterStatus');
+
+				echo show_select(array('data' => $this->get_order_status_for_select(), 'name' => 'strFilterStatus', 'value' => $strFilterStatus));
+			}
 		}
 	}
 
@@ -5873,6 +5895,19 @@ class mf_webshop
 
 			else if(substr($post_type, 0, strlen($this->post_type_orders)) == $this->post_type_orders)
 			{
+				$strFilterStatus = check_var('strFilterStatus');
+
+				if($strFilterStatus != '')
+				{
+					$wp_query->query_vars['meta_query'] = array(
+						array(
+							'key' => $this->meta_prefix.'order_status',
+							'value' => $strFilterStatus,
+							'compare' => '=',
+						),
+					);
+				}
+
 				// Has to be decrypted first
 				/*$wp_query->query_vars['meta_query'] = array(
 					array(
