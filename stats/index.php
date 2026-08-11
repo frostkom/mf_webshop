@@ -138,7 +138,7 @@ echo "<div class='wrap'>
 
 							echo "<tr>
 								<td>".get_the_title($product_id)."</td>
-								<td>".$arr_product_total['total_amount']."</td>
+								<td><a href='".admin_url("edit.php?post_type=".$obj_webshop->post_type_orders."&strFilterStatus=".$order_status."&intFilterProductID=".$product_id)."'>".$arr_product_total['total_amount']."</a></td>
 								<td>".$arr_product_total['total_price']." ".$paid_currency." ".$paid_tax_display_prefix."</td>
 							</tr>";
 

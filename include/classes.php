@@ -5167,7 +5167,7 @@ class mf_webshop
 				);
 
 				$arr_data = [];
-				get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type_products, 'exclude' [$post_id]), $arr_data);
+				get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type_products, 'exclude' => [$post_id]), $arr_data);
 
 				$fields_settings[] = array(
 					'name' => __("Related Products", 'lang_webshop'),
@@ -5844,8 +5844,14 @@ class mf_webshop
 			else if(substr($post_type, 0, strlen($this->post_type_orders)) == $this->post_type_orders)
 			{
 				$strFilterStatus = check_var('strFilterStatus');
+				$intFilterProductID = check_var('intFilterProductID');
 
 				echo show_select(array('data' => $this->get_order_status_for_select(), 'name' => 'strFilterStatus', 'value' => $strFilterStatus));
+
+				$arr_data = [];
+				get_post_children(array('add_choose_here' => true, 'post_type' => $this->post_type_products), $arr_data);
+
+				echo show_select(array('data' => $arr_data, 'name' => 'intFilterProductID', 'value' => $intFilterProductID));
 			}
 		}
 	}
@@ -5896,16 +5902,37 @@ class mf_webshop
 			else if(substr($post_type, 0, strlen($this->post_type_orders)) == $this->post_type_orders)
 			{
 				$strFilterStatus = check_var('strFilterStatus');
+				$intFilterProductID = check_var('intFilterProductID');
 
-				if($strFilterStatus != '')
+				$meta_query = array();
+
+				if ($strFilterStatus != '')
 				{
-					$wp_query->query_vars['meta_query'] = array(
-						array(
-							'key' => $this->meta_prefix.'order_status',
-							'value' => $strFilterStatus,
-							'compare' => '=',
-						),
+					$meta_query[] = array(
+						'key'     => $this->meta_prefix.'order_status',
+						'value'   => $strFilterStatus,
+						'compare' => '=',
 					);
+				}
+
+				if ($intFilterProductID > 0)
+				{
+					$id = (string)(int)$intFilterProductID; // sanitize: force numeric, then back to string
+					$len = strlen($id);
+					$meta_query[] = array(
+						'key'     => $this->meta_prefix.'products',
+						'value'   => '"id";s:'.$len.':"'.$id.'";',
+						'compare' => 'LIKE',
+					);
+				}
+
+				if (!empty($meta_query))
+				{
+					if (count($meta_query) > 1)
+					{
+						$meta_query['relation'] = 'AND'; // or 'OR', depending on what you want
+					}
+					$wp_query->query_vars['meta_query'] = $meta_query;
 				}
 
 				// Has to be decrypted first
