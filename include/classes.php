@@ -1398,7 +1398,8 @@ class mf_webshop
 
 		$setting_webshop_tax_display = get_option('setting_webshop_tax_display', 'yes');
 
-		$post_title = "#".$data['post_id'];
+		//$post_title = "#".$data['post_id']." ";
+		$post_title = "";
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$this->order_details = [];
@@ -1415,7 +1416,7 @@ class mf_webshop
 
 		if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
 		{
-			$post_title .= " ".$this->order_details['first_name']." ".$this->order_details['last_name'];
+			$post_title .= $this->order_details['first_name']." ".$this->order_details['last_name'];
 		}
 
 		$post_data = array(
@@ -1499,18 +1500,22 @@ class mf_webshop
 			'first_name' => array(
 				'type' => 'text',
 				'name' => __("First Name", 'lang_webshop'),
+				'xtra' => " data-fetch_info='first_name' required",
 			),
 			'last_name' => array(
 				'type' => 'text',
 				'name' => __("Last Name", 'lang_webshop'),
+				'xtra' => " data-fetch_info='last_name' required",
 			),
 			'email' => array(
 				'type' => 'email',
 				'name' => __("E-mail", 'lang_webshop'),
+				'xtra' => " data-fetch_info='email' required",
 			),
 			'phone' => array(
 				'type' => 'tel',
 				'name' => __("Phone", 'lang_webshop'),
+				'xtra' => " data-fetch_info='telno' required",
 			),
 		);
 
@@ -1803,7 +1808,7 @@ class mf_webshop
 									'checkout_name' => $checkout_name,
 									'checkout_label' => $arr_checkout_information[$checkout_name]['name'],
 									'checkout_value' => $order_detail,
-									//'checkout_xtra' => $checkout_xtra,
+									'checkout_xtra' => $arr_checkout_information[$checkout_name]['xtra'],
 								);
 							}
 						}
@@ -3409,6 +3414,7 @@ class mf_webshop
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
 
+			$order_post_status = get_post_field('post_status', $order_id);
 			$order_parent = get_post_field('post_parent', $order_id);
 			$order_date = get_post_field('post_date', $order_id);
 
@@ -3428,12 +3434,21 @@ class mf_webshop
 			}
 
 			$out .= "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">
-				<h1>"
-					.($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'))
-				."</h1>"
+				<h1>";
+
+					if($order_post_status == 'publish')
+					{
+						$out .= ($this->order_details['first_name'] != '' ? sprintf(__("Thanks for your order, %s!", 'lang_webshop'), $this->order_details['first_name']) : __("Thanks for your order!", 'lang_webshop'));
+					}
+
+					else
+					{
+						$out .= __("Ongoing order...", 'lang_webshop');
+					}
+
+				$out .= "</h1>"
 				.get_notification()
-				."<p>#".$order_id."</p>
-				<ul class='grid_columns'>"; // @ ".format_date($order_date)."
+				."<ul class='grid_columns'>"; // @ ".format_date($order_date)."
 
 					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 					{
@@ -3487,6 +3502,7 @@ class mf_webshop
 							<span class='grid_title'>".__("Order", 'lang_webshop')."</span>
 							<p class='text'>"
 								//."#".$order_number."<br>"
+								."#".$order_id."<br>"
 								.$order_date."<br>"
 								.$this->get_order_status(array('order_id' => $order_id, 'is_editable' => true))."<br>"
 							."</p>
@@ -3629,136 +3645,139 @@ class mf_webshop
 						$out .= "</tbody>
 					</table>";
 
-					if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']))
+					if($order_post_status == 'publish')
 					{
-						$out .= "<form".apply_filters('get_form_attr', "").">"
-							."<div".get_form_button_classes().">"
-								.show_button(array('name' => 'btnWebshopOrderAddMore', 'text' => __("Add more to this order", 'lang_webshop')))
-								.wp_nonce_field('order_add_more_'.$order_id, '_wpnonce_order_add_more', true, false)
-							."</div>"
-						."</form>";
-					}
+						if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']))
+						{
+							$out .= "<form".apply_filters('get_form_attr', "").">"
+								."<div".get_form_button_classes().">"
+									.show_button(array('name' => 'btnWebshopOrderAddMore', 'text' => __("Add more to this order", 'lang_webshop')))
+									.wp_nonce_field('order_add_more_'.$order_id, '_wpnonce_order_add_more', true, false)
+								."</div>"
+							."</form>";
+						}
 
-					$payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
-					$payment_method_id = get_post_meta($order_id, $this->meta_prefix.'payment_method_id', true);
-					$test_mode = get_post_meta($order_id, $this->meta_prefix.'test_mode', true);
-					$shipping_cost = get_post_meta($order_id, $this->meta_prefix.'shipping_cost', true);
-					$invoice_cost = get_post_meta($order_id, $this->meta_prefix.'invoice_cost', true);
-					$total_sum_invoice = get_post_meta($order_id, $this->meta_prefix.'total_sum_invoice', true);
-					$total_sum = get_post_meta($order_id, $this->meta_prefix.'total_sum', true);
-					$total_tax = get_post_meta($order_id, $this->meta_prefix.'total_tax', true);
-					$paid_currency = get_post_meta($order_id, $this->meta_prefix.'paid_currency', true);
-					$paid_tax_display = get_post_meta_or_default($order_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
+						$payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
+						$payment_method_id = get_post_meta($order_id, $this->meta_prefix.'payment_method_id', true);
+						$test_mode = get_post_meta($order_id, $this->meta_prefix.'test_mode', true);
+						$shipping_cost = get_post_meta($order_id, $this->meta_prefix.'shipping_cost', true);
+						$invoice_cost = get_post_meta($order_id, $this->meta_prefix.'invoice_cost', true);
+						$total_sum_invoice = get_post_meta($order_id, $this->meta_prefix.'total_sum_invoice', true);
+						$total_sum = get_post_meta($order_id, $this->meta_prefix.'total_sum', true);
+						$total_tax = get_post_meta($order_id, $this->meta_prefix.'total_tax', true);
+						$paid_currency = get_post_meta($order_id, $this->meta_prefix.'paid_currency', true);
+						$paid_tax_display = get_post_meta_or_default($order_id, $this->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
 
-					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+						$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
 
-					$payment_method_name = $this->get_payment_method_name($payment_method);
+						$payment_method_name = $this->get_payment_method_name($payment_method);
 
-					$out .= "<h2>".__("Summary", 'lang_webshop')."</h2>
-					<table".apply_filters('get_table_attr', "").">
-						<tbody>
-							<tr>
-								<td>".__("Payment Method", 'lang_webshop')."</td>
-								<td>"
-									.$payment_method_name;
+						$out .= "<h2>".__("Summary", 'lang_webshop')."</h2>
+						<table".apply_filters('get_table_attr', "").">
+							<tbody>
+								<tr>
+									<td>".__("Payment Method", 'lang_webshop')."</td>
+									<td>"
+										.$payment_method_name;
 
-									switch($payment_method)
+										switch($payment_method)
+										{
+											case 'swish_manual':
+												if($order_status == 'ordered')
+												{
+													$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
+													$setting_webshop_swish_company_prefix = get_option('setting_webshop_swish_company_prefix');
+
+													$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".($setting_webshop_swish_company_prefix != '' ? $setting_webshop_swish_company_prefix." " : "").$order_id."-".$order_number."&src=qr";
+
+													$out .= get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Not sure that you have paid?", 'lang_webshop')));
+
+														$out .= "<div class='swish_manual_form'>";
+
+															$step_number = 1;
+
+															if(is_plugin_active("mf_qr_code/index.php"))
+															{
+																mf_enqueue_script('script_webshop_order_confirmation_swish_manual', $plugin_include_url."script_order_confirmation_swish_manual.js", array(
+																	'ajax_url' => admin_url('admin-ajax.php'),
+																	'swish_link' => $swish_link,
+																));
+
+																$out .= "<p class='strong'>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</p>
+																<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
+
+																$step_number++;
+															}
+
+															$out .= "<p class='strong'>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</p>"
+															."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
+
+														$out .= "</div>";
+
+													$out .= get_toggler_container(array('type' => 'end'));
+												}
+											break;
+										}
+
+									$out .= "</td>
+								</tr>";
+
+								if(IS_SUPER_ADMIN && $test_mode != 'no')
+								{
+									do_action('load_font_awesome');
+
+									$out .= "<tr>
+										<td>".__("Test Mode", 'lang_webshop')."</td>
+										<td><i class='fa fa-exclamation-triangle yellow'></i></td>
+									</tr>";
+								}
+
+								if($setting_webshop_shipping_cost > 0 || $shipping_cost > 0)
+								{
+									$out .= "<tr>
+										<td>".__("Shipping Cost", 'lang_webshop')."</td>
+										<td>".$shipping_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+									</tr>";
+								}
+
+								if($payment_method == 'invoice')
+								{
+									if($invoice_cost != '')
 									{
-										case 'swish_manual':
-											if($order_status == 'ordered')
-											{
-												$setting_webshop_swish_company_number = get_option('setting_webshop_swish_company_number');
-												$setting_webshop_swish_company_prefix = get_option('setting_webshop_swish_company_prefix');
-
-												$swish_link = "https://app.swish.nu/1/p/sw/?sw=".$setting_webshop_swish_company_number."&amt=".$total_sum."&cur=".$paid_currency."&msg=".($setting_webshop_swish_company_prefix != '' ? $setting_webshop_swish_company_prefix." " : "").$order_id."-".$order_number."&src=qr";
-
-												$out .= get_toggler_container(array('type' => 'start', 'id' => 'swish_manual', 'text' => __("Not sure that you have paid?", 'lang_webshop')));
-
-													$out .= "<div class='swish_manual_form'>";
-
-														$step_number = 1;
-
-														if(is_plugin_active("mf_qr_code/index.php"))
-														{
-															mf_enqueue_script('script_webshop_order_confirmation_swish_manual', $plugin_include_url."script_order_confirmation_swish_manual.js", array(
-																'ajax_url' => admin_url('admin-ajax.php'),
-																'swish_link' => $swish_link,
-															));
-
-															$out .= "<p class='strong'>".sprintf(__("%d. Open the Swish app and scan the QR code", 'lang_webshop'), $step_number)."</p>
-															<div class='swish_manual_qr_code'>".apply_filters('get_loading_animation', '')."</div>";
-
-															$step_number++;
-														}
-
-														$out .= "<p class='strong'>".sprintf(__("%d. I am already on my phone", 'lang_webshop'), $step_number)."</p>"
-														."<p>".sprintf(__("Click to open the %sSwish app%s.", 'lang_webshop'), "<a href='".$swish_link."' rel='".$swish_link."' class='strong'>", "</a>")."</p>";
-
-													$out .= "</div>";
-
-												$out .= get_toggler_container(array('type' => 'end'));
-											}
-										break;
+										$out .= "<tr>
+											<td>".__("Invoice Total", 'lang_webshop')."</td>
+											<td>".$invoice_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+										</tr>";
 									}
 
-								$out .= "</td>
-							</tr>";
+									if($total_sum_invoice != '' && $total_sum_invoice != $total_sum)
+									{
+										$out .= "<tr>
+											<td>".__("Invoice Total", 'lang_webshop')."</td>
+											<td>".($total_sum_invoice - $total_sum)." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+										</tr>";
+									}
+								}
 
-							if(IS_SUPER_ADMIN && $test_mode != 'no')
-							{
-								do_action('load_font_awesome');
-
-								$out .= "<tr>
-									<td>".__("Test Mode", 'lang_webshop')."</td>
-									<td><i class='fa fa-exclamation-triangle yellow'></i></td>
-								</tr>";
-							}
-
-							if($setting_webshop_shipping_cost > 0 || $shipping_cost > 0)
-							{
-								$out .= "<tr>
-									<td>".__("Shipping Cost", 'lang_webshop')."</td>
-									<td>".$shipping_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
-								</tr>";
-							}
-
-							if($payment_method == 'invoice')
-							{
-								if($invoice_cost != '')
+								if($total_sum != '')
 								{
 									$out .= "<tr>
-										<td>".__("Invoice Total", 'lang_webshop')."</td>
-										<td>".$invoice_cost." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+										<td>".__("Total", 'lang_webshop')."</td>
+										<td>".$total_sum." ".$paid_currency." ".$paid_tax_display_prefix."</td>
 									</tr>";
 								}
 
-								if($total_sum_invoice != '' && $total_sum_invoice != $total_sum)
+								if($setting_webshop_tax_display == 'yes' && $total_tax != '')
 								{
 									$out .= "<tr>
-										<td>".__("Invoice Total", 'lang_webshop')."</td>
-										<td>".($total_sum_invoice - $total_sum)." ".$paid_currency." ".$paid_tax_display_prefix."</td>
+										<td>".__("Tax", 'lang_webshop')."</td>
+										<td>".$total_tax." ".$paid_currency."</td>
 									</tr>";
 								}
-							}
 
-							if($total_sum != '')
-							{
-								$out .= "<tr>
-									<td>".__("Total", 'lang_webshop')."</td>
-									<td>".$total_sum." ".$paid_currency." ".$paid_tax_display_prefix."</td>
-								</tr>";
-							}
-
-							if($setting_webshop_tax_display == 'yes' && $total_tax != '')
-							{
-								$out .= "<tr>
-									<td>".__("Tax", 'lang_webshop')."</td>
-									<td>".$total_tax." ".$paid_currency."</td>
-								</tr>";
-							}
-
-						$out .= "</tbody>
-					</table>";
+							$out .= "</tbody>
+						</table>";
+					}
 				}
 
 			$out .= "</div>";
@@ -5945,6 +5964,54 @@ class mf_webshop
 				);*/
 			}
 		}
+	}
+
+	function the_title($post_title, $post_id) // This can all be removed later
+	{
+		global $wpdb;
+
+		// Only touch this in wp-admin, on the list table for our post type
+		if(!is_admin() || !function_exists('get_current_screen'))
+		{
+			return $post_title;
+		}
+
+		$screen = get_current_screen();
+
+		if($screen && $screen->id === 'edit-'.$this->post_type_orders && $screen->post_type === $this->post_type_orders)
+		{
+			$post = get_post($post_id);
+
+			if($post && $post->post_type === $this->post_type_orders && substr($post_title, 0, 1) == "#")
+			{
+				//$post_title = "#".$post_id." ";
+				$post_title = "";
+
+				$obj_encryption = new mf_encryption(__CLASS__);
+				$this->order_details = [];
+
+				$this->order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+
+				foreach($this->arr_meta_keys as $meta_key)
+				{
+					$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
+
+					if($this->order_details[$meta_key] != '')
+					{
+						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($this->order_cart_hash));
+					}
+				}
+
+				if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
+				{
+					$post_title .= $this->order_details['first_name']." ".$this->order_details['last_name'];
+
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->posts." SET post_title = %s WHERE ID = '%d'", $post_title, $post_id));
+				}
+			}
+		}
+
+		return $post_title;
 	}
 
 	function page_row_actions($arr_actions, $post)
@@ -9084,7 +9151,7 @@ class mf_webshop
 						{ %>
 							<div class='form_<%= checkout_type %>'>
 								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } else { %> required<% } %>>
+								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } else { %><%= checkout_xtra %><% } %>>
 									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
 									{
 										var keyStr = String(meta_option_key);
@@ -9143,10 +9210,10 @@ class mf_webshop
 						{ %>
 							<div class='form_textfield'>
 								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field' required>
+								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field'<%= checkout_xtra %>>
 							</div>
 						<% } %>
-					</script>"; //<%= checkout_xtra %>
+					</script>";
 
 					/*switch($data['type'])
 					{

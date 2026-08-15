@@ -264,6 +264,56 @@ jQuery(function($)
 		});
 	}
 
+	function sync_connected_fields()
+	{
+		var groups = {};
+
+		dom_obj_widget.find(".mf_form_field[data-fetch_info]").each(function()
+		{
+			var dom_obj = $(this),
+				key = dom_obj.attr('data-fetch_info');
+
+			if(!groups[key])
+			{
+				groups[key] = [];
+			}
+
+			groups[key].push(dom_obj);
+		});
+
+		$.each(groups, function(key, dom_fields)
+		{
+			var found_value = '';
+
+			for(var i = 0; i < dom_fields.length; i++)
+			{
+				var val = dom_fields[i].val().trim();
+
+				if(val !== '')
+				{
+					found_value = val;
+					break;
+				}
+			}
+
+			if(found_value !== '')
+			{
+				for(var i = 0; i < dom_fields.length; i++)
+				{
+					if(dom_fields[i].val().trim() === '')
+					{
+						dom_fields[i].val(found_value);
+
+						if(dom_fields[i].attr('id') == 'contact_phone')
+						{
+							update_swish_manual(found_value);
+						}
+					}
+				}
+			}
+		});
+	}
+
 	get_webshop_cart();
 
 	setInterval(function()
@@ -383,6 +433,7 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
+					sync_connected_fields();
 					display_payment_alternatives_or_not();
 				}
 			}
@@ -451,54 +502,5 @@ jQuery(function($)
 
 		$(".toggle_bank_transfer button").attr('disabled', is_disabled);
 	}).trigger('change');
-	/* ##################### */
-
-	/* Validate card details & activate buy button */
-	/* ##################### */
-	/*$(document).on('input', ".toggle_card #payment_card_no", function()
-	{
-		let value = $(this).val();
-
-		value = value.replace(/\D/g, '');
-		value = value.replace(/(.{4})/g, '$1 ').trim();
-
-		$(this).val(value);
-	});
-
-	$(document).on('input', ".toggle_card #payment_card_expires", function()
-	{
-		let input = $(this).val().replace(/\D/g, '').slice(0, 4);
-
-		if(input.length >= 3)
-		{
-			input = input.slice(0, 2) + '/' + input.slice(2);
-		}
-
-		$(this).val(input);
-	});
-
-	$(document).on('input', ".toggle_card input", function()
-	{
-		let anyEmpty = false;
-
-		$(".toggle_card input").each(function()
-		{
-			if(!$(this).val())
-			{
-				anyEmpty = true;
-				return false;
-			}
-		});
-
-		if(anyEmpty)
-		{
-			$(".toggle_card button[name='btnWebshopPayCard']").attr('disabled', true);
-		}
-
-		else
-		{
-			$(".toggle_card button[name='btnWebshopPayCard']").removeAttr('disabled');
-		}
-	});*/
 	/* ##################### */
 });
