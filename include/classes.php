@@ -6304,7 +6304,7 @@ class mf_webshop
 						$post_name = $this->get_post_name_for_type($column);
 						$post_meta = get_post_meta($post_id, $this->meta_prefix.$post_name, true); 
 
-						if($post_meta > 0)
+						if($post_meta != '')
 						{
 							$product_amount_in_carts = $this->get_amount_in_carts($post_id);
 							$product_amount_left = ($post_meta - $product_amount_in_carts);
