@@ -1808,7 +1808,7 @@ class mf_webshop
 									'checkout_name' => $checkout_name,
 									'checkout_label' => $arr_checkout_information[$checkout_name]['name'],
 									'checkout_value' => $order_detail,
-									'checkout_xtra' => $arr_checkout_information[$checkout_name]['xtra'],
+									'checkout_xtra' => (isset($arr_checkout_information[$checkout_name]['xtra']) ? $arr_checkout_information[$checkout_name]['xtra'] : ""),
 								);
 							}
 						}
