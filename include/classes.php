@@ -690,7 +690,7 @@ class mf_webshop
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value = %s", $this->meta_prefix.'order_status', $this->post_type_orders, 'publish', $payment_status));
 
-			//do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
+			do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
 
 			foreach($result as $r)
 			{
@@ -700,27 +700,30 @@ class mf_webshop
 				//$order_payment_method = get_post_meta($order_id, $this->meta_prefix.'payment_method', true);
 				$order_total_sum = get_post_meta($order_id, $this->meta_prefix.'total_sum', true);
 
-				if($order_cart_hash != '' && $order_total_sum > 0)
+				if($order_total_sum > 0)
 				{
 					$data_temp = array('payment_hash' => $order_id."-".$order_cart_hash, 'payment_amount' => $order_total_sum, 'info' => $this->post_type_orders.":".$order_id);
 
-					$payment_status_new = apply_filters('get_payment_status', $payment_status, $data_temp);
-
-					if($payment_status_new != $payment_status)
+					if($order_cart_hash != '')
 					{
-						//do_log(__FUNCTION__.": Update #".$order_id." - ".$payment_status." -> ".$payment_status_new);
-						update_post_meta($order_id, $this->meta_prefix.'order_status', $payment_status_new);
+						$payment_status_new = apply_filters('get_payment_status', $payment_status, $data_temp);
+
+						if($payment_status_new != $payment_status)
+						{
+							//do_log(__FUNCTION__.": Update #".$order_id." - ".$payment_status." -> ".$payment_status_new);
+							update_post_meta($order_id, $this->meta_prefix.'order_status', $payment_status_new);
+						}
+
+						else
+						{
+							//do_log(__FUNCTION__.": Same status #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
+						}
 					}
 
 					else
 					{
-						//do_log(__FUNCTION__.": Same status #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
+						do_log(__FUNCTION__.": No hash or sum #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
 					}
-				}
-
-				else
-				{
-					//do_log(__FUNCTION__.": No hash or sum #".$order_id." ".$payment_status." != ".$payment_status_new." (".var_export($data_temp, true).")");
 				}
 			}
 			###################
@@ -3229,13 +3232,16 @@ class mf_webshop
 								{
 									$arr_products = get_post_meta($data['order_id'], $this->meta_prefix.'products', true);
 
-									foreach($arr_products as $key => $arr_product)
+									if(is_array($arr_products))
 									{
-										$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
-
-										if($product_stock != '' && $arr_product['amount'] > 0)
+										foreach($arr_products as $key => $arr_product)
 										{
-											update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock + $arr_product['amount']));
+											$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+
+											if($product_stock != '' && $arr_product['amount'] > 0)
+											{
+												update_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, ($product_stock + $arr_product['amount']));
+											}
 										}
 									}
 								}
