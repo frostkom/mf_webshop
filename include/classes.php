@@ -690,7 +690,7 @@ class mf_webshop
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value = %s", $this->meta_prefix.'order_status', $this->post_type_orders, 'publish', $payment_status));
 
-			do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
+			//do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
 
 			foreach($result as $r)
 			{
