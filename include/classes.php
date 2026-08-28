@@ -3311,136 +3311,137 @@ class mf_webshop
 
 		$order_key = check_var('order_key');
 
-		if($order_id > 0 && $order_id == $obj_encryption->decrypt($order_key, md5(AUTH_KEY)))
-		{
-			$order_status = get_post_meta($order_id, $this->meta_prefix.'order_status', true);
+		$out .= "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">";
 
-			if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']) && (isset($_POST['btnWebshopOrderChange']) || isset($_POST['btnWebshopOrderAddMore'])))
+			if($order_id > 0 && $order_id == $obj_encryption->decrypt($order_key, md5(AUTH_KEY)))
 			{
-				if(isset($_POST['btnWebshopOrderChange']))
+				$order_status = get_post_meta($order_id, $this->meta_prefix.'order_status', true);
+
+				if(!in_array($order_status, ['cancelled', 'repaid', 'sent', 'finalized']) && (isset($_POST['btnWebshopOrderChange']) || isset($_POST['btnWebshopOrderAddMore'])))
 				{
-					$has_correct_nonce = wp_verify_nonce($_POST['_wpnonce_order_change'], 'order_change_'.$order_id);
-				}
-
-				else
-				{
-					$has_correct_nonce = wp_verify_nonce($_POST['_wpnonce_order_add_more'], 'order_add_more_'.$order_id);
-				}
-
-				if($has_correct_nonce)
-				{
-					$this->order_cart_hash = $this->get_cookie();
-
-					$order_id_child = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
-
-					if(!($order_id_child > 0))
+					if(isset($_POST['btnWebshopOrderChange']))
 					{
-						$post_data = array(
-							'post_type' => $this->post_type_orders,
-							'post_status' => 'draft',
-							//'post_title' => $this->order_cart_hash,
-							'post_title' => $this->order_cart_hash,
-							'meta_input' => apply_filters('filter_meta_input', array(
-								$this->meta_prefix.'cart_hash' => $this->order_cart_hash,
-								//$this->meta_prefix.'products' => $arr_products,
-							)),
-						);
-
-						$order_id_child = wp_insert_post($post_data);
+						$has_correct_nonce = wp_verify_nonce($_POST['_wpnonce_order_change'], 'order_change_'.$order_id);
 					}
 
-					if($order_id_child > 0)
+					else
 					{
-						if($order_id_child != $order_id)
+						$has_correct_nonce = wp_verify_nonce($_POST['_wpnonce_order_add_more'], 'order_add_more_'.$order_id);
+					}
+
+					if($has_correct_nonce)
+					{
+						$this->order_cart_hash = $this->get_cookie();
+
+						$order_id_child = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+
+						if(!($order_id_child > 0))
 						{
 							$post_data = array(
-								'ID' => $order_id_child,
-								'post_parent' => $order_id,
+								'post_type' => $this->post_type_orders,
+								'post_status' => 'draft',
+								//'post_title' => $this->order_cart_hash,
+								'post_title' => $this->order_cart_hash,
+								'meta_input' => apply_filters('filter_meta_input', array(
+									$this->meta_prefix.'cart_hash' => $this->order_cart_hash,
+									//$this->meta_prefix.'products' => $arr_products,
+								)),
 							);
 
-							if(wp_update_post($post_data) > 0)
+							$order_id_child = wp_insert_post($post_data);
+						}
+
+						if($order_id_child > 0)
+						{
+							if($order_id_child != $order_id)
 							{
-								if(isset($_POST['btnWebshopOrderChange']))
+								$post_data = array(
+									'ID' => $order_id_child,
+									'post_parent' => $order_id,
+								);
+
+								if(wp_update_post($post_data) > 0)
 								{
-									$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopcart');
+									if(isset($_POST['btnWebshopOrderChange']))
+									{
+										$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopcart');
+									}
+
+									else
+									{
+										$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+									}
+
+									if($post_id_redirect > 0)
+									{
+										mf_redirect(get_the_permalink($post_id_redirect));
+									}
+
+									else
+									{
+										$error_text = __("I could not find a page to send you to", 'lang_webshop');
+									}
 								}
 
 								else
 								{
-									$post_id_redirect = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-								}
+									$error_text = __("I could not connect the order to a parent", 'lang_webshop');
 
-								if($post_id_redirect > 0)
-								{
-									mf_redirect(get_the_permalink($post_id_redirect));
-								}
-
-								else
-								{
-									$error_text = __("I could not find a page to send you to", 'lang_webshop');
+									if(IS_SUPER_ADMIN)
+									{
+										$error_text .= " (".var_export($post_data, true).")";
+									}
 								}
 							}
 
 							else
 							{
-								$error_text = __("I could not connect the order to a parent", 'lang_webshop');
-
-								if(IS_SUPER_ADMIN)
-								{
-									$error_text .= " (".var_export($post_data, true).")";
-								}
+								$error_text = __("This order is already in use", 'lang_webshop');
 							}
 						}
 
 						else
 						{
-							$error_text = __("This order is already in use", 'lang_webshop');
+							$error_text = __("I could not find the order for you", 'lang_webshop');
+
+							/*if(IS_SUPER_ADMIN)
+							{
+								$error_text .= " (".$order_id." -> ".$order_status." -> ".$wpdb->last_query.")";
+							}*/
 						}
 					}
 
 					else
 					{
-						$error_text = __("I could not find the order for you", 'lang_webshop');
-
-						/*if(IS_SUPER_ADMIN)
-						{
-							$error_text .= " (".$order_id." -> ".$order_status." -> ".$wpdb->last_query.")";
-						}*/
+						$error_text = __("You were not allowed to change the order", 'lang_webshop');
 					}
 				}
 
-				else
+				do_action('load_grid_columns');
+
+				$plugin_include_url = plugin_dir_url(__FILE__);
+				mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
+
+				$order_post_status = get_post_field('post_status', $order_id);
+				$order_parent = get_post_field('post_parent', $order_id);
+				$order_date = get_post_field('post_date', $order_id);
+
+				$order_number = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
+				$arr_products = get_post_meta($order_id, $this->meta_prefix.'products', true);
+
+				$this->order_details = [];
+
+				foreach($this->arr_meta_keys as $meta_key)
 				{
-					$error_text = __("You were not allowed to change the order", 'lang_webshop');
+					$this->order_details[$meta_key] = get_post_meta($order_id, $this->meta_prefix.$meta_key, true);
+
+					if($this->order_details[$meta_key] != '')
+					{
+						$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_number));
+					}
 				}
-			}
 
-			do_action('load_grid_columns');
-
-			$plugin_include_url = plugin_dir_url(__FILE__);
-			mf_enqueue_style('style_webshop_order_confirmation', $plugin_include_url."style_order_confirmation.css");
-
-			$order_post_status = get_post_field('post_status', $order_id);
-			$order_parent = get_post_field('post_parent', $order_id);
-			$order_date = get_post_field('post_date', $order_id);
-
-			$order_number = get_post_meta($order_id, $this->meta_prefix.'cart_hash', true);
-			$arr_products = get_post_meta($order_id, $this->meta_prefix.'products', true);
-
-			$this->order_details = [];
-
-			foreach($this->arr_meta_keys as $meta_key)
-			{
-				$this->order_details[$meta_key] = get_post_meta($order_id, $this->meta_prefix.$meta_key, true);
-
-				if($this->order_details[$meta_key] != '')
-				{
-					$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_number));
-				}
-			}
-
-			$out .= "<div".parse_block_attributes(array('class' => "widget webshop_order_confirmation square", 'attributes' => $attributes)).">
-				<h1>";
+				$out .= "<h1>";
 
 					if($order_post_status == 'publish')
 					{
@@ -3785,29 +3786,29 @@ class mf_webshop
 						</table>";
 					}
 				}
-
-			$out .= "</div>";
-		}
-
-		else
-		{
-			$out .= "<h1>".__("Order Confirmation", 'lang_webshop')."</h1>
-			<p>".__("I am sorry, but I could not find the order for you. Please try again, and contact an admin if the problem persists.", 'lang_webshop')."</p>";
-
-			if(IS_SUPER_ADMIN)
-			{
-				$out .= "<p>".$order_id." == ".$obj_encryption->decrypt($order_key, md5(AUTH_KEY))." (".$order_key.")</p>";
 			}
-		}
 
-		$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+			else
+			{
+				$out .= "<h1>".__("Order Confirmation", 'lang_webshop')."</h1>
+				<p>".__("I am sorry, but I could not find the order for you. Please try again, and contact an admin if the problem persists.", 'lang_webshop')."</p>";
 
-		if($post_id_search > 0)
-		{
-			$out .= "<div class='wp-block-button'>
-				<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Go to the Shop", 'lang_webshop')."</a>
-			</div>";
-		}
+				if(IS_SUPER_ADMIN)
+				{
+					$out .= "<p>".$order_id." == ".$obj_encryption->decrypt($order_key, md5(AUTH_KEY))." (".$order_key.")</p>";
+				}
+			}
+
+			$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+			if($post_id_search > 0)
+			{
+				$out .= "<div class='wp-block-button'>
+					<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Go to the Shop", 'lang_webshop')."</a>
+				</div>";
+			}
+
+		$out .= "</div>";
 
 		return $out;
 	}
