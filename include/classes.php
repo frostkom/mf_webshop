@@ -6026,11 +6026,27 @@ class mf_webshop
 		switch($post->post_type)
 		{
 			case $this->post_type_orders:
+				$post_status = get_post_status($post->ID);
+
 				unset($arr_actions['edit']);
 
-				if(get_post_status($post->ID) != 'trash' && isset($arr_actions['view']))
+				switch($post_status)
 				{
-					$arr_actions['view'] = "<a href='".$this->get_order_url($post->ID)."'>".__("View", 'lang_webshop')."</a>";
+					case 'draft':
+						if(isset($arr_actions['view']))
+						{
+							$arr_actions['view'] = "<a href='".$this->get_order_url($post->ID)."'>".__("View", 'lang_webshop')."</a>";
+						}
+					break;
+
+					case 'publish':
+						unset($arr_actions['trash']);
+
+						if(isset($arr_actions['view']))
+						{
+							$arr_actions['view'] = "<a href='".$this->get_order_url($post->ID)."'>".__("View", 'lang_webshop')."</a>";
+						}
+					break;
 				}
 			break;
 		}
