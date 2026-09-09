@@ -2345,7 +2345,7 @@ class mf_webshop
 
 													$out .= "<div>
 														<strong>".sprintf(__("%d. Confirm that you have paid", 'lang_webshop'), $step_number)."</strong>"
-														.show_checkbox(array('name' => 'payment_confirmed', 'text' => sprintf(__("I have paid from %s according to the instructions above", 'lang_webshop'), "<span class='contact_phone strong'></span>"), 'value' => 1))
+														.show_checkbox(array('name' => 'payment_confirmed', 'text' => __("I have paid according to the instructions above", 'lang_webshop'), 'value' => 1))
 														."<div".get_form_button_classes().">"
 															.show_button(array('name' => 'btnWebshopPaySwishManual', 'text' => sprintf(__("Order for %s", 'lang_webshop'), "<span class='total_sum'></span>"), 'xtra' => "disabled"))
 														."</div>
