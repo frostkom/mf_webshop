@@ -16,6 +16,22 @@
 		margin-left: .5em;
 	}
 
+.widget.webshop_cart .cart_summary .cart_summary_info
+{
+	position: relative;
+}
+
+	.widget.webshop_cart .cart_summary .cart_summary_info_sticky
+	{
+		position: sticky;
+		top: 4em;
+	}
+
+		.widget.webshop_cart .cart_summary .cart_countdown
+		{
+			margin-top: 1em;
+		}
+
 .widget.webshop_cart .card_details
 {
 	margin-bottom: .8em;

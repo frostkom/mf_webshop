@@ -755,7 +755,7 @@ class mf_webshop
 		mf_enqueue_style('style_webshop', $plugin_include_url."style.css");
 		mf_enqueue_style('style_bb', $plugin_base_include_url."backbone/style.css");
 	}
-	
+
 	function does_shop_have_addon()
 	{
 		global $wpdb;
@@ -1321,7 +1321,7 @@ class mf_webshop
 
 		return $post_url.(strpos($post_url, "?") ? "&" : "?")."order_key=".$obj_encryption->encrypt($post_id, md5(AUTH_KEY));
 	}
-	
+
 	function send_confirmation_buyer($data)
 	{
 		$mail_to = $this->order_details['contact_email'];
@@ -2197,55 +2197,62 @@ class mf_webshop
 				</tbody>
 			</table>";
 
-			$out .= "<div class='cart_countdown hide notice notice-warning'>
-				<p>".sprintf(__("You have %s left to complete the purchase. If you change the content of your cart or update your information, the counter will restart.", 'lang_webshop'), "<span></span>")."</p>
-			</div>";
-
 			$out .= "<div".apply_filters('get_flex_flow', "", ['class' => ['cart_summary', 'hide']]).">
-				<div>
-					<div class='cart_totals'>
-						<h3>".__("Summary", 'lang_webshop')."</h3>
-						<table".apply_filters('get_table_attr', "").">
-							<tbody>";
+				<div class='cart_summary_info'>
+					<div class='cart_summary_info_sticky'>";
 
-								if($setting_webshop_shipping_cost > 0)
-								{
-									$out .= "<tr>
-										<td>".__("Shipping Cost", 'lang_webshop')."</td>
-										<td class='shipping_cost'></td>
-									</tr>";
-								}
+						do_action('load_notification');
 
-								$out .= "<tr>
-									<td>".__("Total", 'lang_webshop')."</td>
-									<td class='total_sum'></td>
-								</tr>";
-
-								if(get_option('setting_webshop_tax_display') == 'yes')
-								{
-									$out .= "<tr>
-										<td>".__("Tax", 'lang_webshop')."</td>
-										<td class='total_tax'></td>
-									</tr>";
-								}
-
-							$out .= "</tbody>
-						</table>
-					</div>";
-
-					$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-
-					if($post_id_search > 0)
-					{
-						$out .= "<br>
-						<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
-							<div class='wp-block-button'>
-								<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+						$out .= "<div class='cart_countdown hide notification'>
+							<div class='notice notice-warning'>
+								<p>".sprintf(__("You have %s left to complete the purchase. If you change the content of your cart or update your information, the counter will restart.", 'lang_webshop'), "<span></span>")."</p>
 							</div>
 						</div>";
-					}
 
-				$out .= "</div>";
+						$out .= "<div class='cart_totals'>
+							<h3>".__("Summary", 'lang_webshop')."</h3>
+							<table".apply_filters('get_table_attr', "").">
+								<tbody>";
+
+									if($setting_webshop_shipping_cost > 0)
+									{
+										$out .= "<tr>
+											<td>".__("Shipping Cost", 'lang_webshop')."</td>
+											<td class='shipping_cost'></td>
+										</tr>";
+									}
+
+									$out .= "<tr>
+										<td>".__("Total", 'lang_webshop')."</td>
+										<td class='total_sum'></td>
+									</tr>";
+
+									if(get_option('setting_webshop_tax_display') == 'yes')
+									{
+										$out .= "<tr>
+											<td>".__("Tax", 'lang_webshop')."</td>
+											<td class='total_tax'></td>
+										</tr>";
+									}
+
+								$out .= "</tbody>
+							</table>
+						</div>";
+
+						$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+						if($post_id_search > 0)
+						{
+							$out .= "<br>
+							<div class='is-layout-flex wp-block-buttons-is-layout-flex'>
+								<div class='wp-block-button'>
+									<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Continue Shopping", 'lang_webshop')."</a>
+								</div>
+							</div>";
+						}
+
+					$out .= "</div>
+				</div>";
 
 				do_action('get_form_radio_multiple');
 
@@ -4165,14 +4172,14 @@ class mf_webshop
 		if(in_array('swish', $setting_webshop_payment_alternatives))
 		{
 			$arr_settings['setting_webshop_swish_merchant_number'] = __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")";
-			
+
 			if(get_option('setting_webshop_swish_merchant_number') != '')
 			{
 				$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
 				$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
 				$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
 			}
-		}		
+		}
 
 		if(in_array('bank_transfer', $setting_webshop_payment_alternatives))
 		{
@@ -4687,7 +4694,7 @@ class mf_webshop
 
 		return false;
 	}
-	
+
 	function get_product_types()
 	{
 		return [
@@ -5037,6 +5044,9 @@ class mf_webshop
 
 				if($wpdb->num_rows > 0)
 				{
+					$menu_title = " - ".__("Export", 'lang_webshop');
+					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root."export/index.php");
+
 					$menu_title = __("Statistics", 'lang_webshop');
 					add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root."stats/index.php");
 				}
@@ -6142,7 +6152,7 @@ class mf_webshop
 						}
 					}
 				}*/
-				
+
 				$columns['relations'] = __("Relation", 'lang_webshop');
 			break;
 
@@ -7140,7 +7150,7 @@ class mf_webshop
 				if(is_array($arr_products) && count($arr_products) > 0)
 				{
 					$cart_has_product = true;
-					
+
 					if($shop_has_addon)
 					{
 						foreach($arr_products as $key => $arr_product)
@@ -9194,7 +9204,7 @@ class mf_webshop
 								</select>
 							</div>
 						<% }
-						
+
 						else if(checkout_type == 'checkbox_multiple')
 						{ %>
 							<div class='form_checkbox_multiple'>
@@ -10110,6 +10120,325 @@ if(class_exists('RWMB_Field') && class_exists('RWMB_Text_Field'))
 				$meta,
 				self::render_attributes($field['attributes'])
 			);
+		}
+	}
+}
+
+class mf_webshop_export extends mf_export
+{
+	function get_defaults()
+	{
+		$this->plugin = "mf_webshop";
+		$this->name = "webshop";
+	}
+
+	function fetch_request_xtra()
+	{
+		//$this->arr_columns = check_var('arrColumns');
+	}
+
+	/*function get_form_xtra()
+	{
+		global $obj_webshop;
+
+		$out = show_select(array('data' => $obj_webshop->get_columns_for_select(), 'name' => 'arrColumns[]', 'text' => __("Columns", 'lang_webshop'), 'value' => $this->arr_columns));
+
+		return $out;
+	}*/
+
+	function get_export_data()
+	{
+		global $wpdb, $obj_webshop;
+
+		/*if(!is_array($this->arr_columns) || count($this->arr_columns) == 0 || in_array('webshopCountry', $this->arr_columns))
+		{
+			$arr_countries = $obj_webshop->get_countries_for_select();
+		}*/
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_parent FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s GROUP BY ID", $obj_webshop->post_type_orders, 'publish'));
+
+		if($wpdb->num_rows > 0)
+		{
+			//$arr_columns = $obj_webshop->get_columns_for_select();
+
+			$data_temp = [];
+
+			/*foreach($arr_columns as $key => $value)
+			{
+				if(!is_array($this->arr_columns) || count($this->arr_columns) == 0 || in_array($key, $this->arr_columns))
+				{
+					$data_temp[] = $arr_columns[$key];
+				}
+			}*/
+
+			$data_temp[] = __("ID", 'lang_webshop');
+			$data_temp[] = __("Parent", 'lang_webshop');
+			$data_temp[] = __("Title", 'lang_webshop');
+			//$data_temp[] = __("Date", 'lang_webshop');
+			$data_temp[] = __("Products", 'lang_webshop');
+			$data_temp[] = __("E-mail", 'lang_webshop');
+			$data_temp[] = __("Phone", 'lang_webshop');
+			$data_temp[] = __("Address", 'lang_webshop');
+			$data_temp[] = __("Status", 'lang_webshop');
+			$data_temp[] = __("Payment", 'lang_webshop');
+			$data_temp[] = __("Total", 'lang_webshop');
+
+			if(get_option('setting_webshop_tax_display') == 'yes')
+			{
+				$data_temp[] = __("Tax", 'lang_webshop');
+			}
+
+			$this->data[] = $data_temp;
+
+			foreach($result as $r)
+			{
+				$order_id = $r->ID;
+				$order_title = $r->post_title;
+				$order_parent = $r->post_parent;
+
+				$data_temp = [];
+
+				/*$has_data = false;
+
+				foreach($arr_columns as $key => $value)
+				{
+					if(!is_array($this->arr_columns) || count($this->arr_columns) == 0 || in_array($key, $this->arr_columns))
+					{
+						switch($key)
+						{
+							case 'webshopMemberID':
+							case 'webshopZipCode':
+								if($r[$key] > 0)
+								{
+									$data_temp[] = $r[$key];
+
+									$has_data = true;
+								}
+
+								else
+								{
+									$data_temp[] = "";
+								}
+							break;
+
+							case 'webshopCountry':
+								if($r[$key] > 0 && isset($arr_countries[$r[$key]]))
+								{
+									$data_temp[] = $arr_countries[$r[$key]];
+
+									$has_data = true;
+								}
+
+								else
+								{
+									$data_temp[] = "";
+								}
+							break;
+
+							default:
+								if($r[$key] != '')
+								{
+									$has_data = true;
+								}
+
+								$data_temp[] = $r[$key];
+							break;
+						}
+					}
+				}
+
+				if($has_data == true)
+				{
+					$this->data[] = $data_temp;
+				}*/
+
+				// Products
+				########################
+				$str_products = "";
+
+				$arr_products = get_post_meta($order_id, $obj_webshop->meta_prefix.'products', true);
+
+				if(is_array($arr_products) && count($arr_products) > 0)
+				{
+					foreach($arr_products as $key => $arr_product)
+					{
+						$arr_product_checkout_information = get_post_meta($arr_product['id'], $obj_webshop->meta_prefix.'product_checkout_information', false);
+
+						if(is_array($arr_product_checkout_information) && count($arr_product_checkout_information) > 0)
+						{
+							$product_id_temp = $product_amount_temp = "";
+
+							$arr_checkout_information = $obj_webshop->get_checkout_information();
+
+							for($i = 0; $i < $arr_product['amount']; $i++)
+							{
+								if($arr_product['id'] != $product_id_temp || $i != $product_amount_temp)
+								{
+									if($product_id_temp != '' || $product_amount_temp != '')
+									{
+										$str_products .= "\n";
+									}
+
+									$str_products .= get_the_title($arr_product['id'])." #".($i + 1)."\n";
+								}
+
+								foreach($arr_product_checkout_information as $checkout_name)
+								{
+									$meta_key = $checkout_name.'_'.$arr_product['id'].'_'.$i;
+
+									$order_detail = get_post_meta($order_id, $obj_webshop->meta_prefix.'checkout_name_'.$meta_key, true);
+
+									$str_products .= $arr_checkout_information[$checkout_name]['name'].": ";
+
+										if(in_array($arr_checkout_information[$checkout_name]['type'], ['checkbox_multiple', 'select_multiple']))
+										{
+											$j = 0;
+
+											if(is_array($order_detail))
+											{
+												foreach($order_detail as $key => $value)
+												{
+													$str_products .= ($j > 0 ? ", " : "").$arr_checkout_information[$checkout_name]['data'][$value];
+
+													$j++;
+												}
+											}
+										}
+
+										else
+										{
+											$str_products .= (is_array($order_detail) ? var_export($order_detail, true) : $order_detail);
+										}
+
+									$str_products .= "\n";
+								}
+
+								$product_id_temp = $arr_product['id'];
+								$product_amount_temp = $i;
+							}
+
+							if($product_id_temp != '' || $product_amount_temp != '')
+							{
+								$str_products .= "\n";
+							}
+						}
+
+						/*if(isset($arr_product['id']) && $arr_product['id'] > 0)
+						{
+							$str_products .= get_the_title($arr_product['id']).": ".$arr_product['amount']."\n";
+						}*/
+
+						/*else
+						{
+							echo "<p>".__("Nothing in the cart so far", 'lang_webshop')."</p>";
+						}*/
+					}
+				}
+				########################
+
+				// Details
+				########################
+				$str_email = $str_phone = $str_address = "";
+
+				$obj_encryption = new mf_encryption('mf_webshop');
+				$obj_webshop->order_details = [];
+
+				$obj_webshop->order_cart_hash = get_post_meta($order_id, $obj_webshop->meta_prefix.'cart_hash', true);
+
+				foreach($obj_webshop->arr_meta_keys as $meta_key)
+				{
+					$obj_webshop->order_details[$meta_key] = get_post_meta($order_id, $obj_webshop->meta_prefix.$meta_key, true);
+
+					if($obj_webshop->order_details[$meta_key] != '')
+					{
+						$obj_webshop->order_details[$meta_key] = $obj_encryption->decrypt($obj_webshop->order_details[$meta_key], md5($obj_webshop->order_cart_hash));
+					}
+				}
+
+				if($obj_webshop->order_details['contact_email'] != '')
+				{
+					$str_email = $obj_webshop->order_details['contact_email'];
+				}
+
+				if($obj_webshop->order_details['contact_phone'] != '')
+				{
+					$str_phone = $obj_webshop->order_details['contact_phone'];
+				}
+
+				if($obj_webshop->order_details['address_street'] != '' || $obj_webshop->order_details['address_zip'] != '' || $obj_webshop->order_details['address_city'] != '')
+				{
+					$str_address = $obj_webshop->order_details['address_street'].", ".$obj_webshop->order_details['address_zip']." ".$obj_webshop->order_details['address_city'];
+				}
+				########################
+
+				// Status
+				########################
+				$order_status = get_post_meta($order_id, $obj_webshop->meta_prefix.'order_status', true);
+
+				$order_status = get_post_meta($order_id, $obj_webshop->meta_prefix.'order_status', true);
+				$arr_order_status = $obj_webshop->get_order_status_for_select();
+
+				$str_status = $arr_order_status[$order_status];
+				########################
+
+				// Payment
+				########################
+				$post_meta = get_post_meta($order_id, $obj_webshop->meta_prefix.'payment_method', true);
+
+				$str_payment = $obj_webshop->get_payment_method_name($post_meta);
+				########################
+
+				// Total
+				########################
+				$str_total = "";
+
+				$post_meta = get_post_meta($order_id, $obj_webshop->meta_prefix.'total_sum', true);
+
+				if($post_meta > 0)
+				{
+					$paid_currency = get_post_meta($order_id, $obj_webshop->meta_prefix.'paid_currency', true);
+					$paid_tax_display = get_post_meta_or_default($order_id, $obj_webshop->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
+
+					$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+
+					$str_total = $post_meta." ".$paid_currency." ".$paid_tax_display_prefix;
+				}
+				########################
+
+				$data_temp[] = $order_id;
+				$data_temp[] = $order_parent;
+				$data_temp[] = $order_title;
+				//$data_temp[] = $r->post_modified;
+
+				$data_temp[] = $str_products;
+				$data_temp[] = $str_email;
+				$data_temp[] = $str_phone;
+				$data_temp[] = $str_address;
+				$data_temp[] = $str_status;
+				$data_temp[] = $str_payment;
+				$data_temp[] = $str_total;
+
+				if(get_option('setting_webshop_tax_display') == 'yes')
+				{
+					$str_tax = "";
+
+					$post_meta = get_post_meta($order_id, $obj_webshop->meta_prefix.'total_tax', true);
+
+					if($post_meta > 0)
+					{
+						$paid_currency = get_post_meta($order_id, $obj_webshop->meta_prefix.'paid_currency', true);
+						$paid_tax_display = get_post_meta_or_default($order_id, $obj_webshop->meta_prefix.'paid_tax_display', true, get_option('setting_webshop_tax_display', 'yes'));
+
+						$paid_tax_display_prefix = ($paid_tax_display == 'yes' ? __("excl. tax", 'lang_webshop') : __("incl. tax", 'lang_webshop'));
+
+						$str_tax = $post_meta." ".$paid_currency." ".$paid_tax_display_prefix;
+					}
+
+					$data_temp[] = $str_tax;
+				}
+
+				$this->data[] = $data_temp;
+			}
 		}
 	}
 }

@@ -74,11 +74,11 @@ jQuery(function($)
 			{
 				if(editable_products > 0)
 				{
-					$(".cart_countdown").removeClass('hide');
+					dom_obj_widget.find(".cart_countdown").removeClass('hide');
 				}
 
 				var totalSeconds = (product_time_limit * 60),
-					dom_countdown = $(".cart_countdown").find("span");
+					dom_countdown = dom_obj_widget.find(".cart_countdown span");
 
 				function formatTime(sec)
 				{
