@@ -3478,9 +3478,9 @@ class mf_webshop
 					if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '' || $this->order_details['address_street'] != '' || $this->order_details['address_zip'] != '' || $this->order_details['address_city'] != '')
 					{
 						$out .= "<li>
-							<div class='content'>
+							<div class='grid_content'>
 								<span class='grid_title'>".__("Billing", 'lang_webshop')."</span>
-								<p class='text'>";
+								<p class='grid_text'>";
 
 									if($this->order_details['first_name'] != '' || $this->order_details['last_name'] != '')
 									{
@@ -3502,9 +3502,9 @@ class mf_webshop
 					if($this->order_details['contact_phone'] != '' || $this->order_details['contact_email'] != '')
 					{
 						$out .= "<li>
-							<div class='content'>
+							<div class='grid_content'>
 								<span class='grid_title'>".__("Contact", 'lang_webshop')."</span>
-								<p class='text'>";
+								<p class='grid_text'>";
 
 									if($this->order_details['contact_phone'] != '')
 									{
@@ -3523,9 +3523,9 @@ class mf_webshop
 					}
 
 					$out .= "<li>
-						<div class='content'>
+						<div class='grid_content'>
 							<span class='grid_title'>".__("Order", 'lang_webshop')."</span>
-							<p class='text'>"
+							<p class='grid_text'>"
 								//."#".$order_number."<br>"
 								."#".$order_id."<br>"
 								.$order_date."<br>"
@@ -3568,9 +3568,9 @@ class mf_webshop
 									}
 
 									$out .= "<li>
-										<div class='content'>
+										<div class='grid_content'>
 											<span class='grid_title'>".get_the_title($arr_product['id'])." #".($i + 1)."</span>
-											<p class='text'>";
+											<p class='grid_text'>";
 								}
 
 								foreach($arr_product_checkout_information as $checkout_name)
@@ -9066,7 +9066,7 @@ class mf_webshop
 									<% if(product_data != ''){ %><%= product_data %><% } %>
 								</div>
 							<% } %>
-							<div class='content'>
+							<div class='grid_content'>
 								<a href='<%= product_url %>' class='grid_title'><%= product_title %></a>
 								<% if(product_location != '')
 								{ %>
@@ -9078,7 +9078,7 @@ class mf_webshop
 								<% } %>
 								<% if(product_description != '')
 								{ %>
-									<div class='text'>
+									<div class='grid_text'>
 										<%= product_description %>
 									</div>
 								<% } %>
