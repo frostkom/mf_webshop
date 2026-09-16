@@ -1527,8 +1527,18 @@ class mf_webshop
 		return $arr_out;
 	}
 
-	function get_checkout_information_for_select()
+	function get_checkout_information_for_select($data = array())
 	{
+		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = (isset($data['choose_here_text']));}
+		if(!isset($data['choose_here_text'])){	$data['choose_here_text'] = __("Choose Here", 'lang_webshop');}
+
+		$arr_data = [];
+
+		if($data['add_choose_here'] == true)
+		{
+			$arr_data[''] = "-- ".$data['choose_here_text']." --";
+		}
+
 		$arr_out = $this->get_checkout_information();
 
 		foreach($arr_out as $key => $arr_value)
@@ -3159,11 +3169,12 @@ class mf_webshop
 
 	function get_order_status_for_select($data = array())
 	{
-		if(!isset($data['current'])){	$data['current'] = '';}
-		if(!isset($data['exclude'])){	$data['exclude'] = array();}
+		if(!isset($data['current'])){			$data['current'] = '';}
+		if(!isset($data['exclude'])){			$data['exclude'] = array();}
+		if(!isset($data['choose_here_text'])){	$data['choose_here_text'] = __("Choose Here", 'lang_webshop');}
 
 		$arr_out = array(
-			'' => "-- ".__("Choose Here", 'lang_webshop')." --",
+			'' => "-- ".$data['choose_here_text']." --",
 			'unknown' => __("Unknown", 'lang_webshop'),
 			'cancelled' => __("Cancelled", 'lang_webshop'),
 			'failed' => __("Failed", 'lang_webshop'),
@@ -5881,13 +5892,16 @@ class mf_webshop
 			{
 				$strFilterStatus = check_var('strFilterStatus');
 				$intFilterProductID = check_var('intFilterProductID');
+				$strFilterCheckoutInformation = check_var('strFilterCheckoutInformation');
 
-				echo show_select(array('data' => $this->get_order_status_for_select(), 'name' => 'strFilterStatus', 'value' => $strFilterStatus));
-
+				echo show_select(array('data' => $this->get_order_status_for_select(['choose_here_text' => __("Status", 'lang_webshop')]), 'name' => 'strFilterStatus', 'value' => $strFilterStatus));
+ 
 				$arr_data = [];
-				get_post_children(array('add_choose_here' => true, 'post_type' => $this->post_type_products), $arr_data);
+				get_post_children(array('choose_here_text' => __("Product", 'lang_webshop'), 'post_type' => $this->post_type_products), $arr_data);
 
 				echo show_select(array('data' => $arr_data, 'name' => 'intFilterProductID', 'value' => $intFilterProductID));
+
+				echo show_select(array('data' => $this->get_checkout_information_for_select(['choose_here_text' => __("Checkout Information", 'lang_webshop')]), 'name' => 'strFilterCheckoutInformation', 'value' => $strFilterCheckoutInformation));
 			}
 		}
 	}
@@ -5939,35 +5953,47 @@ class mf_webshop
 			{
 				$strFilterStatus = check_var('strFilterStatus');
 				$intFilterProductID = check_var('intFilterProductID');
+				$strFilterCheckoutInformation = check_var('strFilterCheckoutInformation');
 
 				$meta_query = array();
 
-				if ($strFilterStatus != '')
+				if($strFilterStatus != '')
 				{
 					$meta_query[] = array(
-						'key'     => $this->meta_prefix.'order_status',
-						'value'   => $strFilterStatus,
+						'key' => $this->meta_prefix.'order_status',
+						'value' => $strFilterStatus,
 						'compare' => '=',
 					);
 				}
 
-				if ($intFilterProductID > 0)
+				if($intFilterProductID > 0)
 				{
 					$id = (string)(int)$intFilterProductID; // sanitize: force numeric, then back to string
 					$len = strlen($id);
 					$meta_query[] = array(
-						'key'     => $this->meta_prefix.'products',
-						'value'   => '"id";s:'.$len.':"'.$id.'";',
+						'key' => $this->meta_prefix.'products',
+						'value' => '"id";s:'.$len.':"'.$id.'";',
 						'compare' => 'LIKE',
 					);
 				}
 
-				if (!empty($meta_query))
+				if($strFilterCheckoutInformation != '')
 				{
-					if (count($meta_query) > 1)
+					$meta_query[] = array(
+						'key' => $this->meta_prefix.'checkout_name_'.$strFilterCheckoutInformation,
+						'compare_key' => 'LIKE',
+						'value' => '',
+						'compare' => '!=',
+					);
+				}
+
+				if(!empty($meta_query))
+				{
+					if(count($meta_query) > 1)
 					{
 						$meta_query['relation'] = 'AND'; // or 'OR', depending on what you want
 					}
+
 					$wp_query->query_vars['meta_query'] = $meta_query;
 				}
 
@@ -5979,6 +6005,8 @@ class mf_webshop
 						'compare' => '=',
 					),
 				);*/
+
+				//do_log(__FUNCTION__.": ".$wp_query->request);
 			}
 		}
 	}
