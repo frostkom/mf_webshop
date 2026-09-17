@@ -1531,6 +1531,7 @@ class mf_webshop
 	{
 		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = (isset($data['choose_here_text']));}
 		if(!isset($data['choose_here_text'])){	$data['choose_here_text'] = __("Choose Here", 'lang_webshop');}
+		if(!isset($data['exclude'])){			$data['exclude'] = '';}
 
 		$arr_data = [];
 
@@ -1543,7 +1544,19 @@ class mf_webshop
 
 		foreach($arr_out as $key => $arr_value)
 		{
-			$arr_data[$key] = $arr_value['name'];
+			switch($data['exclude'])
+			{
+				case 'required':
+					if(!isset($arr_value['xtra']) || strpos($arr_value['xtra'], 'required') === false)
+					{
+						$arr_data[$key] = $arr_value['name'];
+					}
+				break;
+
+				default:
+					$arr_data[$key] = $arr_value['name'];
+				break;
+			}
 		}
 
 		return $arr_data;
@@ -5901,7 +5914,7 @@ class mf_webshop
 
 				echo show_select(array('data' => $arr_data, 'name' => 'intFilterProductID', 'value' => $intFilterProductID));
 
-				echo show_select(array('data' => $this->get_checkout_information_for_select(['choose_here_text' => __("Checkout Information", 'lang_webshop')]), 'name' => 'strFilterCheckoutInformation', 'value' => $strFilterCheckoutInformation));
+				echo show_select(array('data' => $this->get_checkout_information_for_select(['choose_here_text' => __("Checkout Information", 'lang_webshop'), 'exclude' => 'required']), 'name' => 'strFilterCheckoutInformation', 'value' => $strFilterCheckoutInformation));
 			}
 		}
 	}
