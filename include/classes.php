@@ -2495,6 +2495,7 @@ class mf_webshop
 												iconColor: '#fa755a'
 											}
 										};
+
 										var order_cart_hash = '',
 											stripe_obj = Stripe('".$public_key."'),
 											card_obj = stripe_obj.elements().create('card', { style: style }),
@@ -2523,7 +2524,9 @@ class mf_webshop
 										form_obj.addEventListener('submit', function(event)
 										{
 											document.querySelector('#form_stripe .wp-block-button__link .total_sum').innerHTML = \"".apply_filters('get_loading_animation', '', ['class' => ''])."\";
+
 											event.preventDefault();
+
 											stripe_obj.createPaymentMethod('card', card_obj).then(function(result)
 											{
 												if(result.error)
@@ -2559,7 +2562,7 @@ class mf_webshop
 											.catch(function(error)
 											{
 												document.querySelector('.notification').classList.remove('hide');
-												document.querySelector('.notification p').textContent = 'Something went wrong. Please try again.';
+												document.querySelector('.notification p').textContent = '".__("Something went wrong. Please try again.", 'lang_webshop')."';
 											});
 										}
 
@@ -2591,6 +2594,7 @@ class mf_webshop
 													}
 												});
 											}
+
 											else
 											{
 												document.querySelector('.notification').classList.remove('hide');
@@ -3267,7 +3271,7 @@ class mf_webshop
 									{
 										foreach($arr_products as $key => $arr_product)
 										{
-											$product_stock = get_post_meta_or_default($arr_product['id'], $this->meta_prefix.$stock_post_name, true, 0);
+											$product_stock = get_post_meta($arr_product['id'], $this->meta_prefix.$stock_post_name, true);
 
 											if($product_stock != '' && $arr_product['amount'] > 0)
 											{
@@ -8907,7 +8911,6 @@ class mf_webshop
 		$arr_json = json_decode($request->get_body(), true);
 
 		$this->order_cart_hash = sanitize_text_field($arr_json['order_id']);
-		$payment_method = 'stripe';
 		$test_mode = sanitize_text_field($arr_json['test_mode']);
 		$payment_intent_id = (isset($arr_json['payment_intent_id']) ? sanitize_text_field($arr_json['payment_intent_id']) : null);
 		$payment_method_id = (isset($arr_json['payment_method_id']) ? sanitize_text_field($arr_json['payment_method_id']) : null);
@@ -8915,20 +8918,22 @@ class mf_webshop
 		if($test_mode != 'no' && in_array('stripe_test', $setting_webshop_payment_alternatives))
 		{
 			$setting_key = 'setting_webshop_stripe_secret_key_test';
+			$payment_method = 'stripe_test';
 		}
 
 		else
 		{
 			$setting_key = 'setting_webshop_stripe_secret_key';
+			$payment_method = 'stripe';
 		}
 
 		$secret_key = get_option($setting_key);
+		$setting_webshop_currency = get_option('setting_webshop_currency');
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 		$secret_key = $obj_encryption->decrypt($secret_key, md5(AUTH_KEY));
 
 		$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
-		$setting_webshop_currency = get_option('setting_webshop_currency');
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
@@ -8941,52 +8946,65 @@ class mf_webshop
 		{
 			$order_id = $r->ID;
 			$return_url = get_permalink($order_id);
+			
+			$ch = curl_init();
 
 			if($payment_intent_id)
 			{
-				// Stage 2: payment was already confirmed client-side via confirmCardPayment.
-				// Just retrieve its current status.
-				$ch = curl_init();
+				// Stage 2: payment was already confirmed client-side via confirmCardPayment
 				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents/'.$payment_intent_id);
 				curl_setopt($ch, CURLOPT_HTTPGET, true);
 			}
+
 			else
 			{
 				// Stage 1: creating + attempting a new PaymentIntent
-				$ch = curl_init();
 				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-					'amount' => ($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
+					'amount' => (int)round($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
 					'currency' => $setting_webshop_currency,
 					'payment_method' => $payment_method_id,
 					'confirmation_method' => 'automatic',
 					'confirm' => 'true',
 					'return_url' => $return_url,
+					'metadata' => ['order_id' => $order_id],
 				]));
 			}
+
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer '.$secret_key]);
+
 			$content = curl_exec($ch);
 			$arr_json = json_decode($content, true);
 
 			switch($arr_json['status'])
 			{
 				case 'succeeded':
-					$return_url = $this->save_payment_success(array(
-						'post_id' => $order_id,
-						'payment_method' => $payment_method,
-						'payment_method_id' => $arr_json['payment_method'],
-						'test_mode' => $test_mode,
-						'order_status' => 'paid',
-						'arr_cart_data' => $arr_cart_data,
-						'setting_webshop_currency' => $setting_webshop_currency,
-					));
+					if((int)$arr_json['amount'] !== (int)round($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100) || strtolower($arr_json['currency']) !== strtolower($setting_webshop_currency) || (int)($arr_json['metadata']['order_id'] ?? '') !== (int)$order_id)
+					{
+						do_log(__FUNCTION__." - Payment mismatch for order ".$order_id.": ".var_export($arr_json, true));
 
-					return [
-						'success' => true,
-						'return_url' => $return_url,
-					];
+						return new WP_REST_Response(['error' => __("I am sorry but the payment could not be verified. An administrator has been notified about this.", 'lang_webshop')], 400);
+					}
+
+					else
+					{
+						$return_url = $this->save_payment_success(array(
+							'post_id' => $order_id,
+							'payment_method' => $payment_method,
+							'payment_method_id' => $arr_json['payment_method'],
+							'test_mode' => $test_mode,
+							'order_status' => 'paid',
+							'arr_cart_data' => $arr_cart_data,
+							'setting_webshop_currency' => $setting_webshop_currency,
+						));
+
+						return [
+							'success' => true,
+							'return_url' => $return_url,
+						];
+					}
 				break;
 
 				case 'requires_action':
@@ -9006,6 +9024,7 @@ class mf_webshop
 					else
 					{
 						do_log(__FUNCTION__." - Unknown response: ".var_export($arr_json, true));
+
 						return new WP_REST_Response(['error' => __("I am sorry but the payment failed. An administrator has been notified about this.", 'lang_webshop')], 400);
 					}
 				break;
@@ -9015,9 +9034,7 @@ class mf_webshop
 
 	function filter_rest_authentication_errors($out)
 	{
-		$request_uri = $_SERVER['REQUEST_URI'];
-
-		if(strpos($request_uri, '/wp-json/'.__CLASS__.'/process_stripe_payment') !== false)
+		if(strpos($_SERVER['REQUEST_URI'], '/wp-json/'.__CLASS__.'/process_stripe_payment') !== false)
 		{
 			$out = true;
 		}
