@@ -6705,43 +6705,37 @@ class mf_webshop
 					break;
 
 					case 'order_status':
-						if(get_post_status($post_id) == 'publish')
+						$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
+
+						switch($order_status)
 						{
-							$order_status = get_post_meta($post_id, $this->meta_prefix.'order_status', true);
+							case 'unknown':
+							case 'cancelled':
+							case 'failed':
+							case 'wrong_amount':
+								echo $this->get_order_status(array('order_id' => $post_id));
+							break;
 
-							switch($order_status)
-							{
-								case 'unknown':
-								case 'cancelled':
-								case 'failed':
-								case 'wrong_amount':
+							default:
+								$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
+
+								if($test_mode != 'no')
+								{
+									echo "<span class='color_red nowrap'><i class='fa fa-exclamation-triangle yellow'></i> ".__("Test Mode", 'lang_webshop')."</span>";
+								}
+
+								else
+								{
 									echo $this->get_order_status(array('order_id' => $post_id));
-								break;
-
-								default:
-									$test_mode = get_post_meta($post_id, $this->meta_prefix.'test_mode', true);
-
-									if($test_mode != 'no')
-									{
-										echo "<span class='color_red nowrap'><i class='fa fa-exclamation-triangle yellow'></i> ".__("Test Mode", 'lang_webshop')."</span>";
-									}
-
-									else
-									{
-										echo $this->get_order_status(array('order_id' => $post_id));
-									}
-								break;
-							}
+								}
+							break;
 						}
 					break;
 
 					case 'payment_method':
-						if(get_post_status($post_id) == 'publish')
-						{
-							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 
-							echo $this->get_payment_method_name($post_meta);
-						}
+						echo $this->get_payment_method_name($post_meta);
 					break;
 
 					case 'total_sum':
@@ -6760,50 +6754,43 @@ class mf_webshop
 					break;
 
 					case 'order_confirmation_buyer_sent':
-						if(get_post_status($post_id) == 'publish')
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+
+						if(isset($_GET['btnConfirmationBuyerSend']) && wp_verify_nonce($_REQUEST['_wpnonce_confirmation_buyer_send'], 'confirmation_buyer_send_'.$post_id) && !($post_meta > DEFAULT_DATE))
 						{
-							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
+							$return_url = $this->get_order_url($post_id);
+							$order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
 
-							if(isset($_GET['btnConfirmationBuyerSend']) && wp_verify_nonce($_REQUEST['_wpnonce_confirmation_buyer_send'], 'confirmation_buyer_send_'.$post_id) && !($post_meta > DEFAULT_DATE))
+							$obj_encryption = new mf_encryption(__CLASS__);
+							$this->order_details = [];
+
+							foreach($this->arr_meta_keys as $meta_key)
 							{
-								$return_url = $this->get_order_url($post_id);
-								$order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+								$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
 
-								$obj_encryption = new mf_encryption(__CLASS__);
-								$this->order_details = [];
-
-								foreach($this->arr_meta_keys as $meta_key)
+								if($this->order_details[$meta_key] != '')
 								{
-									$this->order_details[$meta_key] = get_post_meta($post_id, $this->meta_prefix.$meta_key, true);
-
-									if($this->order_details[$meta_key] != '')
-									{
-										$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_cart_hash));
-									}
+									$this->order_details[$meta_key] = $obj_encryption->decrypt($this->order_details[$meta_key], md5($order_cart_hash));
 								}
-
-								$this->send_confirmation_buyer(['post_id' => $post_id, 'return_url' => $return_url]);
-
-								$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 							}
 
-							if($post_meta > DEFAULT_DATE)
-							{
-								echo format_date($post_meta);
-							}
+							$this->send_confirmation_buyer(['post_id' => $post_id, 'return_url' => $return_url]);
 
-							else
-							{
-								echo "<i class='fa fa-times red'></i>
-								<div class='row-actions'>
-									<a href='".wp_nonce_url("edit.php?post_type=".$this->post_type_orders."&paged=".check_var('paged', 'int', true, 1)."&btnConfirmationBuyerSend", 'confirmation_buyer_send_'.$post_id, '_wpnonce_confirmation_buyer_send')."'".make_link_confirm().">".__("Send", 'lang_webshop')."</a>
-								</div>";
-							}
+							$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, true);
 						}
-					break;
 
-					default:
-						echo $column;
+						if($post_meta > DEFAULT_DATE)
+						{
+							echo format_date($post_meta);
+						}
+
+						else
+						{
+							echo "<i class='fa fa-times red'></i>
+							<div class='row-actions'>
+								<a href='".wp_nonce_url("edit.php?post_type=".$this->post_type_orders."&paged=".check_var('paged', 'int', true, 1)."&btnConfirmationBuyerSend", 'confirmation_buyer_send_'.$post_id, '_wpnonce_confirmation_buyer_send')."'".make_link_confirm().">".__("Send", 'lang_webshop')."</a>
+							</div>";
+						}
 					break;
 				}
 			break;
@@ -6961,9 +6948,12 @@ class mf_webshop
 		}
 	}
 
-	function get_post_types_for_metabox($array)
+	function get_post_types_ignore($array, $type)
 	{
-		$array[] = $this->post_type_orders;
+		if($type == 'index')
+		{
+			$array[] = $this->post_type_orders;
+		}
 
 		return $array;
 	}
