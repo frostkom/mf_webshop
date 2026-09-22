@@ -9154,7 +9154,7 @@ class mf_webshop
 
 								if($wpdb->num_rows > 0)
 								{
-									$out .= "<div class='is-style-outline wp-block-button read_more_button'>
+									$out .= "<div class='wp-block-button is-style-outline read_more_button'>
 										<a href='<%= product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
 									</div>";
 								}
