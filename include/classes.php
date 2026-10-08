@@ -4179,29 +4179,29 @@ class mf_webshop
 			$arr_settings['setting_webshop_prefered_payment_alternative'] = " - ".__("Prefered", 'lang_webshop');
 		}
 
-		if(in_array('stripe_test', $setting_webshop_payment_alternatives))
+		if(in_array('stripe_test', $setting_webshop_payment_alternatives) || get_option('setting_webshop_stripe_public_key_test') != '' || get_option('setting_webshop_stripe_secret_key_test') != '')
 		{
 			$arr_settings['setting_webshop_stripe_public_key_test'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
 			$arr_settings['setting_webshop_stripe_secret_key_test'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
 		}
 
-		if(in_array('stripe', $setting_webshop_payment_alternatives))
+		if(in_array('stripe', $setting_webshop_payment_alternatives) || get_option('setting_webshop_stripe_public_key') != '' || get_option('setting_webshop_stripe_secret_key') != '')
 		{
 			$arr_settings['setting_webshop_stripe_public_key'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")";
 			$arr_settings['setting_webshop_stripe_secret_key'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")";
 		}
 
-		if(in_array('swish_manual', $setting_webshop_payment_alternatives))
+		if(in_array('swish_manual', $setting_webshop_payment_alternatives) || get_option('setting_webshop_swish_company_number') != '' || get_option('setting_webshop_swish_company_prefix') != '')
 		{
 			$arr_settings['setting_webshop_swish_company_number'] = __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")";
 			$arr_settings['setting_webshop_swish_company_prefix'] = " - ".__("Payment Prefix", 'lang_webshop');
 		}
 
-		if(in_array('swish', $setting_webshop_payment_alternatives))
+		if(in_array('swish', $setting_webshop_payment_alternatives) || get_option('setting_webshop_swish_merchant_number') != '')
 		{
 			$arr_settings['setting_webshop_swish_merchant_number'] = __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")";
 
-			if(get_option('setting_webshop_swish_merchant_number') != '')
+			if(get_option('setting_webshop_swish_merchant_number') != '' || get_option('setting_webshop_swish_certificate_root_file') != '' || get_option('setting_webshop_swish_certificate_file') != '' || get_option('setting_webshop_swish_key_file') != '')
 			{
 				$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
 				$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
@@ -4209,7 +4209,7 @@ class mf_webshop
 			}
 		}
 
-		if(in_array('bank_transfer', $setting_webshop_payment_alternatives))
+		if(in_array('bank_transfer', $setting_webshop_payment_alternatives) || get_option('setting_webshop_bank_transfer_number') != '')
 		{
 			$arr_settings['setting_webshop_bank_transfer_number'] = __("Bank Transfer Number", 'lang_webshop');
 		}
@@ -8945,7 +8945,7 @@ class mf_webshop
 		{
 			$order_id = $r->ID;
 			$return_url = get_permalink($order_id);
-			
+
 			$ch = curl_init();
 
 			if($payment_intent_id)
