@@ -3,6 +3,7 @@
 	var el = wp.element.createElement,
 		registerBlockType = wp.blocks.registerBlockType,
 		SelectControl = wp.components.SelectControl,
+		PanelBody = wp.components.PanelBody,
 		InspectorControls = wp.blockEditor.InspectorControls;
 
 	registerBlockType('mf/webshoptimeline',
@@ -120,18 +121,22 @@
 				[
 					el(
 						InspectorControls,
-						'div',
+						{key: 'inspector'},
 						el(
-							SelectControl,
-							{
-								label: script_webshop_block_wp.webshop_search_label,
-								value: props.attributes.webshop_search,
-								options: convert_php_array_to_block_js(script_webshop_block_wp.yes_no_for_select),
-								onChange: function(value)
+							PanelBody,
+							{title: script_webshop_block_wp.block_title2, initialOpen: true},
+							el(
+								SelectControl,
 								{
-									props.setAttributes({webshop_search: value});
+									label: script_webshop_block_wp.webshop_search_label,
+									value: props.attributes.webshop_search,
+									options: convert_php_array_to_block_js(script_webshop_block_wp.yes_no_for_select),
+									onChange: function(value)
+									{
+										props.setAttributes({webshop_search: value});
+									}
 								}
-							}
+							)
 						)
 					),
 					el(

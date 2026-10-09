@@ -9083,18 +9083,18 @@ class mf_webshop
 
 					<script type='text/template' id='template_product_item'>
 						<li id='product_<%= product_id %>'<%= (product_url != '#' ? '' : ' class=ghost') %>>
-							<div class='grid_image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
-								<a href='<%= product_url %>'>
+							<a href='<%= product_url %>'>
+								<div class='grid_image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
 									<%= product_image %>
-								</a>
-							</div>
-							<% if(product_category != '' || product_data != '')
-							{ %>
-								<div class='grid_meta'>
-									<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
-									<% if(product_data != ''){ %><%= product_data %><% } %>
+									<% if(product_category != '' || product_data != '')
+									{ %>
+										<div class='grid_meta'>
+											<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
+											<% if(product_data != ''){ %><%= product_data %><% } %>
+										</div>
+									<% } %>
 								</div>
-							<% } %>
+							</a>
 							<div class='grid_content'>
 								<a href='<%= product_url %>' class='grid_title'><%= product_title %></a>
 								<% if(product_location != '')
