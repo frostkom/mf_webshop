@@ -304,12 +304,12 @@ class mf_webshop
 				'url' => __("URL", 'lang_webshop'),
 				//'clock' => __("Clock", 'lang_webshop'),
 				//'checkbox' => __("Checkbox", 'lang_webshop'),
-			//'group_special_input' => "-- ".__("Special Input", 'lang_webshop')." --",
+			'group_special_input' => "-- ".__("Special Input", 'lang_webshop')." --",
 				//'color' => __("Color Picker", 'lang_webshop'),
 				//'event' => __("Event", 'lang_webshop'),
 				//'page' => __("Page", 'lang_webshop'),
 				//'file_advanced' => __("File", 'lang_webshop'),
-				//'categories' => __("Categories", 'lang_webshop'),
+				'categories' => __("Categories", 'lang_webshop'),
 				//'categories_v2' => __("Categories", 'lang_webshop')." (v2)",
 				//'custom_categories' => __("Custom Categories", 'lang_webshop'),
 				//'social' => __("Social Feed", 'lang_webshop'),
@@ -910,6 +910,7 @@ class mf_webshop
 		global $wpdb, $obj_font_icons;
 
 		if(!isset($attributes['webshop_search'])){				$attributes['webshop_search'] = 'yes';}
+		if(!isset($attributes['webshop_filter'])){				$attributes['webshop_filter'] = 'no';}
 
 		if(!isset($obj_font_icons))
 		{
@@ -964,7 +965,7 @@ class mf_webshop
 					$setting_webshop_sort_default = get_option('setting_webshop_sort_default', 'menu_order');
 
 					$out .= show_form_alternatives(array('data' => $this->get_sort_for_select($setting_webshop_display_sort), 'name' => 'order', 'text' => __("Sort By", 'lang_webshop'), 'value' => $setting_webshop_sort_default));
-				}
+				}*/
 
 				if($attributes['webshop_filter'] != 'no')
 				{
@@ -1009,7 +1010,7 @@ class mf_webshop
 							break;
 
 							case 'categories':
-								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'required' => ($post_custom_required == 'yes')));
+								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'field_class' => "mf_form_field ".$post_custom_type, 'required' => ($post_custom_required == 'yes')));
 							break;
 
 							case 'categories_v2':
@@ -1161,7 +1162,7 @@ class mf_webshop
 							break;
 						}
 					}
-				}*/
+				}
 
 				$out .= "<ul class='grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
 			."</form>"
@@ -3862,6 +3863,7 @@ class mf_webshop
 			'block_description2' => __("Display Search", 'lang_webshop'),
 			'yes_no_for_select' => get_yes_no_for_select(),
 			'webshop_search_label' => __("Display Search Box", 'lang_webshop'),
+			'webshop_filter_label' => __("Display Filters", 'lang_webshop'),
 			'block_title4' => __("Webshop", 'lang_webshop')." - ".__("Cart", 'lang_webshop'),
 			'block_description4' => __("Display Cart", 'lang_webshop'),
 			'block_title6' => __("Webshop", 'lang_webshop')." - ".__("More Images", 'lang_webshop'),
@@ -7759,6 +7761,7 @@ class mf_webshop
 
 			foreach($arr_categories as $category_id)
 			{
+				$product_category_id = $category_id;
 				$product_category .= ($product_category != '' ? ", " : "").get_the_title($category_id);
 			}
 
@@ -7774,6 +7777,7 @@ class mf_webshop
 					'product_clock' => ($this->product_clock),
 					'product_address' => $this->product_address,
 					'product_data' => $this->product_data,
+					'product_category_id' => $product_category_id,
 					'product_category' => $product_category,
 					'product_location' => $this->product_location,
 					'product_url' => $this->product_url,
@@ -8355,6 +8359,49 @@ class mf_webshop
 					$query_where .= " AND (post_title LIKE '%".esc_sql($search_text)."%' OR post_content LIKE '%".esc_sql($search_text)."%')";
 				}
 
+				/*$query_join_category = $query_where_category = "";
+
+				if($category > 0)
+				{
+					$query_join_category = " INNER JOIN ".$wpdb->term_relationships." AS tr_cat ON ".$wpdb->posts.".ID = tr_cat.object_id INNER JOIN ".$wpdb->term_taxonomy." AS tt_cat ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id";
+					$query_where_category = " AND tt_cat.term_id = '".intval($category)."'";
+				}*/
+
+				parse_str(ltrim($type, '?'), $type_params);
+
+				$result_types = $this->get_document_types(array('select' => "ID, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_searchable'", 'where_key' => "meta_value = %s", 'where_value' => 'yes', 'order' => "menu_order ASC"));
+
+				foreach($result_types as $i => $r_type)
+				{
+					$type_post_name = $r_type->post_name;
+					$type_custom = get_post_meta($r_type->ID, $this->meta_prefix.'document_type', true);
+
+					if(in_array($type_custom, array('categories', 'categories_v2', 'custom_categories', 'location')))
+					{
+						$filter_value = (isset($type_params[$type_post_name]) ? $type_params[$type_post_name] : check_var($type_post_name, 'char'));
+
+						if(is_string($filter_value) && $filter_value != '')
+						{
+							switch($type_custom)
+							{
+								case 'categories':
+								case 'categories_v2':
+									$filter_meta_key = $this->meta_prefix.'category';
+								break;
+
+								default:
+									$filter_meta_key = $this->meta_prefix.$type_post_name;
+								break;
+							}
+
+							$alias = "filter_".intval($i);
+
+							$query_join_filter .= " INNER JOIN ".$wpdb->postmeta." AS ".$alias." ON ".$wpdb->posts.".ID = ".$alias.".post_id AND ".$alias.".meta_key = '".esc_sql($filter_meta_key)."'";
+							$query_where_filter .= " AND ".$alias.".meta_value = '".esc_sql($filter_value)."'";
+						}
+					}
+				}
+
 				$query_join .= " LEFT JOIN ".$wpdb->postmeta." AS searchable ON ".$wpdb->posts.".ID = searchable.post_id AND searchable.meta_key =		'".$obj_base->meta_prefix.'page_index'."'";
 				$query_where .= " AND (searchable.meta_value IS NULL OR searchable.meta_value != 'no')";
 
@@ -8430,7 +8477,9 @@ class mf_webshop
 					$query_order = " ORDER BY ".$query_order;
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', 0));
+				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', 0));
+				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_category." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_where_category.$query_group.$query_order, $this->post_type_products, 'publish', 0));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_filter." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_where_filter.$query_group.$query_order, $this->post_type_products, 'publish', 0));
 
 				if(IS_SUPER_ADMIN)
 				{
@@ -9077,7 +9126,7 @@ class mf_webshop
 				case 'products':
 					$out .= "<script type='text/template' id='template_product_message'>
 						<li>
-							<div class='content'>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</div>
+							<div class='grid_content'>".__("I could not find anything that corresponded to your choices", 'lang_webshop')."</div>
 						</li>
 					</script>
 
@@ -9088,9 +9137,19 @@ class mf_webshop
 									<%= product_image %>
 									<% if(product_category != '' || product_data != '')
 									{ %>
-										<div class='grid_meta'>
-											<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>
-											<% if(product_data != ''){ %><%= product_data %><% } %>
+										<div class='grid_meta'>";
+
+											if(1 == 1)
+											{
+												$out .= "<% if(product_category != ''){ %><span class='category' data-category='<%= product_category_id %>'><%= product_category %></span><% } %>";
+											}
+
+											else
+											{
+												$out .= "<% if(product_category != ''){ %><span class='category'><%= product_category %></span><% } %>";
+											}
+
+											$out .= "<% if(product_data != ''){ %><%= product_data %><% } %>
 										</div>
 									<% } %>
 								</div>

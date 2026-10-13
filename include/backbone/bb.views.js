@@ -27,6 +27,7 @@ var WebshopView = Backbone.View.extend(
 		"blur .widget.webshop_search form input[type!='checkbox']": "search_products",
 		"click .webshop_search .grid_columns > li .add_to_cart": "add_to_cart",
 		"click .webshop_search .grid_columns > li .disabled": "disabled",
+		"click .webshop_search .grid_columns .category": "category_click",
 	},
 
 	loadPage: function(tab_active)
@@ -42,7 +43,14 @@ var WebshopView = Backbone.View.extend(
 		if(jQuery(".widget.webshop_search form").length > 0)
 		{
 			this.get_hash();
-			this.search_products();
+
+			var hash = location.hash.replace('#', '').replace('webshop/', '');
+
+			/* Only set the hash on load if there isn't one already, so that for example "&hash=123" is kept */
+			if(hash == '')
+			{
+				this.set_hash();
+			}
 		}
 	},
 
@@ -77,9 +85,14 @@ var WebshopView = Backbone.View.extend(
 
 	set_hash: function(hash)
 	{
-		var form_serialized = jQuery(".widget.webshop_search form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+		var form_serialized = jQuery(".widget.webshop_search form").serialize().replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, ''),
+			new_hash = "webshop/" + form_serialized + (hash != '' && typeof hash != 'undefined' ? "&hash=" + hash : "");
 
-		location.hash = "webshop/" + form_serialized + (hash != '' && typeof hash != 'undefined' ? "&hash=" + hash : "");
+		/* Skip if nothing has changed */
+		if(location.hash.replace('#', '') != new_hash)
+		{
+			location.hash = new_hash;
+		}
 	},
 
 	set_products: function()
@@ -128,6 +141,17 @@ var WebshopView = Backbone.View.extend(
 	disabled: function(e)
 	{
 		e.preventDefault();
+		return false;
+	},
+
+	category_click: function(e)
+	{
+		var category_id = jQuery(e.currentTarget).attr('data-category');
+
+		jQuery(".webshop_search form .form_select .categories").val(category_id).trigger('change');
+
+		e.preventDefault();
+		e.stopPropagation();
 		return false;
 	},
 
@@ -210,13 +234,7 @@ var WebshopView = Backbone.View.extend(
 
 	search_products: function()
 	{
-		var hash = location.hash.replace('#', '');
-		hash = hash.replace('webshop/', '');
-
-		if(hash == '')
-		{
-			this.set_hash();
-		}
+		this.set_hash();
 	}
 });
 

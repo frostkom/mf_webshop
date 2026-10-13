@@ -84,6 +84,11 @@
 			{
 				'type': 'string',
 				'default': ''
+			},
+			'webshop_filter':
+			{
+				'type': 'string',
+				'default': ''
 			}
 		},
 		'supports':
@@ -134,6 +139,18 @@
 									onChange: function(value)
 									{
 										props.setAttributes({webshop_search: value});
+									}
+								}
+							),
+							el(
+								SelectControl,
+								{
+									label: script_webshop_block_wp.webshop_filter_label,
+									value: props.attributes.webshop_filter,
+									options: convert_php_array_to_block_js(script_webshop_block_wp.yes_no_for_select),
+									onChange: function(value)
+									{
+										props.setAttributes({webshop_filter: value});
 									}
 								}
 							)
