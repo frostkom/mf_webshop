@@ -969,7 +969,6 @@ class mf_webshop
 
 				if($attributes['webshop_filter'] != 'no')
 				{
-					//$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." AS meta1 ON ".$wpdb->posts.".ID = meta1.post_id AND meta1.meta_key = '".$this->meta_prefix."document_searchable' LEFT JOIN ".$wpdb->postmeta." AS meta2 ON ".$wpdb->posts.".ID = meta2.post_id AND meta2.meta_key = '".$this->meta_prefix."document_type_order'", 'where_key' => "meta1.meta_value = %s", 'where_value' => 'yes', 'order' => "meta2.meta_value + 0 ASC, menu_order ASC"));
 					$result = $this->get_document_types(array('select' => "ID, post_status, post_title, post_name", 'join' => "INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_searchable'", 'where_key' => "meta_value = %s", 'where_value' => 'yes', 'order' => "menu_order ASC"));
 
 					$this->set_interval_amount($result);
@@ -1005,15 +1004,15 @@ class mf_webshop
 
 						switch($post_custom_type)
 						{
-							case 'checkbox':
+							/*case 'checkbox':
 								$out .= show_checkbox(array('name' => $post_name, 'text' => $post_title, 'value' => 1, 'compare' => isset($_REQUEST[$post_name]), 'required' => ($post_custom_required == 'yes')));
-							break;
+							break;*/
 
 							case 'categories':
-								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'text' => $post_title, 'value' => check_var($post_name, 'char'), 'field_class' => "mf_form_field ".$post_custom_type, 'required' => ($post_custom_required == 'yes')));
+								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'field_class' => "mf_form_field ".$post_custom_type, 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
 							break;
 
-							case 'categories_v2':
+							/*case 'categories_v2':
 								$out .= show_form_alternatives(array('data' => $this->get_categories_for_select(array('include_on' => 'events', 'display_icons' => true, 'add_choose_here' => false)), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'class' => "product_categories category_icon", 'required' => ($post_custom_required == 'yes')));
 							break;
 
@@ -1159,7 +1158,7 @@ class mf_webshop
 
 							default:
 								do_log("The type ".$post_custom_type." does not have a case (".$post_id." -> search)");
-							break;
+							break;*/
 						}
 					}
 				}
@@ -7755,6 +7754,7 @@ class mf_webshop
 				$product_image = apply_filters('get_image_fallback', "");
 			}
 
+			$product_category_id = 0;
 			$product_category = "";
 
 			$arr_categories = get_post_meta($this->product_id, $this->meta_prefix.'category', false);
@@ -8359,13 +8359,7 @@ class mf_webshop
 					$query_where .= " AND (post_title LIKE '%".esc_sql($search_text)."%' OR post_content LIKE '%".esc_sql($search_text)."%')";
 				}
 
-				/*$query_join_category = $query_where_category = "";
-
-				if($category > 0)
-				{
-					$query_join_category = " INNER JOIN ".$wpdb->term_relationships." AS tr_cat ON ".$wpdb->posts.".ID = tr_cat.object_id INNER JOIN ".$wpdb->term_taxonomy." AS tt_cat ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id";
-					$query_where_category = " AND tt_cat.term_id = '".intval($category)."'";
-				}*/
+				$query_join_filter = $query_where_filter = "";
 
 				parse_str(ltrim($type, '?'), $type_params);
 
@@ -8477,8 +8471,6 @@ class mf_webshop
 					$query_order = " ORDER BY ".$query_order;
 				}
 
-				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', 0));
-				//$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_category." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_where_category.$query_group.$query_order, $this->post_type_products, 'publish', 0));
 				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_filter." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_where_filter.$query_group.$query_order, $this->post_type_products, 'publish', 0));
 
 				if(IS_SUPER_ADMIN)
