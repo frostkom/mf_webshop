@@ -4031,6 +4031,7 @@ class mf_webshop
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
+			'exclude_from_search' => true,
 			'supports' => array('title', 'editor', 'page-attributes', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
