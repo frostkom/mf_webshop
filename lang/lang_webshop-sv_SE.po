@@ -1375,7 +1375,7 @@ msgstr "Jag kunde inte hitta något som stämde överens med dina val"
 
 #: ../include/classes.php:9099
 msgid "You need to create a page for the Cart"
-msgstr "Du behöver ska en sida för Varukorgen"
+msgstr "Du behöver skapa en sida för Varukorgen"
 
 #: ../include/classes.php:9110
 #: ../include/templates/single-mf_category.php:78
