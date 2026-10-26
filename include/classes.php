@@ -12,9 +12,10 @@ class mf_webshop
 	var $arr_interval_type_data = [];
 	var $post_type_categories = 'mf_category';
 	var $post_type_products = 'mf_product';
+	var $post_type_variations = __CLASS__.'_variation';
 	var $post_type_custom_categories = 'mf_cust_cat';
 	var $post_type_document_type = 'mf_doc_type';
-	var $post_type_orders = 'mf_webshop_orders';
+	var $post_type_orders = __CLASS__.'_orders';
 	var $post_type_location = 'mf_location';
 	var $post_type_customers = 'mf_customer';
 	var $post_type_delivery_type = 'mf_delivery';
@@ -3137,6 +3138,45 @@ class mf_webshop
 
 							if($arr_cart_values['is_allowed_to_buy'])
 							{
+								$result = $wpdb->get_results($wpdb->prepare("SELECT posts_product.ID AS product_id, posts_product.post_title AS product_title, posts_variation.ID AS variation_id FROM ".$wpdb->posts." AS posts_product INNER JOIN ".$wpdb->postmeta." AS post_meta_product ON posts_product.ID = post_meta_product.post_id INNER JOIN ".$wpdb->posts." AS posts_variation ON post_meta_product.meta_value = posts_variation.ID WHERE posts_product.post_type = %s AND posts_product.post_parent = '%d' AND meta_key = %s ORDER BY posts_variation.menu_order ASC, posts_product.menu_order ASC", $this->post_type_products, $product_id, $this->meta_prefix.'variation')); // GROUP BY ID
+
+								$arr_variations = [];
+
+								foreach($result as $r)
+								{
+									$product_id = $r->product_id;
+									$product_title = $r->product_title;
+									$variation_id = $r->variation_id;
+
+									if(!isset($arr_variations[$variation_id]))
+									{
+										$arr_variations[$variation_id] = [$product_id => $product_title];
+									}
+
+									else
+									{
+										$arr_variations[$variation_id][$product_id] = $product_title;
+									}
+								}
+
+								//$out .= var_export($arr_variations, true);
+
+								if(count($arr_variations) > 0)
+								{
+									$out .= "<form".apply_filters('get_form_attr', "").">";
+
+										foreach($arr_variations as $variation_id => $arr_products)
+										{
+											$out .= show_select(array(
+												'data' => $arr_products,
+												'name' => "variation_".$variation_id,
+												'text' => get_the_title($variation_id),
+											));
+										}
+
+									$out .= "</form>";
+								}
+
 								$out .= "<a href='#' class='wp-block-button__link add_to_cart' rel='".$product_id."' title='".__("Add this to your cart", 'lang_webshop')."'><span>".__("Add", 'lang_webshop')."</span> <i class='fa fa-plus'></i></a>"; // //".apply_filters('get_css_icon', 'plus')."
 							}
 
@@ -3895,7 +3935,7 @@ class mf_webshop
 			'show_in_menu' => false,
 			'show_in_nav_menus' => false,
 			'show_in_rest' => true,
-			'supports' => array('title', 'editor', 'page-attributes', 'excerpt', 'revisions'),
+			'supports' => array('title', 'page-attributes', 'revisions'),
 			'hierarchical' => true,
 			'has_archive' => false,
 		));
@@ -3917,6 +3957,26 @@ class mf_webshop
 			'hierarchical' => true,
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'product'),
+		));
+		
+		register_post_type($this->post_type_variations, $args = array(
+			'labels' => array(
+				'name' => __("Variations", 'lang_webshop'),
+				'singular_name' => __("Variation", 'lang_webshop'),
+				'menu_name' => __("Variations", 'lang_webshop'),
+				'all_items' => __("List", 'lang_webshop'),
+				'edit_item' => __("Edit", 'lang_webshop'),
+				'view_item' => __("View", 'lang_webshop'),
+				'add_new_item' => __("Add New", 'lang_webshop'),
+			),
+			'public' => false,
+			'show_ui' => true,
+			'show_in_menu' => false,
+			'show_in_nav_menus' => false,
+			'show_in_rest' => true,
+			'supports' => array('title', 'page-attributes', 'revisions'),
+			'hierarchical' => true,
+			'has_archive' => false,
 		));
 
 		register_post_type($this->post_type_custom_categories, array(
@@ -5045,18 +5105,21 @@ class mf_webshop
 			$menu_title = __("Products", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
 
-			$menu_title = __("Categories", 'lang_webshop');
+			$menu_title = " - ".__("Categories", 'lang_webshop');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_categories);
+
+			$menu_title = " - ".__("Variations", 'lang_webshop');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_variations);
 
 			if($this->get_post_name_for_type('custom_categories') != '')
 			{
-				$menu_title = __("Custom Categories", 'lang_webshop');
+				$menu_title = " - ".__("Custom Categories", 'lang_webshop');
 				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_custom_categories);
 			}
 
 			if($this->get_post_name_for_type('location') != '')
 			{
-				$menu_title = __("Location", 'lang_webshop');
+				$menu_title = " - ".__("Location", 'lang_webshop');
 				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_location);
 			}
 
@@ -5202,6 +5265,26 @@ class mf_webshop
 							'size' => get_select_size(array('count' => $count_temp)),
 						),
 						'desc' => $meta_description,
+					);
+
+					$fields_settings[] = $data_temp;
+				}
+
+				$arr_data_variations = [];
+				get_post_children(array('post_type' => $this->post_type_variations), $arr_data_variations);
+				$count_temp = count($arr_data_variations);
+
+				if($count_temp > 0)
+				{
+					$data_temp = array(
+						'name' => __("Variations", 'lang_webshop'),
+						'id' => $this->meta_prefix.'variation',
+						'type' => 'select',
+						'options' => $arr_data_variations,
+						'multiple' => true,
+						'attributes' => array(
+							'size' => get_select_size(array('count' => $count_temp)),
+						),
 					);
 
 					$fields_settings[] = $data_temp;
@@ -6163,6 +6246,14 @@ class mf_webshop
 					$columns['category'] = __("Categories", 'lang_webshop');
 				}
 
+				$arr_data_variations = [];
+				get_post_children(array('post_type' => $this->post_type_variations), $arr_data_variations);
+
+				if(count($arr_data_variations) > 0)
+				{
+					$columns['variation'] = __("Variations", 'lang_webshop');
+				}
+
 				$arr_columns = array('price', 'stock', 'cart_max', 'product_type');
 
 				foreach($arr_columns as $column)
@@ -6367,6 +6458,34 @@ class mf_webshop
 								}
 
 							echo "</div>";
+						}
+					break;
+
+					case 'variation':
+						$post_meta = get_post_meta($post_id, $this->meta_prefix.$column, false);
+						$count_temp = count($post_meta);
+
+						if($count_temp > 0)
+						{
+							$count_limit = 3;
+
+							for($i = 0; $i < $count_temp; $i++)
+							{
+								$category_id = $post_meta[$i];
+								$category_title = get_the_title($category_id);
+
+								if($i >= $count_limit)
+								{
+									echo " +".($count_temp - $count_limit);
+
+									break;
+								}
+
+								else
+								{
+									echo ($i > 0 ? ", " : "").$category_title;
+								}
+							}
 						}
 					break;
 
