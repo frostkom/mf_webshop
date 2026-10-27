@@ -62,7 +62,8 @@ class mf_webshop
 	function __construct()
 	{
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
-		$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""));
+		//$this->cookie_value = hash_hmac('sha256', $this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""), wp_salt('auth'));
+		$this->cookie_value = bin2hex(random_bytes(16));
 	}
 
 	function set_cookie()
@@ -3958,7 +3959,7 @@ class mf_webshop
 			'has_archive' => false,
 			'rewrite' => array('slug' => 'product'),
 		));
-		
+
 		register_post_type($this->post_type_variations, $args = array(
 			'labels' => array(
 				'name' => __("Variations", 'lang_webshop'),
