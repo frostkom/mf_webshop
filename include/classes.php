@@ -62,7 +62,8 @@ class mf_webshop
 	function __construct()
 	{
 		$this->cookie_name = $this->meta_prefix.'cart'.COOKIEHASH;
-		//$this->cookie_value = hash_hmac('sha256', $this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""), wp_salt('auth'));
+		//$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""));
+		//$this->cookie_value = hash_hmac('sha256', $this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""), AUTH_KEY);
 		$this->cookie_value = bin2hex(random_bytes(16));
 	}
 
@@ -638,11 +639,13 @@ class mf_webshop
 
 			if($stock_post_name != '')
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified, DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE) AS product_modified_limit FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
 
 				foreach($result as $r)
 				{
 					$post_id = $r->ID;
+					$post_modified = $r->post_modified;
+					$product_modified_limit = $r->product_modified_limit;
 
 					$arr_products_orig = $arr_products = get_post_meta($post_id, $this->meta_prefix.'products', true);
 
@@ -654,6 +657,8 @@ class mf_webshop
 
 							if($product_stock_max != '')
 							{
+								do_log(__FUNCTION__.": Remove ".$arr_product['id']." from ".$post_id." because ".$post_modified." < ".$product_modified_limit." (".$this->product_time_limit." minutes)");
+
 								unset($arr_products[$key]);
 							}
 						}
