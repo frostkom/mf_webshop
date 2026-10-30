@@ -32,17 +32,26 @@ jQuery(function($)
 
 	dom_obj_widget.on('click', ".add_to_cart", function(e)
 	{
-		var dom_obj = $(this).addClass('loading');
+		var dom_obj = $(this),
+			dom_form = dom_obj.siblings(".add_variations_to_cart"),
+			post_data = {
+				action: 'api_webshop_add_to_cart',
+				product_id: dom_obj.attr('rel')
+			};
+
+		if(dom_form.length > 0)
+		{
+			post_data.variations = dom_form.serialize();
+		}
+
+		dom_obj.addClass('loading');
 
 		$.ajax(
 		{
 			url: script_webshop_buy_button.ajax_url,
 			type: 'post',
 			dataType: 'json',
-			data: {
-				action: 'api_webshop_add_to_cart',
-				product_id: dom_obj.attr('rel')
-			},
+			data: post_data,
 			success: function(data)
 			{
 				var response = data.response_add_to_cart;
