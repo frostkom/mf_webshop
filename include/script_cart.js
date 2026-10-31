@@ -117,10 +117,12 @@ jQuery(function($)
 			dom_obj_widget.find(".cart_totals .shipping_cost").html(response.shipping_cost);
 			dom_obj_widget.find(".cart_totals .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".cart_totals .total_sum").html(response.total_sum);
+			dom_obj_widget.find(".cart_totals .total_sum_stripe").html(response.total_sum_stripe);
 			dom_obj_widget.find(".cart_totals .total_tax").html(response.total_tax);
 
 			dom_obj_widget.find(".proceed_to_checkout .total_sum_invoice").html(response.total_sum_invoice);
 			dom_obj_widget.find(".proceed_to_checkout .total_sum").html(response.total_sum);
+			dom_obj_widget.find(".proceed_to_checkout .total_sum_stripe").html(response.total_sum_stripe);
 			dom_obj_widget.find(".proceed_to_checkout .order_number").html(response.order_number);
 
 			if(dom_obj_widget.find(".swish_manual_form").length > 0)

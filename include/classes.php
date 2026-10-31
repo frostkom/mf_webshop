@@ -29,9 +29,7 @@ class mf_webshop
 	var $product_image;
 	var $product_price;
 	var $product_url;
-	var $product_time_limit = 20;
-	var $cart_time_limit = 10;
-	var $cart_amount_limit = 100;
+	var $product_time_limit;
 	var $show_in_result;
 	var $product_has_email;
 	var $size_amount;
@@ -65,6 +63,8 @@ class mf_webshop
 		//$this->cookie_value = md5($this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""));
 		//$this->cookie_value = hash_hmac('sha256', $this->meta_prefix.'cart_'.apply_filters('get_visitor_fingerprint', ""), AUTH_KEY);
 		$this->cookie_value = bin2hex(random_bytes(16));
+
+		$this->product_time_limit = get_option_or_default('setting_webshop_product_time_limit', 20);
 	}
 
 	function set_cookie()
@@ -1435,7 +1435,8 @@ class mf_webshop
 			'post_status' => 'publish',
 			'meta_input' => array(
 				$this->meta_prefix.'payment_method_id' => $data['payment_method_id'],
-				$this->meta_prefix.'payment_method' => ($data['test_mode'] != 'no' ? $data['payment_method'].'_test' : $data['payment_method']),
+				//$this->meta_prefix.'payment_method' => ($data['test_mode'] != 'no' ? $data['payment_method'].'_test' : $data['payment_method']), // This will save stripe_test_test
+				$this->meta_prefix.'payment_method' => $data['payment_method'],
 				$this->meta_prefix.'test_mode' => $data['test_mode'],
 				$this->meta_prefix.'order_status' => $data['order_status'],
 				$this->meta_prefix.'shipping_cost' => $data['arr_cart_data']['response_webshop_cart']['shipping_cost_raw'],
@@ -1664,36 +1665,44 @@ class mf_webshop
 			}
 		}
 
-		/*if($out['is_allowed_to_buy'] == true)
-		{
-			if(!isset($arr_products))
-			{
-				$arr_products = $this->get_order_products();
-			}
+		return $out;
+	}
 
-			if(is_array($arr_products) && count($arr_products) > 0)
+	function get_product_variations($data)
+	{
+		global $wpdb;
+
+		if(!isset($data['limit'])){		$data['limit'] = 0;}
+
+		$arr_variations = [];
+
+		$query_limit = "";
+
+		if($data['limit'] > 0)
+		{
+			$query_limit = " LIMIT 0, ".esc_sql($data['limit']);
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT posts_product.ID AS product_id, posts_product.post_title AS product_title, posts_variation.ID AS variation_id FROM ".$wpdb->posts." AS posts_product INNER JOIN ".$wpdb->postmeta." AS post_meta_product ON posts_product.ID = post_meta_product.post_id INNER JOIN ".$wpdb->posts." AS posts_variation ON post_meta_product.meta_value = posts_variation.ID WHERE posts_product.post_type = %s AND posts_product.post_status = %s AND posts_product.post_parent = '%d' AND meta_key = %s ORDER BY posts_variation.menu_order ASC, posts_product.menu_order ASC".$query_limit, $this->post_type_products, 'publish', $data['product_id'], $this->meta_prefix.'variation')); // GROUP BY ID
+
+		foreach($result as $r)
+		{
+			$product_id = $r->product_id;
+			$product_title = $r->product_title;
+			$variation_id = $r->variation_id;
+
+			if(!isset($arr_variations[$variation_id]))
 			{
-				// All good. You are allowed to continue
+				$arr_variations[$variation_id] = [$product_id => $product_title];
 			}
 
 			else
 			{
-				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL ".$this->cart_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
-				$count_temp = $wpdb->num_rows;
-
-				if($count_temp >= $this->cart_amount_limit)
-				{
-					// Get my order created time and modified time
-					// Get amount of orders that has a created time and modified time before me in the queue
-					$number_of_visitors_before_you = 10;
-
-					$out['is_allowed_to_buy'] = false;
-					$out['is_allowed_to_buy_reason'] = sprintf(__("There are already %d people making their orders. And you are number %d in the queue after that.", 'lang_webshop'), $count_temp, $number_of_visitors_before_you);
-				}
+				$arr_variations[$variation_id][$product_id] = $product_title;
 			}
-		}*/
+		}
 
-		return $out;
+		return $arr_variations;
 	}
 
 	function get_variations_text($arr_product)
@@ -1908,6 +1917,8 @@ class mf_webshop
 				}
 
 				$setting_webshop_invoice_cost = get_option_or_default('setting_webshop_invoice_cost', 0);
+				$setting_webshop_stripe_fee_percent = get_option_or_default('setting_webshop_stripe_fee_percent', 0);
+				$setting_webshop_stripe_fee_currency = get_option_or_default('setting_webshop_stripe_fee_currency', 0);
 
 				$json_output['success'] = true;
 				$json_output['response_webshop_cart'] = array(
@@ -1920,6 +1931,8 @@ class mf_webshop
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
 					'total_sum' => $this->display_price(array('price' => $total_sum, 'calculate' => false)),
+					'total_sum_stripe_raw' => $this->display_price(array('price' => ($total_sum + ($total_sum * ($setting_webshop_stripe_fee_percent / 100)) + $setting_webshop_stripe_fee_currency), 'calculate' => false, 'suffix' => false)),
+					'total_sum_stripe' => $this->display_price(array('price' => ($total_sum + ($total_sum * ($setting_webshop_stripe_fee_percent / 100)) + $setting_webshop_stripe_fee_currency), 'calculate' => false)),
 					'total_tax_raw' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => false)),
 					'total_tax' => $this->display_price(array('price' => $total_tax, 'calculate' => false, 'suffix' => 'currency')),
 					'checkout_fields' => $arr_checkout_fields,
@@ -2492,7 +2505,7 @@ class mf_webshop
 						{
 							$public_key = get_option('setting_webshop_stripe_public_key_test');
 							$toggler_title = __("Card", 'lang_webshop')." (".__("Test", 'lang_webshop').")";
-							$button_title = sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
+							$button_title = sprintf(__("Test Pay %s", 'lang_webshop'), "<span class='total_sum_stripe'></span>");
 							$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe_test');
 							$test_mode = 'yes';
 						}
@@ -2501,14 +2514,39 @@ class mf_webshop
 						{
 							$public_key = get_option('setting_webshop_stripe_public_key');
 							$toggler_title = __("Card", 'lang_webshop');
-							$button_title = sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum'></span>");
+							$button_title = sprintf(__("Pay %s", 'lang_webshop'), "<span class='total_sum_stripe'></span>");
 							$toggler_is_open = ($count_temp == 1 || $setting_webshop_prefered_payment_alternative == 'stripe');
 							$test_mode = 'no';
 						}
 
 						if($public_key != '')
 						{
+							$str_stripe_fee_text = "";
+
+							$setting_webshop_stripe_fee_percent = get_option('setting_webshop_stripe_fee_percent');
+							$setting_webshop_stripe_fee_currency = get_option('setting_webshop_stripe_fee_currency');
+
+							if($setting_webshop_stripe_fee_percent > 0)
+							{
+								$str_stripe_fee_text .= ($str_stripe_fee_text != '' ? " + " : "").$setting_webshop_stripe_fee_percent."%";
+							}
+
+							if($setting_webshop_stripe_fee_currency > 0)
+							{
+								$str_stripe_fee_text .= ($str_stripe_fee_text != '' ? " + " : "").$setting_webshop_stripe_fee_currency." ".get_option('setting_webshop_currency', 'SEK');
+							}
+
 							do_action('load_notification');
+
+							$plugin_include_url = plugin_dir_url(__FILE__);
+							mf_enqueue_script('script_webshop_stripe', $plugin_include_url."script_stripe.js", array(
+								'public_key' => $public_key,
+								'ajax_url' => admin_url('admin-ajax.php'),
+								'loading_animation' => apply_filters('get_loading_animation', '', ['class' => '']),
+								'test_mode' => $test_mode,
+								'CLASS' => __CLASS__,
+								'error_text' => __("Something went wrong. Please try again.", 'lang_webshop'),
+							));
 
 							$out .= "<div class='payment_alternatives hide'>"
 								.get_toggler_container(array('type' => 'start', 'id' => 'card', 'text' => $toggler_title, 'is_open' => $toggler_is_open))
@@ -2517,133 +2555,15 @@ class mf_webshop
 										<div class='notification hide'><div class='error'><p></p></div></div>
 										<div class='card_details'></div>"
 										."<div".get_form_button_classes().">"
-											.show_button(array('text' => $button_title, 'xtra' => "disabled"))
-										."</div>
+											.show_button(array('text' => $button_title, 'xtra' => "disabled"));
+
+											if($str_stripe_fee_text != '')
+											{
+												$out .= "<br><span class='italic'> ".sprintf(__("Incl. %s Payment Fee", 'lang_webshop'), $str_stripe_fee_text)."</span>";
+											}
+
+										$out .= "</div>
 									</form>";
-
-									$out .= "<script>
-										var style = {
-											base: {
-												border: '.1em solid #4a90e2',
-												color: '#32325d',
-												fontFamily: 'inherit',
-												fontSize: '1em',
-												'::placeholder': {
-													color: '#aab7c4'
-												}
-											},
-											invalid: {
-												color: '#fa755a',
-												iconColor: '#fa755a'
-											}
-										};
-
-										var order_cart_hash = '',
-											stripe_obj = Stripe('".$public_key."'),
-											card_obj = stripe_obj.elements().create('card', { style: style }),
-											form_obj = document.getElementById('form_stripe');
-
-										fetch('".admin_url('admin-ajax.php')."', {
-											method: 'POST',
-											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded',
-											},
-											body: new URLSearchParams({
-												action: 'api_webshop_get_order_cart_hash'
-											})
-										})
-										.then(response => response.json())
-										.then(data => {
-											if(data.success)
-											{
-												order_cart_hash = data.order_cart_hash;
-												document.querySelector('#form_stripe .wp-block-button__link').disabled = false;
-											}
-										});
-
-										card_obj.mount('.card_details');
-
-										form_obj.addEventListener('submit', function(event)
-										{
-											document.querySelector('#form_stripe .wp-block-button__link .total_sum').innerHTML = \"".apply_filters('get_loading_animation', '', ['class' => ''])."\";
-
-											event.preventDefault();
-
-											stripe_obj.createPaymentMethod('card', card_obj).then(function(result)
-											{
-												if(result.error)
-												{
-													document.querySelector('.notification').classList.remove('hide');
-													document.querySelector('.notification p').textContent = result.error.message;
-												}
-
-												else
-												{
-													sendPaymentRequest({
-														order_id: order_cart_hash,
-														payment_method_id: result.paymentMethod.id,
-														test_mode: '".$test_mode."'
-													});
-												}
-											});
-										});
-
-										function sendPaymentRequest(payload)
-										{
-											fetch('/wp-json/".__CLASS__."/process_stripe_payment',
-											{
-												method: 'POST',
-												headers:
-												{
-													'Content-Type': 'application/json'
-												},
-												body: JSON.stringify(payload)
-											})
-											.then(response => response.json())
-											.then(handlePaymentResponse)
-											.catch(function(error)
-											{
-												document.querySelector('.notification').classList.remove('hide');
-												document.querySelector('.notification p').textContent = '".__("Something went wrong. Please try again.", 'lang_webshop')."';
-											});
-										}
-
-										function handlePaymentResponse(data)
-										{
-											if(data.success)
-											{
-												location.href = data.return_url;
-											}
-
-											else if(data.requires_action)
-											{
-												stripe_obj.confirmCardPayment(data.payment_intent_client_secret).then(function(result)
-												{
-													if(result.error)
-													{
-														document.querySelector('.notification').classList.remove('hide');
-														document.querySelector('.notification p').textContent = result.error.message;
-													}
-
-													else
-													{
-														// result.paymentIntent.status is now 'succeeded' (or possibly 'requires_action' again in rare multi-step 3DS cases)
-														sendPaymentRequest({
-															order_id: order_cart_hash,
-															payment_intent_id: result.paymentIntent.id,
-															test_mode: '".$test_mode."'
-														});
-													}
-												});
-											}
-
-											else
-											{
-												document.querySelector('.notification').classList.remove('hide');
-												document.querySelector('.notification p').textContent = data.error;
-											}
-										}
-									</script>";
 
 									if($test_mode == 'yes')
 									{
@@ -3088,6 +3008,8 @@ class mf_webshop
 			}
 		}
 
+		$data['price'] = round($data['price'], 2);
+
 		if($data['suffix'] != false)
 		{
 			if($data['suffix'] == 'currency' || $data['suffix'] == 'all')
@@ -3129,43 +3051,6 @@ class mf_webshop
 		}
 
 		return $out;
-	}
-	
-	function get_product_variations($data)
-	{
-		global $wpdb;
-
-		if(!isset($data['limit'])){		$data['limit'] = 0;}
-
-		$arr_variations = [];
-
-		$query_limit = "";
-
-		if($data['limit'] > 0)
-		{
-			$query_limit = " LIMIT 0, ".esc_sql($data['limit']);
-		}
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT posts_product.ID AS product_id, posts_product.post_title AS product_title, posts_variation.ID AS variation_id FROM ".$wpdb->posts." AS posts_product INNER JOIN ".$wpdb->postmeta." AS post_meta_product ON posts_product.ID = post_meta_product.post_id INNER JOIN ".$wpdb->posts." AS posts_variation ON post_meta_product.meta_value = posts_variation.ID WHERE posts_product.post_type = %s AND posts_product.post_status = %s AND posts_product.post_parent = '%d' AND meta_key = %s ORDER BY posts_variation.menu_order ASC, posts_product.menu_order ASC".$query_limit, $this->post_type_products, 'publish', $data['product_id'], $this->meta_prefix.'variation')); // GROUP BY ID
-
-		foreach($result as $r)
-		{
-			$product_id = $r->product_id;
-			$product_title = $r->product_title;
-			$variation_id = $r->variation_id;
-
-			if(!isset($arr_variations[$variation_id]))
-			{
-				$arr_variations[$variation_id] = [$product_id => $product_title];
-			}
-
-			else
-			{
-				$arr_variations[$variation_id][$product_id] = $product_title;
-			}
-		}
-
-		return $arr_variations;
 	}
 
 	function block_render_buy_button_callback($attributes)
@@ -3341,7 +3226,12 @@ class mf_webshop
 
 		else
 		{
-			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['cancelled', 'failed', 'wrong_amount', 'repaid', 'quoted', 'ordered', 'paid', 'sent', 'finalized']]);
+			if(in_array($order_status, ['unknown', 'cancelled']))
+			{
+				$data['is_editable'] = false;
+			}
+
+			$arr_order_status = $this->get_order_status_for_select(['current' => $order_status, 'exclude' => ['unknown', 'cancelled', 'failed', 'wrong_amount', 'repaid', 'quoted', 'ordered', 'paid', 'sent', 'finalized']]);
 		}
 
 		if($data['is_editable'] == true)
@@ -3643,7 +3533,7 @@ class mf_webshop
 								//."#".$order_number."<br>"
 								."#".$order_id."<br>"
 								.$order_date."<br>"
-								.$this->get_order_status(array('order_id' => $order_id, 'is_editable' => true))."<br>"
+								.$this->get_order_status(array('order_id' => $order_id, 'is_editable' => (IS_EDITOR ? true : (get_option('setting_webshop_order_user_change_status', 'yes') == 'yes'))))."<br>"
 							."</p>
 						</div>
 					</li>";
@@ -4285,9 +4175,7 @@ class mf_webshop
 
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-		$arr_settings = array(
-			'setting_webshop_invoice_cost' => __("Invoice Cost", 'lang_webshop'),
-		);
+		$arr_settings = $arr_settings_stripe = $arr_settings_swish = [];
 
 		$arr_settings['setting_webshop_payment_alternatives'] = __("Payment Alternatives", 'lang_webshop');
 
@@ -4298,34 +4186,59 @@ class mf_webshop
 			$arr_settings['setting_webshop_prefered_payment_alternative'] = " - ".__("Prefered", 'lang_webshop');
 		}
 
+		$arr_settings['setting_webshop_product_time_limit'] = __("Time Limit on Stock Products", 'lang_webshop');
+
 		if(in_array('stripe_test', $setting_webshop_payment_alternatives) || get_option('setting_webshop_stripe_public_key_test') != '' || get_option('setting_webshop_stripe_secret_key_test') != '')
 		{
-			$arr_settings['setting_webshop_stripe_public_key_test'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
-			$arr_settings['setting_webshop_stripe_secret_key_test'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
+			$arr_settings_stripe['setting_webshop_stripe_public_key_test'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
+			$arr_settings_stripe['setting_webshop_stripe_secret_key_test'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop')." - ".__("Test", 'lang_webshop').")";
 		}
 
 		if(in_array('stripe', $setting_webshop_payment_alternatives) || get_option('setting_webshop_stripe_public_key') != '' || get_option('setting_webshop_stripe_secret_key') != '')
 		{
-			$arr_settings['setting_webshop_stripe_public_key'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")";
-			$arr_settings['setting_webshop_stripe_secret_key'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")";
+			$arr_settings_stripe['setting_webshop_stripe_public_key'] = __("Stripe", 'lang_webshop')." (".__("Public Key", 'lang_webshop').")";
+			$arr_settings_stripe['setting_webshop_stripe_secret_key'] = __("Stripe", 'lang_webshop')." (".__("Secret Key", 'lang_webshop').")";
+		}
+
+		if(get_option('setting_webshop_stripe_public_key_test') == '' && get_option('setting_webshop_stripe_secret_key_test') == '' && get_option('setting_webshop_stripe_public_key') == '' && get_option('setting_webshop_stripe_secret_key') == '')
+		{
+			$arr_settings = array_merge($arr_settings, $arr_settings_stripe);
+			$arr_settings_stripe = [];
+		}
+
+		else
+		{
+			$arr_settings_stripe['setting_webshop_stripe_fee_percent'] = __("Fee", 'lang_webshop');
+			$arr_settings_stripe['setting_webshop_stripe_fee_currency'] = __("Fee", 'lang_webshop');
 		}
 
 		if(in_array('swish_manual', $setting_webshop_payment_alternatives) || get_option('setting_webshop_swish_company_number') != '' || get_option('setting_webshop_swish_company_prefix') != '')
 		{
-			$arr_settings['setting_webshop_swish_company_number'] = __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")";
-			$arr_settings['setting_webshop_swish_company_prefix'] = " - ".__("Payment Prefix", 'lang_webshop');
+			$arr_settings_swish['setting_webshop_swish_company_number'] = __("Swish", 'lang_webshop')." (".__("Company Number", 'lang_webshop').")";
+			$arr_settings_swish['setting_webshop_swish_company_prefix'] = " - ".__("Payment Prefix", 'lang_webshop');
 		}
 
 		if(in_array('swish', $setting_webshop_payment_alternatives) || get_option('setting_webshop_swish_merchant_number') != '')
 		{
-			$arr_settings['setting_webshop_swish_merchant_number'] = __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")";
+			$arr_settings_swish['setting_webshop_swish_merchant_number'] = __("Swish", 'lang_webshop')." (".__("Merchant Number", 'lang_webshop').")";
 
 			if(get_option('setting_webshop_swish_merchant_number') != '' || get_option('setting_webshop_swish_certificate_root_file') != '' || get_option('setting_webshop_swish_certificate_file') != '' || get_option('setting_webshop_swish_key_file') != '')
 			{
-				$arr_settings['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
-				$arr_settings['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
-				$arr_settings['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
+				$arr_settings_swish['setting_webshop_swish_certificate_root_file'] = " - ".__("Certificate Root File", 'lang_webshop');
+				$arr_settings_swish['setting_webshop_swish_certificate_file'] = " - ".__("Certificate File", 'lang_webshop');
+				$arr_settings_swish['setting_webshop_swish_key_file'] = " - ".__("Key File", 'lang_webshop');
 			}
+		}
+
+		if(get_option('setting_webshop_swish_company_number') == '' && get_option('setting_webshop_swish_company_prefix') == '' && get_option('setting_webshop_swish_merchant_number') == '' && get_option('setting_webshop_swish_certificate_root_file') == '' && get_option('setting_webshop_swish_certificate_file') == '' && get_option('setting_webshop_swish_key_file') == '')
+		{
+			$arr_settings = array_merge($arr_settings, $arr_settings_swish);
+			$arr_settings_swish = [];
+		}
+
+		if(in_array('invoice', $setting_webshop_payment_alternatives) || get_option('setting_webshop_invoice_cost') != '')
+		{
+			$arr_settings['setting_webshop_invoice_cost'] = __("Invoice Cost", 'lang_webshop');
 		}
 
 		if(in_array('bank_transfer', $setting_webshop_payment_alternatives) || get_option('setting_webshop_bank_transfer_number') != '')
@@ -4334,6 +4247,30 @@ class mf_webshop
 		}
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
+		############################
+
+		// Order Stripe
+		############################
+		if(count($arr_settings_stripe) > 0)
+		{
+			$options_area = $options_area_orig."_order_stripe";
+
+			add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+
+			show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings_stripe));
+		}
+		############################
+
+		// Order Swish
+		############################
+		if(count($arr_settings_swish) > 0)
+		{
+			$options_area = $options_area_orig."_order_swish";
+
+			add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+
+			show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings_swish));
+		}
 		############################
 
 		// Order Confirmation
@@ -4357,6 +4294,8 @@ class mf_webshop
 		{
 			$arr_settings['setting_webshop_order_confirmation_email'] = " - ".__("E-mail", 'lang_webshop');
 		}
+
+		$arr_settings['setting_webshop_order_user_change_status'] = __("Allow User Status Change", 'lang_webshop');
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 		############################
@@ -4504,6 +4443,45 @@ class mf_webshop
 			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option));
 		}
 
+		function setting_webshop_bank_transfer_number_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'text', 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_payment_alternatives_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, array('invoice'));
+
+			echo show_select(array('data' => $this->get_payment_alternatives_for_select('admin'), 'name' => $setting_key."[]", 'value' => $option));
+		}
+
+		function setting_webshop_prefered_payment_alternative_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_select(array('data' => $this->get_prefered_payment_alternative_for_select(), 'name' => $setting_key, 'value' => $option));
+		}
+
+		function setting_webshop_product_time_limit_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option_or_default($setting_key, 20);
+
+			echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("minutes", 'lang_webshop')));
+		}
+
+	function settings_webshop_order_stripe_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+
+		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Stripe", 'lang_webshop'));
+	}
+
 		function setting_webshop_stripe_public_key_test_callback()
 		{
 			$setting_key = get_setting_key(__FUNCTION__);
@@ -4562,6 +4540,29 @@ class mf_webshop
 
 			echo show_password_field(array('name' => $setting_key, 'value' => $option, 'xtra' => " autocomplete='new-password'"));
 		}
+
+		function setting_webshop_stripe_fee_percent_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'suffix' => "%"));
+		}
+
+		function setting_webshop_stripe_fee_currency_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key);
+
+			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'suffix' => get_option('setting_webshop_currency', 'SEK')));
+		}
+
+	function settings_webshop_order_swish_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+
+		echo settings_header($setting_key, __("Webshop", 'lang_webshop')." - ".__("Swish", 'lang_webshop'));
+	}
 
 		function setting_webshop_swish_company_number_callback()
 		{
@@ -4632,30 +4633,6 @@ class mf_webshop
 			echo get_media_library(array('name' => $setting_key, 'value' => $option, 'description' => $description));
 		}
 
-		function setting_webshop_bank_transfer_number_callback()
-		{
-			$setting_key = get_setting_key(__FUNCTION__);
-			$option = get_option($setting_key);
-
-			echo show_textfield(array('type' => 'text', 'name' => $setting_key, 'value' => $option));
-		}
-
-		function setting_webshop_payment_alternatives_callback()
-		{
-			$setting_key = get_setting_key(__FUNCTION__);
-			$option = get_option($setting_key, array('invoice'));
-
-			echo show_select(array('data' => $this->get_payment_alternatives_for_select('admin'), 'name' => $setting_key."[]", 'value' => $option));
-		}
-
-		function setting_webshop_prefered_payment_alternative_callback()
-		{
-			$setting_key = get_setting_key(__FUNCTION__);
-			$option = get_option($setting_key);
-
-			echo show_select(array('data' => $this->get_prefered_payment_alternative_for_select(), 'name' => $setting_key, 'value' => $option));
-		}
-
 	function settings_webshop_order_confirmation_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
@@ -4693,6 +4670,14 @@ class mf_webshop
 			$option = get_option($setting_key);
 
 			echo show_textfield(array('type' => 'email', 'name' => $setting_key, 'value' => $option, 'placeholder' => get_bloginfo('admin_email')));
+		}
+
+		function setting_webshop_order_user_change_status_callback()
+		{
+			$setting_key = get_setting_key(__FUNCTION__);
+			$option = get_option($setting_key, 'yes');
+
+			echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 		}
 
 	function setting_range_min_default_callback()
@@ -9268,7 +9253,7 @@ class mf_webshop
 				curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/payment_intents');
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-					'amount' => (int)round($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100),
+					'amount' => (int)round($arr_cart_data['response_webshop_cart']['total_sum_stripe_raw'] * 100),
 					'currency' => $setting_webshop_currency,
 					'payment_method' => $payment_method_id,
 					'confirmation_method' => 'automatic',
