@@ -69,7 +69,24 @@ class mf_webshop
 
 	function set_cookie()
 	{
-		setcookie($this->cookie_name, $this->cookie_value, strtotime("+1 month"), COOKIEPATH);
+		//setcookie($this->cookie_name, $this->cookie_value, strtotime("+1 month"), COOKIEPATH);
+
+		if(!headers_sent())
+		{
+			setcookie(
+				$this->cookie_name,
+				$this->cookie_value,
+				[
+					'expires'  => strtotime("+1 month"),
+					'path'     => COOKIEPATH,
+					'domain'   => defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : '',
+					'secure'   => is_ssl(),
+					'httponly' => true,
+					'samesite' => 'Lax',
+				]
+			);
+		}
+
 		$_COOKIE[$this->cookie_name] = $this->cookie_value;
 
 		return $_COOKIE[$this->cookie_name];
@@ -1739,17 +1756,16 @@ class mf_webshop
 	{
 		global $wpdb;
 
+		//$json_output['debug'] = $order_id." | ".$this->order_cart_hash." | ".$this->cookie_name." = ".$this->cookie_value." | ".isset($_COOKIE[$this->cookie_name]);
+
 		if($order_id > 0)
 		{
 			$this->order_cart_hash = $order_id;
 		}
 
-		else
+		else if($this->order_cart_hash == '')
 		{
-			if(!($this->order_cart_hash != ''))
-			{
-				$this->order_cart_hash = $this->get_cookie();
-			}
+			$this->order_cart_hash = $this->get_cookie();
 		}
 
 		if($this->order_cart_hash != '')
@@ -1941,8 +1957,13 @@ class mf_webshop
 
 			else
 			{
-				$json_output['error'] = __("Error", 'lang_webshop');
+				$json_output['error'] = __("Products are not in an array", 'lang_webshop');
 			}
+		}
+
+		else
+		{
+			$json_output['error'] = __("I could not give you a cart hash", 'lang_webshop');
 		}
 
 		return $json_output;
@@ -3075,6 +3096,7 @@ class mf_webshop
 
 			$out .= "<div".parse_block_attributes(array('class' => "widget webshop_buy_button", 'attributes' => $attributes)).">";
 
+				$product_price = 0;
 				$price_post_name = $this->get_post_name_for_type('price');
 
 				if($price_post_name != '')
@@ -3089,14 +3111,14 @@ class mf_webshop
 					}
 				}
 
-				if($post_id_cart > 0)
-				{
-					$arr_cart_values = $this->get_cart_values($product_id);
+				$arr_cart_values = $this->get_cart_values($product_id);
 
-					$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
+				$product_time_limit = $this->get_product_time_limit($arr_cart_values['product_stock_max']);
 
-					//$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>";
+				//$out .= "<div class='is-layout-flex wp-block-buttons-is-layout-flex'>";
 
+					if($product_price > 0)
+					{
 						$out .= "<div class='wp-block-button cart_buttons'>";
 
 							if($arr_cart_values['is_allowed_to_buy'])
@@ -3138,27 +3160,23 @@ class mf_webshop
 								</a>";
 							}
 
-						$out .= "</div>
-						<div class='wp-block-button'>";
-
-							$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
-
-							if($post_id_search > 0)
-							{
-								$out .= "<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')." ".__("Continue Shopping", 'lang_webshop')."</a>";
-							}
-
-							$post_id_cart = apply_filters('get_block_search', 0, 'mf/webshopcart');
-
-							if($post_id_cart > 0)
-							{
-								$out .= " <a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link'>".__("Go to your cart", 'lang_webshop')." ".apply_filters('get_css_icon', 'chevron_right')."</a>";
-							}
-
 						$out .= "</div>";
+					}
 
-					//$out .= "</div>";
-				}
+					$out .= "<div class='wp-block-button'>";
+
+						$post_id_search = apply_filters('get_block_search', 0, 'mf/webshopsearch');
+
+						if($post_id_search > 0)
+						{
+							$out .= "<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".apply_filters('get_css_icon', 'chevron_left')." ".__("Continue Shopping", 'lang_webshop')."</a>";
+						}
+
+						//$out .= " <a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link'>".__("Go to your cart", 'lang_webshop')." ".apply_filters('get_css_icon', 'chevron_right')."</a>";
+
+					$out .= "</div>";
+
+				//$out .= "</div>";
 
 			$out .= "</div>";
 		}
@@ -8564,6 +8582,7 @@ class mf_webshop
 			break;
 
 			case 'webshop_cart':
+				$json_output['success'] = true;
 				$json_output = $this->get_webshop_cart($json_output);
 			break;
 

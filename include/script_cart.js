@@ -43,8 +43,16 @@ jQuery(function($)
 
 	function render_cart(data)
 	{
-		var response = data.response_webshop_cart,
-			count_temp = response.products.length;
+		if(typeof data.response_webshop_cart !== 'undefined')
+		{
+			var response = data.response_webshop_cart,
+				count_temp = response.products.length;
+		}
+
+		else
+		{
+			var count_temp = 0;
+		}
 
 		if(count_temp > 0)
 		{
@@ -253,15 +261,7 @@ jQuery(function($)
 			},
 			success: function(data)
 			{
-				if(data.success)
-				{
-					render_cart(data);
-				}
-
-				/*else if(data.data.redirect_url)
-				{
-					window.location.href = data.data.redirect_url;
-				}*/
+				render_cart(data);
 			}
 		});
 	}
