@@ -4720,10 +4720,8 @@ class mf_webshop
 
 		$count_message = "";
 
-		//$last_viewed = date("Y-m-d H:i:s", strtotime(get_user_meta(get_current_user_id(), 'meta_webshop_viewed_'.$post_type, true)));
-
-		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_date > %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish', $last_viewed));
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish'));
+		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_status ON ".$wpdb->posts.".ID = postmeta_status.post_id AND postmeta_status.meta_key = %s INNER JOIN ".$wpdb->postmeta." AS postmeta_testmode ON ".$wpdb->posts.".ID = postmeta_testmode.post_id AND postmeta_testmode.meta_key = %s WHERE post_type = %s AND post_status = %s AND postmeta_status.meta_value IN ('quoted', 'ordered', 'paid') AND postmeta_testmode.meta_value = %s", $this->meta_prefix.'order_status', $this->meta_prefix.'test_mode', $post_type, 'publish', 'no'));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -5284,7 +5282,7 @@ class mf_webshop
 			{
 				$post_type = $post->post_type;
 			}
-			
+
 			else if(isset($_GET['post_type']))
 			{
 				$post_type = $_GET['post_type'];
@@ -9460,7 +9458,7 @@ class mf_webshop
 
 												else
 												{ %>
-													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>	
+													<a href='#' class='wp-block-button__link add_to_cart' title='".__("Add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
 												<% } %>
 											<% }
 
