@@ -935,6 +935,7 @@ class mf_webshop
 
 		if(!isset($attributes['webshop_search'])){				$attributes['webshop_search'] = 'yes';}
 		if(!isset($attributes['webshop_filter'])){				$attributes['webshop_filter'] = 'no';}
+		if(!isset($attributes['webshop_default_category'])){	$attributes['webshop_default_category'] = '';}
 
 		if(!isset($obj_font_icons))
 		{
@@ -956,7 +957,6 @@ class mf_webshop
 
 		mf_enqueue_script('underscore');
 		mf_enqueue_script('backbone');
-		//mf_enqueue_script('script_storage', $plugin_base_include_url."jquery.Storage.js");
 		mf_enqueue_script('script_base_plugins', $plugin_base_include_url."backbone/bb.plugins.js");
 
 		mf_enqueue_script('script_webshop_router', $plugin_include_url."backbone/bb.router.js");
@@ -1033,7 +1033,7 @@ class mf_webshop
 							break;*/
 
 							case 'categories':
-								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'value' => check_var($post_name, 'char'), 'field_class' => "mf_form_field ".$post_custom_type, 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
+								$out .= show_select(array('data' => $this->get_categories_for_select(array('include_on' => 'products')), 'name' => $post_name, 'value' => check_var($post_name, 'char', true, $attributes['webshop_default_category']), 'field_class' => "mf_form_field ".$post_custom_type, 'required' => ($post_custom_required == 'yes'))); //, 'text' => $post_title
 							break;
 
 							/*case 'categories_v2':
@@ -1185,6 +1185,13 @@ class mf_webshop
 							break;*/
 						}
 					}
+				}
+
+				else if($attributes['webshop_default_category'] > 0)
+				{
+					$category_post_name = $this->get_post_name_for_type('categories');
+
+					$out .= input_hidden(array('name' => $category_post_name, 'value' => $attributes['webshop_default_category'], 'allow_empty' => true));
 				}
 
 				$out .= "<ul class='grid_columns'><li class='loading'>".apply_filters('get_loading_animation', '', ['class' => "fa-3x"])."</li></ul>"
@@ -1689,9 +1696,10 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		if(!isset($data['limit'])){		$data['limit'] = 0;}
+		if(!isset($data['add_choose_here'])){		$data['add_choose_here'] = true;}
+		if(!isset($data['limit'])){					$data['limit'] = 0;}
 
-		$arr_variations = [];
+		$arr_data = [];
 
 		$query_limit = "";
 
@@ -1708,18 +1716,20 @@ class mf_webshop
 			$product_title = $r->product_title;
 			$variation_id = $r->variation_id;
 
-			if(!isset($arr_variations[$variation_id]))
+			if(!isset($arr_data[$variation_id]))
 			{
-				$arr_variations[$variation_id] = [$product_id => $product_title];
+				$arr_data[$variation_id] = [];
+
+				if($data['add_choose_here'] == true)
+				{
+					$arr_data[$variation_id][''] = "-- ".__("Choose Here", 'lang_webshop')." --";
+				}
 			}
 
-			else
-			{
-				$arr_variations[$variation_id][$product_id] = $product_title;
-			}
+			$arr_data[$variation_id][$product_id] = $product_title;
 		}
 
-		return $arr_variations;
+		return $arr_data;
 	}
 
 	function get_variations_text($arr_product)
@@ -3863,11 +3873,13 @@ class mf_webshop
 		wp_localize_script('script_webshop_block_wp', 'script_webshop_block_wp', array(
 			'block_title_timeline' => __("Webshop", 'lang_webshop')." - ".__("Timeline", 'lang_webshop'),
 			'block_description_timeline' => __("Display Timeline", 'lang_webshop'),
-			'block_title2' => __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'),
-			'block_description2' => __("Display Search", 'lang_webshop'),
+			'block_title_search' => __("Webshop", 'lang_webshop')." - ".__("Search", 'lang_webshop'),
+			'block_description_search' => __("Display Search", 'lang_webshop'),
 			'yes_no_for_select' => get_yes_no_for_select(),
 			'webshop_search_label' => __("Display Search Box", 'lang_webshop'),
 			'webshop_filter_label' => __("Display Filters", 'lang_webshop'),
+			'webshop_default_category_label' => __("Default Category", 'lang_webshop'),
+			'arr_webshop_category' => $this->get_categories_for_select(), //array('include_on' => 'products')
 			'block_title4' => __("Webshop", 'lang_webshop')." - ".__("Cart", 'lang_webshop'),
 			'block_description4' => __("Display Cart", 'lang_webshop'),
 			'block_title6' => __("Webshop", 'lang_webshop')." - ".__("More Images", 'lang_webshop'),

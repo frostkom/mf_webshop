@@ -69,8 +69,8 @@
 
 	registerBlockType('mf/webshopsearch',
 	{
-		title: script_webshop_block_wp.block_title2,
-		description: script_webshop_block_wp.block_description2,
+		title: script_webshop_block_wp.block_title_search,
+		description: script_webshop_block_wp.block_description_search,
 		icon: 'cart',
 		category: 'widgets',
 		'attributes':
@@ -86,6 +86,11 @@
 				'default': ''
 			},
 			'webshop_filter':
+			{
+				'type': 'string',
+				'default': ''
+			},
+			'webshop_default_category':
 			{
 				'type': 'string',
 				'default': ''
@@ -129,7 +134,7 @@
 						{key: 'inspector'},
 						el(
 							PanelBody,
-							{title: script_webshop_block_wp.block_title2, initialOpen: true},
+							{title: script_webshop_block_wp.block_title_search, initialOpen: true},
 							el(
 								SelectControl,
 								{
@@ -153,13 +158,25 @@
 										props.setAttributes({webshop_filter: value});
 									}
 								}
+							),
+							el(
+								SelectControl,
+								{
+									label: script_webshop_block_wp.webshop_default_category_label,
+									value: props.attributes.webshop_default_category,
+									options: convert_php_array_to_block_js(script_webshop_block_wp.arr_webshop_category, true),
+									onChange: function(value)
+									{
+										props.setAttributes({webshop_default_category: value});
+									}
+								}
 							)
 						)
 					),
 					el(
 						'strong',
 						{className: props.className},
-						script_webshop_block_wp.block_title2
+						script_webshop_block_wp.block_title_search
 					)
 				]
 			);
