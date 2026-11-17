@@ -69,18 +69,16 @@ class mf_webshop
 
 	function set_cookie()
 	{
-		//setcookie($this->cookie_name, $this->cookie_value, strtotime("+1 month"), COOKIEPATH);
-
 		if(!headers_sent())
 		{
 			setcookie(
 				$this->cookie_name,
 				$this->cookie_value,
 				[
-					'expires'  => strtotime("+1 month"),
-					'path'     => COOKIEPATH,
-					'domain'   => defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : '',
-					'secure'   => is_ssl(),
+					'expires' => strtotime("+1 month"),
+					'path' => COOKIEPATH,
+					'domain' => defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : '',
+					'secure' => is_ssl(),
 					'httponly' => true,
 					'samesite' => 'Lax',
 				]
