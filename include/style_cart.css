@@ -1,3 +1,8 @@
+.widget.webshop_cart .widefat th, .widget.webshop_cart .widefat td, .widget.webshop_cart .widefat td a
+{
+	color: #333;
+}
+
 .widget.webshop_cart .cart_products td > span
 {
 	padding-left: .4em;
@@ -47,5 +52,7 @@
 
 .widget.webshop_cart .swish_manual_qr_code img
 {
+	border-radius: .5em;
+	margin-top: .3em;
 	max-height: 7em;
 }
