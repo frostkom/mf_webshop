@@ -1902,7 +1902,7 @@ class mf_webshop
 
 								$arr_checkout_fields[] = array(
 									'product_id' => $arr_product['id'],
-									'product_title' => $arr_products[$key]['product_title'],
+									'product_title' => esc_html($arr_products[$key]['product_title']),
 									'product_number' => $i,
 									'checkout_type' => $arr_checkout_information[$checkout_name]['type'],
 									'checkout_data' => (isset($arr_checkout_information[$checkout_name]['data']) ? $arr_checkout_information[$checkout_name]['data'] : []),
@@ -2616,7 +2616,8 @@ class mf_webshop
 										{
 											$this->order_cart_hash = $this->get_cookie();
 
-											$base_callback_url = $_SERVER['HTTP_REFERER'];
+											//$base_callback_url = $_SERVER['HTTP_REFERER'];
+											$base_callback_url = get_permalink();
 
 											list($upload_path, $upload_url) = get_uploads_folder();
 
@@ -2822,7 +2823,7 @@ class mf_webshop
 											$out .= get_notification();
 										}
 
-										else if(isset($_GET['callback']))
+										/*else if(isset($_GET['callback']))
 										{
 											$response_request = $_REQUEST;
 											$response_body = file_get_contents('php://input');
@@ -2897,6 +2898,99 @@ class mf_webshop
 												http_response_code(404);
 												exit;
 											}
+										}*/
+
+										else if(isset($_GET['callback']))
+										{
+											$arr_json = json_decode(file_get_contents('php://input'), true);
+
+											$instruction_uuid = (is_array($arr_json) && isset($arr_json['payeePaymentReference']) && is_string($arr_json['payeePaymentReference']) ? $arr_json['payeePaymentReference'] : '');
+
+											if(!preg_match('/^[A-F0-9]{32}$/', $instruction_uuid))
+											{
+												http_response_code(400);
+												exit;
+											}
+
+											$post_id = (int)$wpdb->get_var($wpdb->prepare("SELECT post_id FROM ".$wpdb->postmeta." WHERE meta_key = %s AND meta_value = %s LIMIT 0, 1", $this->meta_prefix.'swish_instruction_uuid', $instruction_uuid));
+
+											if($post_id == 0 || get_post_type($post_id) != $this->post_type_orders || get_post_status($post_id) != 'draft')
+											{
+												do_log("Swish callback: no draft order found for instruction_uuid ".$instruction_uuid);
+												http_response_code(404);
+												exit;
+											}
+
+											list($upload_path, $upload_url) = get_uploads_folder();
+
+											list($content, $headers) = get_url_content(array(
+												'url' => "https://cpc.getswish.net/swish-cpcapi/api/v2/paymentrequests/".$instruction_uuid,
+												'request' => 'get',
+												'content_type' => "application/json",
+												'catch_head' => true,
+												'ca_path' => str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_certificate_root_file')),
+												'ssl_cert_path' => str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_certificate_file')),
+												'ssl_key_path' => str_replace($upload_url, $upload_path, get_option('setting_webshop_swish_key_file')),
+											));
+
+											if(!isset($headers['http_code']) || $headers['http_code'] != 200)
+											{
+												do_log("Swish callback: could not verify ".$instruction_uuid." with Swish (http ".(isset($headers['http_code']) ? $headers['http_code'] : '?').")");
+												http_response_code(502);
+												exit;
+											}
+
+											$arr_swish = json_decode($content, true);
+
+											if(!is_array($arr_swish) || !isset($arr_swish['status']) || (isset($arr_swish['payeePaymentReference']) && $arr_swish['payeePaymentReference'] != $instruction_uuid))
+											{
+												http_response_code(502);
+												exit;
+											}
+
+											$payment_method = 'swish';
+											$test_mode = 'no';
+
+											$this->order_cart_hash = get_post_meta($post_id, $this->meta_prefix.'cart_hash', true);
+
+											$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
+											$setting_webshop_currency = get_option('setting_webshop_currency');
+
+											switch($arr_swish['status'])
+											{
+												case 'PAID':
+													$amount_ok = (isset($arr_swish['amount']) && (int)round((float)$arr_swish['amount'] * 100) === (int)round($arr_cart_data['response_webshop_cart']['total_sum_raw'] * 100));
+													$currency_ok = (isset($arr_swish['currency']) && strtoupper($arr_swish['currency']) === strtoupper($setting_webshop_currency));
+
+													$order_status = ($amount_ok && $currency_ok ? 'paid' : 'wrong_amount');
+												break;
+
+												case 'DECLINED':
+													$order_status = 'cancelled';
+												break;
+
+												case 'ERROR':
+													$order_status = 'failed';
+												break;
+
+												default:
+													// CREATED or another non-final status. Nothing to save yet
+													http_response_code(200);
+													exit;
+												break;
+											}
+
+											$this->save_payment_success(array(
+												'post_id' => $post_id,
+												'payment_method' => $payment_method,
+												'test_mode' => $test_mode,
+												'order_status' => $order_status,
+												'arr_cart_data' => $arr_cart_data,
+												'setting_webshop_currency' => $setting_webshop_currency,
+											));
+
+											http_response_code(200);
+											exit;
 										}
 
 										else
@@ -7977,22 +8071,8 @@ class mf_webshop
 		{
 			if($this->product_image != '')
 			{
-				$product_image = "<img src='".$this->product_image."' alt='".$this->product_title."'>";
+				$product_image = "<img src='".esc_url($this->product_image)."' alt='".esc_attr($this->product_title)."'>";
 			}
-
-			/*else if(is_array($this->arr_category_id) && count($this->arr_category_id) > 0)
-			{
-				$product_image = "<div class='category_icon'>";
-
-					foreach($this->arr_category_id as $category_id)
-					{
-						$category_icon = get_post_meta($category_id, $this->meta_prefix.'category_icon', true);
-
-						$product_image .= $obj_font_icons->get_symbol_tag(array('symbol' => $category_icon, 'title' => get_the_title($category_id), 'class' => "category_".$category_id));
-					}
-
-				$product_image .= "</div>";
-			}*/
 
 			else
 			{
@@ -8027,7 +8107,7 @@ class mf_webshop
 
 				$json_output['product_response'][] = array(
 					'product_id' => $this->product_id,
-					'product_title' => $this->product_title,
+					'product_title' => esc_html($this->product_title),
 					'product_clock' => ($this->product_clock),
 					'product_address' => $this->product_address,
 					'product_data' => $this->product_data,
@@ -8117,6 +8197,8 @@ class mf_webshop
 			case 'admin':
 				if(is_user_logged_in())
 				{
+					do_log(__FUNCTION__.":".__LINE__." - Is this even used?");
+
 					if(isset($arr_type[3]) && in_array($arr_type[3], array('list', 'edit', 'save')))
 					{
 						$arr_type[2] = $arr_type[3];
@@ -9411,8 +9493,8 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_product_item'>
-						<li id='product_<%= product_id %>'<%= (product_url != '#' ? '' : ' class=ghost') %>>
-							<a href='<%= product_url %>'>
+						<li id='product_<%- product_id %>'<%= (product_url != '#' ? '' : ' class=ghost') %>>
+							<a href='<%- product_url %>'>
 								<div class='grid_image'".(IS_ADMINISTRATOR ? " rel='".__FUNCTION__."'" : "").">
 									<%= product_image %>
 									<% if(product_category != '' || product_data != '')
@@ -9435,7 +9517,7 @@ class mf_webshop
 								</div>
 							</a>
 							<div class='grid_content'>
-								<a href='<%= product_url %>' class='grid_title'><%= product_title %></a>
+								<a href='<%- product_url %>' class='grid_title'><%= product_title %></a>
 								<% if(product_location != '')
 								{ %>
 									<p class='product_location'><%= product_location %></p>
@@ -9455,7 +9537,7 @@ class mf_webshop
 									<ul class='product_meta'>
 										<% _.each(product_meta, function(meta)
 										{ %>
-											<li class='<%= meta.class %>'><%= meta.content %></li>
+											<li class='<%- meta.class %>'><%= meta.content %></li>
 										<% }); %>
 									</ul>
 								<% } %>
@@ -9473,7 +9555,7 @@ class mf_webshop
 											{ %>
 												<% if(product_has_variations)
 												{ %>
-													<a href='<%= product_url %>' class='wp-block-button__link' title='".__("Choose options and add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
+													<a href='<%- product_url %>' class='wp-block-button__link' title='".__("Choose options and add this to your cart", 'lang_webshop')."'><i class='fa fa-plus'></i></a>
 												<% }
 
 												else
@@ -9484,7 +9566,7 @@ class mf_webshop
 
 											else
 											{ %>
-												<a href='#' class='wp-block-button__link disabled' title='<%= is_allowed_to_buy_reason %>'><i class='fa fa-plus'></i></a>
+												<a href='#' class='wp-block-button__link disabled' title='<%- is_allowed_to_buy_reason %>'><i class='fa fa-plus'></i></a>
 											<% } %>
 
 											<a href='".get_the_permalink($post_id_cart)."' class='wp-block-button__link in_cart<% if(!(product_in_cart > 0)){ %> hide<% } %>' rel='nofollow' title='".__("Go to your cart", 'lang_webshop')."'><span><%= product_in_cart %></span><i class='fa fa-check'></i></a>
@@ -9511,7 +9593,7 @@ class mf_webshop
 								if($wpdb->num_rows > 0)
 								{
 									$out .= "<div class='wp-block-button is-style-outline read_more_button'>
-										<a href='<%= product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
+										<a href='<%- product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
 									</div>";
 								}
 
@@ -9542,9 +9624,9 @@ class mf_webshop
 					</script>
 
 					<script type='text/template' id='template_webshop_cart_item'>
-						<tr id='product_<%= id %>'>
+						<tr id='product_<%- id %>'>
 							<td>
-								<a href='<%= product_url %>'><%= product_title %></a>
+								<a href='<%- product_url %>'><%= product_title %></a>
 								<% if(product_variations != '')
 								{ %>
 									<small><%= product_variations %></small>
@@ -9560,10 +9642,10 @@ class mf_webshop
 							$out .= "<td>
 								<% if(is_editable == true)
 								{ %>
-									<input type='number' name='product_amount_<%= id %>' value='<%= amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%= product_amount_max %>'>
+									<input type='number' name='product_amount_<%- id %>' value='<%- amount %>' class='mf_form_field' inputmode='numeric' step='any' min='0' max='<%- product_amount_max %>'>
 									<% if(product_time_limit > 0)
 									{ %>
-										<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%= product_time_limit %>")."'></i>
+										<i class='fa fa-clock<% if(product_time_limit <= ".floor($this->product_time_limit / 2)."){ %> red<% } %>' title='".sprintf(__("This is a product with a timelimit. It will be removed from your cart in %s minutes if you do not update your cart, update your information or go to checkout.", 'lang_webshop'), "<%- product_time_limit %>")."'></i>
 									<% } %>
 								<% }
 
@@ -9591,8 +9673,8 @@ class mf_webshop
 						<% if(checkout_type == 'select' || checkout_type == 'select_multiple')
 						{ %>
 							<div class='form_<%= checkout_type %>'>
-								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<select id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%= (checkout_data.length || _.size(checkout_data)) %>'<% } else { %><%= checkout_xtra %><% } %>>
+								<label for='<%- checkout_name %>_<%- product_id %>_<%- product_number %>'><%= checkout_label %></label>
+								<select id='<%- checkout_name %>_<%- product_id %>_<%- product_number %>' name='<%- checkout_name %>_<%- product_id %>_<%- product_number %><% if(checkout_type == 'select_multiple'){ %>[]<% } %>' class='mf_form_field'<% if(checkout_type == 'select_multiple'){ %> multiple size='<%- (checkout_data.length || _.size(checkout_data)) %>'<% } else { %><%- checkout_xtra %><% } %>>
 									<% _.each(checkout_data, function(meta_option_value, meta_option_key)
 									{
 										var keyStr = String(meta_option_key);
@@ -9607,7 +9689,7 @@ class mf_webshop
 										{
 											selected = (String(checkout_value) === keyStr);
 										} %>
-										<option value='<%= meta_option_key %>' <% if (selected) { %>selected<% } %>><%= meta_option_value %>
+										<option value='<%- meta_option_key %>' <% if (selected) { %>selected<% } %>><%= meta_option_value %>
 									<% }); %>
 								</select>
 							</div>
@@ -9633,12 +9715,12 @@ class mf_webshop
 										<li class='form_checkbox'>
 											<input 
 												type='checkbox'
-												id='<%= checkout_name %>_<%= product_id %>_<%= product_number %>_<%= meta_option_key %>'
-												name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>[]'
-												value='<%= meta_option_key %>'
+												id='<%- checkout_name %>_<%- product_id %>_<%- product_number %>_<%- meta_option_key %>'
+												name='<%- checkout_name %>_<%- product_id %>_<%- product_number %>[]'
+												value='<%- meta_option_key %>'
 												<% if (selected) { %>checked<% } %>
 											>
-											<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>_<%= meta_option_key %>'>
+											<label for='<%- checkout_name %>_<%- product_id %>_<%- product_number %>_<%- meta_option_key %>'>
 												<%= meta_option_value %>
 											</label>
 										</li>
@@ -9650,8 +9732,8 @@ class mf_webshop
 						else
 						{ %>
 							<div class='form_textfield'>
-								<label for='<%= checkout_name %>_<%= product_id %>_<%= product_number %>'><%= checkout_label %></label>
-								<input type='<%= checkout_type %>' name='<%= checkout_name %>_<%= product_id %>_<%= product_number %>' value='<%= checkout_value %>' class='mf_form_field'<%= checkout_xtra %>>
+								<label for='<%- checkout_name %>_<%- product_id %>_<%- product_number %>'><%= checkout_label %></label>
+								<input type='<%- checkout_type %>' name='<%- checkout_name %>_<%- product_id %>_<%- product_number %>' value='<%- checkout_value %>' class='mf_form_field'<%= checkout_xtra %>>
 							</div>
 						<% } %>
 					</script>";
