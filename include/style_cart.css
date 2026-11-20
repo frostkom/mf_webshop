@@ -1,11 +1,11 @@
-/*.widget.webshop_cart .widefat th, .widget.webshop_cart .widefat td, .widget.webshop_cart .widefat td a
-{
-	color: #333;
-}*/
-
 .widget.webshop_cart .cart_products td > span
 {
 	padding-left: .4em;
+}
+
+.widget.webshop_cart .cart_products td small
+{
+	display: block;
 }
 
 .widget.webshop_cart .cart_products .mf_form_field[inputmode='numeric']

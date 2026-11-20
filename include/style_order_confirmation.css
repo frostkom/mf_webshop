@@ -23,3 +23,8 @@
 {
 	margin-bottom: 1em;
 }
+
+	.widget.webshop_order_confirmation td small
+	{
+		display: block;
+	}

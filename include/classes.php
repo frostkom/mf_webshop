@@ -1859,8 +1859,8 @@ class mf_webshop
 					$product_title = get_the_title($arr_product['id']);
 					$product_variations_text = $this->get_variations_text($arr_product);
 
-					$arr_products[$key]['product_title'] = $product_title.($product_variations_text != '' ? " (".$product_variations_text.")" : "");
-					//$arr_products[$key]['product_variations'] = $product_variations_text;
+					$arr_products[$key]['product_title'] = $product_title;
+					$arr_products[$key]['product_variations'] = $product_variations_text;
 
 					$arr_products[$key]['product_url'] = get_the_permalink($arr_product['id']);
 					$arr_products[$key]['product_amount_max'] = $product_amount_max;
@@ -3683,8 +3683,18 @@ class mf_webshop
 
 							foreach($arr_products as $key => $arr_product)
 							{
+								$product_variations_text = $this->get_variations_text($arr_product);
+
 								$out .= "<tr>
-									<td><a href='".get_the_permalink($arr_product['id'])."'>".get_the_title($arr_product['id'])."</a></td>
+									<td>
+										<a href='".get_the_permalink($arr_product['id'])."'>".get_the_title($arr_product['id'])."</a>";
+
+										if($product_variations_text != '')
+										{
+											$out .= "<small>".$product_variations_text."</small>";
+										}
+
+									$out .= "</td>
 									<td>".$arr_product['amount']."</td>
 									<td>".$this->display_price(array('price' => $arr_product['price']))."</td>";
 
@@ -9535,6 +9545,10 @@ class mf_webshop
 						<tr id='product_<%= id %>'>
 							<td>
 								<a href='<%= product_url %>'><%= product_title %></a>
+								<% if(product_variations != '')
+								{ %>
+									<small><%= product_variations %></small>
+								<% } %>
 							</td>
 							<td><%= price %></td>";
 
