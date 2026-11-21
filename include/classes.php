@@ -634,6 +634,16 @@ class mf_webshop
 						$this->meta_prefix.'document_public' => 'yes',
 					))
 				));
+
+				wp_insert_post(array(
+					'post_type' => $this->post_type_document_type,
+					'post_title' => __("Type of Product", 'lang_webshop'),
+					'post_status' => 'publish',
+					'meta_input' => apply_filters('filter_meta_input', array(
+						$this->meta_prefix.'document_type' => 'product_type',
+						$this->meta_prefix.'document_public' => 'yes',
+					))
+				));
 			}
 			###########
 
@@ -672,7 +682,7 @@ class mf_webshop
 
 							if($product_stock_max != '')
 							{
-								do_log(__FUNCTION__.": Remove ".$arr_product['id']." from ".$post_id." because ".$post_modified." < ".$product_modified_limit." (".$this->product_time_limit." minutes)");
+								do_log(__FUNCTION__.": Remove <a href='".admin_url("post.php?post=".$arr_product['id']."&action=edit")."'>".$arr_product['id']."</a> from <a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>".$post_id."</a> because ".$post_modified." < ".$product_modified_limit." (".$this->product_time_limit." minutes)");
 
 								unset($arr_products[$key]);
 							}
@@ -1919,23 +1929,23 @@ class mf_webshop
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
+				$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
 				if($has_physical_product == true)
 				{
 					$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
 
 					if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit)
 					{
-						$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
-
-						if($shipping_cost > 0)
+						if($setting_webshop_shipping_cost > 0)
 						{
 							if($setting_webshop_shipping_free_limit > 0)
 							{
 								$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 							}
 
-							$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
-							$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
+							$total_sum += $this->display_price(array('price' => $setting_webshop_shipping_cost, 'suffix' => false));
+							$total_tax += $this->get_tax(array('price' => $setting_webshop_shipping_cost, 'suffix' => false));
 						}
 					}
 				}
@@ -1949,8 +1959,8 @@ class mf_webshop
 					'order_id' => $order_id,
 					'order_number' => $this->order_cart_hash,
 					'products' => $arr_products,
-					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
-					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
+					'shipping_cost_raw' => $this->display_price(array('price' => $setting_webshop_shipping_cost, 'calculate' => false, 'suffix' => false)),
+					'shipping_cost' => $this->display_price(array('price' => $setting_webshop_shipping_cost, 'calculate' => false)).$shipping_comment,
 					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
@@ -4240,6 +4250,19 @@ class mf_webshop
 				if($wpdb->num_rows == 0)
 				{
 					$notice_text = sprintf(__("You need to %screate a single template%s for Orders", 'lang_webshop'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
+				}
+			}
+
+			if($done_text == '' && $notice_text == '' && $error_text == '')
+			{
+				$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
+				$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
+				$product_type_post_name = $this->get_post_name_for_type('product_type');
+
+				if(($setting_webshop_shipping_free_limit > 0 || $setting_webshop_shipping_cost > 0) && $product_type_post_name == '')
+				{
+					$notice_text = sprintf(__("You have set %sshipping cost in the settings%s, but there are no %sproducts%s that are physical.", 'lang_webshop'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_webshop_shipping")."'>", "</a>", "<a href='".admin_url("edit.php?post_type=".$this->post_type_products)."'>", "</a>");
 				}
 			}
 
@@ -9612,7 +9635,10 @@ class mf_webshop
 
 							if($post_id_search > 0)
 							{
-								$out .= sprintf(__("You don't have any products in your cart yet. %sStart shopping%s", 'lang_webshop'), "<a href='".get_the_permalink($post_id_search)."'>", "</a>");
+								$out .= "<p>".__("You don't have any products in your cart yet.", 'lang_webshop')."</p>
+								<div class='wp-block-button'>
+									<a href='".get_the_permalink($post_id_search)."' class='wp-block-button__link'>".__("Start shopping", 'lang_webshop')."</a>
+								</div>";
 							}
 
 							else
