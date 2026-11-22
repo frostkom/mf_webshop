@@ -7504,6 +7504,7 @@ class mf_webshop
 			$json_output['product_amount'] += $arr_product['amount'];
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -7572,6 +7573,7 @@ class mf_webshop
 			$json_output['html'] .= $this->get_timeline_icons(['product_id' => $product_id, 'search_post_id' => $post_id_search, 'cart_has_product' => $cart_has_product, 'shop_has_addon' => $shop_has_addon, 'cart_has_addons' => $cart_has_addons, 'cart_post_id' => $post_id_cart]);
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -8871,6 +8873,7 @@ class mf_webshop
 			break;
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -9156,6 +9159,7 @@ class mf_webshop
 			$json_output['error'] = "No order found (".$wpdb->last_query.")";
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -9177,6 +9181,7 @@ class mf_webshop
 			$json_output['order_cart_hash'] = $this->order_cart_hash;
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -9255,6 +9260,7 @@ class mf_webshop
 			$json_output['error'] = "No order found (".$wpdb->last_query.")";
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -9286,6 +9292,7 @@ class mf_webshop
 			}
 		}
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
@@ -9302,6 +9309,7 @@ class mf_webshop
 
 		$json_output = $this->add_to_cart($json_output, $product_id, $arr_variations);
 
+		nocache_headers();
 		header('Content-Type: application/json');
 		echo json_encode($json_output);
 		die();
