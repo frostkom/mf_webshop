@@ -9534,7 +9534,7 @@ class mf_webshop
 
 											if(1 == 1)
 											{
-												$out .= "<% if(product_category != ''){ %><span class='category' data-category='<%= product_category_id %>'><%= product_category %></span><% } %>";
+												$out .= "<% if(product_category != ''){ %><span class='category' data-category='<%- product_category_id %>'><%= product_category %></span><% } %>";
 											}
 
 											else
@@ -9568,7 +9568,7 @@ class mf_webshop
 									<ul class='product_meta'>
 										<% _.each(product_meta, function(meta)
 										{ %>
-											<li class='<%- meta.class %>'><%= meta.content %></li>
+											<li class='<%= meta.class %>'><%= meta.content %></li>
 										<% }); %>
 									</ul>
 								<% } %>
