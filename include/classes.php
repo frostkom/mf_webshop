@@ -664,7 +664,7 @@ class mf_webshop
 
 			if($stock_post_name != '')
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified, DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE) AS product_modified_limit FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB(NOW(), INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified, DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE) AS product_modified_limit FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
 
 				foreach($result as $r)
 				{
@@ -682,7 +682,7 @@ class mf_webshop
 
 							if($product_stock_max != '')
 							{
-								do_log(__FUNCTION__.": Remove <a href='".admin_url("post.php?post=".$arr_product['id']."&action=edit")."'>".$arr_product['id']."</a> from <a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>".$post_id."</a> because ".$post_modified." < ".$product_modified_limit." (".$this->product_time_limit." minutes)");
+								do_log(__FUNCTION__.": Remove <a href='".admin_url("post.php?post=".$arr_product['id']."&action=edit")."'>".$arr_product['id']."</a> from <a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>".$post_id."</a> because ".format_date($post_modified)." < ".format_date($product_modified_limit)." (".$this->product_time_limit." minutes)");
 
 								unset($arr_products[$key]);
 							}
@@ -2592,24 +2592,28 @@ class mf_webshop
 								."<script src='https://js.stripe.com/v3/'></script>
 									<form id='form_stripe' class='mf_form'>
 										<div class='notification hide'><div class='error'><p></p></div></div>
-										<div class='card_details'></div>"
-										."<div".get_form_button_classes().">"
-											.show_button(array('text' => $button_title, 'xtra' => "disabled"));
+										<div class='card_details'></div>
+										<div".apply_filters('get_flex_flow', "", ['class' => ['tight']]).">"
+											."<div".get_form_button_classes().">"
+												.show_button(array('text' => $button_title, 'xtra' => "disabled"));
 
-											if($str_stripe_fee_text != '')
+												if($str_stripe_fee_text != '')
+												{
+													$out .= "<br><span class='italic'> ".sprintf(__("Incl. %s Payment Fee", 'lang_webshop'), $str_stripe_fee_text)."</span>";
+												}
+
+											$out .= "</div>";
+
+											if($test_mode == 'yes')
 											{
-												$out .= "<br><span class='italic'> ".sprintf(__("Incl. %s Payment Fee", 'lang_webshop'), $str_stripe_fee_text)."</span>";
+												$out .= "<div".get_form_button_classes("is-style-outline").">
+													<a href='https://docs.stripe.com/testing#cards' class='wp-block-button__link'>".__("Test Card Numbers", 'lang_webshop')."</a>
+												</div>";
 											}
 
 										$out .= "</div>
-									</form>";
-
-									if($test_mode == 'yes')
-									{
-										$out .= "<p><a href='https://docs.stripe.com/testing#cards'>".__("Test Card Numbers", 'lang_webshop')."</a></p>";
-									}
-
-								$out .= get_toggler_container(array('type' => 'end'))
+									</form>"
+								.get_toggler_container(array('type' => 'end'))
 							."</div>";
 						}
 
@@ -4677,10 +4681,14 @@ class mf_webshop
 				</ol>
 				<h3>".__("Step 3: Retrieve API Keys", 'lang_webshop')."</h3>
 				<ol>
-					<li>".__("Navigate to 'Developers' in the sidebar.", 'lang_webshop')."</li>
-					<li>".__("Click on 'API keys' under the 'Developers' tab.", 'lang_webshop')."</li>
-					<li>".__("You will see both the Publishable key and the Secret key there.", 'lang_webshop')."</li>
-					<li>".__("Click the eye icon next to the key name to reveal the Secret key if it is hidden.", 'lang_webshop')."</li>
+					<li>".__("Navigate to 'Developers' in the sidebar or bottom left corner, and then click on 'API keys'.", 'lang_webshop')."</li>
+					<li>".__("Click on the button 'Create a secret key'.", 'lang_webshop')."</li>
+					<li>".__("Click on the alternative 'Build your own integration' and then the button 'Continue'.", 'lang_webshop')."</li>
+					<li>".__("Click on the alternative 'Start with a template' and then the button 'Continue'.", 'lang_webshop')."</li>
+					<li>".__("Check the alternative 'One-time payments' and then the button 'Continue'.", 'lang_webshop')."</li>
+					<li>".__("Give the key a 'Name' and then the button 'Create key'.", 'lang_webshop')."</li>
+					<li>".__("You will see both the Publishable key and the Secret key on the page now.", 'lang_webshop')."</li>
+					<li>".__("If you need the Publishable key and the Secret key for test mode, click on your company name in the top right corner and then 'Switch to sandbox'.", 'lang_webshop')."</li>
 				</ol>";
 			}
 		}
@@ -4701,7 +4709,7 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
-			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'suffix' => "%"));
+			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'placeholder' => "1.5", 'suffix' => "%"));
 		}
 
 		function setting_webshop_stripe_fee_currency_callback()
@@ -4709,7 +4717,7 @@ class mf_webshop
 			$setting_key = get_setting_key(__FUNCTION__);
 			$option = get_option($setting_key);
 
-			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'suffix' => get_option('setting_webshop_currency', 'SEK')));
+			echo show_textfield(array('type' => 'float', 'name' => $setting_key, 'value' => $option, 'placeholder' => "1.8", 'suffix' => get_option('setting_webshop_currency', 'SEK')));
 		}
 
 	function settings_webshop_order_swish_callback()
@@ -4857,7 +4865,6 @@ class mf_webshop
 
 		$count_message = "";
 
-		//$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value IN ('quoted', 'ordered', 'paid')", $this->meta_prefix.'order_status', $post_type, 'publish'));
 		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_status ON ".$wpdb->posts.".ID = postmeta_status.post_id AND postmeta_status.meta_key = %s INNER JOIN ".$wpdb->postmeta." AS postmeta_testmode ON ".$wpdb->posts.".ID = postmeta_testmode.post_id AND postmeta_testmode.meta_key = %s WHERE post_type = %s AND post_status = %s AND postmeta_status.meta_value IN ('quoted', 'ordered', 'paid') AND postmeta_testmode.meta_value = %s", $this->meta_prefix.'order_status', $this->meta_prefix.'test_mode', $post_type, 'publish', 'no'));
 		$rows = $wpdb->num_rows;
 
@@ -7706,7 +7713,9 @@ class mf_webshop
 					)),
 				);
 
-				if(wp_insert_post($post_data) > 0)
+				$post_id = wp_insert_post($post_data);
+
+				if($post_id > 0)
 				{
 					$json_output['success'] = true;
 
@@ -8219,7 +8228,7 @@ class mf_webshop
 
 		switch($type_switch)
 		{
-			case 'admin':
+			/*case 'admin':
 				if(is_user_logged_in())
 				{
 					do_log(__FUNCTION__.":".__LINE__." - Is this even used?");
@@ -8313,157 +8322,152 @@ class mf_webshop
 												$type_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['type'];
 												$multiple_temp = (isset($arr_meta_box['fields'][$field_id]['multiple']) ? $arr_meta_box['fields'][$field_id]['multiple'] : false);
 
-												/*$display_temp = $arr_meta_boxes[$box_id]['fields'][$field_id]['display'] = !in_array($id_temp, $arr_fields_excluded);
+												// Add options
+												switch($type_temp)
+												{
+													case 'custom_categories':
+														$post_name_temp = str_replace($this->meta_prefix, "", $id_temp);
+														$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name_temp));
 
-												if($display_temp)
-												{*/
-													// Add options
-													switch($type_temp)
-													{
-														case 'custom_categories':
-															$post_name_temp = str_replace($this->meta_prefix, "", $id_temp);
-															$post_id_temp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s", $this->post_type_document_type, $post_name_temp));
+														$arr_data = [];
+														get_post_children(array(
+															'add_choose_here' => true,
+															'post_type' => $this->post_type_custom_categories,
+															'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
+															'where' => "meta_value = '".esc_sql($post_id_temp)."'",
+															//'debug' => true,
+														), $arr_data);
+
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+													break;
+
+													case 'education':
+														if(is_plugin_active("mf_education/index.php"))
+														{
+															$obj_education = new mf_education();
 
 															$arr_data = [];
-															get_post_children(array(
-																'add_choose_here' => true,
-																'post_type' => $this->post_type_custom_categories,
-																'join' => " INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = '".$this->meta_prefix."document_type'",
-																'where' => "meta_value = '".esc_sql($post_id_temp)."'",
-																//'debug' => true,
-															), $arr_data);
+															get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
 
 															$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-														break;
 
-														case 'education':
-															if(is_plugin_active("mf_education/index.php"))
-															{
-																$obj_education = new mf_education();
+															$multiple_temp = true;
+														}
+													break;
 
-																$arr_data = [];
-																get_post_children(array('add_choose_here' => false, 'post_type' => $obj_education->post_type), $arr_data);
+													case 'event':
+														if(!is_plugin_active("mf_calendar/index.php"))
+														{
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
+														}
+													break;
 
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+													case 'location':
+													case 'select3':
+														$multiple_temp = true;
+													break;
 
-																$multiple_temp = true;
-															}
+													case 'page':
+														$arr_data = [];
+														get_post_children(array('add_choose_here' => true), $arr_data);
+
+														$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+													break;
+
+													case 'social':
+														if(is_plugin_active("mf_social_feed/index.php"))
+														{
+															$obj_social_feed = new mf_social_feed();
+
+															$arr_data = [];
+															get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
+
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
+
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_social_feed->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+														}
+
+														else
+														{
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Social Feed");
+														}
+													break;
+												}
+
+												// Add multiple attributes
+												switch($type_temp)
+												{
+													case 'custom_categories':
+													case 'education':
+													//case 'event':
+													case 'location':
+													case 'select':
+													case 'select3':
+													case 'select':
+														if($multiple_temp)
+														{
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "mf_form_field multiselect";
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['multiple'] = "";
+															$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['size'] = get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])));
+
+															do_action('init_multiselect');
+														}
+													break;
+												}
+
+												// Get saved value
+												switch($type_temp)
+												{
+													case 'file_advanced':
+														$value_temp = [];
+
+														$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
+
+														foreach($result_files as $r_file)
+														{
+															list($file_name, $file_url) = get_attachment_data_by_id($r_file->meta_value);
+
+															$value_temp[] = $file_name."|".$file_url."|".$r_file->meta_value;
+														}
+													break;
+
+													case 'custom_categories':
+													case 'education':
+													//case 'event':
+													case 'location':
+													case 'select':
+													case 'select3':
+														$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp != true));
+
+														if(isset($value_temp[0]) && is_array($value_temp[0]))
+														{
+															$value_temp = $value_temp[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
+														}
+													break;
+
+													default:
+														$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
+													break;
+												}
+
+												// Get default value if empty
+												if($value_temp == '' || $value_temp == 0)
+												{
+													switch($type_temp)
+													{
+														case 'email':
+															$user_data = get_userdata($post_author);
+
+															$value_temp = $user_data->user_email;
 														break;
 
 														case 'event':
-															if(!is_plugin_active("mf_calendar/index.php"))
-															{
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Calendar");
-															}
-														break;
-
-														case 'location':
-														case 'select3':
-															$multiple_temp = true;
-														break;
-
-														case 'page':
-															$arr_data = [];
-															get_post_children(array('add_choose_here' => true), $arr_data);
-
-															$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-														break;
-
-														case 'social':
-															if(is_plugin_active("mf_social_feed/index.php"))
-															{
-																$obj_social_feed = new mf_social_feed();
-
-																$arr_data = [];
-																get_post_children(array('add_choose_here' => true, 'post_type' => $obj_social_feed->post_type), $arr_data);
-
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['options'] = $arr_data;
-
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] .= " has_suffix";
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['suffix'] = "<a href='".admin_url("post-new.php?post_type=".$obj_social_feed->post_type)."'><i class='fa fa-plus-circle fa-lg'></i></a>";
-															}
-
-															else
-															{
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['error'] = sprintf(__("You have to install the plugin %s first", 'lang_webshop'), "MF Social Feed");
-															}
+															$this->create_product_event_connection($post_id);
 														break;
 													}
-
-													// Add multiple attributes
-													switch($type_temp)
-													{
-														case 'custom_categories':
-														case 'education':
-														//case 'event':
-														case 'location':
-														case 'select':
-														case 'select3':
-														case 'select':
-															if($multiple_temp)
-															{
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['class'] = " form_select_multiple";
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['class'] = "mf_form_field multiselect";
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['multiple'] = "";
-																$arr_meta_boxes[$box_id]['fields'][$field_id]['attributes']['size'] = get_select_size(array('count' => count($arr_meta_boxes[$box_id]['fields'][$field_id]['options'])));
-
-																do_action('init_multiselect');
-															}
-														break;
-													}
-
-													// Get saved value
-													switch($type_temp)
-													{
-														case 'file_advanced':
-															$value_temp = [];
-
-															$result_files = $wpdb->get_results($wpdb->prepare("SELECT meta_value FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s", $post_id, $id_temp));
-
-															foreach($result_files as $r_file)
-															{
-																list($file_name, $file_url) = get_attachment_data_by_id($r_file->meta_value);
-
-																$value_temp[] = $file_name."|".$file_url."|".$r_file->meta_value;
-															}
-														break;
-
-														case 'custom_categories':
-														case 'education':
-														//case 'event':
-														case 'location':
-														case 'select':
-														case 'select3':
-															$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp != true));
-
-															if(isset($value_temp[0]) && is_array($value_temp[0]))
-															{
-																$value_temp = $value_temp[0]; // MB saves as array(0 => array(0, 1)) but we want it to be array(0, 1) when we render it
-															}
-														break;
-
-														default:
-															$value_temp = get_post_meta($post_id, $id_temp, ($multiple_temp == true ? false : true));
-														break;
-													}
-
-													// Get default value if empty
-													if($value_temp == '' || $value_temp == 0)
-													{
-														switch($type_temp)
-														{
-															case 'email':
-																$user_data = get_userdata($post_author);
-
-																$value_temp = $user_data->user_email;
-															break;
-
-															case 'event':
-																$this->create_product_event_connection($post_id);
-															break;
-														}
-													}
-												//}
+												}
 
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['value'] = $value_temp;
 												$arr_meta_boxes[$box_id]['fields'][$field_id]['multiple'] = $multiple_temp;
@@ -8560,13 +8564,8 @@ class mf_webshop
 
 															list($arr_files, $arr_ids) = get_attachment_to_send($post_value_new);
 
-															// Use this instead?
-															/*if($this->update_rwmb_post_meta($post_id, $id_temp, $arr_ids))
-															{
-																$updated = true;
-															}*/
 															#################################
-															/* Delete old connections */
+															// Delete old connections
 															$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value NOT IN('".implode("','", $arr_ids)."')", $post_id, $id_temp));
 
 															if($wpdb->num_rows > 0)
@@ -8574,7 +8573,7 @@ class mf_webshop
 																$updated = true;
 															}
 
-															/* Insert new connections */
+															// Insert new connections
 															foreach($arr_ids as $file_id)
 															{
 																$wpdb->get_results($wpdb->prepare("SELECT meta_id FROM ".$wpdb->postmeta." WHERE post_id = '%d' AND meta_key = %s AND meta_value = '%d'", $post_id, $id_temp, $file_id));
@@ -8650,10 +8649,10 @@ class mf_webshop
 										}
 									}
 
-									/*else
+									else
 									{
-										$json_output['message'] = __("It does not look like you changed anything, so nothing was saved", 'lang_webshop');
-									}*/
+										//$json_output['message'] = __("It does not look like you changed anything, so nothing was saved", 'lang_webshop');
+									}
 								}
 							}
 
@@ -8700,7 +8699,7 @@ class mf_webshop
 				{
 					$json_output['redirect'] = wp_login_url();
 				}
-			break;
+			break;*/
 
 			case 'add_to_cart':
 				$json_output = $this->add_to_cart($json_output, $product_id);
