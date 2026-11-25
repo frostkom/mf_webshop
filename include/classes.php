@@ -682,7 +682,7 @@ class mf_webshop
 
 							if($product_stock_max != '')
 							{
-								do_log(__FUNCTION__.": Remove <a href='".admin_url("post.php?post=".$arr_product['id']."&action=edit")."'>".$arr_product['id']."</a> from <a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>".$post_id."</a> because ".format_date($post_modified)." < ".format_date($product_modified_limit)." (".$this->product_time_limit." minutes)");
+								//do_log(__FUNCTION__.": Remove <a href='".admin_url("post.php?post=".$arr_product['id']."&action=edit")."'>".$arr_product['id']."</a> from <a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>".$post_id."</a> because ".format_date($post_modified)." < ".format_date($product_modified_limit)." (".$this->product_time_limit." minutes)");
 
 								unset($arr_products[$key]);
 							}
@@ -1929,23 +1929,23 @@ class mf_webshop
 				$shipping_cost = 0;
 				$shipping_comment = "";
 
-				$setting_webshop_shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
-
 				if($has_physical_product == true)
 				{
 					$setting_webshop_shipping_free_limit = get_option_or_default('setting_webshop_shipping_free_limit', 0);
 
 					if($setting_webshop_shipping_free_limit == 0 || $total_sum < $setting_webshop_shipping_free_limit)
 					{
-						if($setting_webshop_shipping_cost > 0)
+						$shipping_cost = get_option_or_default('setting_webshop_shipping_cost', 0);
+
+						if($shipping_cost > 0)
 						{
 							if($setting_webshop_shipping_free_limit > 0)
 							{
 								$shipping_comment = " (".sprintf(__("%s left to free shipping", 'lang_webshop'), $this->display_price(array('price' => abs($total_sum - $setting_webshop_shipping_free_limit), 'calculate' => false, 'suffix' => 'currency'))).")";
 							}
 
-							$total_sum += $this->display_price(array('price' => $setting_webshop_shipping_cost, 'suffix' => false));
-							$total_tax += $this->get_tax(array('price' => $setting_webshop_shipping_cost, 'suffix' => false));
+							$total_sum += $this->display_price(array('price' => $shipping_cost, 'suffix' => false));
+							$total_tax += $this->get_tax(array('price' => $shipping_cost, 'suffix' => false));
 						}
 					}
 				}
@@ -1959,8 +1959,8 @@ class mf_webshop
 					'order_id' => $order_id,
 					'order_number' => $this->order_cart_hash,
 					'products' => $arr_products,
-					'shipping_cost_raw' => $this->display_price(array('price' => $setting_webshop_shipping_cost, 'calculate' => false, 'suffix' => false)),
-					'shipping_cost' => $this->display_price(array('price' => $setting_webshop_shipping_cost, 'calculate' => false)).$shipping_comment,
+					'shipping_cost_raw' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false, 'suffix' => false)),
+					'shipping_cost' => $this->display_price(array('price' => $shipping_cost, 'calculate' => false)).$shipping_comment,
 					'invoice_cost_raw' => $this->display_price(array('price' => $setting_webshop_invoice_cost, 'calculate' => false, 'suffix' => false)),
 					'total_sum_invoice' => $this->display_price(array('price' => ($total_sum + $setting_webshop_invoice_cost), 'calculate' => false)),
 					'total_sum_raw' => $this->display_price(array('price' => $total_sum, 'calculate' => false, 'suffix' => false)),
@@ -9018,11 +9018,14 @@ class mf_webshop
 		{
 			foreach($arr_fields as $key => $arr_value)
 			{
-				$value_temp = $this->get_user_info($arr_value[1]);
-
-				if($value_temp == '')
+				if(isset($arr_value[1]))
 				{
-					$value_temp = apply_filters('filter_visitor_'.$arr_value[1], '');
+					$value_temp = $this->get_user_info($arr_value[1]);
+
+					if($value_temp == '')
+					{
+						$value_temp = apply_filters('filter_visitor_'.$arr_value[1], '');
+					}
 				}
 
 				if($value_temp != '')
