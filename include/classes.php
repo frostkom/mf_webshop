@@ -9018,6 +9018,8 @@ class mf_webshop
 		{
 			foreach($arr_fields as $key => $arr_value)
 			{
+				$value_temp = "";
+
 				if(isset($arr_value[1]))
 				{
 					$value_temp = $this->get_user_info($arr_value[1]);
