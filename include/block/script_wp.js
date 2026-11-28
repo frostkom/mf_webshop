@@ -28,7 +28,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{
@@ -104,7 +105,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{
@@ -209,7 +211,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{
@@ -270,7 +273,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{
@@ -331,7 +335,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{
@@ -392,7 +397,8 @@
 			'spacing':
 			{
 				'margin': true,
-				'padding': true
+				'padding': true,
+				'blockGap': true
 			},
 			'color':
 			{

@@ -126,7 +126,7 @@ class mf_webshop
 	{
 		global $wpdb, $obj_base;
 
-		return $obj_base->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type));
+		return $obj_base->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', $type));
 	}
 
 	function create_product_event_connection($post_id = 0)
@@ -255,7 +255,7 @@ class mf_webshop
 
 		foreach($result as $r)
 		{
-			$arr_data[$r->ID] = $r->post_title;
+			$arr_data[$r->ID] = esc_attr($r->post_title);
 		}
 
 		return $arr_data;
@@ -471,7 +471,7 @@ class mf_webshop
 			$query_limit = " LIMIT 0, ".$data['limit'];
 		}
 
-		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
+		return $obj_base->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent = '%d' AND (meta_value = %s OR meta_value IS null) GROUP BY ID ORDER BY menu_order ASC".$query_limit, $this->meta_prefix.'include_on', $this->post_type_categories, 'publish', $data['post_parent'], $data['include_on']));
 	}
 
 	function get_categories_for_select($data = [])
@@ -501,7 +501,7 @@ class mf_webshop
 		foreach($result as $r)
 		{
 			$post_id = $r->ID;
-			$post_title = $r->post_title;
+			$post_title = esc_attr($r->post_title);
 
 			if($data['display_icons'])
 			{
@@ -601,7 +601,7 @@ class mf_webshop
 		{
 			// Add filters if there are none
 			###########
-			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s LIMIT 0, 1", $this->post_type_document_type, 'publish'));
+			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' LIMIT 0, 1", $this->post_type_document_type, 'publish'));
 
 			if($wpdb->num_rows == 0)
 			{
@@ -649,7 +649,7 @@ class mf_webshop
 
 			// Remove old non-fulfilled orders
 			###########
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent = '0' AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent = '0' AND post_modified < DATE_SUB(NOW(), INTERVAL 1 MONTH)", $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
@@ -664,7 +664,7 @@ class mf_webshop
 
 			if($stock_post_name != '')
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified, DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE) AS product_modified_limit FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified < DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_modified, DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE) AS product_modified_limit FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_modified < DATE_SUB('".current_time('mysql')."', INTERVAL ".$this->product_time_limit." MINUTE)", $this->post_type_orders, 'draft'));
 
 				foreach($result as $r)
 				{
@@ -720,7 +720,7 @@ class mf_webshop
 			###################
 			$payment_status = 'ordered';
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value = %s", $this->meta_prefix.'order_status', $this->post_type_orders, 'publish', $payment_status));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_value = %s", $this->meta_prefix.'order_status', $this->post_type_orders, 'publish', $payment_status));
 
 			//do_log(__FUNCTION__." - Payments: ".$wpdb->last_query);
 
@@ -792,13 +792,13 @@ class mf_webshop
 	{
 		global $wpdb;
 
-		$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent > '0' LIMIT 0, 1", $this->post_type_products, 'publish'));
+		$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent > '0' LIMIT 0, 1", $this->post_type_products, 'publish'));
 
 		$shop_has_addon = ($wpdb->num_rows > 0);
 
 		if($shop_has_addon == false)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value != '' LIMIT 0, 1", $this->meta_prefix.'parent_products', $this->post_type_products, 'publish'));
+			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_value != '' LIMIT 0, 1", $this->meta_prefix.'parent_products', $this->post_type_products, 'publish'));
 
 			$shop_has_addon = ($wpdb->num_rows > 0);
 		}
@@ -1008,7 +1008,7 @@ class mf_webshop
 					foreach($result as $r)
 					{
 						$post_id = $r->ID;
-						$post_title = $r->post_title;
+						$post_title = esc_attr($r->post_title);
 						$post_name = $r->post_name;
 
 						$post_custom_type = get_post_meta($post_id, $this->meta_prefix.'document_type', true);
@@ -1613,7 +1613,7 @@ class mf_webshop
 
 		$arr_products = [];
 
-		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $obj_base->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		foreach($result as $r)
 		{
@@ -1791,7 +1791,7 @@ class mf_webshop
 			$arr_products = [];
 			$product_increment = $total_sum = $total_tax = 0;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent, post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
@@ -2048,7 +2048,7 @@ class mf_webshop
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2095,7 +2095,7 @@ class mf_webshop
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2141,7 +2141,7 @@ class mf_webshop
 			{
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2179,7 +2179,7 @@ class mf_webshop
 			$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 			$setting_webshop_currency = get_option('setting_webshop_currency');
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -2227,7 +2227,7 @@ class mf_webshop
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2276,7 +2276,7 @@ class mf_webshop
 				$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 				$setting_webshop_currency = get_option('setting_webshop_currency');
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -2643,7 +2643,7 @@ class mf_webshop
 											$setting_webshop_swish_certificate_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_certificate_file);
 											$setting_webshop_swish_key_file = str_replace($upload_url, $upload_path, $setting_webshop_swish_key_file);
 
-											$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+											$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 											if($post_id > 0)
 											{
@@ -2861,7 +2861,7 @@ class mf_webshop
 											$arr_cart_data = $this->get_webshop_cart([], get_post_meta($post_id, $this->meta_prefix.'cart_hash', true));
 											$setting_webshop_currency = get_option('setting_webshop_currency');
 
-											$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $instruction_uuid, $this->post_type_orders, 'draft'));
+											$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $instruction_uuid, $this->post_type_orders, 'draft'));
 
 											if($wpdb->num_rows > 0)
 											{
@@ -3102,7 +3102,7 @@ class mf_webshop
 
 		$product_amount = 0;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_modified > DATE_SUB(NOW(), INTERVAL 1 HOUR)", $this->post_type_orders, 'draft'));
 
 		foreach($result as $r)
 		{
@@ -3177,7 +3177,7 @@ class mf_webshop
 
 		if($this->order_cart_hash != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			foreach($result as $r)
 			{
@@ -3217,7 +3217,7 @@ class mf_webshop
 
 				if($price_post_name != '')
 				{
-					$price_post_title = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', 'price'));
+					$price_post_title = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_key = %s AND meta_value = %s GROUP BY ID LIMIT 0, 1", $this->post_type_document_type, 'publish', $this->meta_prefix.'document_type', 'price'));
 
 					$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
@@ -3489,7 +3489,7 @@ class mf_webshop
 					{
 						$this->order_cart_hash = $this->get_cookie();
 
-						$order_id_child = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+						$order_id_child = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 						if(!($order_id_child > 0))
 						{
@@ -4865,7 +4865,7 @@ class mf_webshop
 
 		$count_message = "";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_status ON ".$wpdb->posts.".ID = postmeta_status.post_id AND postmeta_status.meta_key = %s INNER JOIN ".$wpdb->postmeta." AS postmeta_testmode ON ".$wpdb->posts.".ID = postmeta_testmode.post_id AND postmeta_testmode.meta_key = %s WHERE post_type = %s AND post_status = %s AND postmeta_status.meta_value IN ('quoted', 'ordered', 'paid') AND postmeta_testmode.meta_value = %s", $this->meta_prefix.'order_status', $this->meta_prefix.'test_mode', $post_type, 'publish', 'no'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." AS postmeta_status ON ".$wpdb->posts.".ID = postmeta_status.post_id AND postmeta_status.meta_key = %s INNER JOIN ".$wpdb->postmeta." AS postmeta_testmode ON ".$wpdb->posts.".ID = postmeta_testmode.post_id AND postmeta_testmode.meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND postmeta_status.meta_value IN ('quoted', 'ordered', 'paid') AND postmeta_testmode.meta_value = %s", $this->meta_prefix.'order_status', $this->meta_prefix.'test_mode', $post_type, 'publish', 'no'));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -5335,7 +5335,7 @@ class mf_webshop
 				$menu_title = __("Orders", 'lang_webshop');
 				add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, "edit.php?post_type=".$this->post_type_orders);
 
-				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s LIMIT 0, 1", $this->post_type_orders, 'publish'));
+				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' LIMIT 0, 1", $this->post_type_orders, 'publish'));
 
 				if($wpdb->num_rows > 0)
 				{
@@ -5573,7 +5573,7 @@ class mf_webshop
 				foreach($result as $r)
 				{
 					$post_id_temp = $r->ID;
-					$post_title_temp = $r->post_title;
+					$post_title_temp = esc_attr($r->post_title);
 					$post_name_temp = $r->post_name;
 					$post_parent_temp = $r->post_parent;
 
@@ -7226,7 +7226,7 @@ class mf_webshop
 
 			else
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes' GROUP BY ID", $this->post_type_categories, 'publish'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_key = '".$this->meta_prefix."connect_new_products' AND meta_value = 'yes' GROUP BY ID", $this->post_type_categories, 'publish'));
 
 				foreach($result as $r)
 				{
@@ -7450,7 +7450,7 @@ class mf_webshop
 
 				if($email_post_name != '')
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value != '' GROUP BY meta_value", $this->meta_prefix.$email_post_name, $this->post_type_products, 'publish'));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, meta_value FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_value != '' GROUP BY meta_value", $this->meta_prefix.$email_post_name, $this->post_type_products, 'publish'));
 
 					foreach($result as $r)
 					{
@@ -7599,7 +7599,7 @@ class mf_webshop
 			$price_post_name = $this->get_post_name_for_type('price');
 			$product_price = get_post_meta($product_id, $this->meta_prefix.$price_post_name, true);
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -7662,7 +7662,7 @@ class mf_webshop
 
 						if($product_amount_temp == 1)
 						{
-							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent = '%d' LIMIT 0, 1", $this->post_type_products, 'publish', $product_id));
+							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent = '%d' LIMIT 0, 1", $this->post_type_products, 'publish', $product_id));
 
 							if($wpdb->num_rows > 0)
 							{
@@ -8059,7 +8059,7 @@ class mf_webshop
 
 								if($this->product_url == '#')
 								{
-									$this->product_url = get_permalink($this->product_id);
+									$this->product_url = esc_url(get_permalink($this->product_id));
 								}
 							break;
 
@@ -8298,7 +8298,7 @@ class mf_webshop
 
 								foreach($result as $r)
 								{
-									$json_output['admin_webshop_response']['post_title'] = $post_title = $r->post_title;
+									$json_output['admin_webshop_response']['post_title'] = $post_title = esc_attr($r->post_title);
 									$json_output['admin_webshop_response']['post_name'] = $post_name = $r->post_name;
 									$post_type = $r->post_type;
 									$post_author = $r->post_author;
@@ -8515,7 +8515,7 @@ class mf_webshop
 
 								foreach($result as $r)
 								{
-									$post_title_old = $r->post_title;
+									$post_title_old = esc_attr($r->post_title);
 									$post_type = $r->post_type;
 
 									$error = $reload = $updated = false;
@@ -8658,7 +8658,7 @@ class mf_webshop
 
 							else
 							{
-								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_title = %s AND post_author = '%d'", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
+								$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_title = %s AND post_author = '%d'", $this->post_type_products, 'publish', $post_title, get_current_user_id()));
 
 								if($wpdb->num_rows == 0)
 								{
@@ -8812,13 +8812,13 @@ class mf_webshop
 						break;
 					}
 
-					/*$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_parent > '0' LIMIT 0, 1", $this->post_type_products, 'publish'));
+					/*$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent > '0' LIMIT 0, 1", $this->post_type_products, 'publish'));
 
 					$shop_has_addon = ($wpdb->num_rows > 0);
 
 					if($shop_has_addon == false)
 					{
-						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND meta_value != '' LIMIT 0, 1", $this->meta_prefix.'parent_products', $this->post_type_products, 'publish'));
+						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND post_status = %s AND post_password = '' AND meta_value != '' LIMIT 0, 1", $this->meta_prefix.'parent_products', $this->post_type_products, 'publish'));
 
 						$shop_has_addon = ($wpdb->num_rows > 0);
 					}*/
@@ -8836,7 +8836,7 @@ class mf_webshop
 					$query_order = " ORDER BY ".$query_order;
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_filter." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_where_filter.$query_group.$query_order, $this->post_type_products, 'publish', 0));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join.$query_join_filter." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent = '%d'".$query_where.$query_where_filter.$query_group.$query_order, $this->post_type_products, 'publish', 0));
 
 				if(IS_SUPER_ADMIN)
 				{
@@ -8848,7 +8848,7 @@ class mf_webshop
 				{
 					$this->get_product_data(array('product' => $r, 'single_image' => true, 'show_location_in_data' => false), $json_output);
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', $r->ID));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_excerpt, post_content".$query_select." FROM ".$wpdb->posts.$query_join." WHERE post_type = %s AND post_status = %s AND post_password = '' AND post_parent = '%d'".$query_where.$query_group.$query_order, $this->post_type_products, 'publish', $r->ID));
 
 					if(IS_SUPER_ADMIN)
 					{
@@ -8983,7 +8983,7 @@ class mf_webshop
 
 		$obj_encryption = new mf_encryption(__CLASS__);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		foreach($result as $r)
 		{
@@ -9060,7 +9060,7 @@ class mf_webshop
 			$this->order_details[$meta_key] = check_var($meta_key);
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_parent FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -9206,7 +9206,7 @@ class mf_webshop
 
 		list($product_rest, $product_id) = explode("_", $product_name);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -9380,7 +9380,7 @@ class mf_webshop
 
 		$arr_cart_data = $this->get_webshop_cart([], $this->order_cart_hash);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s AND meta_value = %s WHERE post_type = %s AND post_status = %s AND post_password = '' ORDER BY post_modified DESC LIMIT 0, 1", $this->meta_prefix.'cart_hash', $this->order_cart_hash, $this->post_type_orders, 'draft'));
 
 		if($wpdb->num_rows == 0)
 		{
@@ -9390,7 +9390,7 @@ class mf_webshop
 		foreach($result as $r)
 		{
 			$order_id = $r->ID;
-			$return_url = get_permalink($order_id);
+			$return_url = esc_url(get_permalink($order_id));
 
 			$ch = curl_init();
 
@@ -9628,7 +9628,7 @@ class mf_webshop
 								if($wpdb->num_rows > 0)
 								{
 									$out .= "<div class='wp-block-button is-style-outline read_more_button'>
-										<a href='<%- product_url %>' class='wp-block-button__link' title='<%= product_title %>'>".__("Read More", 'lang_webshop')."</a>
+										<a href='<%- product_url %>' class='wp-block-button__link' aria-label='".sprintf(__("Read more about %s", 'lang_webshop'), "<%= product_title %>")."'>".__("Read More", 'lang_webshop')."</a>
 									</div>";
 								}
 
@@ -9952,7 +9952,7 @@ class mf_webshop
 
 		if($location_post_name != '')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND meta_key = %s AND meta_value = '%d' GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_status = %s AND post_password = '' AND meta_key = %s AND meta_value = '%d' GROUP BY ID", 'publish', $this->meta_prefix.$location_post_name, $id));
 		}
 
 		else
@@ -10180,7 +10180,7 @@ class mf_webshop
 
 		$this->product_has_content = false;
 		$this->product_price = $this->product_image = $this->arr_category_id = '';
-		$this->product_url = get_permalink($this->product_id);
+		$this->product_url = esc_url(get_permalink($this->product_id));
 
 		if($data['single'] == true)
 		{
@@ -10292,7 +10292,7 @@ class mf_webshop
 		$r = $data['meta'];
 
 		$this->meta_id = $r->ID;
-		$this->meta_title = $r->post_title;
+		$this->meta_title = esc_attr($r->post_title);
 		$this->meta_name = $r->post_name;
 
 		$this->meta_type = $r->post_custom_type;
@@ -10392,7 +10392,7 @@ if(class_exists('mf_import'))
 
 				foreach($result as $r)
 				{
-					$this->columns[$r->post_name] = $r->post_title;
+					$this->columns[$r->post_name] = esc_attr($r->post_title);
 				}
 			}
 		}
@@ -10683,7 +10683,7 @@ class mf_webshop_export extends mf_export
 			$arr_countries = $obj_webshop->get_countries_for_select();
 		}*/
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_parent FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s GROUP BY ID", $obj_webshop->post_type_orders, 'publish'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_parent FROM ".$wpdb->posts." WHERE post_type = %s AND post_status = %s AND post_password = '' GROUP BY ID", $obj_webshop->post_type_orders, 'publish'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -10721,7 +10721,7 @@ class mf_webshop_export extends mf_export
 			foreach($result as $r)
 			{
 				$order_id = $r->ID;
-				$order_title = $r->post_title;
+				$order_title = esc_attr($r->post_title);
 				$order_parent = $r->post_parent;
 
 				$data_temp = [];
